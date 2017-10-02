@@ -1,9 +1,10 @@
-;;; taskpaper-mode.el --- major mode for working with TaskPaper files
+;;; taskpaper-mode.el --- Major mode for working with TaskPaper files
 
-;; Copyright (C) 2016-2017 Free Software Foundation, Inc.
+;; Copyright 2016-2017 Dmitry Safronov
 
 ;; Author: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
+;; URL: <https://github.com/saf-dmitry/taskpaper-mode>
 ;; Keywords: outlines, notetaking, task management, calendar, taskpaper
 
 ;; This file is not part of GNU Emacs.
@@ -23,15 +24,15 @@
 
 ;;; Commentary:
 
-;; TaskPaper mode is a major mode for working with files in TaskPaper format.
-;; The format was invented by Jesse Grosjean and named after his TaskPaper
-;; macOS app <https://www.taskpaper.com>, which is a system for organizing
-;; your outlines and tasks in a text file.
+;; TaskPaper mode is a major mode for working with files in TaskPaper
+;; format. The format was invented by Jesse Grosjean and named after his
+;; TaskPaper macOS app <https://www.taskpaper.com>, which is a system
+;; for organizing your outlines and tasks in a text file.
 ;;
-;; TaskPaper mode is implemented on top of Outline mode. Visibility cycling
-;; and structure editing help to work with the outline structure. Special
-;; commands also provided for tags manipulation, sorting, querying, refiling,
-;; and archiving of items.
+;; TaskPaper mode is implemented on top of Outline mode. Visibility
+;; cycling and structure editing help to work with the outline
+;; structure. Special commands also provided for tags manipulation,
+;; sorting, querying, refiling, and archiving of items.
 
 ;;; Code:
 
