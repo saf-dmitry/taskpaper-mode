@@ -583,7 +583,7 @@ I would also thank the following people, from whose work TaskPaper mode has bene
 
  - Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining [Org mode][emacs-orgmode] for Emacs, from which ideas and implementation I borrowed liberally;
 
- - Stephen Berman and Stefan Monnier for writing the original version of [adaptive-wrap][emacs-adaptive-wrap].
+ - Stephen Berman and Stefan Monnier for writing the original version of [adaptive-wrap.el][emacs-adaptive-wrap].
 
 
 # Bugs

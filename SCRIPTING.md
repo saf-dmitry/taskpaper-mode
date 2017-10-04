@@ -108,7 +108,7 @@ Some handy functions for checking attribute values.
 Following are some scripting examples, which utilize the API functions mentioned above.
 
 
-### Mapping
+### Mapping and Attribute Setting
 
 The next example uses `taskpaper-map-tree` outline mapping function and `taskpaper-item-remove-attribute` function to remove all occurrences of certain tag from all items in the subtree under cursor. The user will be prompted for tag name and tag value to remove. If no value is provided, tags with any value or no value at all will be considered.
 
