@@ -1,6 +1,6 @@
 ;;; adaptive-wrap.el --- Smart line-wrapping with wrap-prefix
 
-;; Copyright (C) 2011-2017 Free Software Foundation, Inc.
+;; Copyright 2011-2017 Free Software Foundation, Inc.
 
 ;; Author: Stephen Berman <stephen.berman@gmx.net>
 ;;         Stefan Monnier <monnier@iro.umontreal.ca>
@@ -132,8 +132,6 @@ Like `fill-context-prefix-mod', but with length adjusted by
               :help "Wrap long lines with adaptive filling"
               :button (:toggle . (bound-and-true-p adaptive-wrap-prefix-mode)))
   word-wrap)
-
-;;;; Provide `adaptive-wrap'
 
 (provide 'adaptive-wrap)
 
