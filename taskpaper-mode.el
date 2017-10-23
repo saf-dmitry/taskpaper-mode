@@ -2538,7 +2538,6 @@ match the tag-value combination."
 
 ;;;; Sorting
 
-;;;###autoload
 (defun taskpaper--sort-items
   (getkey-func compare-func &optional with-case reverse)
   "Sort items on a certain level.
@@ -2676,7 +2675,6 @@ the default is \"/\"."
 
 ;;;; Goto interface
 
-;;;###autoload
 (defun taskpaper-goto-get-targets (&optional excluded-entries)
   "Produce a table with possible outline targets.
 Return a list of (OLPATH POS) elements where OLPATH is the
@@ -2697,7 +2695,6 @@ which will be excluded from the results."
     (message "Get targets...done")
     (nreverse targets)))
 
-;;;###autoload
 (defun taskpaper-goto-get-location (&optional prompt no-exclude)
   "Prompt the user for a location, using PROMPT.
 Return a list (OLPATH POS) where OLPATH is the formatted outline
@@ -2851,7 +2848,6 @@ ring."
 
 ;;;; Refiling
 
-;;;###autoload
 (defun taskpaper-refile-subtree (&optional arg rfloc)
   "Move the subtree at point to another (possibly invisible) location.
 The subtree is filed below the target location as a subitem.
@@ -2924,7 +2920,6 @@ If LOCATION is not given, the value of
           (push project projects))))
     (if projects (taskpaper-format-outline-path projects) nil)))
 
-;;;###autoload
 (defun taskpaper-archive-subtree ()
   "Move the current subtree to the archive location.
 The archive can be a certain top-level heading in the current
@@ -3721,6 +3716,7 @@ items, that matches. PROMPT can overwrite the default prompt."
 
 ;;;; Major mode definition
 
+;;;###autoload
 (define-derived-mode taskpaper-mode outline-mode "TaskPaper"
   "Major mode for editing and searching files in TaskPaper format.
 TaskPaper mode is implemented on top of outline-mode. Turning on
@@ -4187,6 +4183,7 @@ ABUF is the buffer for the agenda window."
   (setq taskpaper-agenda-matcher-form matcher)
   (message "Building agenda...done"))
 
+;;;###autoload
 (defun taskpaper-agenda-search ()
   "Promt for query string and build agenda."
   (interactive)
@@ -4194,6 +4191,7 @@ ABUF is the buffer for the agenda window."
                   (taskpaper-query-read-query "Agenda query: "))))
     (taskpaper-agenda-build matcher)))
 
+;;;###autoload
 (defun taskpaper-agenda-select ()
   "Promts for query selection and build agenda."
   (interactive)
