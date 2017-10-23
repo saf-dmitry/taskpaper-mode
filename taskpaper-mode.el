@@ -3786,6 +3786,8 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
 (define-key taskpaper-mode-map (kbd "M-RET") 'taskpaper-new-task-same-level)
 (define-key taskpaper-mode-map (kbd "M-<return>") 'taskpaper-new-task-same-level)
 (define-key taskpaper-mode-map (kbd "M-<tab>") 'taskpaper-complete-tag-at-point)
+(define-key taskpaper-mode-map (kbd "C-M-i") 'taskpaper-complete-tag-at-point)
+(define-key taskpaper-mode-map (kbd "ESC TAB") 'taskpaper-complete-tag-at-point)
 (define-key taskpaper-mode-map (kbd "S-<up>") 'taskpaper-outline-up-level)
 (define-key taskpaper-mode-map (kbd "ESC ESC") 'taskpaper-outline-show-all)
 

@@ -122,7 +122,7 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-Tags provide another way to organize (and later search for) items. Type the `@` symbol preceded by a space and followed by a tag name to create a tag. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer.
+Tags provide another way to organize (and later search for) items. Type the `@` symbol preceded by a space and followed by a tag name to create a tag. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
 In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called *fast tag selection*. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the variable `taskpaper-tag-alist` in your `.emacs` file:
 
@@ -274,6 +274,8 @@ The following commands sort same-level items. When point is at the beginning of 
 
 When sorting is done, the hook `taskpaper-after-sorting-items-hook` is run. When children are sorted, hook functions are called with point on the parent item.
 
+To meet more complex needs you can define your own sorting functions as described in [Scripting Guide][tp-mode-scripting-guide].
+
 
 ## Filtering
 
@@ -290,7 +292,7 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all lev
 
 You can create a sparse tree based on specific combinations of items' text and tags.
 
-TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which require you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines. You can limit your searches to certain projects by narrowing the buffer to the project with `C-c #` (`taskpaper-narrow-to-subtree`).
+TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines. You can limit your searches to certain projects by narrowing the buffer to the project with `C-c #` (`taskpaper-narrow-to-subtree`).
 
 The syntax for the query string is described below.
 
@@ -462,9 +464,9 @@ In the example below items will be sorted according to their due dates. The sort
 
 Items in the agenda buffer are linked back to the TaskPaper file where they originate. You are not allowed to edit the agenda buffer itself, but commands are provided to show and jump to the original item location.
 
- - `n` or `UP`: Move to the next line (`taskpaper-agenda-next-line`).
+ - `n` or `DOWN`: Move to the next line (`taskpaper-agenda-next-line`).
 
- - `p` or `DOWN`: Move to the previous line (`taskpaper-agenda-previous-line`).
+ - `p` or `UP`: Move to the previous line (`taskpaper-agenda-previous-line`).
 
  - `SPC`: Display the original location of the item in another window (`taskpaper-agenda-show`).
 
@@ -530,7 +532,7 @@ All the rest which did not fit elsewhere.
 
  - `M-x taskpaper-save-all-taskpaper-buffers RET`: Save all TaskPaper mode buffers without user confirmation.
 
- - `M-x taskpaper-mode-version RET`: Show TaskPaper mode version in minibuffer.
+ - `M-x taskpaper-mode-version RET`: Show TaskPaper mode version in the echo area.
 
 
 # Customization
@@ -562,8 +564,7 @@ The `adaptive-wrap.el` sets the `wrap-prefix` correctly for indenting and wrappi
 
     (require 'adaptive-wrap)
     (add-hook 'visual-line-mode-hook
-              '(lambda ()
-                (adaptive-wrap-prefix-mode 1)))
+              '(lambda () (adaptive-wrap-prefix-mode 1)))
     (global-visual-line-mode 1)
 
 
