@@ -798,8 +798,8 @@ If TAG is a number, get the corresponding match group."
           '(taskpaper-activate-tags)
           '(taskpaper-font-lock-done-tasks)
           '(taskpaper-font-lock-done-projects)
-          (if taskpaper-pretty-task-marks
-              '(taskpaper-activate-task-marks)))))
+          (when taskpaper-pretty-task-marks
+            '(taskpaper-activate-task-marks)))))
     (setq taskpaper-font-lock-keywords (delq nil font-lock-keywords))
     (taskpaper-set-local
      'font-lock-defaults
