@@ -5,7 +5,7 @@
 ;; Author: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; URL: <https://github.com/saf-dmitry/taskpaper-mode>
-;; Keywords: outlines, notetaking, task management, calendar, taskpaper
+;; Keywords: outlines, notetaking, task management, taskpaper
 
 ;; This file is not part of GNU Emacs.
 
@@ -341,19 +341,6 @@ not an indirect buffer."
   (let ((buf (or (get-file-buffer file)
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
-
-(defun taskpaper-select-frame-set-input-focus (frame)
-  "Select FRAME, raise it, and set input focus."
-  (cond
-   ((>= emacs-major-version 22)
-    (select-frame-set-input-focus frame))
-   (t
-    (raise-frame frame) (select-frame frame)
-    (cond
-     ((memq window-system '(x ns mac)) (x-focus-frame frame))
-     ((eq window-system 'w32) (with-no-warnings (w32-focus-frame frame))))
-    (when focus-follows-mouse
-      (set-mouse-position frame (1- (frame-width frame)) 0)))))
 
 (defun taskpaper-check-invisible ()
   "Return non-nil if point is in an invisible region."
@@ -1885,8 +1872,7 @@ string and show the corresponding date."
         (sw (selected-window)))
     (select-window (get-buffer-window "*Calendar*" t))
     (eval form)
-    (select-window sw)
-    (taskpaper-select-frame-set-input-focus sf)))
+    (select-window sw) (select-frame-set-input-focus sf)))
 
 (defvar taskpaper-read-date-minibuffer-local-map
   (let* ((map (make-sparse-keymap)))
