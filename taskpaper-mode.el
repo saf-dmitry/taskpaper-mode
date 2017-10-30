@@ -3726,7 +3726,8 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
                        (concat "\f\\|[ \t]*$\\|\\(?:" outline-regexp "\\)"))
   (taskpaper-set-local 'paragraph-separate "[ \t\f]*$")
   (taskpaper-set-local 'auto-fill-inhibit-regexp outline-regexp)
-  (taskpaper-set-local 'adaptive-fill-regexp "[ \t]*\\([-+*]+[ \t]*\\)*")
+  (taskpaper-set-local 'adaptive-fill-regexp
+                       "[ \t]*\\(\\(?:[-+*]+\\|[0-9]+\\.\\)[ \t]*\\)*")
   ;; Font lock settings
   (taskpaper-set-font-lock-defaults)
   (taskpaper-set-local 'font-lock-unfontify-region-function 'taskpaper-unfontify-region)
