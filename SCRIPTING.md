@@ -95,6 +95,11 @@ Some handy functions for checking attribute values.
  - `taskpaper-item-format`
 
 
+## Quick entry
+
+ - `taskpaper-add-entry`
+
+
 ## Hooks
 
  - `taskpaper-mode-hook`

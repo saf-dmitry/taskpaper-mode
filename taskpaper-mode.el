@@ -2943,12 +2943,10 @@ last subitem."
       ;; Go to the archive buffer
       (set-buffer buffer)
       ;; Enforce TaskPaper mode for the archive buffer
-      (if (not (derived-mode-p 'taskpaper-mode))
-          (call-interactively 'taskpaper-mode))
+      (when (not (derived-mode-p 'taskpaper-mode))
+        (call-interactively 'taskpaper-mode))
       ;; Show everything
-      (widen)
-      (goto-char (point-min))
-      (taskpaper-outline-show-all)
+      (widen) (goto-char (point-min)) (taskpaper-outline-show-all)
       ;; Go to the archive location and paste subtree
       (cond
        ((and (stringp heading) (> (length heading) 0))
@@ -2983,56 +2981,39 @@ last subitem."
     ;; NOTE: Bind `this-command' to avoid `kill-region' changes it,
     ;; which may lead to duplication of subtrees.
     (let (this-command) (taskpaper-cut-subtree)))
-  (if (called-interactively-p 'any) (message "Subtree archived.")))
+  (when (called-interactively-p 'any) (message "Subtree archived.")))
 
 ;;;; Quick entry API
 
-(defun taskpaper-add-entry-prep (text)
-  "Format entry TEXT.
-Text in parentheses is removed from the entry text and placed
-into the entry note, sans parentheses. Notes cannot contain tags
-or other parentheses."
-  (let (note)
-    (setq text (taskpaper-chomp text))
-    ;; Process notes in parentheses
-    (while (string-match "[ \t]+(\\([^()]*\\))" text)
-      (setq note (match-string 1 text)
-            text (replace-match "" t t text))
-      (setq note (taskpaper-chomp note))
-      (when (> (length note) 0) (setq text (concat text "\n\t" note)))))
-  text)
-
 ;;;###autoload
 (defun taskpaper-add-entry (&optional text location file)
-  "Add item TEXT to LOCATION in FILE.
-Add item as child of the location item. The entry is filed below
-the target location as a subitem. Depending on
-`taskpaper-reverse-note-order', it will be either the first or
-last subitem. When the location is omitted, the item is simply
-filed at the end of the file, as top-level item. This function is
-intended to be used for quick entry from within Emacs or when
-running Emacs in batch mode."
+  "Add entry TEXT to LOCATION in FILE.
+
+When FILE is specified, visit it and set this buffer as target
+buffer, otherwise fall back to the current buffer.
+
+Prompt user for entry TEXT and add it as child of the LOCATION
+item. The entry is filed below the target location as a subitem.
+Depending on `taskpaper-reverse-note-order', it will be either
+the first or last subitem. When the location is omitted, the item
+is simply filed at the end of the file, as top-level item."
   (interactive)
   (let ((text (or text (read-string "Entry: ")))
         (this-buffer (current-buffer)) buffer level)
-    ;; When file is specified, visit it
-    ;; and set this buffer as target buffer;
-    ;; otherwise fall back to the current buffer
+    (unless (taskpaper-kill-is-subtree-p text)
+      (user-error "The text is not a (set of) tree(s)"))
+    ;; Select buffer
     (if (and (stringp file) (> (length file) 0))
         (setq buffer (or (find-buffer-visiting file)
                          (find-file-noselect file)))
       (setq buffer (current-buffer)))
     (unless buffer (error "Cannot access file: %s" file))
-    ;; Format entry text
-    (setq text (taskpaper-add-entry-prep text))
     ;; Go to the target buffer
     (with-current-buffer buffer
       ;; Enforce TaskPaper mode
-      (if (not (derived-mode-p 'taskpaper-mode)) (taskpaper-mode))
+      (when (not (derived-mode-p 'taskpaper-mode)) (taskpaper-mode))
       ;; Show everything
-      (widen)
-      (goto-char (point-min))
-      (taskpaper-outline-show-all)
+      (widen) (goto-char (point-min)) (taskpaper-outline-show-all)
       ;; Go to the target location and paste the entry
       (cond
        ((and (stringp location) (> (length location) 0))
@@ -3058,7 +3039,7 @@ running Emacs in batch mode."
         (taskpaper-paste-subtree nil text)))
       ;; Save the buffer, if it is not the current buffer
       (when (not (eq this-buffer buffer)) (save-buffer))))
-  (if (called-interactively-p 'any) (message "Entry added.")))
+  (when (called-interactively-p 'any) (message "Entry added.")))
 
 ;;;; Querying
 
