@@ -3674,18 +3674,21 @@ items, that matches. PROMPT can overwrite the default prompt."
 (defun taskpaper-tab ()
   "Demote item at point or indent line."
   (interactive)
-  (if (outline-on-heading-p) (taskpaper-outline-demote) (indent-for-tab-command)))
+  (cond ((outline-on-heading-p)
+         (call-interactively #'taskpaper-outline-demote))
+        (t (call-interactively #'indent-for-tab-command))))
 
 (defun taskpaper-shifttab ()
   "Promote item at point."
   (interactive)
-  (if (outline-on-heading-p) (taskpaper-outline-promote) nil))
+  (when (outline-on-heading-p)
+    (call-interactively #'taskpaper-outline-promote)))
 
 ;;;; Major mode definition
 
 ;;;###autoload
 (define-derived-mode taskpaper-mode outline-mode "TaskPaper"
-  "Major mode for editing and searching files in TaskPaper format.
+  "Major mode for editing and querying files in TaskPaper format.
 TaskPaper mode is implemented on top of outline-mode. Turning on
 TaskPaper mode runs the normal hook `text-mode-hook' and then
 `outline-mode-hook' and `taskpaper-mode-hook'."
@@ -3697,8 +3700,8 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
   (taskpaper-set-local 'line-move-ignore-invisible t)
   (add-to-invisibility-spec '(outline . t))
   ;; Outline settings
-  ;; NOTE: Group 1 in the `outline-regexp' is used by the `replace-match'
-  ;; in the `taskpaper-promote' and `taskpaper-demote' functions.
+  ;; NOTE: Group 1 in `outline-regexp' is used by `replace-match'
+  ;; in `taskpaper-promote' and `taskpaper-demote' functions.
   (taskpaper-set-local 'outline-regexp "\\([\t]*\\)[^\t\n]")
   (taskpaper-set-local 'outline-heading-end-regexp "\n")
   (taskpaper-set-local 'outline-blank-line t)
