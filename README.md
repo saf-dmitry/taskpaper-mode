@@ -391,10 +391,9 @@ These are the shortcut forms and what they expand to:
 
 Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g. numbers) to your saved queries. You can do this by configuring the variable `taskpaper-custom-queries` in your `.emacs` file:
 
-    (setq
-     taskpaper-custom-queries
-     '((?w "Waiting"  "@waiting and not @done")
-       (?d "Due Soon" "@due <=[d] +14d and not @done")))
+    (setq taskpaper-custom-queries
+          '((?w "Waiting"  "@waiting and not @done")
+            (?d "Due Soon" "@due <=[d] +14d and not @done")))
 
 The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the
 first element is a string, it will be used as block separator. Pressing `C-c ?` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
@@ -450,14 +449,13 @@ Before being inserted into an agenda buffer, the items are sorted. Sorting can b
 
 In the example below items will be sorted according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
-    (setq
-     taskpaper-agenda-sorting-function
-     '(lambda (a b)
-        (setq a (or (taskpaper-string-get-attribute a "due")
-                    "2100-12-12")
-              b (or (taskpaper-string-get-attribute b "due")
-                    "2100-12-12"))
-        (taskpaper-time< a b)))
+    (setq taskpaper-agenda-sorting-function
+          '(lambda (a b)
+              (setq a (or (taskpaper-string-get-attribute a "due")
+                          "2100-12-12")
+                    b (or (taskpaper-string-get-attribute b "due")
+                          "2100-12-12"))
+              (taskpaper-time< a b)))
 
 
 ### Motion and Display Commands
@@ -545,9 +543,9 @@ Although no configuration is necessary there are a few things that can be custom
 You may specify special faces for specific tags using the option `taskpaper-tag-faces`. For example:
 
     (setq taskpaper-tag-faces
-        '(("start" . "green")
-          ("today" . font-lock-warning-face)
-          ("due"   . (:foreground "red" :weight bold))))
+          '(("start" . "green")
+            ("today" . font-lock-warning-face)
+            ("due"   . (:foreground "red" :weight bold))))
 
 A string is interpreted as a color. The option `taskpaper-faces-easy-properties` determines if that color is interpreted as a foreground or a background color. For more details see the documentation string of the variable `taskpaper-tag-faces`.
 
