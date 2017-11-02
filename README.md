@@ -294,7 +294,9 @@ You can create a sparse tree based on specific combinations of items' text and t
 
 TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines. You can limit your searches to certain projects by narrowing the buffer to the project with `C-c #` (`taskpaper-narrow-to-subtree`).
 
-The syntax for the query string is described below.
+In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline.
+
+The syntax for query string is described below.
 
 **Note for TaskPaper macOS app users:** Though query syntax described here is a valid subset of search syntax implemented in TaskPaper app v3, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future releases.
 

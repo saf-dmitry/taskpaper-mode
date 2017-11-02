@@ -336,13 +336,13 @@ is saved after user confirmation and then killed."
 
 (defun taskpaper-find-base-buffer-visiting (file)
   "Return the base buffer visiting FILE.
-Like `find-buffer-visiting' but always return the base buffer and
-not an indirect buffer."
+Like `find-buffer-visiting' but always returns the base buffer
+and not an indirect buffer."
   (let ((buf (or (get-file-buffer file)
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
 
-(defun taskpaper-check-invisible ()
+(defsubst taskpaper-check-invisible ()
   "Return non-nil if point is in an invisible region."
   (if (and
        (or (not (boundp 'visible-mode)) (not visible-mode))
@@ -1032,7 +1032,7 @@ directory. An absolute path can be forced with a
 ;;       (progn (outline-up-heading 1 t) (not (bobp)))
 ;;     (error nil)))
 
-(defun taskpaper-outline-up-level-safe ()
+(defsubst taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
 This version will not throw an error. Also, this version is much
 faster than `outline-up-heading'."
@@ -2488,7 +2488,7 @@ Return the number of matches."
     (add-hook 'before-change-functions
               'taskpaper-occur-remove-highlights
               nil 'local)
-    (if (called-interactively-p 'any) (message "%d match(es)" cnt))
+    (when (called-interactively-p 'any) (message "%d match(es)" cnt))
     cnt))
 
 (defun taskpaper-match-sparse-tree (matcher)
@@ -3579,6 +3579,8 @@ prompt."
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
       (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
+    (define-key map (kbd "C-c C-c")
+      (lambda () (interactive) (delete-minibuffer-contents)))
     (let ((minibuffer-local-map (copy-keymap map))
           (minibuffer-message-timeout 0.5))
       (unwind-protect
@@ -3633,6 +3635,8 @@ items, that matches. PROMPT can overwrite the default prompt."
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
       (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
+    (define-key map (kbd "C-c C-c")
+      (lambda () (interactive) (delete-minibuffer-contents)))
     (let ((minibuffer-local-map (copy-keymap map))
           (minibuffer-message-timeout 0.5))
       (unwind-protect
