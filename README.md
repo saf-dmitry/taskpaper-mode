@@ -346,6 +346,7 @@ Here are some examples for predicates:
  - `@due <=[d] +10d`
  - `@priority >[n] 3`
  - `@text endswith ?`
+ - `@text matches "v[.0-9]"`
  - `@text contains new logo`
  - `@text contains "this is not what I want"`
  - `@text contains "\"Winter\" by A. Vivaldi"`

@@ -741,10 +741,6 @@ If TAG is a number, get the corresponding match group."
     map)
   "Mouse events for task marks.")
 
-;; NOTE: In Emacs v24.3 issuing `previous-line' on an "activated" task mark
-;; can result in incorrect cursor movement. This is a known issue,
-;; caused by a bug that was introduced into Emacs's redisplay engine
-;; shortly before the release of v24.3.
 (defun taskpaper-activate-task-marks (limit)
   "Add text properties to task marks."
   (when (re-search-forward taskpaper-task-regexp limit t)
@@ -1035,7 +1031,8 @@ directory. An absolute path can be forced with a
 (defsubst taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
 This version will not throw an error. Also, this version is much
-faster than `outline-up-heading'."
+faster than `outline-up-heading', relying directly on leading
+tabs."
   (when (ignore-errors (outline-back-to-heading t))
     (let ((level-up (1- (funcall outline-level))))
       (and (> level-up 0)
