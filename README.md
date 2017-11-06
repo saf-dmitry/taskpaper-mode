@@ -347,6 +347,7 @@ Here are some examples for predicates:
  - `@priority >[n] 3`
  - `@text endswith ?`
  - `@text contains new logo`
+ - `@text contains "this is not what I want"`
  - `@text contains "\"Winter\" by A. Vivaldi"`
 
 You don't need to enter the entire predicate pattern every time you search. Predicates use default values when part of the pattern is missing. Attribute defaults to `text` and relation defaults to `contains`. For example the following predicates are equal:
