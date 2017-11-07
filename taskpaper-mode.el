@@ -3126,7 +3126,7 @@ is simply filed at the end of the file, as top-level item."
   "Regular expression for closing parenthesis.")
 
 (defconst taskpaper-query-word-regexp
-  "\\([^][/@<>=!()\" \t\n\r]+\\)"
+  "\\([^][@<>=!()\" \t\n\r]+\\)"
   "Regular expression for word.")
 
 (defconst taskpaper-query-whitespace-regexp

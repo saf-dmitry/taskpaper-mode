@@ -347,7 +347,7 @@ Here are some examples for predicates:
  - `@priority >[n] 3`
  - `@text endswith ?`
  - `@text matches "v[.0-9]"`
- - `@text contains new logo`
+ - `@text contains [s] new logo`
  - `@text contains "this is not what I want"`
  - `@text contains "\"Winter\" by A. Vivaldi"`
 
@@ -357,6 +357,7 @@ You don't need to enter the entire predicate pattern every time you search. Pred
  - `@text Inbox`
  - `contains Inbox`
  - `@text contains Inbox`
+ - `@text contains [i] Inbox`
 
 **Note for TaskPaper macOS app users:** When using `matches` relation please keep in mind that TaskPaper app v3 searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
 
