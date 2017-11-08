@@ -182,7 +182,7 @@ These examples show the different formats that you can use when entering dates a
     - Attend meeting @due(2017-08-11 8am)
     - Do weekly review @due(Friday 12:30)
 
-The TaskPaper mode understands English month and weekday abbreviations. Week refers to ISO standard week that start on Monday, not Sunday. If the date/time string is unparseable, current time is returned.
+The TaskPaper mode understands English month and weekday abbreviations. Week refers to ISO standard week that starts on Monday, not Sunday. If the date/time string is unparseable, current time is returned.
 
 
 ### Dates
