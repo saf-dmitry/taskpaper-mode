@@ -438,19 +438,19 @@ When archiving the hook `taskpaper-archive-hook` runs after successfully archivi
 
 For querying a collection of TaskPaper files, TaskPaper mode includes a powerful agenda mode. In this mode items from different TaskPaper files can be collected based on search queries and displayed in an organized way in a special agenda buffer. This buffer is read-only, but provides commands to visit the corresponding locations in the original TaskPaper files. In this way, all information is stored only once, removing the risk that your agenda view and agenda files may diverge.
 
-The information to be shown is normally collected from all agenda files, the files listed in the variable `taskpaper-agenda-files`. If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize variable `taskpaper-agenda-file-regexp` to change this behavior.
+The information to be shown is normally collected from all agenda files, the files listed in the custom variable `taskpaper-agenda-files`. If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize variable `taskpaper-agenda-file-regexp` to change this behavior. If `taskpaper-agenda-skip-unavailable-files` custom variable is non-nil, agenda mode will silently skip unavailable agenda files without issuing an error.
 
 The following commands enter the agenda mode. The command `taskpaper-agenda-search` prompts the user for a search query. The command `taskpaper-agenda-select` let the user select a predefined query via the custom query dialog described above. You may consider to assign global key bindings to these commands in your `.emacs` file:
 
     (global-set-key (kbd "C-c a") 'taskpaper-agenda-search)
     (global-set-key (kbd "C-c s") 'taskpaper-agenda-select)
 
-Two user options control how the agenda buffer is displayed and whether the window configuration is restored when the agenda exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these variables.
+Two user options control how the agenda buffer is displayed and whether the window configuration is restored when the agenda exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these custom variables.
 
 
 ### Sorting Agenda Items
 
-Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the variable `taskpaper-agenda-sorting-function`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
+Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the custom variable `taskpaper-agenda-sorting-function`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
 In the example below items will be sorted according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
@@ -479,7 +479,7 @@ Items in the agenda buffer are linked back to the TaskPaper file where they orig
 
  - `RET`: Go to the original location of the item and delete other windows (`taskpaper-agenda-switch-to`).
 
- - `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the agenda buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new agenda buffers can be set with the variable `taskpaper-agenda-start-with-follow-mode`.
+ - `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the agenda buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new agenda buffers can be set with the custom variable `taskpaper-agenda-start-with-follow-mode`.
 
  - `c`: Display date under cursor in calendar (`taskpaper-show-in-calendar`).
 
