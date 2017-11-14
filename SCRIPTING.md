@@ -50,6 +50,7 @@ Functions for working with attributes.
  - `taskpaper-string-has-attribute`
  - `taskpaper-string-set-attribute`
  - `taskpaper-string-remove-attribute`
+ - `taskpaper-tag-value-to-list`
 
 
 ### Relation Functions for Attribute Values

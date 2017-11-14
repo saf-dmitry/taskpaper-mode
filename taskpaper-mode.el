@@ -1495,19 +1495,15 @@ non-nil also check higher levels of the hierarchy."
       (setq attrs (append spattrs exattrs ihattrs))))
     (taskpaper-uniquify attrs)))
 
-(defun taskpaper-item-get-attribute (name &optional multival inherit)
+(defun taskpaper-item-get-attribute (name &optional inherit)
   "Get value of attribute NAME for item at point.
 Return the value as a string or nil if the attribute does not
-exist or has no value. If MULTIVAL is non-nil, treat the value as
-a comma-separated list of values and return the values as a list
-of strings. If INHERIT is non-nil also check higher levels of the
-hierarchy."
+exist or has no value. If the item has multiple attributes with
+the same name, the first one will be evaluated. If INHERIT is
+non-nil also check higher levels of the hierarchy."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
-  (let ((value
-         (cdr (assoc name (taskpaper-item-get-attributes inherit)))))
-    (if (and value multival) (setq value (split-string value ", *" t)))
-    value))
+  (cdr (assoc name (taskpaper-item-get-attributes inherit))))
 
 (defun taskpaper-item-has-attribute (name &optional value inherit)
   "Return non-nil if item at point has attribute NAME.
@@ -1565,13 +1561,13 @@ instead of item at point."
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-get-attributes)))
 
-(defun taskpaper-string-get-attribute (str name &optional multival)
+(defun taskpaper-string-get-attribute (str name)
   "Get value of attribute NAME for item string STR.
 Like `taskpaper-item-get-attribute' but uses argument string
 instead of item at point."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
-    (taskpaper-item-get-attribute name multival)))
+    (taskpaper-item-get-attribute name)))
 
 (defun taskpaper-string-has-attribute (str name &optional value)
   "Return non-nil if item string STR has attribute NAME.
@@ -1598,6 +1594,12 @@ instead of item at point. Return new string."
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-set-attribute name value add)
     (buffer-string)))
+
+(defun taskpaper-tag-value-to-list (value)
+  "Convert tag value VALUE to a list.
+Treat the tag value string as a comma-separated list of values
+and return the values as a list of strings."
+  (split-string value ", *" t))
 
 ;;;; Date and time
 
@@ -3358,7 +3360,7 @@ matcher and the rest of the token list."
       (setq form `(taskpaper-item-has-attribute ,attr nil t)))
      (t
       (setq form
-            `(,op (taskpaper-item-get-attribute ,attr nil t) ,val))))
+            `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
     (cons form tokens)))
 
 (defun taskpaper-query-parse-boolean-unary (tokens)
