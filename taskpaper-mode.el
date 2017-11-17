@@ -135,6 +135,21 @@ used to select that tag through the fast-selection interface."
   :group 'taskpaper
   :type 'boolean)
 
+(defcustom taskpaper-max-image-size nil
+  "Maximum width and height for displayed inline images.
+This variable may be nil or a cons cell (MAX-WIDTH . MAX-HEIGHT),
+where MAX-WIDTH and MAX-HEIGHT are maximum image width and height
+in pixels. When nil, use the actual size. Otherwise, use
+ImageMagick to resize larger images. This requires Emacs to be
+built with ImageMagick support."
+  :group 'taskpaper
+  :type '(choice
+          (const :tag "Actual size" nil)
+          (cons (choice (sexp :tag "Maximum width")
+                        (const :tag "No maximum width" nil))
+                (choice (sexp :tag "Maximum height")
+                        (const :tag "No maximum height" nil)))))
+
 (defcustom taskpaper-after-sorting-items-hook nil
   "Hook run after sorting of items.
 When children are sorted, the cursor is in the parent line when
@@ -992,9 +1007,13 @@ directory. An absolute path can be forced with a
                (path (match-string-no-properties 1))
                (path (taskpaper-file-path-unescape path))
                (path (substitute-in-file-name (expand-file-name path)))
-               (image (condition-case nil
-                          (create-image path 'imagemagick)
-                        (error nil))))
+               (image (if (and taskpaper-max-image-size
+                               (image-type-available-p 'imagemagick))
+                          (create-image
+                           path 'imagemagick nil
+                           :max-width  (car taskpaper-max-image-size)
+                           :max-height (cdr taskpaper-max-image-size))
+                        (create-image path))))
           (when (and (file-exists-p path) image)
             (let ((ov (make-overlay begin end)))
               (overlay-put ov 'display image)
@@ -1508,8 +1527,8 @@ non-nil also check higher levels of the hierarchy."
 (defun taskpaper-item-has-attribute (name &optional value inherit)
   "Return non-nil if item at point has attribute NAME.
 With optional argument VALUE, match only attributes with that
- value. If INHERIT is non-nil also check higher levels of the
- hierarchy."
+value. If INHERIT is non-nil also check higher levels of the
+hierarchy."
   (if (member name taskpaper-special-attributes) t
     (unless (taskpaper-tag-name-p name)
       (user-error "Invalid attribute name: %s" name))
@@ -1519,7 +1538,7 @@ With optional argument VALUE, match only attributes with that
 (defun taskpaper-item-remove-attribute (name &optional value)
   "Remove all non-special attributes NAME from item at point.
 With optional argument VALUE, match only attributes with that
- value."
+value."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
@@ -1599,7 +1618,7 @@ instead of item at point. Return new string."
   "Convert tag value VALUE to a list.
 Treat the tag value string as a comma-separated list of values
 and return the values as a list of strings."
-  (split-string value ", *" t))
+  (split-string value ", *" nil))
 
 ;;;; Date and time
 
