@@ -420,7 +420,7 @@ When reorganizing your outline, you may want to refile or to copy some of the it
 
  - `C-c M-w`: Copy the subtree under cursor to different (possibly invisible) location (`taskpaper-refile-subtree-copy`).
 
-The commands `C-c C-w` ans `C-c M-w` offer possible target locations via outline path completion. This is the interface also used by the `C-c C-j` goto command.
+The commands `C-c C-w` and `C-c M-w` offer possible target locations via outline path completion. This is the interface also used by the `C-c C-j` goto command.
 
 The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem.
 
@@ -429,7 +429,7 @@ The subtree is filed below the target item as a subitem. Depending on `taskpaper
 
 When a project represented by a subtree is finished, you may want to move the tree out of the way.
 
-The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the variable `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem. When the `taskpaper-archive-save-context` option is non-nil, a `@project` tag with project hierarchy is added to the archived item.
+The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the variable `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem. When the `taskpaper-archive-save-context` custom option is non-nil, a `@project` tag with project hierarchy is added to the archived item.
 
 When archiving the hook `taskpaper-archive-hook` runs after successfully archiving a subtree. Hook functions are called with point on the subtree in the original location. At this stage, the subtree has been added to the archive location, but not yet deleted from the original one.
 
