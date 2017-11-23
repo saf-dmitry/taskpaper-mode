@@ -138,6 +138,8 @@ Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you wi
 
 If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure variable `taskpaper-tags-exclude-from-inheritance`.
 
+The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
+
 
 ## Completing Tasks
 
