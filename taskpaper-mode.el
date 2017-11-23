@@ -2126,7 +2126,12 @@ buffer instead."
           (t value))
     (taskpaper-item-set-attribute name value)))
 
-;;;; Toggling done state
+(defun taskpaper-remove-tag-at-point ()
+  "Remove tag at point."
+  (interactive)
+  (if (taskpaper-in-regexp-p taskpaper-tag-regexp)
+      (delete-region (match-beginning 0) (match-end 0))
+    (user-error "No tag at point.")))
 
 (defun taskpaper-item-toggle-done ()
   "Toggle done state of item at point."
@@ -3799,6 +3804,7 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
 (define-key taskpaper-mode-map (kbd "C-c C-o") 'taskpaper-open-link-at-point)
 (define-key taskpaper-mode-map (kbd "C-c C-i") 'taskpaper-iquery)
 (define-key taskpaper-mode-map (kbd "C-c C-q") 'taskpaper-query)
+(define-key taskpaper-mode-map (kbd "C-c C-r") 'taskpaper-remove-tag-at-point)
 (define-key taskpaper-mode-map (kbd "C-c C-t") 'taskpaper-search-tag-at-point)
 (define-key taskpaper-mode-map (kbd "C-c C-w") 'taskpaper-refile-subtree)
 (define-key taskpaper-mode-map (kbd "C-c M-w") 'taskpaper-refile-subtree-copy)
@@ -4195,6 +4201,11 @@ ABUF is the buffer for the agenda window."
 ;;;; Provide `taskpaper-mode'
 
 (provide 'taskpaper-mode)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; coding: utf-8
+;; End
 
 ;;; taskpaper-mode.el ends here
 
