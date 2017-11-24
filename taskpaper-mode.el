@@ -3000,10 +3000,15 @@ last subitem."
       (when (not (eq this-buffer buffer)) (save-buffer)))
     ;; Run hooks
     (run-hooks 'taskpaper-archive-hook)
-    ;; Cut the subtree from the original location
-    ;; NOTE: Bind `this-command' to avoid `kill-region' changes it,
+    ;; Bind `this-command' to avoid `kill-region' changes it,
     ;; which may lead to duplication of subtrees.
-    (let (this-command) (taskpaper-cut-subtree)))
+    ;; NOTE: Do not bind `this-command' with `let' because
+    ;; that would restore the old value in case of error.
+    (let (old-this-command this-command)
+      (setq this-command t)
+      ;; Cut the subtree from the original location
+      (taskpaper-cut-subtree)
+      (setq this-command old-this-command)))
   (when (called-interactively-p 'any) (message "Subtree archived.")))
 
 ;;;; Quick entry API
