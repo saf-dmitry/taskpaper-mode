@@ -91,12 +91,12 @@ Some handy functions for checking attribute values.
  - `taskpaper-time<>`
 
 
-## Formatting of Items
+### Formatting of Items
 
  - `taskpaper-item-format`
 
 
-## Quick entry
+### Quick entry
 
  - `taskpaper-add-entry`
 

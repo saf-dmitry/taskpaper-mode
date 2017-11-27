@@ -122,7 +122,14 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-Tags provide another way to organize (and later search for) items. Type the `@` symbol preceded by a space and followed by a tag name to create a tag. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
+Tags provide another way to organize (and later search for) items. Type the `@` symbol preceded by a space and followed by a tag name to create a tag. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
+
+ - `@today`
+ - `@priority(1)`
+
+If you need to include parentheses in the tag value, precede them with a backslash.
+
+After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
 In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called *fast tag selection*. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the variable `taskpaper-tag-alist` in your `.emacs` file:
 
@@ -375,7 +382,7 @@ Binary logical `and` binds more strongly than `or`. Unary logical `not` binds mo
     @due <=[d] +14d and not (@done or @hold)
 
 
-## Shortcuts
+### Shortcuts
 
 It's common to search TaskPaper items based on there type: project, task, or note.
 
