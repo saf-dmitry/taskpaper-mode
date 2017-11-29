@@ -167,9 +167,8 @@ You can define your own sorting functions using the general sort function `taskp
       (interactive)
       (taskpaper--sort-items
        '(lambda nil
-          (or
-           (taskpaper-item-get-attribute "priority")
-           "99"))
+          (or (taskpaper-item-get-attribute "priority")
+              "99"))
        'taskpaper-num<))
 
     (define-key taskpaper-mode-map (kbd "C-c C-s p")
@@ -182,9 +181,8 @@ The next function sorts items according to their due dates. The sorting is done 
       (interactive)
       (taskpaper--sort-items
        '(lambda nil
-          (or
-           (taskpaper-item-get-attribute "due")
-           "2100-12-12"))
+          (or (taskpaper-item-get-attribute "due")
+              "2100-12-12"))
        'taskpaper-time<))
 
     (define-key taskpaper-mode-map (kbd "C-c C-s d")
