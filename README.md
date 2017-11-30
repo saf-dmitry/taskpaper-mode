@@ -23,7 +23,7 @@ The file format is fairly simple:
 
  - A note is any non-blank line that doesn't match the task or project rules. A note can have zero or more tags anywhere on the line.
 
- - A tag consists of the at symbol (`@`) preceded by a space and followed by a tag name. Tags can optionally have a value in parentheses after the tag name.
+ - A tag consists of an at symbol (`@`) preceded by a space and followed by a tag name. Tags can optionally have a value in parentheses after the tag name.
 
 Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. Empty lines are ignored when calculating ownership.
 
