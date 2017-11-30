@@ -3725,6 +3725,11 @@ TaskPaper mode is implemented on top of outline-mode. Turning on
 TaskPaper mode runs the normal hook `text-mode-hook' and then
 `outline-mode-hook' and `taskpaper-mode-hook'."
   (kill-all-local-variables)
+  ;; Disable Outline mode menus
+  (define-key taskpaper-mode-map [menu-bar headings] 'undefined)
+  (define-key taskpaper-mode-map [menu-bar hide] 'undefined)
+  (define-key taskpaper-mode-map [menu-bar show] 'undefined)
+  ;; General settings
   (setq major-mode 'taskpaper-mode)
   (setq mode-name "TaskPaper")
   (use-local-map taskpaper-mode-map)
