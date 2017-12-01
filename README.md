@@ -560,6 +560,8 @@ All the rest which did not fit elsewhere.
 
  - `M-x taskpaper-mode-version RET`: Show TaskPaper mode version in the echo area.
 
+ - `M-x taskpaper-mode-manual RET`: Browse TaskPaper mode user's manual.
+
 
 # Customization
 

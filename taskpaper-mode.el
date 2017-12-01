@@ -288,9 +288,15 @@ overlays the UTF-8 character for display purposes only."
 ;;;; Common definitions
 
 (defun taskpaper-mode-version ()
-  "Show the TaskPaper mode version."
+  "Show TaskPaper mode version."
   (interactive)
   (message "TaskPaper mode version %s" taskpaper-mode-version))
+
+(defun taskpaper-mode-manual ()
+  "Browse Taskpaper mode user's manual."
+  (interactive)
+  (browse-url
+   "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"))
 
 ;; NOTE: Added in Emacs v23.2
 (unless (fboundp 'string-prefix-p)
