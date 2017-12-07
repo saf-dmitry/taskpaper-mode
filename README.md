@@ -17,7 +17,7 @@ The file format is fairly simple:
 
  - Files are expected to use the UTF-8 encoding and use `\n` to separate lines.
 
- - A task is a line that begins with a hyphen followed by a space (`- `) which can optionally be prefixed (i.e. indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
+ - A task is a line that begins with a hyphen (`-`) followed by a space, which can optionally be prefixed (i.e. indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
 
  - A project is a line that isn't a task and ends with a colon (`:`) followed by a newline. Tags can exist after the colon, but if any non-tag text is present, then it won't be recognized as a project.
 
@@ -109,6 +109,8 @@ The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to
 
 ## Structure Editing
 
+Structure editing commands let you easily rearrange the order and hierarchy of items in the outline.
+
 Four main commands are provided for structure editing. The commands work on the current subtree (the current item plus all its children) and are assigned to the four arrow keys pressed with a modifier (META by default) in the following way.
 
  - `M-LEFT`: Promote the subtree under cursor by one level (`taskpaper-outline-promote-subtree`).
@@ -124,6 +126,12 @@ The commands `M-LEFT` (`taskpaper-outline-promote-subtree`) and `M-RIGHT` (`task
 The commands `M-UP` (`taskpaper-outline-move-subtree-up`) and `M-DOWN` (`taskpaper-outline-move-subtree-down`) move the entire current subtree (folded or not) past the next same-level subtree in the given direction. The cursor moves with the subtree, so these commands can be used repeatedly to "drag" a subtree to the wanted position.
 
 TaskPaper mode also provides following additional commands for working with subtrees (folded or not):
+
+ - `C-c #`: Narrow buffer to the subtree under cursor (`taskpaper-narrow-to-subtree`).
+
+ - `C-c C-m`: Mark the subtree under cursor (`taskpaper-mark-subtree`).
+
+ - `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-copy-visible`).
 
  - `C-c C-x c`: Duplicate the subtree under cursor (`taskpaper-clone-subtree`).
 
@@ -549,12 +557,6 @@ You can also querying the agenda view to further narrow your search. Following c
 ## Miscellaneous
 
 All the rest which did not fit elsewhere.
-
- - `C-c #`: Narrow buffer to the subtree under cursor (`taskpaper-narrow-to-subtree`).
-
- - `C-c C-m`: Mark the subtree under cursor (`taskpaper-mark-subtree`).
-
- - `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-copy-visible`).
 
  - `M-x taskpaper-save-all-taskpaper-buffers RET`: Save all TaskPaper mode buffers without user confirmation.
 
