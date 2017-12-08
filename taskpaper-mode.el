@@ -4221,7 +4221,7 @@ ABUF is the buffer for the agenda window."
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; coding: utf-8
-;; End
+;; End:
 
 ;;; taskpaper-mode.el ends here
 
