@@ -675,7 +675,7 @@ Group 3 matches trailing tags, if any.")
      (match-beginning 1) (match-end 1)
      (list 'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
-           'help-echo "Follow link"))
+           'help-echo "Follow Link"))
 	(taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
@@ -688,7 +688,7 @@ Group 3 matches trailing tags, if any.")
      (match-beginning 1) (match-end 1)
      (list 'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
-           'help-echo "Follow link"))
+           'help-echo "Follow Link"))
 	(taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
@@ -703,7 +703,7 @@ highlight accordingly."
      (match-beginning 1) (match-end 1)
      (list 'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
-           'help-echo "Follow link"))
+           'help-echo "Follow Link"))
     (let* ((path (match-string-no-properties 1))
            (path (taskpaper-file-path-unescape path)))
       (if (not (taskpaper-file-remote-p path))
@@ -752,7 +752,7 @@ If TAG is a number, get the corresponding match group."
      (list 'face (taskpaper-get-tag-face 2)
            'mouse-face 'highlight
            'keymap taskpaper-mouse-map-tag
-           'help-echo "Focus on tag"))
+           'help-echo "Focus On Tag"))
     (taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
@@ -776,7 +776,7 @@ If TAG is a number, get the corresponding match group."
     (add-text-properties (match-beginning 1) (match-end 1)
                          (list 'mouse-face 'highlight
                                'keymap taskpaper-mouse-map-mark
-                               'help-echo "Toggle done state"
+                               'help-echo "Toggle Done"
                                'cursor 0))
     (taskpaper-rear-nonsticky-at (match-end 1))
     t))
