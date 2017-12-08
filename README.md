@@ -71,8 +71,6 @@ The following commands reformat the current item.
 
  - `C-c C-f n`: Format item under cursor as note (`taskpaper-item-format-as-note`).
 
-Additionally, the commands `TAB` (`taskpaper-outline-promote`) and `S-TAB` (`taskpaper-outline-demote`) promote/demote single item under cursor.
-
 
 ## Folding
 
@@ -124,6 +122,8 @@ Four main commands are provided for structure editing. The commands work on the 
 The commands `M-LEFT` (`taskpaper-outline-promote-subtree`) and `M-RIGHT` (`taskpaper-outline-demote-subtree`) change the current subtree to a different outline level — i.e. the level of all items in the tree is decreased or increased. Note that the scope of "current subtree" may be changed after a promotion.
 
 The commands `M-UP` (`taskpaper-outline-move-subtree-up`) and `M-DOWN` (`taskpaper-outline-move-subtree-down`) move the entire current subtree (folded or not) past the next same-level subtree in the given direction. The cursor moves with the subtree, so these commands can be used repeatedly to "drag" a subtree to the wanted position.
+
+Additionally, the commands `TAB` (`taskpaper-outline-promote`) and `S-TAB` (`taskpaper-outline-demote`) promote/demote single item under cursor.
 
 TaskPaper mode also provides following additional commands for working with subtrees (folded or not):
 
