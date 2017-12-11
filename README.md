@@ -157,6 +157,7 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
 
     (setq taskpaper-tag-alist
           '(("next"        . ?n)
+            ("today"       . ?t)
             ("due(%^T)"    . ?d)
             ("added(%T)"   . ?a)
             ("priority(1)" . ?1)
@@ -174,7 +175,7 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 
 Item is marked as complete by applying the `@done` tag. By default, items tagged with `@done` are visually crossed out.
 
-The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. If the custom option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the custom option `taskpaper-tags-to-remove-when-done`.
+The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively you can toggle done state of the task by clicking on the task mark with `mouse-1` if the custom variable `taskpaper-pretty-marks` is non-nil. If the custom option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the custom option `taskpaper-tags-to-remove-when-done`.
 
 
 ## Calendar Integration
