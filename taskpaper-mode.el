@@ -1040,11 +1040,22 @@ directory. An absolute path can be forced with a
 
 ;;;; Outline API and navigation
 
-(defalias 'taskpaper-outline-up-level 'outline-up-heading)
-(defalias 'taskpaper-outline-next-item 'outline-next-heading)
-(defalias 'taskpaper-outline-previous-item 'outline-previous-heading)
-(defalias 'taskpaper-outline-forward-same-level 'outline-forward-same-level)
-(defalias 'taskpaper-outline-backward-same-level 'outline-backward-same-level)
+(defalias 'taskpaper-outline-up-level 'outline-up-heading
+  "Move to the visible parent item.
+With argument, move up ARG levels. If INVISIBLE-OK is non-nil,
+also consider invisible items.")
+
+(defalias 'taskpaper-outline-next-item 'outline-next-heading
+  "Move to the next (possibly invisible) item.")
+
+(defalias 'taskpaper-outline-previous-item 'outline-previous-heading
+  "Move to the previous (possibly invisible) item.")
+
+(defalias 'taskpaper-outline-forward-same-level 'outline-forward-same-level
+  "Move forward to the ARG'th item at same level.")
+
+(defalias 'taskpaper-outline-backward-same-level 'outline-backward-same-level
+  "Move backward to the ARG'th item at same level.")
 
 ;; (defun taskpaper-outline-up-level-safe ()
 ;;   "Move to the (possibly invisible) ancestor item.
@@ -1122,20 +1133,26 @@ This version will not throw an error."
 
 (eval-and-compile
   (defalias 'taskpaper-outline-show-all
-    (if (fboundp 'outline-show-all) 'outline-show-all 'show-all))
+    (if (fboundp 'outline-show-all) 'outline-show-all 'show-all)
+    "Show all items in the buffer.")
   (defalias 'taskpaper-outline-show-item
-    (if (fboundp 'outline-show-entry) 'outline-show-entry 'show-entry))
+    (if (fboundp 'outline-show-entry) 'outline-show-entry 'show-entry)
+    "Show the current item.")
   (defalias 'taskpaper-outline-show-children
-    (if (fboundp 'outline-show-children) 'outline-show-children 'show-children))
+    (if (fboundp 'outline-show-children) 'outline-show-children 'show-children)
+    "Show all direct subitems of current item.")
   (defalias 'taskpaper-outline-show-subtree
-    (if (fboundp 'outline-show-subtree) 'outline-show-subtree 'show-subtree))
+    (if (fboundp 'outline-show-subtree) 'outline-show-subtree 'show-subtree)
+    "Show all subitems of current item.")
   (defalias 'taskpaper-outline-hide-subtree
-    (if (fboundp 'outline-hide-subtree) 'outline-hide-subtree 'hide-subtree))
+    (if (fboundp 'outline-hide-subtree) 'outline-hide-subtree 'hide-subtree)
+    "Hide all subitems of current item.")
   (defalias 'taskpaper-outline-hide-sublevels
-    (if (fboundp 'outline-hide-sublevels) 'outline-hide-sublevels 'hide-sublevels)))
+    (if (fboundp 'outline-hide-sublevels) 'outline-hide-sublevels 'hide-sublevels))
+  "Hide everything but the top-level items in the buffer.")
 
 (defun taskpaper-outline-show-context ()
-  "Show item at point and all its ancestors."
+  "Show current item and all its ancestors."
   (let (outline-view-change-hook)
     (save-excursion
       (outline-back-to-heading t) (taskpaper-outline-show-item)
@@ -1235,8 +1252,13 @@ buffer. When point is on an item, rotate the current subtree."
         (outline-end-of-subtree) (setq end (point))
         (narrow-to-region begin end)))))
 
-(defalias 'taskpaper-mark-subtree 'outline-mark-subtree)
-(defalias 'taskpaper-copy-visible 'outline-headers-as-kill)
+(defalias 'taskpaper-mark-subtree 'outline-mark-subtree
+  "Mark current subtree.
+This puts point at the start of the current subtree, and mark at
+the end.")
+
+(defalias 'taskpaper-copy-visible 'outline-headers-as-kill
+  "Save all visible items between BEG and END to the kill ring.")
 
 ;;;; Promotion and demotion
 
@@ -1270,8 +1292,11 @@ buffer. When point is on an item, rotate the current subtree."
 
 ;;;; Vertical tree movement
 
-(defalias 'taskpaper-outline-move-subtree-up 'outline-move-subtree-up)
-(defalias 'taskpaper-outline-move-subtree-down 'outline-move-subtree-down)
+(defalias 'taskpaper-outline-move-subtree-up 'outline-move-subtree-up
+  "Move the current subtree up past ARG items of the same level.")
+
+(defalias 'taskpaper-outline-move-subtree-down 'outline-move-subtree-down
+  "Move the current subtree down past ARG items of the same level.")
 
 ;;;; Auto-formatting
 
