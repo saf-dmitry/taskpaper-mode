@@ -114,6 +114,25 @@ Some handy functions for checking attribute values.
 Following are some scripting examples, which utilize the API functions mentioned above.
 
 
+### Mapping and Structure Editing
+
+The following two functions are similar to `taskpaper-outline-promote-subtree` and `taskpaper-outline-demote-subtree` but work on selected region instead of current subtree. They use `taskpaper-map-region` mapping function together with `taskpaper-outline-promote` and `taskpaper-outline-demote` functions to promote/demote all items in a region.
+
+    (defun taskpaper-outline-promote-region ()
+      "Promote all items in region."
+      (interactive)
+      (taskpaper-map-region
+       'taskpaper-outline-promote
+       (region-beginning) (region-end)))
+
+    (defun taskpaper-outline-demote-region ()
+      "Demote all items in region."
+      (interactive)
+      (taskpaper-map-region
+       'taskpaper-outline-demote
+       (region-beginning) (region-end)))
+
+
 ### Mapping and Attribute Setting
 
 The next example uses `taskpaper-map-tree` outline mapping function and `taskpaper-item-remove-attribute` function to remove all occurrences of certain tag from all items in the subtree under cursor. The user will be prompted for tag name and tag value to remove. If no value is provided, tags with any value or no value at all will be considered.
