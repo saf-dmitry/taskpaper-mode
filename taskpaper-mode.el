@@ -3859,9 +3859,9 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
 (define-key taskpaper-mode-map (kbd "C-c C-s t") 'taskpaper-sort-by-type)
 
 (define-key taskpaper-mode-map (kbd "C-c C-x a") 'taskpaper-archive-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x c") 'taskpaper-clone-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x v") 'taskpaper-copy-visible)
 
+(define-key taskpaper-mode-map (kbd "C-c C-x C-c") 'taskpaper-clone-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-w") 'taskpaper-cut-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x M-w") 'taskpaper-copy-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-y") 'taskpaper-paste-subtree)
@@ -3872,7 +3872,7 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
 (easy-menu-define taskpaper-mode-menu taskpaper-mode-map
   "Menu for TaskPaper mode."
   '("TaskPaper"
-    ("Item Format"
+    ("Item"
      ["Format As Project" taskpaper-item-format-as-project]
      ["Format As Task" taskpaper-item-format-as-task]
      ["Format As Note" taskpaper-item-format-as-note])
@@ -3883,7 +3883,7 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
      ["Hide Other" taskpaper-outline-hide-other
       :active (outline-on-heading-p)]
      ["Show All" taskpaper-outline-show-all])
-    ("Outline Navigation"
+    ("Navigation"
      ["Up Level" taskpaper-outline-up-level
       :active (outline-on-heading-p)]
      ["Forward Same Level" taskpaper-outline-forward-same-level
@@ -3908,23 +3908,23 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
      ["Move Substree Down" taskpaper-outline-move-subtree-down
       :active (outline-on-heading-p)]
      "--"
-     ["Clone Subtree" taskpaper-clone-subtree
-      :active (outline-on-heading-p)]
      ["Copy Subtree" taskpaper-copy-subtree
       :active (outline-on-heading-p)]
      ["Cut Subtree" taskpaper-cut-subtree
       :active (outline-on-heading-p)]
      ["Paste Subtree" taskpaper-paste-subtree
       :active (and kill-ring (current-kill 0))]
+     ["Duplicate Subtree" taskpaper-clone-subtree
+      :active (outline-on-heading-p)]
      "--"
      ["Mark Subtree" taskpaper-mark-subtree
       :active (outline-on-heading-p)]
-     ["Narrow To Subtree" taskpaper-narrow-to-subtree
+     ["Narrow to Subtree" taskpaper-narrow-to-subtree
       :active (outline-on-heading-p)]
      "--"
      ["Sort Children Alphabetically" taskpaper-sort-alpha
       :active (outline-on-heading-p)]
-     ["Sort Children By Type" taskpaper-sort-by-type
+     ["Sort Children by Type" taskpaper-sort-by-type
       :active (outline-on-heading-p)]
      "--"
      ["Refile Subtree..." taskpaper-refile-subtree
@@ -3937,11 +3937,11 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
      "--"
      ["Copy Visible Items" taskpaper-copy-visible
       :active (region-active-p)])
-    ("Tagging"
+    ("Tag"
      ["Complete Tag" taskpaper-complete-tag-at-point
       :active (taskpaper-in-regexp-p (format "@%s*" taskpaper-tag-name-char-regexp))]
      ["Select Tag..." taskpaper-item-set-tag-fast-select]
-     ["Delete Tag" taskpaper-remove-tag-at-point
+     ["Remove Tag" taskpaper-remove-tag-at-point
       :active (taskpaper-in-regexp-p taskpaper-tag-regexp)]
      "--"
      ["Toggle Done" taskpaper-item-toggle-done
@@ -3950,17 +3950,17 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
      ["Show Date in Calendar" taskpaper-show-in-calendar
       :active (taskpaper-in-regexp-p taskpaper-tag-regexp)]
      ["Access Calendar" taskpaper-goto-calendar]
-     ["Insert Date From Calendar" taskpaper-date-from-calendar
+     ["Insert Date from Calendar" taskpaper-date-from-calendar
       :active (get-buffer "*Calendar*")]
-     ["Insert Timestamp..." taskpaper-read-date-insert-timestamp])
+     ["Insert Date..." taskpaper-read-date-insert-timestamp])
     ("Links & Images"
      ["Insert File Link..." taskpaper-insert-file-link-at-point]
      ["Show Inline Images" taskpaper-toggle-inline-images
       :style toggle
       :selected taskpaper-inline-image-overlays])
-    ("Searching & Filtering"
+    ("Search"
      ["Start Incremental Search..." taskpaper-iquery]
-     ["Start Non-Incremental Search..." taskpaper-query]
+     ["Start Non-incremental Search..." taskpaper-query]
      ["Select Search Query..." taskpaper-query-fast-select]
      "--"
      ["Filter For Regexp..." taskpaper-occur]

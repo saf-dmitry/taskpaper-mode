@@ -133,11 +133,11 @@ TaskPaper mode also provides following additional commands for working with subt
 
  - `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-copy-visible`).
 
- - `C-c C-x c`: Duplicate the subtree under cursor (`taskpaper-clone-subtree`).
-
  - `C-c C-x C-w`: Cut the subtree under cursor into the kill ring (`taskpaper-cut-subtree`).
 
  - `C-c C-x M-w`: Copy the subtree under cursor into the kill ring (`taskpaper-copy-subtree`).
+
+ - `C-c C-x C-c`: Duplicate the subtree under cursor (`taskpaper-clone-subtree`).
 
  - `C-c C-x C-y`: Paste the subtree from the kill ring as child of the current item (`taskpaper-paste-subtree`).
 
