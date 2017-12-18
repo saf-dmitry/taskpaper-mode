@@ -40,6 +40,7 @@
 
 (require 'outline)
 (require 'font-lock)
+(require 'easymenu)
 (require 'calendar)
 (require 'parse-time)
 
@@ -3865,6 +3866,115 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
 (define-key taskpaper-mode-map (kbd "C-c C-x M-w") 'taskpaper-copy-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-y") 'taskpaper-paste-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-v") 'taskpaper-toggle-inline-images)
+
+;;;; Menu
+
+(easy-menu-define taskpaper-mode-menu taskpaper-mode-map
+  "Menu for TaskPaper mode."
+  '("TaskPaper"
+    ("Item Format"
+     ["Format As Project" taskpaper-item-format-as-project]
+     ["Format As Task" taskpaper-item-format-as-task]
+     ["Format As Note" taskpaper-item-format-as-note])
+    ("Visibility"
+     ["Cycle Visibility" taskpaper-cycle
+      :active (outline-on-heading-p)]
+     ["Cycle Visibility (Global)" (taskpaper-cycle t)]
+     ["Hide Other" taskpaper-outline-hide-other
+      :active (outline-on-heading-p)]
+     ["Show All" taskpaper-outline-show-all])
+    ("Outline Navigation"
+     ["Up Level" taskpaper-outline-up-level
+      :active (outline-on-heading-p)]
+     ["Forward Same Level" taskpaper-outline-forward-same-level
+      :active (outline-on-heading-p)]
+     ["Backward Same Level" taskpaper-outline-backward-same-level
+      :active (outline-on-heading-p)]
+     "--"
+     ["Go To..." taskpaper-goto])
+    ("Structure Editing"
+     ["Promote Item" taskpaper-outline-promote
+      :active (outline-on-heading-p)]
+     ["Demote Item" taskpaper-outline-demote
+      :active (outline-on-heading-p)]
+     "--"
+     ["Promote Subtree" taskpaper-outline-promote-subtree
+      :active (outline-on-heading-p)]
+     ["Demote Subtree" taskpaper-outline-demote-subtree
+      :active (outline-on-heading-p)]
+     "--"
+     ["Move Subtree Up" taskpaper-outline-move-subtree-up
+      :active (outline-on-heading-p)]
+     ["Move Substree Down" taskpaper-outline-move-subtree-down
+      :active (outline-on-heading-p)]
+     "--"
+     ["Clone Subtree" taskpaper-clone-subtree
+      :active (outline-on-heading-p)]
+     ["Copy Subtree" taskpaper-copy-subtree
+      :active (outline-on-heading-p)]
+     ["Cut Subtree" taskpaper-cut-subtree
+      :active (outline-on-heading-p)]
+     ["Paste Subtree" taskpaper-paste-subtree
+      :active (and kill-ring (current-kill 0))]
+     "--"
+     ["Mark Subtree" taskpaper-mark-subtree
+      :active (outline-on-heading-p)]
+     ["Narrow To Subtree" taskpaper-narrow-to-subtree
+      :active (outline-on-heading-p)]
+     "--"
+     ["Sort Children Alphabetically" taskpaper-sort-alpha
+      :active (outline-on-heading-p)]
+     ["Sort Children By Type" taskpaper-sort-by-type
+      :active (outline-on-heading-p)]
+     "--"
+     ["Refile Subtree..." taskpaper-refile-subtree
+      :active (outline-on-heading-p)]
+     ["Refile Subtree (Copy)..." taskpaper-refile-subtree-copy
+      :active (outline-on-heading-p)]
+     "--"
+     ["Archive Subtree" taskpaper-archive-subtree
+      :active (outline-on-heading-p)]
+     "--"
+     ["Copy Visible Items" taskpaper-copy-visible
+      :active (region-active-p)])
+    ("Tagging"
+     ["Complete Tag" taskpaper-complete-tag-at-point
+      :active (taskpaper-in-regexp-p (format "@%s*" taskpaper-tag-name-char-regexp))]
+     ["Select Tag..." taskpaper-item-set-tag-fast-select]
+     ["Delete Tag" taskpaper-remove-tag-at-point
+      :active (taskpaper-in-regexp-p taskpaper-tag-regexp)]
+     "--"
+     ["Toggle Done" taskpaper-item-toggle-done
+      :active (outline-on-heading-p)])
+    ("Date & Time"
+     ["Show Date in Calendar" taskpaper-show-in-calendar
+      :active (taskpaper-in-regexp-p taskpaper-tag-regexp)]
+     ["Access Calendar" taskpaper-goto-calendar]
+     ["Insert Date From Calendar" taskpaper-date-from-calendar
+      :active (get-buffer "*Calendar*")]
+     ["Insert Timestamp..." taskpaper-read-date-insert-timestamp])
+    ("Links & Images"
+     ["Insert File Link..." taskpaper-insert-file-link-at-point]
+     ["Show Inline Images" taskpaper-toggle-inline-images
+      :style toggle
+      :selected taskpaper-inline-image-overlays])
+    ("Searching & Filtering"
+     ["Start Incremental Search..." taskpaper-iquery]
+     ["Start Non-Incremental Search..." taskpaper-query]
+     ["Select Search Query..." taskpaper-query-fast-select]
+     "--"
+     ["Filter For Regexp..." taskpaper-occur]
+     ["Remove Highlights" taskpaper-occur-remove-highlights
+      :active taskpaper-occur-highlights])
+    ("Agenda View"
+     ["Create Agenda View..." taskpaper-agenda-search]
+     ["Select Agenda View..." taskpaper-agenda-select])
+    "--"
+    ("Documentation"
+     ["Show Version" taskpaper-mode-version]
+     ["Browse Manual" taskpaper-mode-manual])
+    "--"
+    ["Customize..." (customize-browse 'taskpaper)]))
 
 ;;;; Agenda mode
 
