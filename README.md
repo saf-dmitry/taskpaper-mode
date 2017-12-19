@@ -287,7 +287,7 @@ TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are s
  - `file:/username@host:filename.txt`
  - `/username@host:filename.txt`
 
-Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g. `./my\ file.txt`. File links to non-existing local files are highlighted using different face.
+Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g., `./my\ file.txt`. File links to non-existing local files are highlighted using different face.
 
 If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-link-at-point`) will launch a web browser for URLs (using `browse-url`) or start composing a mail message (using `compose-mail`). Furthermore, it will visit text and remote files in file links with Emacs and select a suitable application for local non-text files. Classification of files is based on file extension only. For non-specified extensions the system command to open files, like `open` on MS Windows and macOS, or the command specified in the mailcaps on GNU/Linux will be used. For more details see custom options `taskpaper-file-apps` and `taskpaper-open-non-existing-files`.
 
@@ -426,7 +426,7 @@ These are the shortcut forms and what they expand to:
 
 ### Storing Queries
 
-Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g. numbers) to your saved queries. You can do this by configuring the custom variable `taskpaper-custom-queries` in your `.emacs` file:
+Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g., numbers) to your saved queries. You can do this by configuring the custom variable `taskpaper-custom-queries` in your `.emacs` file:
 
     (setq taskpaper-custom-queries
           '((?w "Waiting"  "@waiting and not @done")
@@ -438,7 +438,7 @@ first element is a string, it will be used as block separator. Pressing `C-c ?` 
 
 ### Startup View
 
-You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g. you can ask for all notes to be folded at startup by adding following to your `.emacs` file:
+You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all notes to be folded at startup by adding following to your `.emacs` file:
 
     (add-hook 'taskpaper-mode-hook
               '(lambda () (taskpaper-query "not @type=note")))
