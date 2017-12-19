@@ -96,7 +96,14 @@ Some handy functions for checking attribute values.
  - `taskpaper-item-format`
 
 
-### Quick entry
+### Buffers and Files
+
+ - `taskpaper-agenda-files`
+ - `taskpaper-agenda-file-p`
+ - `taskpaper-save-all-taskpaper-buffers`
+
+
+### Quick Entry
 
  - `taskpaper-add-entry`
 

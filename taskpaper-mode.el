@@ -4104,6 +4104,16 @@ which might be released later."
                           files))))
     files))
 
+(defun taskpaper-agenda-file-p (&optional file)
+  "Return non-nil, if FILE is an agenda file.
+If FILE is omitted, use the file associated with the current
+buffer."
+  (let ((fname (or file (buffer-file-name))))
+    (and fname
+         (member (file-truename fname)
+                 (mapcar #'file-truename
+                         (taskpaper-agenda-files))))))
+
 (defun taskpaper-agenda-collect-items (matcher)
   "Return list of items matching MATCHER.
 Cycle through agenda files and collect items matching MATCHER.
