@@ -3963,7 +3963,7 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
      ["Start Non-incremental Search..." taskpaper-query]
      ["Select Search Query..." taskpaper-query-fast-select]
      "--"
-     ["Filter For Regexp..." taskpaper-occur]
+     ["Filter by Regexp..." taskpaper-occur]
      ["Remove Highlights" taskpaper-occur-remove-highlights
       :active taskpaper-occur-highlights])
     ("Agenda View"
