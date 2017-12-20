@@ -12,7 +12,7 @@ Following API functions can be used to automate and extend TaskPaper mode. For d
 
 ### Outline Mapping and Traversing
 
-The mapping routine can call any arbitrary function.
+The mapping routines can call any arbitrary function.
 
  - `taskpaper-map-tree`
  - `taskpaper-map-region`
@@ -97,6 +97,8 @@ Some handy functions for checking attribute values.
 
 
 ### Buffers and Files
+
+Functions for working with TaskPaper files and buffers.
 
  - `taskpaper-agenda-files`
  - `taskpaper-agenda-file-p`
