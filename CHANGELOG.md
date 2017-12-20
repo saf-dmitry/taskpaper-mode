@@ -1,10 +1,12 @@
 
 
-# Version 0.1
+# Version 0.3
 
- - Added base syntax highlighting
- - Added folding and structure editing commands
- - Added command for completing tasks
+ - Improved syntax highlighting
+ - Added search support using predicates and Boolean queries
+ - Added quick entry interface for search queries
+ - Added agenda view
+ - Added support for inline images
 
 
 # Version 0.2
@@ -20,11 +22,9 @@
  - Added support for links
 
 
-# Version 0.3
+# Version 0.1
 
- - Improved syntax highlighting
- - Added search support using predicates and Boolean queries
- - Added quick entry interface for search queries
- - Added agenda view
- - Added support for inline images
+ - Added base syntax highlighting
+ - Added folding and structure editing commands
+ - Added command for completing tasks
 
