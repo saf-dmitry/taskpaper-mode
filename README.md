@@ -4,7 +4,7 @@
 
 TaskPaper mode is an Emacs major mode for working with files in TaskPaper format. The format was invented by Jesse Grosjean and named after his [TaskPaper][taskpaper] macOS app, which is a system for organizing your outlines and tasks in a text file. The format itself is exceptionally readable and supports different item types, outline hierarchy, and tagging.
 
-TaskPaper format knows about four things: *projects*, *tasks*, *notes*, and *tags*. Items can be indented (using literal tabs) under other items to create outline structure, which defines parent/child relationships:
+TaskPaper format knows about four things: _projects_, _tasks_, _notes_, and _tags_. Items can be indented (using literal tabs) under other items to create outline structure, which defines parent/child relationships:
 
     To create items:
         - To create a project, type a line ending with a colon.
@@ -31,7 +31,7 @@ See the [TaskPaper User's Guide][taskpaper-guide] for more details.
 
 ![Incremental search](./images/screencast_01.gif)
 
-![Date/time prompt](./images/screencast_02.gif)
+![Date & time prompt](./images/screencast_02.gif)
 
 TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful agenda mode.
 
@@ -153,7 +153,7 @@ If you need to include parentheses in the tag value, precede them with a backsla
 
 After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
-In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called *fast tag selection*. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the custom variable `taskpaper-tag-alist` in your `.emacs` file:
+In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called _fast tag selection_. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the custom variable `taskpaper-tag-alist` in your `.emacs` file:
 
     (setq taskpaper-tag-alist
           '(("next"        . ?n)
@@ -207,7 +207,7 @@ Parallel to the minibuffer prompt, a calendar is popped up (see the custom varia
  - `!`: Show diary items in calendar.
 
 
-## Date/Time Formats
+## Date & Time Formats
 
 These examples show the different formats that you can use when entering dates and times in the date/time prompt. The same formats can be used for date/time values in tags.
 
@@ -271,7 +271,7 @@ You can combine dates, times, and duration offsets:
  - `last Jan 2 14:25 -1w`
  - `this month 8:00 + 2 Fri`
 
-Note: Relative dates like `next Monday` should always be given as the *very first* part of the time string. Duration offsets should always be given as the *very last* part of the time string.
+Note: Relative dates like `next Monday` should always be given as the _very first_ part of the time string. Duration offsets should always be given as the _very last_ part of the time string.
 
 
 ## Hyperlinks and Inline Images
@@ -324,13 +324,13 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all lev
 
 You can create a sparse tree based on specific combinations of items' text and tags.
 
-TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines. You can limit your searches to certain projects by narrowing the buffer to the project with `C-c #` (`taskpaper-narrow-to-subtree`).
+TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to certain projects by narrowing the buffer to the project with `C-c #` (`taskpaper-narrow-to-subtree`).
 
 In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline.
 
 The syntax for query string is described below.
 
-**Note for TaskPaper macOS app users:** Though query syntax described here is a valid subset of search syntax implemented in TaskPaper app v3, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future releases.
+__Note for TaskPaper app users:__ Though query syntax described here is a valid subset of search syntax implemented in TaskPaper app v3, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future releases.
 
 
 ### Tags and Attributes
@@ -391,7 +391,7 @@ You don't need to enter the entire predicate pattern every time you search. Pred
  - `@text contains Inbox`
  - `@text contains [i] Inbox`
 
-**Note for TaskPaper macOS app users:** When using `matches` relation please keep in mind that TaskPaper app v3 searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
+__Note for TaskPaper app users:__ When using `matches` relation please keep in mind that TaskPaper app v3 searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
 
 
 ### Boolean Expressions
@@ -438,7 +438,7 @@ first element is a string, it will be used as block separator. Pressing `C-c ?` 
 
 ### Startup View
 
-You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all notes to be folded at startup by adding following to your `.emacs` file:
+You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all leaf notes (notes, which may content other notes, but no task or project items) to be folded at startup by adding following to your `.emacs` file:
 
     (add-hook 'taskpaper-mode-hook
               '(lambda () (taskpaper-query "not @type=note")))
@@ -582,11 +582,11 @@ You may specify special faces for specific tags using the custom option `taskpap
 
 A string is interpreted as a color. The option `taskpaper-faces-easy-properties` determines if that color is interpreted as a foreground or a background color. For more details see the documentation string of the custom variable `taskpaper-tag-faces`.
 
-Note: While using a list with face properties as shown for `due` *should* work, this does not always seem to be the case. If necessary, define a special face and use that.
+Note: While using a list with face properties as shown for `due` _should_ work, this does not always seem to be the case. If necessary, define a special face and use that.
 
 Additionally, the faces used for syntax highlighting can be modified to your liking by issuing `M-x customize-group RET taskpaper-faces RET`.
 
-You can activate the task marks by setting the custom variable `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character *for display purposes only*. Tasks can then be marked as done by clicking on the task mark with `mouse-1`. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` options.
+You can activate the task marks by setting the custom variable `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. Tasks can then be marked as done by clicking on the task mark with `mouse-1`. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` options.
 
 
 ## Cleaner Outline View

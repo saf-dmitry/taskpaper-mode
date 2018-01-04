@@ -112,6 +112,8 @@ Functions for working with TaskPaper files and buffers.
 
 ## Hooks
 
+Hooks are options containing functions to be run before or after a function.
+
  - `taskpaper-mode-hook`
  - `taskpaper-archive-hook`
  - `taskpaper-after-sorting-items-hook`
