@@ -1052,11 +1052,23 @@ also consider invisible items.")
 (defalias 'taskpaper-outline-previous-item 'outline-previous-heading
   "Move to the previous (possibly invisible) item.")
 
-(defalias 'taskpaper-outline-forward-same-level 'outline-forward-same-level
-  "Move forward to the ARG'th item at same level.")
+(defun taskpaper-outline-forward-same-level (arg)
+  "Move forward to the ARG'th item at same level.
+Call `outline-forward-same-level', but provide a better error
+message."
+  (interactive "p")
+  (condition-case nil
+      (outline-forward-same-level arg)
+    (error (error "No following same-level item"))))
 
-(defalias 'taskpaper-outline-backward-same-level 'outline-backward-same-level
-  "Move backward to the ARG'th item at same level.")
+(defun taskpaper-outline-backward-same-level (arg)
+  "Move backward to the ARG'th item at same level.
+Call `outline-backward-same-level', but provide a better error
+message."
+  (interactive "p")
+  (condition-case nil
+      (outline-backward-same-level arg)
+    (error (error "No previous same-level item"))))
 
 (defsubst taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
