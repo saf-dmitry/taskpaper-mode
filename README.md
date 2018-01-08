@@ -4,7 +4,7 @@
 
 TaskPaper mode is an Emacs major mode for working with files in TaskPaper format. The format was invented by Jesse Grosjean and named after his [TaskPaper][taskpaper] macOS app, which is a system for organizing your outlines and tasks in a text file. The format itself is exceptionally readable and supports different item types, outline hierarchy, and tagging.
 
-TaskPaper format knows about four things: _projects_, _tasks_, _notes_, and _tags_. Items can be indented (using literal tabs) under other items to create outline structure, which defines parent/child relationships:
+TaskPaper format knows about four things: _projects_, _tasks_, _notes_, and _tags_. Items can be indented (using literal tabs) under other items to create outline structure, which defines parent-child relationships:
 
     To create items:
         - To create a project, type a line ending with a colon.
@@ -79,7 +79,7 @@ The command `C-TAB` (`taskpaper-cycle`) changes the visibility of items in the b
 When point is at the beginning of the buffer, rotate the entire buffer among the two states:
 
  - Overview: Only top-level items are shown.
- - Show all: Everything is shown.
+ - Show All: Everything is shown.
 
 When point is in an item, rotate current subtree among the three states:
 
@@ -330,7 +330,7 @@ In addition to the standard motion and editing commands both static and incremen
 
 The syntax for query string is described below.
 
-__Note for TaskPaper app users:__ Though query syntax described here is a valid subset of search syntax implemented in TaskPaper app v3, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future releases.
+__Note for TaskPaper app users:__ Though query syntax described here is a valid subset of search syntax implemented in TaskPaper app v3, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
 
 
 ### Tags and Attributes

@@ -1058,13 +1058,6 @@ also consider invisible items.")
 (defalias 'taskpaper-outline-backward-same-level 'outline-backward-same-level
   "Move backward to the ARG'th item at same level.")
 
-;; (defun taskpaper-outline-up-level-safe ()
-;;   "Move to the (possibly invisible) ancestor item.
-;; This version will not throw an error."
-;;   (condition-case nil
-;;       (progn (outline-up-heading 1 t) (not (bobp)))
-;;     (error nil)))
-
 (defsubst taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
 This version will not throw an error. Also, this version is much
