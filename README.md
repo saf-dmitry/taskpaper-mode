@@ -87,6 +87,8 @@ When point is in an item, rotate current subtree among the three states:
  - Children: The item and its direct children are shown. From this state, you can move to one of the children and zoom in further.
  - Subtree: The entire subtree under the item is shown.
 
+When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the custom variable `taskpaper-startup-folded`.
+
 The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors. Other top-level items also shown to provide global context. The command `C-c C-a` (`taskpaper-outline-show-all`) unfolds all items at all levels (also bound to `ESC ESC`).
 
 

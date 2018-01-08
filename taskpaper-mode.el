@@ -73,6 +73,11 @@
   :group 'text
   :group 'applications)
 
+(defcustom taskpaper-startup-folded nil
+  "Non-nil means entering TaskPaper mode will switch to OVERVIEW."
+  :group 'taskpaper
+  :type 'boolean)
+
 (defcustom taskpaper-faces-easy-properties :foreground
   "The property changes by easy faces.
 The value can be :foreground or :background. A color string for
@@ -1245,6 +1250,12 @@ buffer. When point is on an item, rotate the current subtree."
      (t
       ;; Not at an item
       (outline-back-to-heading))))))
+
+(defun taskpaper-set-startup-visibility ()
+  "Set startup visibility."
+  (if taskpaper-startup-folded
+      (taskpaper-outline-hide-sublevels 1)
+    (taskpaper-outline-show-all)))
 
 ;;;; Misc. outline functions
 
@@ -3802,6 +3813,8 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
   ;; Misc. settings
   (taskpaper-ispell-setup)
   (setq-local require-final-newline mode-require-final-newline)
+  ;; Startup settings
+  (taskpaper-set-startup-visibility)
   ;; Hooks
   (add-hook 'change-major-mode-hook 'taskpaper-outline-show-all nil t)
   (run-hooks 'taskpaper-mode-hook))
