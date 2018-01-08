@@ -8,6 +8,7 @@
  - Added quick entry interface for search queries
  - Added agenda view
  - Added support for inline images
+ - Added startup visibility option
 
 
 # v0.2
