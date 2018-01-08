@@ -1232,8 +1232,8 @@ buffer. When point is on an item, rotate the current subtree."
           (outline-end-of-subtree) (setq eos (point)))
         (cond
          ((= eos eoh)
-          ;; Empty item
-          (message "EMPTY ITEM"))
+          ;; Leaf item
+          (message "LEAF ITEM"))
          ((>= eol eos)
           ;; Entire subtree is hidden in one line
           (taskpaper-outline-show-children)
