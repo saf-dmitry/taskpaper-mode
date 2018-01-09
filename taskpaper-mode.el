@@ -1951,7 +1951,7 @@ string and show the corresponding date."
     (set-keymap-parent map minibuffer-local-map)
     (define-key map "!"
       (lambda () (interactive)
-        (taskpaper-eval-in-calendar '(diary-view-entries))
+        (taskpaper-eval-in-calendar '(diary-mark-entries))
         (message nil)))
     (define-key map (kbd "C-.")
       (lambda () (interactive)

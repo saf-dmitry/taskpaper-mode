@@ -206,7 +206,7 @@ Parallel to the minibuffer prompt, a calendar is popped up (see the custom varia
 
  - `C-.`: Go to the current date.
 
- - `!`: Show diary items in calendar.
+ - `!`: Mark diary items in calendar.
 
 
 ## Date & Time Formats
