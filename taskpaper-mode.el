@@ -763,7 +763,7 @@ If TAG is a number, get the corresponding match group."
      (list 'face (taskpaper-get-tag-face 2)
            'mouse-face 'highlight
            'keymap taskpaper-mouse-map-tag
-           'help-echo "Focus on Tag"))
+           'help-echo "Filter on Tag"))
     (taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
