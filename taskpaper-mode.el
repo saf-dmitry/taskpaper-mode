@@ -73,11 +73,6 @@
   :group 'text
   :group 'applications)
 
-(defcustom taskpaper-startup-folded nil
-  "Non-nil means entering TaskPaper mode will switch to OVERVIEW."
-  :group 'taskpaper
-  :type 'boolean)
-
 (defcustom taskpaper-faces-easy-properties :foreground
   "The property changes by easy faces.
 The value can be :foreground or :background. A color string for
@@ -138,6 +133,16 @@ used to select that tag through the fast-selection interface."
 
 (defcustom taskpaper-read-date-display-live t
   "Non-nil means, display the date prompt interpretation live."
+  :group 'taskpaper
+  :type 'boolean)
+
+(defcustom taskpaper-startup-folded nil
+  "Non-nil means switch to OVERVIEW when entering TaskPaper mode."
+  :group 'taskpaper
+  :type 'boolean)
+
+(defcustom taskpaper-startup-with-inline-images nil
+  "Non-nil means show inline images when entering TaskPaper mode."
   :group 'taskpaper
   :type 'boolean)
 
@@ -942,7 +947,7 @@ With optional argument IN-EMACS, visit the file in Emacs."
       ;; Open in Emacs
       (find-file-other-window file)))))
 
-;;;; Hyperlinks
+;;;; Links
 
 (defun taskpaper-file-path-complete (&optional arg)
   "Read file path using completion.
@@ -1006,7 +1011,8 @@ directory. An absolute path can be forced with a
   (setq taskpaper-inline-image-overlays nil))
 
 (defun taskpaper-display-inline-images ()
-  "Display inline images in the buffer."
+  "Display inline images in the buffer.
+Add inline image overlays to local image links in the buffer."
   (interactive)
   (unless (display-graphic-p) (error "Images cannot be displayed"))
   (taskpaper-remove-inline-images)
@@ -3815,6 +3821,7 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
   (setq-local require-final-newline mode-require-final-newline)
   ;; Startup settings
   (taskpaper-set-startup-visibility)
+  (when taskpaper-startup-with-inline-images (taskpaper-display-inline-images))
   ;; Hooks
   (add-hook 'change-major-mode-hook 'taskpaper-outline-show-all nil t)
   (run-hooks 'taskpaper-mode-hook))
