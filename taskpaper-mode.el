@@ -642,7 +642,7 @@ Group 3 matches trailing tags, if any.")
 ;;;; Font Lock
 
 (defun taskpaper-file-path-unescape (path)
-  "Unescape spaces in PATH."
+  "Remove file URL scheme and unescape spaces in PATH."
   (when (stringp path)
     (setq path (replace-regexp-in-string "^file:" "" path)
           path (replace-regexp-in-string "\\\\ " " " path)))
@@ -2540,9 +2540,8 @@ epoch."
     (overlay-put overlay 'face 'secondary-selection)
     (push overlay taskpaper-occur-highlights)))
 
-(defun taskpaper-occur-remove-highlights (&optional begin end)
-  "Remove the occur highlights from the buffer.
-BEGIN and END are ignored."
+(defun taskpaper-occur-remove-highlights (&optional _begin _end)
+  "Remove the occur highlights from the buffer."
   (interactive)
   (mapc 'delete-overlay taskpaper-occur-highlights)
   (setq taskpaper-occur-highlights nil))
@@ -3632,12 +3631,11 @@ if the item matches the selection string STR."
       (set-text-properties
        (match-beginning 1) (match-end 1) (list 'face 'default)))))
 
-(defun taskpaper-read-query-propertize (&optional begin end length)
+(defun taskpaper-read-query-propertize (&optional _begin _end _length)
   "Propertize query string live in minibuffer.
 Incrementally read query string, validate it and propertize
 accordingly. The function should be called from minibuffer as
-part of `after-change-functions' hook. BEGIN, END and LENGTH are
-ignored."
+part of `after-change-functions' hook."
   (when (minibufferp (current-buffer))
     (condition-case nil
         (progn
@@ -3686,11 +3684,10 @@ prompt."
     (if matcher (taskpaper-match-sparse-tree matcher)))
   (message "Querying...done"))
 
-(defun taskpaper-iquery-query (&optional begin end length)
+(defun taskpaper-iquery-query (&optional _begin _end _length)
   "Evaluate querying in main window.
 The function should be called from minibuffer as part of
-`after-change-functions' hook. BEGIN, END and LENGTH are
-ignored."
+`after-change-functions' hook."
   (when (and (minibufferp (current-buffer))
              (minibuffer-selected-window))
     (let ((str (minibuffer-contents-no-properties)))
