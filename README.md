@@ -317,7 +317,7 @@ Filtering hides items that don't match the search creating a sparse tree, so tha
 
 The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted; the highlights disappear when the buffer is changed by an editing command, or by pressing `C-c C-c`.
 
-The command `C-c C-t` (`taskpaper-search-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the tag name, only tag name is considered. If the cursor is on the tag value, considers the tag and value combination. Alternatively, you can select the tag by clicking on it with `mouse-1`.
+The command `C-c C-t` (`taskpaper-search-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the tag name, only the name is considered. If the cursor is on the tag value, both the name and value are considered. Alternatively, you can select the tag by clicking on it with `mouse-1`.
 
 The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all levels (also bound to `ESC ESC`).
 
