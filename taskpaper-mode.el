@@ -64,7 +64,7 @@
 (defvar taskpaper-query-history nil
   "History list for query prompt.")
 
-;;;; Customizable variables
+;;;; Custom variables
 
 (defgroup taskpaper nil
   "Major mode for editing and querying files in TaskPaper format."
@@ -435,7 +435,7 @@ Set the match data. Only the current line is checked."
                                  (match-end 0)))))))))
 
 (defsubst taskpaper-set-local (var value)
-  "Make VAR local in current buffer and set it to VALUE."
+  "Make VAR local in the current buffer and set it to VALUE."
   (set (make-local-variable var) value))
 
 (defsubst taskpaper-uniquify (list)
@@ -1121,7 +1121,7 @@ This version will not throw an error."
     (error nil)))
 
 (defun taskpaper-map-tree (func)
-  "Call FUNC for every (possibly invisible) item of current subtree."
+  "Call FUNC for every (possibly invisible) item of the current subtree."
   (outline-back-to-heading t)
   (let ((level (save-match-data (funcall outline-level))))
     (save-excursion
@@ -1157,19 +1157,19 @@ This version will not throw an error."
     "Show the current item.")
   (defalias 'taskpaper-outline-show-children
     (if (fboundp 'outline-show-children) 'outline-show-children 'show-children)
-    "Show all direct subitems of current item.")
+    "Show all direct subitems of the current item.")
   (defalias 'taskpaper-outline-show-subtree
     (if (fboundp 'outline-show-subtree) 'outline-show-subtree 'show-subtree)
-    "Show all subitems of current item.")
+    "Show all subitems of the current item.")
   (defalias 'taskpaper-outline-hide-subtree
     (if (fboundp 'outline-hide-subtree) 'outline-hide-subtree 'hide-subtree)
-    "Hide all subitems of current item.")
+    "Hide all subitems of the current item.")
   (defalias 'taskpaper-outline-hide-sublevels
     (if (fboundp 'outline-hide-sublevels) 'outline-hide-sublevels 'hide-sublevels))
   "Hide everything but the top-level items in the buffer.")
 
 (defun taskpaper-outline-show-context ()
-  "Show current item and all its ancestors."
+  "Show the current item and all its ancestors."
   (let (outline-view-change-hook)
     (save-excursion
       (outline-back-to-heading t) (taskpaper-outline-show-item)
@@ -1180,7 +1180,7 @@ This version will not throw an error."
          nil)))))
 
 (defun taskpaper-outline-hide-other ()
-  "Hide everything except current item, its ancestors and top-level items.
+  "Hide everything except the current item, its ancestors and top-level items.
 Essentially a slightly modified version of `outline-hide-other'."
   (interactive)
   (taskpaper-outline-hide-sublevels 1)
@@ -1276,7 +1276,7 @@ buffer. When point is on an item, rotate the current subtree."
         (narrow-to-region begin end)))))
 
 (defalias 'taskpaper-mark-subtree 'outline-mark-subtree
-  "Mark current subtree.
+  "Mark the current subtree.
 This puts point at the start of the current subtree, and mark at
 the end.")
 
@@ -1286,7 +1286,7 @@ the end.")
 ;;;; Promotion and demotion
 
 (defun taskpaper-outline-promote ()
-  "Promote current (possibly invisible) item."
+  "Promote the current (possibly invisible) item."
   (interactive)
   (outline-back-to-heading t)
   (let ((level (save-match-data (funcall outline-level))))
@@ -1296,7 +1296,7 @@ the end.")
       (replace-match indent nil t nil 1))))
 
 (defun taskpaper-outline-demote ()
-  "Demote current (possibly invisible) item."
+  "Demote the current (possibly invisible) item."
   (interactive)
   (outline-back-to-heading t)
   (let* ((level (save-match-data (funcall outline-level)))
@@ -1304,12 +1304,12 @@ the end.")
     (replace-match indent nil t nil 1)))
 
 (defun taskpaper-outline-promote-subtree ()
-  "Promote current (possibly invisible) subtree."
+  "Promote the current (possibly invisible) subtree."
   (interactive)
   (taskpaper-map-tree 'taskpaper-outline-promote))
 
 (defun taskpaper-outline-demote-subtree ()
-  "Demote current (possibly invisible) subtree."
+  "Demote the current (possibly invisible) subtree."
   (interactive)
   (taskpaper-map-tree 'taskpaper-outline-demote))
 
@@ -1460,7 +1460,7 @@ tags.")
     (string-match-p (format "^%s$" taskpaper-tag-name-regexp) name)))
 
 (defun taskpaper-tag-value-escape (value)
-  "Escape parentheses in VALUE."
+  "Escape parentheses in tag VALUE."
   (when (stringp value)
     (setq value (replace-regexp-in-string "[\n]+" " " value)
           value (replace-regexp-in-string "(" "\\\\(" value)
@@ -1468,7 +1468,7 @@ tags.")
   value)
 
 (defun taskpaper-tag-value-unescape (value)
-  "Unescape parentheses in VALUE."
+  "Unescape parentheses in tag VALUE."
   (when (stringp value)
     (setq value (replace-regexp-in-string "\\\\(" "(" value)
           value (replace-regexp-in-string "\\\\)" ")" value)))
@@ -1530,7 +1530,7 @@ VALUE is the attribute value, as strings."
 (defun taskpaper-attribute-cache-build ()
   "Build attribute cache."
   (taskpaper-attribute-cache-clear)
-  (message "Caching attributes...")
+  (message "Caching...")
   (save-excursion
     (goto-char (point-min))
     (let ((re (concat "^" outline-regexp)))
@@ -1539,7 +1539,7 @@ VALUE is the attribute value, as strings."
         (let ((key (point-at-bol))
               (attrs (taskpaper-item-get-attributes t)))
           (taskpaper-attribute-cache-put key attrs)))))
-  (message "Caching attributes...done"))
+  (message "Caching...done"))
 
 ;;;; Attribute API
 
@@ -1939,7 +1939,8 @@ string and show the corresponding date."
   "Temporary storage for date selected from calendar.")
 
 (defun taskpaper-eval-in-calendar (form)
-  "Eval FORM in the calendar window and return to current window."
+  "Eval FORM in the calendar window.
+Return to the current window."
   (let ((sf (selected-frame))
         (sw (selected-window)))
     (select-window (get-buffer-window "*Calendar*" t))
@@ -2108,7 +2109,7 @@ buffer instead."
       ;; No completion found
       (user-error "No match for %s" pattern))
      ((not (string-equal pattern completion))
-      ;; Expand current word to max match
+      ;; Expand the current word to max match
       (delete-region (- end (length pattern)) end) (insert completion))
      (t
       ;; List possible completions
@@ -2799,7 +2800,7 @@ subtree."
   (let (begin end)
     (save-excursion
       (save-match-data
-        ;; Mark current subtree
+        ;; Mark the current subtree
         (outline-back-to-heading)
         (setq begin (point))
         (outline-end-of-subtree)
@@ -2818,7 +2819,7 @@ If CUT is non-nil, actually cut the subtree."
   (let (begin end)
     (save-excursion
       (save-match-data
-        ;; Mark current subtree
+        ;; Mark the current subtree
         (outline-back-to-heading) (setq begin (point))
         (outline-end-of-subtree)
         (if (eq (char-after) ?\n) (forward-char 1)
@@ -3503,7 +3504,7 @@ parsing algorithm known as Pratt's algorithm. See also variable
        ((taskpaper-query-open-p (nth 0 tokens))
         (setq temp (taskpaper-query-parse-parentheses tokens)))
        (t
-        ;; Get current precedence
+        ;; Get the current precedence
         (setq cprec (cdr (assoc bool taskpaper-query-precedence-boolean)))
         (setq temp
               (if (> cprec prec)
@@ -3772,8 +3773,8 @@ items, that matches. PROMPT can overwrite the default prompt."
 ;;;###autoload
 (define-derived-mode taskpaper-mode outline-mode "TaskPaper"
   "Major mode for editing and querying files in TaskPaper format.
-TaskPaper mode is implemented on top of outline-mode. Turning on
-TaskPaper mode runs the normal hook `text-mode-hook' and then
+TaskPaper mode is implemented on top of Outline mode. Turning on
+TaskPaper mode runs the normal hook `text-mode-hook', and then
 `outline-mode-hook' and `taskpaper-mode-hook'."
   (kill-all-local-variables)
   ;; Disable Outline mode menus
@@ -3823,7 +3824,7 @@ TaskPaper mode runs the normal hook `text-mode-hook' and then
   (add-hook 'change-major-mode-hook 'taskpaper-outline-show-all nil t)
   (run-hooks 'taskpaper-mode-hook))
 
-(add-to-list 'auto-mode-alist '("\\.taskpaper$" . taskpaper-mode))
+(add-to-list 'auto-mode-alist '("\\.taskpaper\\'" . taskpaper-mode))
 
 ;;;; Key bindings
 
@@ -4008,7 +4009,7 @@ file list."
   :group 'taskpaper
   :type 'list)
 
-(defcustom taskpaper-agenda-file-regexp "^[^.].*\\.taskpaper$"
+(defcustom taskpaper-agenda-file-regexp "^[^.].*\\.taskpaper\\'"
   "Regular expression to match files for `taskpaper-agenda-files'.
 If any element in the list in that variable contains a directory
 instead of a normal file, all files in that directory that are
@@ -4073,7 +4074,7 @@ this option will be ignored."
 (defvar taskpaper-agenda-pre-follow-window-conf nil)
 
 (defvar taskpaper-agenda-matcher-form nil
-  "Recent matcher form for agenda rebuilding.")
+  "Recent matcher form for agenda re-building.")
 (make-variable-buffer-local 'taskpaper-agenda-matcher-form)
 
 (defvar taskpaper-agenda-new-buffers nil
@@ -4189,13 +4190,13 @@ the item originated."
     (goto-char (point-min))))
 
 (defun taskpaper-agenda-redo ()
-  "Rebuid current agenda buffer."
+  "Re-buid the current agenda buffer."
   (interactive)
-  (message "Rebuilding agenda buffer...")
+  (message "Re-building agenda buffer...")
   (let ((matcher taskpaper-agenda-matcher-form))
     (when matcher (taskpaper-agenda-insert-items matcher)))
   (goto-char (point-min))
-  (message "Rebuilding agenda buffer...done"))
+  (message "Re-building agenda buffer...done"))
 
 (defun taskpaper-agenda-goto ()
   "Go to the item at point."

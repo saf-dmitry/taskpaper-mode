@@ -49,7 +49,7 @@ Put `taskpaper-mode.el` on the load path and copy the following into your `.emac
 Files with the `.taskpaper` extension use TaskPaper mode by default. If you want other filenames to be associated with TaskPaper mode, add the corresponding entry to the `auto-mode-alist` in your `.emacs` file:
 
     (add-to-list 'auto-mode-alist
-                 '("\\.todo$" . taskpaper-mode))
+                 '("\\.todo\\'" . taskpaper-mode))
 
 
 # Usage
@@ -434,8 +434,7 @@ Fast selection interface allows you to save your commonly used search queries an
           '((?w "Waiting"  "@waiting and not @done")
             (?d "Due Soon" "@due <=[d] +14d and not @done")))
 
-The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the
-first element is a string, it will be used as block separator. Pressing `C-c ?` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
+The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first element is a string, it will be used as block title to visually group queries. Pressing `C-c ?` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
 
 ### Startup View
@@ -613,7 +612,7 @@ For customizing the way guides are displayed, see the package options.
 
 # Acknowledgments
 
-Thanks to Jesse Grosjean for writing [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs, and for publishing [TaskPaper's open source model layer][birch-outline], which gave me some valuable implementation insights.
+Thanks to Jesse Grosjean for writing [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs, and for publishing TaskPaper's [open source model layer][birch-outline], which gave me some valuable implementation insights.
 
 I would also thank the following people, from whose work TaskPaper mode has benefited greatly:
 
