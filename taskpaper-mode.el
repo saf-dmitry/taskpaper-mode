@@ -2601,7 +2601,7 @@ match the tag-value combination."
 
 ;;;; Sorting
 
-(defun taskpaper--sort-items
+(defun taskpaper-sort-items-generic
   (getkey-func compare-func &optional with-case reverse)
   "Sort items on a certain level.
 When point is at the beginning of the buffer, sort the top-level
@@ -2688,7 +2688,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   "Sort items on a certain level alphabetically.
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
-  (taskpaper--sort-items
+  (taskpaper-sort-items-generic
    '(lambda nil (taskpaper-remove-type-formatting
                  (taskpaper-item-get-attribute "text")))
    'taskpaper-string< nil reverse))
@@ -2697,7 +2697,7 @@ The optional argument REVERSE will reverse the sort order."
   "Sort items on a certain level by type.
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
-  (taskpaper--sort-items
+  (taskpaper-sort-items-generic
    '(lambda nil
       (let ((type (taskpaper-item-get-attribute "type")))
         (cond ((equal type "project") 1)

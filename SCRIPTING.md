@@ -31,8 +31,8 @@ The mapping routines can call any arbitrary function.
 
 General functions for extending sorting and filtering functionality.
 
- - `taskpaper--sort-items`
  - `taskpaper-match-sparse-tree`
+ - `taskpaper-sort-items-generic`
 
 
 ### Accessing and Setting Attributes
@@ -190,12 +190,12 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
 
 ### Sorting
 
-You can define your own sorting functions using the general sort function `taskpaper--sort-items`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in descending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
+You can define your own sorting functions using the general sort function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in descending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
 
     (defun taskpaper-sort-by-priority ()
       "Sort items on a certain level by priority."
       (interactive)
-      (taskpaper--sort-items
+      (taskpaper-sort-items-generic
        '(lambda nil
           (or (taskpaper-item-get-attribute "priority")
               "99"))
@@ -209,7 +209,7 @@ The next function sorts items according to their due dates. The sorting is done 
     (defun taskpaper-sort-by-due-date ()
       "Sort items on a certain level by due date."
       (interactive)
-      (taskpaper--sort-items
+      (taskpaper-sort-items-generic
        '(lambda nil
           (or (taskpaper-item-get-attribute "due")
               "2100-12-12"))
