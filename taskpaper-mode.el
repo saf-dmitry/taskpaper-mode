@@ -2006,7 +2006,7 @@ Return formatted date as string."
         (calendar-move-hook nil)
         (calendar-view-diary-initially-flag nil)
         (calendar-view-holidays-initially-flag nil)
-        (prompt (if prompt prompt "Date & time: ")))
+        (prompt (if prompt prompt "Date: ")))
     (save-excursion
       (save-window-excursion
         (let ((old-buffer (current-buffer)))

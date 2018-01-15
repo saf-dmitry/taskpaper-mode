@@ -657,7 +657,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 [emacs-orgmode]: http://orgmode.org/
 
-[emacs-adaptive-wrap]: https://github.com/emacsmirror/adaptive-wrap
+[emacs-adaptive-wrap]: https://elpa.gnu.org/packages/adaptive-wrap.html
 
 [birch-outline]: https://github.com/jessegrosjean/birch-outline
 
