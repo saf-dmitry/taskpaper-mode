@@ -216,7 +216,7 @@ These examples show the different formats that you can use when entering dates a
     - Attend meeting @due(2017-08-11 8am)
     - Do weekly review @due(Friday 12:30)
 
-The TaskPaper mode understands English month and weekday abbreviations. Week refers to ISO standard week that starts on Monday, not Sunday. If the date/time string is unparseable, current time is returned.
+The TaskPaper mode understands English month and weekday abbreviations. Week refers to ISO standard week that starts on Monday, not Sunday. If the time string is unparseable, current time is returned.
 
 
 ### Dates
@@ -227,6 +227,7 @@ Dates resolve to midnight of the given date.
  - `2017-5`
  - `2017-05-10`
  - `--05-10`
+ - `2017-W02-5`
  - `this week`
  - `next month`
  - `next Monday`

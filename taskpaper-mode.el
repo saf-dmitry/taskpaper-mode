@@ -43,6 +43,7 @@
 (require 'easymenu)
 (require 'calendar)
 (require 'parse-time)
+(require 'cal-iso)
 
 ;;;; Variables
 
@@ -1797,7 +1798,20 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             second (nth 0 nowdecode)
             taskpaper-time-was-given t)
       (setq time-string (replace-match "" t t time-string))))
-    ;; Help matching incomplete ISO dates, like "2017-08" or "2017-8-2"
+    ;; Help matching ISO week date representation, like "2018-W02-5" or "2018-W02"
+    (when (string-match
+           "^ *\\([0-9]\\{4\\}\\)-W\\([0-9]\\{1,2\\}\\)\\(?:-\\([1-7]\\)\\)?\\([^-0-9]\\|$\\)"
+           time-string)
+      (let* ((iso-year (string-to-number (match-string 1 time-string)))
+             (iso-week (string-to-number (match-string 2 time-string)))
+             (iso-wday (if (match-end 3) (string-to-number (match-string 3 time-string)) 1))
+             (iso-wday (if (= iso-wday 7) 0 iso-wday))
+             (iso-date (calendar-gregorian-from-absolute
+                        (calendar-iso-to-absolute (list iso-week iso-wday iso-year))))
+             (month (nth 0 iso-date)) (day (nth 1 iso-date)) (year (nth 2 iso-date)))
+        (setq time-string
+              (replace-match (format "%04d-%02d-%02d\\4" year month day) t nil time-string))))
+    ;; Help matching incomplete ISO date representations, like "2018-08" or "2018-8-2"
     (when (string-match
            "^ *\\([0-9]\\{4\\}\\)-\\([0-1]?[0-9]\\)\\(?:-\\([0-3]?[0-9]\\)\\)?\\([^-0-9]\\|$\\)"
            time-string)
@@ -1806,7 +1820,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             (day (if (match-end 3) (string-to-number (match-string 3 time-string)) 1)))
         (setq time-string
               (replace-match (format "%04d-%02d-%02d\\4" year month day) t nil time-string))))
-    ;; Help matching ISO dates without year, like "--08-02"
+    ;; Help matching ISO date representation with year omitted, like "--08-02"
     (when (string-match
            "^ *--\\([0-1][0-9]\\)-\\([0-3][0-9]\\)\\([^-0-9]\\|$\\)"
            time-string)
@@ -1836,11 +1850,12 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
           minute (or (nth 1 tl) minute (nth 1 nowdecode))
           second (or (nth 0 tl) second (nth 0 nowdecode)))
     (if (nth 2 tl) (setq taskpaper-time-was-given t))
-    ;; If a weekday was given but no day, calculate the day
+    ;; Weekday was given but no day
     (when (and (nth 6 tl) (not (nth 3 tl)))
       (setq wday (nth 6 tl)
             wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
-      (if (= wday 0) (setq wday 7)) (if (= wday1 0) (setq wday1 7))
+      ;; Ensure ISO week day
+      (when (= wday 0) (setq wday 7)) (when (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday wday1))))
     ;; Evaluate duration offset
     (when (and dir deltan deltaw)

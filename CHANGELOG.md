@@ -9,6 +9,7 @@
  - Added agenda view
  - Added support for inline images
  - Added startup visibility option
+ - Improved time parsing supports ISO week date representation
 
 
 # v0.2
