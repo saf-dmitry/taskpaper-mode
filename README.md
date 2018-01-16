@@ -89,7 +89,7 @@ When point is in an item, rotate current subtree among the three states:
 
 When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the custom variable `taskpaper-startup-folded`.
 
-The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors. Other top-level items also shown to provide global context. The command `C-c C-a` (`taskpaper-outline-show-all`) unfolds all items at all levels (also bound to `ESC ESC`).
+The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items also shown to provide global context. The command `C-c C-a` (`taskpaper-outline-show-all`) unfolds all items at all levels (also bound to `ESC ESC`).
 
 
 ## Outline Navigation
@@ -216,7 +216,7 @@ These examples show the different formats that you can use when entering dates a
     - Attend meeting @due(2017-08-11 8am)
     - Do weekly review @due(Friday 12:30)
 
-The TaskPaper mode understands English month and weekday abbreviations. Week refers to ISO standard week that starts on Monday, not Sunday. If the time string is unparseable, current time is returned.
+The TaskPaper mode understands English month and weekday abbreviations. Week refers to [ISO 8601][iso8601-wiki] standard week that starts on Monday, not Sunday. If the time string is unparseable, current time is returned.
 
 
 ### Dates
@@ -227,6 +227,7 @@ Dates resolve to midnight of the given date.
  - `2017-5`
  - `2017-05-10`
  - `--05-10`
+ - `2017-W02`
  - `2017-W02-5`
  - `this week`
  - `next month`
@@ -327,7 +328,7 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all lev
 
 You can create a sparse tree based on specific combinations of items' text and tags.
 
-TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to certain projects by narrowing the buffer to the project with `C-c #` (`taskpaper-narrow-to-subtree`).
+TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to certain subtree or region by narrowing the buffer with `C-c #` (`taskpaper-narrow-to-subtree`) or `C-x n n` (`narrow-to region`) respectively.
 
 In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline.
 
