@@ -10,6 +10,7 @@
  - Added support for inline images
  - Added startup visibility option
  - Improved time parsing supports ISO week date representation
+ - Improved date & time prompt can optionally return internal time
 
 
 # v0.2

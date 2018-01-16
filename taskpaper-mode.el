@@ -1948,7 +1948,7 @@ string and show the corresponding date."
          (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
     (insert-before-markers (format-time-string "%Y-%m-%d" time))))
 
-;;;; Date picker
+;;;; Date prompt
 
 (defvar taskpaper-calendar-selected-date nil
   "Temporary storage for date selected from calendar.")
@@ -1987,8 +1987,7 @@ Return to the current window."
   (when (calendar-cursor-to-date)
     (let* ((date (calendar-cursor-to-date))
            (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
-      (setq taskpaper-calendar-selected-date
-            (format-time-string "%Y-%m-%d" time)))
+      (setq taskpaper-calendar-selected-date time))
     (when (active-minibuffer-window) (exit-minibuffer))))
 
 (defvar taskpaper-read-date-overlay nil)
@@ -2014,63 +2013,58 @@ Return to the current window."
         (taskpaper-overlay-display
          taskpaper-read-date-overlay txt 'secondary-selection)))))
 
-(defun taskpaper-read-date (&optional prompt)
+(defun taskpaper-read-date (&optional prompt to-time)
   "Prompt the user for a date using PROMPT.
-Return formatted date as string."
+Return formatted date as string. If optional argument TO-TIME is
+non-nil return the date converted to an internal time."
   (let ((mouse-autoselect-window nil)
         (calendar-move-hook nil)
         (calendar-view-diary-initially-flag nil)
         (calendar-view-holidays-initially-flag nil)
-        (prompt (if prompt prompt "Date: ")))
+        (prompt (if prompt prompt "Date: ")) text)
     (save-excursion
       (save-window-excursion
-        (let ((old-buffer (current-buffer)))
-          (when taskpaper-read-date-popup-calendar
-            ;; Open calendar
-            (calendar) (calendar-goto-today))
-          (let (;; Save calendar keymap
-                (old-map (copy-keymap calendar-mode-map))
-                ;; Set keymap to control calendar from minibuffer
-                (minibuffer-local-map
-                 (copy-keymap taskpaper-read-date-minibuffer-local-map)))
-            (unwind-protect
-                (progn
-                  ;; Set temp. calendar keymap
-                  (define-key calendar-mode-map (kbd "RET")
-                    'taskpaper-calendar-select)
-                  (define-key calendar-mode-map [mouse-1]
-                    'taskpaper-calendar-select)
-                  ;; Reset `taskpaper-calendar-selected-date'
-                  (setq taskpaper-calendar-selected-date nil)
-                  ;; Activate live preview
-                  (add-hook 'post-command-hook
-                            'taskpaper-read-date-display)
-                  ;; Select date
-                  (let* ((text (read-string prompt nil
-                                            taskpaper-read-date-history))
-                         (date (taskpaper-parse-time-string text))
-                         (fmt (if taskpaper-time-was-given
-                                  "%Y-%m-%d %H:%M" "%Y-%m-%d")))
-                    (or taskpaper-calendar-selected-date
-                        (with-current-buffer old-buffer
-                          (setq taskpaper-calendar-selected-date
-                                (format-time-string
-                                 fmt (apply 'encode-time date)))))))
-              ;; Deactivate live preview
-              (remove-hook 'post-command-hook
-                           'taskpaper-read-date-display)
-              ;; Restore calendar keymap
-              (setq calendar-mode-map old-map)
-              ;; Remove live preview overlay
-              (when taskpaper-read-date-overlay
-                (delete-overlay taskpaper-read-date-overlay)
-                (setq taskpaper-read-date-overlay nil)))))))
-    (when (string-equal taskpaper-calendar-selected-date "")
-      ;; Fall back to the current date
-      (setq taskpaper-calendar-selected-date
-            (format-time-string "%Y-%m-%d" (current-time)))))
-  ;; Return the selected date
-  taskpaper-calendar-selected-date)
+        (when taskpaper-read-date-popup-calendar
+          ;; Open calendar
+          (calendar) (calendar-goto-today))
+        (let (;; Save calendar keymap
+              (old-map (copy-keymap calendar-mode-map))
+              ;; Set keymap to control calendar from minibuffer
+              (minibuffer-local-map
+               (copy-keymap taskpaper-read-date-minibuffer-local-map)))
+          (unwind-protect
+              (progn
+                ;; Set temporary calendar keymap
+                (define-key calendar-mode-map (kbd "RET")
+                  'taskpaper-calendar-select)
+                (define-key calendar-mode-map [mouse-1]
+                  'taskpaper-calendar-select)
+                ;; Reset `taskpaper-calendar-selected-date'
+                (setq taskpaper-calendar-selected-date nil)
+                ;; Activate live preview
+                (add-hook 'post-command-hook
+                          'taskpaper-read-date-display)
+                ;; Read date
+                (setq text (read-string prompt nil
+                                        taskpaper-read-date-history)))
+            ;; Deactivate live preview
+            (remove-hook 'post-command-hook
+                         'taskpaper-read-date-display)
+            ;; Restore calendar keymap
+            (setq calendar-mode-map old-map)
+            ;; Remove live preview overlay
+            (when taskpaper-read-date-overlay
+              (delete-overlay taskpaper-read-date-overlay)
+              (setq taskpaper-read-date-overlay nil))))))
+    ;; Convert and format date
+    (let* ((date (taskpaper-parse-time-string text))
+           (time (or taskpaper-calendar-selected-date
+                     (apply 'encode-time date)))
+           (fmt (if (and taskpaper-time-was-given
+                         (not taskpaper-calendar-selected-date))
+                    "%Y-%m-%d %H:%M" "%Y-%m-%d")))
+      ;; Return the selected date
+      (if to-time time (format-time-string fmt time)))))
 
 (defun taskpaper-read-date-insert-timestamp ()
   "Prompt the user for a date and insert the timestamp at point."

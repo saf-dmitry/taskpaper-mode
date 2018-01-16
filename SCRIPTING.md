@@ -96,6 +96,11 @@ Some handy functions for checking attribute values.
  - `taskpaper-item-format`
 
 
+### Date Prompt
+
+ - `taskpaper-read-date`
+
+
 ### Buffers and Files
 
 Functions for working with TaskPaper files and buffers.
