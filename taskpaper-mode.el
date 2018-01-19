@@ -4113,7 +4113,7 @@ which might be released later."
   "Set mode name to indicate all mode settings."
   (setq mode-name
         (list "TP-Agenda"
-              (when taskpaper-agenda-follow-mode " Follow" "")
+              (if taskpaper-agenda-follow-mode " Follow" "")
               (force-mode-line-update))))
 
 (defun taskpaper-agenda-error ()
