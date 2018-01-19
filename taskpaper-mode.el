@@ -590,6 +590,11 @@ Group 3 matches trailing tags, if any.")
   "Face for task."
   :group 'taskpaper-faces)
 
+(defface taskpaper-item-marked-as-done-face
+  '((t :strike-through t :inherit font-lock-comment-face))
+  "Face for items marked as complete."
+  :group 'taskpaper-faces)
+
 (defface taskpaper-task-undone-mark-face
   '((t :inherit taskpaper-task-face))
   "Face for undone task mark."
@@ -598,11 +603,6 @@ Group 3 matches trailing tags, if any.")
 (defface taskpaper-task-done-mark-face
   '((t :inherit font-lock-comment-face))
   "Face for done task mark."
-  :group 'taskpaper-faces)
-
-(defface taskpaper-item-marked-as-done-face
-  '((t :strike-through t :inherit font-lock-comment-face))
-  "Face for items marked as complete."
   :group 'taskpaper-faces)
 
 (defface taskpaper-note-face
@@ -1340,7 +1340,7 @@ the end.")
           (t (newline) (insert indent)))))
 
 (defun taskpaper-new-task-same-level ()
-  "Insert new task of the same level."
+  "Insert new task at same level."
   (interactive)
   (taskpaper-new-item-same-level) (insert "- "))
 
@@ -1368,7 +1368,7 @@ the end.")
                          (match-string-no-properties 2 item)
                          (match-string-no-properties 3 item))))
           (t
-           ;; Note
+           ;; Note or blank
            item)))
   item)
 
@@ -1510,7 +1510,7 @@ VALUE is the attribute value, as strings."
       (setq attrs (nreverse excluded))))
   attrs)
 
-;;;; Attribute cache
+;;;; Attribute caching
 
 (defvar taskpaper-attribute-cache (make-hash-table :size 10000)
   "Attribute cache.")
@@ -1951,7 +1951,8 @@ string and show the corresponding date."
 ;;;; Date prompt
 
 (defvar taskpaper-calendar-selected-date nil
-  "Temporary storage for date selected from calendar.")
+  "Temporary storage for date selected from calendar.
+Date is stored as internal time representation.")
 
 (defun taskpaper-eval-in-calendar (form)
   "Eval FORM in the calendar window.
@@ -2723,8 +2724,9 @@ path also includes the current item."
   (let (item olpath)
     (save-excursion
       (outline-back-to-heading t)
-      (setq item (taskpaper-item-get-attribute "text"))
-      (when self (push item olpath))
+      (when self
+        (setq item (taskpaper-item-get-attribute "text"))
+        (push item olpath))
       (while (taskpaper-outline-up-level-safe)
         (setq item (taskpaper-item-get-attribute "text"))
         (push item olpath)))
@@ -2734,7 +2736,7 @@ path also includes the current item."
   "Format the outline path entry ENTRY for display."
   (setq entry (taskpaper-remove-type-formatting entry)
         entry (taskpaper-remove-trailing-tags entry)
-        entry (replace-regexp-in-string "/" "-" entry))
+        entry (replace-regexp-in-string "/" "." entry))
   entry)
 
 (defun taskpaper-format-outline-path (olpath &optional prefix separator)
@@ -2777,7 +2779,7 @@ subtree."
   (let ((prompt (if prompt prompt "Path: "))
         excluded-entries targets target)
     (when (and (outline-on-heading-p) (not no-exclude))
-      ;; Exclude subtree at point
+      ;; Exclude the subtree at point
       (taskpaper-map-tree
        (lambda ()
          (setq excluded-entries
@@ -2817,7 +2819,7 @@ subtree."
           ;; Add newline, if nessessary
           (unless (bolp) (end-of-line) (newline)))
         (setq end (point))
-        ;; Insert duplicate
+        ;; Paste duplicate
         (insert-before-markers
          (buffer-substring begin end))))))
 
@@ -2846,11 +2848,11 @@ If CUT is non-nil, actually cut the subtree."
   (taskpaper-copy-subtree 'cut))
 
 (defun taskpaper-kill-is-subtree-p (&optional txt)
-  "Check if the current kill is an outline subtree, or a set of subtrees.
-Return nil if the first headline level is not the largest
-headline level in the tree. So this will actually accept several
-items of equal levels as well. If optional TXT is given, check
-this string instead of the current kill."
+  "Check if the current kill is a valid subtree.
+Return nil if the first item level is not the largest item level
+in the tree. So this will actually accept a set of subtrees as
+well. If optional TXT string is given, check it instead of the
+current kill."
   (save-match-data
     (let* ((kill (or txt (and kill-ring (current-kill 0)) ""))
            (start-level
@@ -2884,7 +2886,7 @@ ring."
   (let* ((old-level (if (string-match "^\\([\t]*[^\t\n]\\)" text)
                         (- (match-end 1) (match-beginning 1))
                       1))
-         (force-level (if level (prefix-numeric-value level)))
+         (force-level (when level (prefix-numeric-value level)))
          (current-level (if (outline-on-heading-p t)
                             (save-match-data (funcall outline-level))
                           0))
@@ -2895,13 +2897,13 @@ ring."
                    'taskpaper-outline-demote
                  'taskpaper-outline-promote))
          begin end)
-    ;; Paste subtree and mark it
+    ;; Paste the subtree and mark it
     (beginning-of-line 2)
     (unless (bolp) (end-of-line) (newline))
     (setq begin (point))
     (insert-before-markers text)
     ;; Add newline, if nessessary
-    (unless (string-match-p "\n\\'" text) (insert "\n"))
+    (unless (string-match-p "\n\\'" text) (newline))
     (setq end (point))
     ;; Adjust outline level
     (unless (= shift 0)
@@ -2912,7 +2914,7 @@ ring."
           (setq shift (+ delta shift)))
         (goto-char (point-min))
         (setq end (point-max))))
-    ;; Locate point at the beginning of subtree
+    ;; Place point at the beginning of the subtree
     (goto-char begin)
     (when (called-interactively-p 'any)
       (message "Clipboard pasted as level %d subtree." new-level)))
@@ -2930,22 +2932,23 @@ obtained in a different way."
   (interactive)
   (let* ((loc (or rfloc (taskpaper-goto-get-location nil arg)))
          (path (nth 0 loc)) (pos (nth 1 loc)) level)
-    ;; Check target position
+    ;; Check the target position
     (if (and (not arg) pos
              (>= pos (point))
              (< pos (save-excursion (outline-end-of-subtree) (point))))
         (error "Cannot refile to item inside the current subtree"))
-    ;; Copy subtree
+    ;; Copy the subtree
     (taskpaper-copy-subtree)
-    ;; Move to the target position and paste subtree
+    ;; Move to the target position and paste the subtree
     (save-excursion
       (widen) (goto-char pos) (outline-back-to-heading t)
       (setq level (save-match-data (funcall outline-level)))
       (unless taskpaper-reverse-note-order (outline-end-of-subtree))
       (taskpaper-paste-subtree (1+ level)))
-    ;; Cut subtree from the original location
-    (if (not arg) (taskpaper-cut-subtree))
-    (message "Subtree refiled to %s." path)))
+    ;; Cut the subtree from the original location
+    (when (not arg) (taskpaper-cut-subtree))
+    (when (called-interactively-p 'any)
+      (message "Subtree refiled to %s." path))))
 
 (defun taskpaper-refile-subtree-copy ()
   "Copy the subtree at point to another location.
@@ -3033,7 +3036,7 @@ last subitem."
         (call-interactively 'taskpaper-mode))
       ;; Show everything
       (widen) (goto-char (point-min)) (taskpaper-outline-show-all)
-      ;; Go to the archive location and paste subtree
+      ;; Go to the archive location and paste the subtree
       (cond
        ((and (stringp heading) (> (length heading) 0))
         ;; Archive heading specified
@@ -3064,9 +3067,9 @@ last subitem."
     ;; Run hooks
     (run-hooks 'taskpaper-archive-hook)
     ;; Bind `this-command' to avoid `kill-region' changes it,
-    ;; which may lead to duplication of subtrees.
+    ;; which may lead to duplication of subtrees
     ;; NOTE: Do not bind `this-command' with `let' because
-    ;; that would restore the old value in case of error.
+    ;; that would restore the old value in case of error
     (let (old-this-command this-command)
       (setq this-command t)
       ;; Cut the subtree from the original location
@@ -3091,6 +3094,7 @@ is simply filed at the end of the file, as top-level item."
   (interactive)
   (let ((text (or text (read-string "Entry: ")))
         (this-buffer (current-buffer)) buffer level)
+    ;; Check the entry text
     (unless (taskpaper-kill-is-subtree-p text)
       (user-error "The text is not a (set of) tree(s)"))
     ;; Select buffer
@@ -4011,7 +4015,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
     "--"
     ["Customize..." (customize-browse 'taskpaper)]))
 
-;;;; Agenda mode
+;;;; Agenda view
 
 (defcustom taskpaper-agenda-files nil
   "List of files to be used for agenda display.
@@ -4153,9 +4157,9 @@ buffer."
   "Return list of items matching MATCHER.
 Cycle through agenda files and collect items matching MATCHER.
 MATCHER is a Lisp form to be evaluated at an item; returning a
-non-nil value qualifies an item for inclusion. Return list of
-items linked back to the corresponding buffer position where
-the item originated."
+non-nil value qualifies the item for inclusion. Return list of
+items linked back to the corresponding buffer position where the
+item originated."
   (let ((files (taskpaper-agenda-files))
         file buffer marker item items)
     ;; Cycle through agenda files

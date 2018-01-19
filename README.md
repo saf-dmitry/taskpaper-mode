@@ -42,11 +42,11 @@ This document explains the installation, usage, and basic customization of TaskP
 
 # Installation and Activation
 
-Put `taskpaper-mode.el` on the load path and copy the following into your `.emacs` file:
+Put `taskpaper-mode.el` on the load path and copy the following into your init file:
 
     (require 'taskpaper-mode)
 
-Files with the `.taskpaper` extension use TaskPaper mode by default. If you want other filenames to be associated with TaskPaper mode, add the corresponding entry to the `auto-mode-alist` in your `.emacs` file:
+Files with the `.taskpaper` extension use TaskPaper mode by default. If you want other filenames to be associated with TaskPaper mode, add the corresponding entry to the `auto-mode-alist` in your init file:
 
     (add-to-list 'auto-mode-alist
                  '("\\.todo\\'" . taskpaper-mode))
@@ -87,7 +87,7 @@ When point is in an item, rotate current subtree among the three states:
  - Children: The item and its direct children are shown. From this state, you can move to one of the children and zoom in further.
  - Subtree: The entire subtree under the item is shown.
 
-When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the custom variable `taskpaper-startup-folded`.
+When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the user option `taskpaper-startup-folded`.
 
 The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items also shown to provide global context. The command `C-c C-a` (`taskpaper-outline-show-all`) unfolds all items at all levels (also bound to `ESC ESC`).
 
@@ -104,7 +104,7 @@ The following commands jump to other items in the buffer.
 
  - `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
-The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to complete the outline path in minibuffer. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
+The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special packages for incremental completion like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
 
 ## Structure Editing
@@ -155,7 +155,7 @@ If you need to include parentheses in the tag value, precede them with a backsla
 
 After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
-In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called _fast tag selection_. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the custom variable `taskpaper-tag-alist` in your `.emacs` file:
+In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called _fast tag selection_. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the user option `taskpaper-tag-alist` in your init file:
 
     (setq taskpaper-tag-alist
           '(("next"        . ?n)
@@ -168,7 +168,7 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
 
 Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses. The expression `%t` in the tag value is replaced with current date in [ISO 8601][iso8601-wiki] format, `%T` is replaced with current date and time, and `%^T` is like `%T`, but prompts the user for date/time.
 
-If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure custom variable `taskpaper-tags-exclude-from-inheritance`.
+If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure user option `taskpaper-tags-exclude-from-inheritance`.
 
 The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
 
@@ -177,7 +177,7 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 
 Item is marked as complete by applying the `@done` tag. By default, items tagged with `@done` are visually crossed out.
 
-The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively you can toggle done state of the task by clicking on the task mark with `mouse-1` if the custom variable `taskpaper-pretty-marks` is non-nil. If the custom option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the custom option `taskpaper-tags-to-remove-when-done`.
+The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`.
 
 
 ## Calendar Integration
@@ -194,9 +194,9 @@ The Emacs calendar created by Edward M. Reingold displays a three-month calendar
 
 The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the current date. If point is on a tag with value, interprets the value as date and goes to this date instead. With a `C-u` prefix, always goes to the current date.
 
-The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the date/time to insert at point. You can enter a date using date/time syntax described below. The current interpretation of your input will be displayed live in the minibuffer, right next to your input. If you find this distracting, turn the display off with the `taskpaper-read-date-display-live` custom option.
+The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the date/time to insert at point. You can enter a date using date/time syntax described below. The current interpretation of your input will be displayed live in the minibuffer, right next to your input. If you find this distracting, turn the display off with the `taskpaper-read-date-display-live` user option.
 
-Parallel to the minibuffer prompt, a calendar is popped up (see the custom variable `taskpaper-read-date-popup-calendar`). You can control the calendar from the minibuffer using the following commands:
+Parallel to the minibuffer prompt, a calendar is popped up (see the user option `taskpaper-read-date-popup-calendar`). You can control the calendar from the minibuffer using the following commands:
 
  - `RET`: Choose date at cursor in calendar.
 
@@ -293,11 +293,11 @@ TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are s
 
 Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g., `./my\ file.txt`. File links to non-existing local files are highlighted using different face.
 
-If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-link-at-point`) will launch a web browser for URLs (using `browse-url`) or start composing a mail message (using `compose-mail`). Furthermore, it will visit text and remote files in file links with Emacs and select a suitable application for local non-text files. Classification of files is based on file extension only. For non-specified extensions the system command to open files, like `open` on MS Windows and macOS, or the command specified in the mailcaps on GNU/Linux will be used. For more details see custom options `taskpaper-file-apps` and `taskpaper-open-non-existing-files`.
+If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-link-at-point`) will launch a web browser for URLs (using `browse-url`) or start composing a mail message (using `compose-mail`). Furthermore, it will visit text and remote files in file links with Emacs and select a suitable application for local non-text files. Classification of files is based on file extension only. For non-specified extensions the system command to open files, like `open` on MS Windows and macOS, or the command specified in the mailcaps on GNU/Linux will be used. For more details see user options `taskpaper-file-apps` and `taskpaper-open-non-existing-files`.
 
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
-The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting `taskpaper-max-image-size` custom variable. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the custom variable `taskpaper-startup-with-inline-images`.
+The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting `taskpaper-max-image-size` user option. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.
 
 
 ## Sorting
@@ -368,8 +368,8 @@ Relations determine the test that the predicate performs:
 
 The default type of comparison is case-insensitive string comparison. You can change this behavior by providing a modifier after the relation. The available modifiers are:
 
- - `i`: Case insensitive compare (the default)
- - `s`: Case sensitive compare
+ - `i`: Case insensitive string compare (the default)
+ - `s`: Case sensitive string compare
  - `n`: Numeric compare
  - `d`: Date compare
 
@@ -393,7 +393,7 @@ You don't need to enter the entire predicate pattern every time you search. Pred
  - `@text Inbox`
  - `contains Inbox`
  - `@text contains Inbox`
- - `@text contains [i] Inbox`
+ - `@text contains[i] Inbox`
 
 __Note for TaskPaper app users:__ When using `matches` relation please keep in mind that TaskPaper app v3 searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
 
@@ -430,7 +430,7 @@ These are the shortcut forms and what they expand to:
 
 ### Storing Queries
 
-Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g., numbers) to your saved queries. You can do this by configuring the custom variable `taskpaper-custom-queries` in your `.emacs` file:
+Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g., numbers) to your saved queries. You can do this by configuring the user option `taskpaper-custom-queries` in your init file:
 
     (setq taskpaper-custom-queries
           '((?w "Waiting"  "@waiting and not @done")
@@ -441,7 +441,7 @@ The initial value in each item defines the key you have to press. The second par
 
 ### Startup View
 
-You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all leaf notes (notes, which may content other notes, but no task or project items) to be folded at startup by adding following to your `.emacs` file:
+You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all leaf notes (notes, which may content other notes, but no task or project items) to be folded at startup by adding following to your init file:
 
     (add-hook 'taskpaper-mode-hook
               '(lambda () (taskpaper-query "not @type=note")))
@@ -464,7 +464,7 @@ The subtree is filed below the target item as a subitem. Depending on `taskpaper
 
 When a project represented by a subtree is finished, you may want to move the tree out of the way.
 
-The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the custom variable `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem. When the `taskpaper-archive-save-context` custom option is non-nil, a `@project` tag with project hierarchy is added to the archived item.
+The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the user option `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem. When the `taskpaper-archive-save-context` user option is non-nil, a `@project` tag with project hierarchy is added to the archived item.
 
 When archiving the hook `taskpaper-archive-hook` runs after successfully archiving a subtree. Hook functions are called with point on the subtree in the original location. At this stage, the subtree has been added to the archive location, but not yet deleted from the original one.
 
@@ -473,19 +473,19 @@ When archiving the hook `taskpaper-archive-hook` runs after successfully archivi
 
 For querying a collection of TaskPaper files, TaskPaper mode includes a powerful agenda mode. In this mode items from different TaskPaper files can be collected based on search queries and displayed in an organized way in a special agenda buffer. This buffer is read-only, but provides commands to visit the corresponding locations in the original TaskPaper files. In this way, all information is stored only once, removing the risk that your agenda view and agenda files may diverge.
 
-The information to be shown is normally collected from all agenda files, the files listed in the custom variable `taskpaper-agenda-files`. If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize variable `taskpaper-agenda-file-regexp` to change this behavior. If `taskpaper-agenda-skip-unavailable-files` custom variable is non-nil, agenda mode will silently skip unavailable agenda files without issuing an error.
+The information to be shown is normally collected from all agenda files, the files listed in the user option `taskpaper-agenda-files`. If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize user option `taskpaper-agenda-file-regexp` to change this behavior. If `taskpaper-agenda-skip-unavailable-files` user option is non-nil, agenda mode will silently skip unavailable agenda files without issuing an error.
 
-The following commands enter the agenda mode. The command `taskpaper-agenda-search` prompts the user for a search query. The command `taskpaper-agenda-select` let the user select a predefined query via the custom query dialog described above. You may consider to assign global key bindings to these commands in your `.emacs` file:
+The following commands enter the agenda mode. The command `taskpaper-agenda-search` prompts the user for a search query. The command `taskpaper-agenda-select` let the user select a predefined query via the custom query dialog described above. You may consider to assign global key bindings to these commands in your init file:
 
     (global-set-key (kbd "C-c a") 'taskpaper-agenda-search)
     (global-set-key (kbd "C-c s") 'taskpaper-agenda-select)
 
-Two custom options control how the agenda buffer is displayed and whether the window configuration is restored when the agenda exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these custom variables.
+Two user options control how the agenda buffer is displayed and whether the window configuration is restored when the agenda exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these user options.
 
 
 ### Sorting Agenda Items
 
-Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the custom variable `taskpaper-agenda-sorting-function`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
+Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-function`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
 In the example below items will be sorted according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
@@ -514,13 +514,13 @@ Items in the agenda buffer are linked back to the TaskPaper file where they orig
 
  - `RET`: Go to the original location of the item and delete other windows (`taskpaper-agenda-switch-to`).
 
- - `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the agenda buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new agenda buffers can be set with the custom variable `taskpaper-agenda-start-with-follow-mode`.
+ - `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the agenda buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new agenda buffers can be set with the user option `taskpaper-agenda-start-with-follow-mode`.
 
  - `c`: Display date under cursor in calendar (`taskpaper-show-in-calendar`).
 
  - `>`: Access calendar for the date under cursor (`taskpaper-goto-calendar`).
 
-The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-after-show-hook` after an item has been shown from the agenda. Hook functions are called with point in the buffer where the item originated. Thus, if you want to display only the current item, its ancestors and top-level items, put this in your `.emacs` file:
+The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-after-show-hook` after an item has been shown from the agenda. Hook functions are called with point in the buffer where the item originated. Thus, if you want to display only the current item, its ancestors and top-level items, put this in your init file:
 
     (setq taskpaper-agenda-after-show-hook
           'taskpaper-outline-hide-other)
@@ -571,30 +571,30 @@ All the rest which did not fit elsewhere.
 
 # Customization
 
-Although no configuration is necessary there are a few things that can be customized in addition to the options mentioned above. All configurations can be performed either via Emacs' Easy Customization Interface or by modifying `.emacs` file directly.
+Although no configuration is necessary there are a few things that can be customized in addition to the options mentioned above. All configurations can be performed either via Emacs' Easy Customization Interface or by modifying Emacs' init files directly.
 
 
 ## Syntax Highlighting
 
-You may specify special faces for specific tags using the custom option `taskpaper-tag-faces`. For example:
+You may specify special faces for specific tags using the user option `taskpaper-tag-faces`. For example:
 
     (setq taskpaper-tag-faces
           '(("start" . "green")
             ("today" . font-lock-warning-face)
             ("due"   . (:foreground "red" :weight bold))))
 
-A string is interpreted as a color. The option `taskpaper-faces-easy-properties` determines if that color is interpreted as a foreground or a background color. For more details see the documentation string of the custom variable `taskpaper-tag-faces`.
+A string is interpreted as a color. The option `taskpaper-faces-easy-properties` determines if that color is interpreted as a foreground or a background color. For more details see the documentation string of the user option `taskpaper-tag-faces`.
 
 Note: While using a list with face properties as shown for `due` _should_ work, this does not always seem to be the case. If necessary, define a special face and use that.
 
 Additionally, the faces used for syntax highlighting can be modified to your liking by issuing `M-x customize-group RET taskpaper-faces RET`.
 
-You can activate the task marks by setting the custom variable `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. Tasks can then be marked as done by clicking on the task mark with `mouse-1`. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` options.
+You can activate the task marks by setting the user option `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. Tasks can then be marked as done by clicking on the task mark with `mouse-1`. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` user options.
 
 
 ## Cleaner Outline View
 
-The `adaptive-wrap.el` sets the `wrap-prefix` correctly for indenting and wrapping of long-line items. The version included in this repository provides the `adaptive-wrap-prefix-mode` minor mode, which sets the `wrap-prefix` property on the fly so that single-long-line paragraphs get word-wrapped in a way similar to what you'd get with `M-q` using `adaptive-fill-mode`, but without actually changing the buffer's text. The present version supports tabs, works on one-line paragraphs, and can be used in modes other than TaskPaper mode. In can be activated globally by putting `adaptive-wrap-mode.el` on the load path and adding to `.emacs`
+The `adaptive-wrap.el` sets the `wrap-prefix` correctly for indenting and wrapping of long-line items. The version included in this repository provides the `adaptive-wrap-prefix-mode` minor mode, which sets the `wrap-prefix` property on the fly so that single-long-line paragraphs get word-wrapped in a way similar to what you'd get with `M-q` using `adaptive-fill-mode`, but without actually changing the buffer's text. The present version supports tabs, works on one-line paragraphs, and can be used in modes other than TaskPaper mode. In can be activated globally by putting `adaptive-wrap-mode.el` on the load path and adding to your init file
 
     (require 'adaptive-wrap)
     (add-hook 'visual-line-mode-hook
