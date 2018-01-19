@@ -4294,6 +4294,7 @@ follow mode is active."
 
 (defun taskpaper-agenda-quit ()
   "Quit the agenda and kill the agenda buffer."
+  (interactive)
   (let ((buf (current-buffer)))
     ;; Restore window configuration
     (cond
@@ -4334,14 +4335,13 @@ user will not be touched."
     (define-key map (kbd "TAB") 'taskpaper-agenda-goto)
     (define-key map (kbd "L") 'taskpaper-agenda-show-recenter)
     (define-key map (kbd "RET") 'taskpaper-agenda-switch-to)
-    (define-key map (kbd "I") 'taskpaper-iquery-mode)
+    (define-key map (kbd "I") 'taskpaper-iquery)
     (define-key map (kbd "Q") 'taskpaper-query)
     (define-key map (kbd "S") 'taskpaper-query-fast-select)
     (define-key map (kbd "t") 'taskpaper-search-tag-at-point)
     (define-key map (kbd "/") 'taskpaper-occur)
     (define-key map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
     (define-key map (kbd "o") 'delete-other-windows)
-    (define-key map (kbd "v") 'taskpaper-copy-visible)
     (define-key map (kbd "q") 'taskpaper-agenda-quit)
     (define-key map (kbd "x") 'taskpaper-agenda-exit)
     map)
