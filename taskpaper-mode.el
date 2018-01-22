@@ -1281,8 +1281,32 @@ buffer. When point is on an item, rotate the current subtree."
 This puts point at the start of the current subtree, and mark at
 the end.")
 
-(defalias 'taskpaper-outline-copy-visible 'outline-headers-as-kill
-  "Save all visible items between BEG and END to the kill ring.")
+(defun taskpaper-outline-copy-visible (begin end)
+  "Save all visible items between BEGIN and END to the kill ring."
+  (interactive "r")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region begin end) (goto-char (point-min))
+      (let ((buffer (current-buffer)) start end)
+        (with-temp-buffer
+          (let ((temp-buffer (current-buffer)))
+            (with-current-buffer buffer
+              ;; Starting on item
+              (when (outline-on-heading-p)
+                (outline-back-to-heading)
+                (setq start (point)
+                      end (progn (outline-end-of-heading) (point)))
+                (with-current-buffer temp-buffer
+                  (insert-buffer-substring buffer start end)
+                  (insert "\n")))
+              (while (outline-next-heading)
+                (unless (outline-invisible-p)
+                  (setq start (point)
+                        end (progn (outline-end-of-heading) (point)))
+                  (with-current-buffer temp-buffer
+                    (insert-buffer-substring buffer start end)
+                    (insert "\n"))))))
+          (kill-new (buffer-string)))))))
 
 ;;;; Promotion and demotion
 
@@ -4341,6 +4365,7 @@ user will not be touched."
     (define-key map (kbd "t") 'taskpaper-search-tag-at-point)
     (define-key map (kbd "/") 'taskpaper-occur)
     (define-key map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
+    (define-key map (kbd "v") 'taskpaper-outline-copy-visible)
     (define-key map (kbd "o") 'delete-other-windows)
     (define-key map (kbd "q") 'taskpaper-agenda-quit)
     (define-key map (kbd "x") 'taskpaper-agenda-exit)

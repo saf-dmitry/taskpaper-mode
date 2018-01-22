@@ -549,6 +549,8 @@ You can also querying the agenda view to further narrow your search. Following c
 
  - `o`: Delete other windows (`delete-other-windows`).
 
+ - `v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
+
  - `r`: Recreate the agenda buffer (`taskpaper-agenda-redo`). Useful to reflect changes after modification of original TaskPaper files.
 
  - `q`: Quit agenda and remove the agenda buffer (`taskpaper-agenda-quit`).
