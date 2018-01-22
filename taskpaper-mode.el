@@ -1281,7 +1281,7 @@ buffer. When point is on an item, rotate the current subtree."
 This puts point at the start of the current subtree, and mark at
 the end.")
 
-(defalias 'taskpaper-copy-visible 'outline-headers-as-kill
+(defalias 'taskpaper-outline-copy-visible 'outline-headers-as-kill
   "Save all visible items between BEG and END to the kill ring.")
 
 ;;;; Promotion and demotion
@@ -3895,7 +3895,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c C-s t") 'taskpaper-sort-by-type)
 
 (define-key taskpaper-mode-map (kbd "C-c C-x a") 'taskpaper-archive-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x v") 'taskpaper-copy-visible)
+(define-key taskpaper-mode-map (kbd "C-c C-x v") 'taskpaper-outline-copy-visible)
 
 (define-key taskpaper-mode-map (kbd "C-c C-x C-c") 'taskpaper-clone-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-w") 'taskpaper-cut-subtree)
@@ -3974,7 +3974,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Archive Subtree" taskpaper-archive-subtree
       :active (outline-on-heading-p)]
      "--"
-     ["Copy Visible Items" taskpaper-copy-visible
+     ["Copy Visible Items" taskpaper-outline-copy-visible
       :active (region-active-p)])
     ("Tag"
      ["Complete Tag" taskpaper-complete-tag-at-point

@@ -133,7 +133,7 @@ TaskPaper mode also provides following additional commands for working with subt
 
  - `C-c C-m`: Mark the subtree under cursor (`taskpaper-mark-subtree`).
 
- - `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-copy-visible`).
+ - `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
 
  - `C-c C-x C-w`: Cut the subtree under cursor into the kill ring (`taskpaper-cut-subtree`).
 
@@ -639,7 +639,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 [taskpaper-guide]: https://guide.taskpaper.com/getting-started/
 
-[tp-mode-scripting-guide]: ./SCRIPTING.md
+[tp-mode-scripting-guide]: ./scripting.md
 
 [emacs-ivy]: https://github.com/abo-abo/swiper
 
