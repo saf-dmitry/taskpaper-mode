@@ -104,7 +104,7 @@ The following commands jump to other items in the buffer.
 
  - `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
-The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special packages for fuzzy searching and incremental completion like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
+The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
 
 ## Structure Editing
