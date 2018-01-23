@@ -226,7 +226,7 @@ The next function sorts items according to their due dates. The sorting is done 
 
 ### Quick Entry
 
-The API function `taskpaper-add-entry` can be used in Lisp programs to add entries inside Emacs or in shell scripts to add entries from the command line. The following small shell script will add entries to the project "Inbox" located in the file `~/gtd.taskpaper`. If the project doesn't exists, it will be created at the end of given file. The entry text should be given as single argument (quoted or not) to the shell script. A tag `@added` with the current date will be appended to the entry.
+The API function `taskpaper-add-entry` can be used in Lisp programs to add entries inside Emacs or in shell scripts to add entries from the command line. The following small shell script will add entries to the top-level project "Inbox" located in the file `~/gtd.taskpaper`. If the project doesn't exist, it will be created at the end of given file as top-level item. The entry text should be given as single argument (quoted or not) to the shell script. A tag `@added` with the current date will be appended to the entry.
 
     #!/bin/bash
 

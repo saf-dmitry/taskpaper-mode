@@ -3110,11 +3110,12 @@ last subitem."
 When FILE is specified, visit it and set this buffer as target
 buffer, otherwise fall back to the current buffer.
 
-Prompt user for entry TEXT and add it as child of the LOCATION
-item. The entry is filed below the target location as a subitem.
-Depending on `taskpaper-reverse-note-order', it will be either
-the first or last subitem. When the location is omitted, the item
-is simply filed at the end of the file, as top-level item."
+Prompt user for entry TEXT and add it as child of the top-level
+LOCATION item. The entry is filed below the target location as a
+subitem. Depending on `taskpaper-reverse-note-order', it will be
+either the first or last subitem. When the location is omitted,
+the item is simply filed at the end of the file, as top-level
+item."
   (interactive)
   (let ((text (or text (read-string "Entry: ")))
         (this-buffer (current-buffer)) buffer level)

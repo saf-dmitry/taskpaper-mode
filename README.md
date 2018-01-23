@@ -104,7 +104,7 @@ The following commands jump to other items in the buffer.
 
  - `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
-The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special packages for incremental completion like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
+The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special packages for fuzzy searching and incremental completion like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
 
 ## Structure Editing
@@ -264,7 +264,9 @@ Duration offsets are relative to the current date.
  - `+1 year`
  - `+3 Wed`
 
-Note: Fractional (like `0.5m`) and multiple (like `+2d +6h`) duration offsets are not supported.
+Here `h` means hours, `w` — weeks, `m` — months, and `y` — years.
+
+Note: Fractional (like `-0.5m`) and multiple (like `+2d +6h` or `+1y3m`) duration offsets are not supported.
 
 
 ### Combinations
