@@ -1071,7 +1071,7 @@ message."
   (interactive "p")
   (condition-case nil
       (outline-forward-same-level arg)
-    (error (error "No following same-level item"))))
+    (error (user-error "No following same-level item"))))
 
 (defun taskpaper-outline-backward-same-level (arg)
   "Move backward to the ARG'th item at same level.
@@ -1080,7 +1080,7 @@ message."
   (interactive "p")
   (condition-case nil
       (outline-backward-same-level arg)
-    (error (error "No previous same-level item"))))
+    (error (user-error "No previous same-level item"))))
 
 (defsubst taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
@@ -1264,7 +1264,7 @@ buffer. When point is on an item, rotate the current subtree."
       (taskpaper-outline-hide-sublevels 1)
     (taskpaper-outline-show-all)))
 
-;;;; Misc. outline functions
+;;;; Miscellaneous outline functions
 
 (defun taskpaper-narrow-to-subtree ()
   "Narrow buffer to the current subtree."
@@ -1278,8 +1278,8 @@ buffer. When point is on an item, rotate the current subtree."
 
 (defalias 'taskpaper-mark-subtree 'outline-mark-subtree
   "Mark the current subtree.
-This puts point at the start of the current subtree, and mark at
-the end.")
+Put point at the start of the current subtree, and mark at the
+end.")
 
 (defun taskpaper-outline-copy-visible (begin end)
   "Save all visible items between BEGIN and END to the kill ring."
@@ -1291,7 +1291,7 @@ the end.")
         (with-temp-buffer
           (let ((temp-buffer (current-buffer)))
             (with-current-buffer buffer
-              ;; Starting on item
+              ;; Starting on an item
               (when (outline-on-heading-p)
                 (outline-back-to-heading)
                 (setq start (point)

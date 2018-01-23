@@ -223,3 +223,38 @@ The next function sorts items according to their due dates. The sorting is done 
     (define-key taskpaper-mode-map (kbd "C-c C-s d")
                 'taskpaper-sort-by-due-date)
 
+
+### Quick Entry
+
+The API function `taskpaper-add-entry` can be used in Lisp programs to add entries inside Emacs or in shell scripts to add entries from the command line. The following small shell script will add entries to the project "Inbox" located in the file `~/gtd.taskpaper`. If the project doesn't exists, it will be created at the end of given file. The entry text should be given as single argument (quoted or not) to the shell script. A tag `@added` with the current date will be appended to the entry.
+
+    #!/bin/bash
+
+    file="$HOME/gtd.taskpaper"
+    location='Inbox:'
+    time=$(date "+%Y-%m-%d")
+    text="$@ @added($time)"
+
+    command emacs \
+        --batch --load '~/.emacs' \
+        --eval "(taskpaper-add-entry \"$text\" \"$location\" \"$file\")" \
+        -f save-buffer &> /dev/null \
+        && echo "Entry added."
+
+Save the script as i.e., `tp-add`, make it executable and put it in the path. Now you can quickly add an entry issuing
+
+    tp-add - New task @today
+
+in the command line.
+
+
+### Syncronization
+
+Activating the auto-revert minor mode can be useful if you want to edit your TaskPaper files from another location and sync them e.g. via [Dropbox][dropbox] or add entries using quick entry script as described above, so whenever a file changes and is re-synced, the corresponding buffer is updated. You can automate the activation of this mode via `taskpaper-mode-hook`:
+
+    (add-hook 'taskpaper-mode-hook
+              (lambda () (auto-revert-mode 1)))
+
+
+[dropbox]: https://www.dropbox.com/
+
