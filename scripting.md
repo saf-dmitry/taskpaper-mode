@@ -241,7 +241,7 @@ The API function `taskpaper-add-entry` can be used in Lisp programs to add entri
         -f save-buffer &> /dev/null \
         && echo "Entry added."
 
-Save the script as i.e., `tp-add`, make it executable
+Save the script as i.e., `tp-add`, make it executable by typing in your terminal
 
     chmod +x tp-add
 

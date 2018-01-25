@@ -3433,13 +3433,15 @@ characters repsesenting different types ot tokens."
 (defun taskpaper-query-expand-type-shortcuts (tokens)
   "Expand type shortcuts in TOKENS."
   (let (prev token expanded)
-    (dolist (token tokens)
+    (while tokens
+      (setq token (pop tokens))
       (cond ((and (taskpaper-query-type-shortcut-p token)
                   (not (taskpaper-query-relation-operator-p prev))
                   (not (taskpaper-query-relation-modifier-p prev)))
              (setq prev nil)
              (push "@type" expanded) (push "=" expanded)
-             (push token expanded) (push "and" expanded))
+             (push token expanded)
+             (when tokens (push "and" expanded)))
             (t
              (setq prev token)
              (push token expanded))))
@@ -3658,6 +3660,7 @@ if the item matches the selection string STR."
     (while (re-search-forward
             (regexp-opt (append taskpaper-query-non-word-operator
                                 taskpaper-query-relation-modifier
+                                taskpaper-query-word-shortcut
                                 taskpaper-query-open-close))
             nil t)
       (set-text-properties
