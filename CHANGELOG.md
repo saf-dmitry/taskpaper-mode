@@ -1,15 +1,21 @@
 
 
+# v0.4
+
+ - Improved search query parsing and highlighting
+ - Added API for quick entry for items
+ - Improved time parsing supports ISO week date representation
+
+
 # v0.3
 
  - Improved syntax highlighting
  - Improved completion for tag names
- - Added search support using predicates and Boolean queries
+ - Added search query support using predicates and Boolean queries
  - Added quick entry interface for search queries
  - Added agenda view
  - Added support for inline images
  - Added startup visibility option
- - Improved time parsing supports ISO week date representation
  - Improved date & time prompt can optionally return internal time
 
 
