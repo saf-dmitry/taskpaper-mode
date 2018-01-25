@@ -336,7 +336,7 @@ In addition to the standard motion and editing commands both static and incremen
 
 The syntax for query string is described below.
 
-__Note for TaskPaper app users:__ Though query syntax described here is a valid subset of search syntax implemented in TaskPaper app v3, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
+__Note for TaskPaper app users:__ Though query syntax described here is a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax together with slice and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
 
 
 ### Tags and Attributes
@@ -397,7 +397,7 @@ You don't need to enter the entire predicate pattern every time you search. Pred
  - `@text contains Inbox`
  - `@text contains[i] Inbox`
 
-__Note for TaskPaper app users:__ When using `matches` relation please keep in mind that TaskPaper app v3 searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
+__Note for TaskPaper app users:__ When using `matches` relation please keep in mind that TaskPaper v3 app searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
 
 
 ### Boolean Expressions

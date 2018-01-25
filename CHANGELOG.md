@@ -2,6 +2,7 @@
 
 # v0.4
 
+ - Added TaskPaper menu
  - Improved search query parsing and highlighting
  - Added API for quick entry for items
  - Improved time parsing supports ISO week date representation

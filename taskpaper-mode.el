@@ -3289,45 +3289,45 @@ item."
   "Opening and closing paretheses.")
 
 (defun taskpaper-query-word-operator-p (str)
-  "Return non-nil if STR is valid word operator."
+  "Return non-nil if STR is a valid word operator."
   (member str taskpaper-query-word-operator))
 
 (defun taskpaper-query-type-shortcut-p (str)
-  "Return non-nil if STR is valid type shortcut."
+  "Return non-nil if STR is a valid type shortcut."
   (member str taskpaper-query-word-shortcut))
 
 (defun taskpaper-query-attribute-p (str)
-  "Return non-nil if STR is valid attribute."
+  "Return non-nil if STR is a valid attribute."
   (let ((re (concat
              "\\`" taskpaper-query-attribute-regexp "\\'")))
     (string-match-p re str)))
 
 (defun taskpaper-query-relation-operator-p (str)
-  "Return non-nil if STR is valid relation operator."
+  "Return non-nil if STR is a valid relation operator."
   (member str taskpaper-query-relation-operator))
 
 (defun taskpaper-query-relation-modifier-p (str)
-  "Return non-nil if STR is valid relation modifier."
+  "Return non-nil if STR is a valid relation modifier."
   (member str taskpaper-query-relation-modifier))
 
 (defun taskpaper-query-open-p (str)
-  "Return non-nil if STR is opening parenthesis."
+  "Return non-nil if STR is the opening parenthesis."
   (equal str "("))
 
 (defun taskpaper-query-close-p (str)
-  "Return non-nil if STR is closing parenthesis."
+  "Return non-nil if STR is the closing parenthesis."
   (equal str ")"))
 
 (defun taskpaper-query-boolean-not-p (str)
-  "Return non-nil if STR is valid Boolean NOT operator."
+  "Return non-nil if STR is a valid Boolean NOT operator."
   (member str taskpaper-query-boolean-not))
 
 (defun taskpaper-query-boolean-binary-p (str)
-  "Return non-nil if STR is valid Boolean binary operator."
+  "Return non-nil if STR is a valid Boolean binary operator."
   (member str taskpaper-query-boolean-binary))
 
 (defun taskpaper-query-search-term-p (str)
-  "Return non-nil if STR is valid search term."
+  "Return non-nil if STR is a valid search term."
   (and (not (taskpaper-query-word-operator-p str))
        (not (taskpaper-query-attribute-p str))
        (not (taskpaper-query-relation-operator-p str))
@@ -3432,19 +3432,21 @@ characters repsesenting different types ot tokens."
 
 (defun taskpaper-query-expand-type-shortcuts (tokens)
   "Expand type shortcuts in TOKENS."
-  (let (prev token expanded)
+  (let (token prev next expanded)
     (while tokens
-      (setq token (pop tokens))
-      (cond ((and (taskpaper-query-type-shortcut-p token)
-                  (not (taskpaper-query-relation-operator-p prev))
-                  (not (taskpaper-query-relation-modifier-p prev)))
-             (setq prev nil)
-             (push "@type" expanded) (push "=" expanded)
-             (push token expanded)
-             (when tokens (push "and" expanded)))
-            (t
-             (setq prev token)
-             (push token expanded))))
+      (setq token (pop tokens) next (nth 0 tokens))
+      (cond
+       ((and (taskpaper-query-type-shortcut-p token)
+             (not (taskpaper-query-relation-operator-p prev))
+             (not (taskpaper-query-relation-modifier-p prev)))
+        (setq prev nil)
+        (push "@type" expanded) (push "=" expanded)
+        (push token expanded)
+        (when (and next (not (taskpaper-query-boolean-binary-p next)))
+          (push "and" expanded)))
+       (t
+        (setq prev token)
+        (push token expanded))))
     (nreverse expanded)))
 
 (defun taskpaper-query-parse-predicate (tokens)
@@ -3473,7 +3475,7 @@ matcher and the rest of the token list."
     (setq attr (or attr "text") op (or op "contains") mod (or mod "i"))
     ;; Convert operator to function
     (setq op (taskpaper-query-op-to-func op mod))
-    ;; Unescape double-quotes in search term
+    ;; Unescape double quotes in search term
     (when val (setq val (replace-regexp-in-string "\\\\\"" "\"" val)))
     ;; Convert time string to speedup matching
     (when (and (equal mod "d") val) (setq val (taskpaper-2ft val)))
@@ -3494,7 +3496,7 @@ matcher and the rest of the token list."
     ;; Get operator
     (when (and tokens (taskpaper-query-boolean-not-p (nth 0 tokens)))
       (setq not t) (pop tokens))
-    ;; Get right side
+    ;; Get the right side
     (cond
      ((taskpaper-query-open-p (nth 0 tokens))
       (setq temp (taskpaper-query-parse-parentheses tokens)))
@@ -3526,7 +3528,7 @@ function implements the top-down operator-precedence recursive
 parsing algorithm known as Pratt's algorithm. See also variable
 `taskpaper-query-precedence-boolean'."
   (let (temp bool cprec right form)
-    ;; Get left side
+    ;; Get the left side
     (when (and tokens (not left))
       (cond
        ((taskpaper-query-open-p (nth 0 tokens))
@@ -3538,7 +3540,7 @@ parsing algorithm known as Pratt's algorithm. See also variable
     (let ((token (nth 0 tokens)))
       (when (taskpaper-query-boolean-binary-p token)
         (setq bool token) (pop tokens)))
-    ;; Get right side
+    ;; Get the right side
     (when (and tokens bool left)
       (cond
        ((taskpaper-query-open-p (nth 0 tokens))
@@ -3660,7 +3662,6 @@ if the item matches the selection string STR."
     (while (re-search-forward
             (regexp-opt (append taskpaper-query-non-word-operator
                                 taskpaper-query-relation-modifier
-                                taskpaper-query-word-shortcut
                                 taskpaper-query-open-close))
             nil t)
       (set-text-properties
