@@ -361,8 +361,7 @@ is saved after user confirmation and then killed."
   (let (file)
     (dolist (buf blist)
       (setq file (buffer-file-name buf))
-      (when (and (buffer-modified-p buf)
-                 file
+      (when (and (buffer-modified-p buf) file
                  (y-or-n-p (format "Save file %s? " file)))
         (with-current-buffer buf (save-buffer)))
       (kill-buffer buf))))
@@ -1860,9 +1859,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
       (let ((hour (string-to-number (match-string 1 time-string)))
             (minute (if (match-end 2) (string-to-number (match-string 2 time-string)) 0))
             (pm (equal ?p (string-to-char (downcase (match-string 3 time-string))))))
-        (if (and (= hour 12) (not pm))
-            (setq hour 0)
-          (when (and pm (< hour 12)) (setq hour (+ 12 hour))))
+        (and (not pm) (= hour 12) (setq hour 0)) (and pm (< hour 12) (setq hour (+ 12 hour)))
         (setq time-string
               (replace-match (format "%02d:%02d" hour minute) t t time-string))))
     ;; Parse the rest of `time-string' using `parse-time-string' and expand date and time
@@ -1873,13 +1870,14 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
           hour   (or (nth 2 tl) hour   (nth 2 nowdecode))
           minute (or (nth 1 tl) minute (nth 1 nowdecode))
           second (or (nth 0 tl) second (nth 0 nowdecode)))
+    ;; Set `taskpaper-time-was-given' flag
     (when (nth 2 tl) (setq taskpaper-time-was-given t))
     ;; Weekday was given but no day
     (when (and (nth 6 tl) (not (nth 3 tl)))
       (setq wday (nth 6 tl)
             wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
       ;; Re-calculate weekday according to ISO 8601 week day definition
-      (when (= wday 0) (setq wday 7)) (when (= wday1 0) (setq wday1 7))
+      (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday wday1))))
     ;; Evaluate duration offset
     (when (and dir deltan deltaw)
@@ -1887,16 +1885,14 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             (wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
             delta)
         (if wday
-            (progn
-              (setq delta (mod (+ 7 (- wday wday1)) 7))
-              (if (= delta 0) (setq delta 7))
-              (if (= dir ?-)
-                  (progn
-                    (setq delta (- delta 7))
-                    (if (= delta 0) (setq delta -7))))
-              (if (> deltan 1)
-                  (setq delta (+ delta (* (1- deltan) (if (= dir ?-) -7 7)))))
-              (setq deltan delta deltaw "d"))
+            (progn (setq delta (mod (+ 7 (- wday wday1)) 7))
+                   (and (= delta 0) (setq delta 7))
+                   (when (= dir ?-)
+                     (progn (setq delta (- delta 7))
+                            (and (= delta 0) (setq delta -7))))
+                   (when (> deltan 1)
+                     (setq delta (+ delta (* (1- deltan) (if (= dir ?-) -7 7)))))
+                   (setq deltan delta deltaw "d"))
           (setq deltan (* deltan (if (= dir ?-) -1 1)))))
       (cond ((member deltaw '("h" "hour" "hours"))
              (setq hour (+ hour deltan) taskpaper-time-was-given t))
@@ -2024,11 +2020,11 @@ Return to the current window."
     (when (minibufferp (current-buffer))
       (save-excursion
         (end-of-line 1)
-        (when (and (< (- (point-max) (point)) 3)
-                   (not (equal (buffer-substring
-                                (max (point-min) (- (point) 3)) (point))
-                               "   ")))
-          (insert "   ")))
+        (and (< (- (point-max) (point)) 3)
+             (not (equal
+                   (buffer-substring (max (point-min) (- (point) 3)) (point))
+                   "   "))
+             (insert "   ")))
       (let* ((str (buffer-substring (point-at-bol) (point-max)))
              (time (taskpaper-parse-time-string str))
              (fmt (if taskpaper-time-was-given "%Y-%m-%d %H:%M" "%Y-%m-%d"))
@@ -3084,8 +3080,8 @@ last subitem."
         ;; Paste the subtree at EOB
         (taskpaper-paste-subtree)))
       ;; Add the context information
-      (when (and taskpaper-archive-save-context project)
-        (taskpaper-item-set-attribute "project" project))
+      (and taskpaper-archive-save-context project
+           (taskpaper-item-set-attribute "project" project))
       ;; Save the buffer, if it is not the current buffer
       (when (not (eq this-buffer buffer)) (save-buffer)))
     ;; Run hooks
@@ -3477,7 +3473,7 @@ matcher and the rest of the token list."
     ;; Unescape double quotes in search term
     (when val (setq val (replace-regexp-in-string "\\\\\"" "\"" val)))
     ;; Convert time string to speedup matching
-    (when (and (equal mod "d") val) (setq val (taskpaper-2ft val)))
+    (and (equal mod "d") val (setq val (taskpaper-2ft val)))
     ;; Build Lisp form
     (cond
      ((not val)
@@ -4284,9 +4280,8 @@ item originated."
 (defun taskpaper-agenda-do-context-action ()
   "Show follow mode window."
   (let ((m (taskpaper-get-at-bol 'taskpaper-marker)))
-    (when (and (markerp m) (marker-buffer m)
-               taskpaper-agenda-follow-mode)
-      (taskpaper-agenda-show))))
+    (and (markerp m) (marker-buffer m)
+         taskpaper-agenda-follow-mode (taskpaper-agenda-show))))
 
 (defun taskpaper-agenda-follow-mode ()
   "Toggle follow mode in an agenda buffer."
