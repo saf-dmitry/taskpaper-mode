@@ -14,6 +14,7 @@
  - Improved completion for tag names
  - Added search query support using predicates and Boolean queries
  - Added quick entry interface for search queries
+ - Added support for Flyspell and Ispell
  - Added agenda view
  - Added support for inline images
  - Added startup visibility option

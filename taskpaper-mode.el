@@ -3435,18 +3435,17 @@ characters repsesenting different types ot tokens."
   (let (token prev next expanded)
     (while tokens
       (setq token (pop tokens) next (nth 0 tokens))
-      (cond
-       ((and (taskpaper-query-type-shortcut-p token)
-             (not (taskpaper-query-relation-operator-p prev))
-             (not (taskpaper-query-relation-modifier-p prev)))
-        (setq prev nil)
-        (push "@type" expanded) (push "=" expanded)
-        (push token expanded)
-        (when (and next (not (taskpaper-query-boolean-binary-p next)))
-          (push "and" expanded)))
-       (t
-        (setq prev token)
-        (push token expanded))))
+      (cond ((and (taskpaper-query-type-shortcut-p token)
+                  (not (taskpaper-query-relation-operator-p prev))
+                  (not (taskpaper-query-relation-modifier-p prev)))
+             (setq prev nil)
+             (push "@type" expanded) (push "=" expanded)
+             (push token expanded)
+             (and next (not (taskpaper-query-boolean-binary-p next))
+                  (push "and" expanded)))
+            (t
+             (setq prev token)
+             (push token expanded))))
     (nreverse expanded)))
 
 (defun taskpaper-query-parse-predicate (tokens)
