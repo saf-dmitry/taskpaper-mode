@@ -27,7 +27,7 @@ The file format is fairly simple:
 
 Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. Empty lines are ignored when calculating ownership.
 
-See the [TaskPaper User's Guide][taskpaper-guide] for more details.
+The system doesn't force any particular system on you; it provides basic list making elements for you to use as you see fit. See the [TaskPaper User's Guide][taskpaper-guide] for more details.
 
 ![](./images/screencast_01.gif)
 
@@ -372,8 +372,8 @@ The default type of comparison is case-insensitive string comparison. You can ch
 
  - `i`: Case insensitive string compare (the default)
  - `s`: Case sensitive string compare
- - `n`: Numeric compare
- - `d`: Date compare
+ - `n`: Numeric compare. Both sides of the compare are converted to numbers before comparing.
+ - `d`: Date compare. Both sides of the compare are converted to dates before comparing.
 
 Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's existence will be tested.
 

@@ -1,13 +1,13 @@
 
 
-# Scripting
+# Scripting Guide
 
 This document covers some areas where users can automate and extend the functionality of TaskPaper mode using predefined hooks and API functions.
 
 
 ## API Functions
 
-Following API functions can be used to automate and extend TaskPaper mode. For details see the documentation string of these functions.
+Following API functions can be used to automate and extend TaskPaper mode. For details see the documentation strings of these functions.
 
 
 ### Outline Mapping and Traversing

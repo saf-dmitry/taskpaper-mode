@@ -2117,7 +2117,8 @@ ATTRS. If ATTRS is not given, use tag names from the current
 buffer instead."
   (interactive "*")
   (setq attrs (or attrs (taskpaper-get-buffer-tags (point))))
-  (let ((re (format "@%s*" taskpaper-tag-name-char-regexp))
+  (let ((completion-ignore-case t)
+        (re (format "@%s*" taskpaper-tag-name-char-regexp))
         (pattern
          (if (taskpaper-in-regexp-p taskpaper-tag-name-regexp)
              (match-string-no-properties 0) ""))
