@@ -3646,29 +3646,30 @@ if the item matches the selection string STR."
 (defun taskpaper-query-fontify-query ()
   "Fontify query in minibuffer."
   (save-excursion
-    ;; Fontify word operators
-    (goto-char (point-min))
-    (while (re-search-forward
-            (regexp-opt taskpaper-query-word-operator 'words) nil t)
-      (set-text-properties
-       (match-beginning 0) (match-end 0)
-       (list 'face 'taskpaper-query-secondary-text-face)))
-    ;; Fontify non-word specifiers
-    (goto-char (point-min))
-    (while (re-search-forward
-            (regexp-opt (append taskpaper-query-non-word-operator
-                                taskpaper-query-relation-modifier
-                                taskpaper-query-open-close))
-            nil t)
-      (set-text-properties
-       (match-beginning 0) (match-end 0)
-       (list 'face 'taskpaper-query-secondary-text-face)))
-    ;; Fontify double-quoted strings as the last step
-    (goto-char (point-min))
-    (while (re-search-forward
-            taskpaper-query-quoted-string-regexp nil t)
-      (set-text-properties
-       (match-beginning 1) (match-end 1) (list 'face 'default)))))
+    (let ((case-fold-search nil))
+      ;; Fontify word operators
+      (goto-char (point-min))
+      (while (re-search-forward
+              (regexp-opt taskpaper-query-word-operator 'words) nil t)
+        (set-text-properties
+         (match-beginning 0) (match-end 0)
+         (list 'face 'taskpaper-query-secondary-text-face)))
+      ;; Fontify non-word specifiers
+      (goto-char (point-min))
+      (while (re-search-forward
+              (regexp-opt (append taskpaper-query-non-word-operator
+                                  taskpaper-query-relation-modifier
+                                  taskpaper-query-open-close))
+              nil t)
+        (set-text-properties
+         (match-beginning 0) (match-end 0)
+         (list 'face 'taskpaper-query-secondary-text-face)))
+      ;; Fontify double-quoted strings as the last step
+      (goto-char (point-min))
+      (while (re-search-forward
+              taskpaper-query-quoted-string-regexp nil t)
+        (set-text-properties
+         (match-beginning 1) (match-end 1) (list 'face 'default))))))
 
 (defun taskpaper-read-query-propertize (&optional _begin _end _length)
   "Propertize query string live in minibuffer.
