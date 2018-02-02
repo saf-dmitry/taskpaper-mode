@@ -644,7 +644,7 @@ Group 3 matches trailing tags, if any.")
 (defun taskpaper-file-path-unescape (path)
   "Remove file URL scheme and unescape spaces in PATH."
   (when (stringp path)
-    (setq path (replace-regexp-in-string "^file:" "" path)
+    (setq path (replace-regexp-in-string "\\`file:" "" path)
           path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
@@ -959,9 +959,9 @@ non-nil, force absolute path."
                (abbreviate-file-name (expand-file-name ".")))))
     (cond
      (arg (abbreviate-file-name (expand-file-name file)))
-     ((string-match (concat "^" (regexp-quote pwd1) "\\(.+\\)") file)
+     ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
       (match-string 1 file))
-     ((string-match (concat "^" (regexp-quote pwd) "\\(.+\\)")
+     ((string-match (concat "\\`" (regexp-quote pwd) "\\(.+\\)")
                     (expand-file-name file))
       (match-string 1 (expand-file-name file)))
      (t file))))
@@ -986,7 +986,7 @@ directory. An absolute path can be forced with a
   (cond
    ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
     (let ((uri (match-string-no-properties 1)))
-      (when (string-match "^www" uri) (setq uri (concat "http://" uri)))
+      (when (string-match "\\`www" uri) (setq uri (concat "http://" uri)))
       (browse-url uri)))
    ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
     (let* ((path (match-string-no-properties 1))
@@ -994,7 +994,7 @@ directory. An absolute path can be forced with a
       (taskpaper-open-file path)))
    ((taskpaper-in-regexp-p taskpaper-email-regexp)
     (let* ((address (match-string-no-properties 1))
-           (address (replace-regexp-in-string "^mailto:" "" address)))
+           (address (replace-regexp-in-string "\\`mailto:" "" address)))
       (compose-mail address)))
    (t (user-error "No link at point"))))
 
@@ -1481,7 +1481,7 @@ tags.")
 (defun taskpaper-tag-name-p (name)
   "Return non-nil when NAME is a valid tag name."
   (when (stringp name)
-    (string-match-p (format "^%s$" taskpaper-tag-name-regexp) name)))
+    (string-match-p (format "\\`%s\\'" taskpaper-tag-name-regexp) name)))
 
 (defun taskpaper-tag-value-escape (value)
   "Escape parentheses in tag VALUE."
@@ -1717,7 +1717,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
            (concat
             " *\\([-+]\\) ?\\([0-9]+\\) ?"
             "\\([hdwmy]\\|hours?\\|days?\\|weeks?\\|months?\\|years?\\|"
-            (mapconcat 'car parse-time-weekdays "\\|") "\\) *$")
+            (mapconcat 'car parse-time-weekdays "\\|") "\\) *\\'")
            time-string)
       (setq dir (string-to-char (match-string 1 time-string))
             deltan (string-to-number (match-string 2 time-string))
@@ -1727,7 +1727,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
     ;; if any, and parse it
     (cond
      ;; Years
-     ((string-match (concat "^ *\\(" mod-re "\\) year\\>") time-string)
+     ((string-match (concat "\\` *\\(" mod-re "\\) year\\>") time-string)
       (setq mod (match-string 1 time-string)
             year (nth 5 nowdecode)
             month 1
@@ -1739,7 +1739,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             ((equal mod "last") (setq year (1- year))))
       (setq time-string (replace-match "" t t time-string)))
      ;; Months
-     ((string-match (concat "^ *\\(" mod-re "\\) month\\>") time-string)
+     ((string-match (concat "\\` *\\(" mod-re "\\) month\\>") time-string)
       (setq mod (match-string 1 time-string)
             year (nth 5 nowdecode)
             month (nth 4 nowdecode)
@@ -1752,9 +1752,9 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
       (setq time-string (replace-match "" t t time-string)))
      ;; Month names with optional day
      ((string-match
-       (concat "^ *\\(" mod-re "\\) "
+       (concat "\\` *\\(" mod-re "\\) "
                "\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
-               "\\(?: \\([0-3]?[0-9]\\)\\)?\\(?:[ ]\\|$\\)")
+               "\\(?: \\([0-3]?[0-9]\\)\\)?\\(?:[ ]\\|\\'\\)")
        time-string)
       (setq mod (match-string 1 time-string)
             year (nth 5 nowdecode)
@@ -1767,7 +1767,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             ((equal mod "last") (setq year (1- year))))
       (setq time-string (replace-match "" t t time-string)))
      ;; Weeks
-     ((string-match (concat "^ *\\(" mod-re "\\) week\\>") time-string)
+     ((string-match (concat "\\` *\\(" mod-re "\\) week\\>") time-string)
       (setq mod (match-string 1 time-string)
             wday 1 wday1 (nth 6 nowdecode)
             year (nth 5 nowdecode)
@@ -1776,13 +1776,13 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             hour 0
             minute 0
             second 0)
-      (if (= wday1 0) (setq wday1 7)) (setq day (+ day (- wday wday1)))
+      (and (= wday1 0) (setq wday1 7)) (setq day (+ day (- wday wday1)))
       (cond ((equal mod "next") (setq day (+ day 7)))
             ((equal mod "last") (setq day (- day 7))))
       (setq time-string (replace-match "" t t time-string)))
      ;; Weekdays
      ((string-match
-       (concat "^ *\\(" mod-re "\\) "
+       (concat "\\` *\\(" mod-re "\\) "
                "\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
        time-string)
       (setq mod (match-string 1 time-string)
@@ -1794,13 +1794,13 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             hour 0
             minute 0
             second 0)
-      (when (= wday 0) (setq wday 7)) (when (= wday1 0) (setq wday1 7))
+      (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday wday1)))
       (cond ((equal mod "next") (setq day (+ day 7)))
             ((equal mod "last") (setq day (- day 7))))
       (setq time-string (replace-match "" t t time-string)))
      ;; Days
-     ((string-match "^ *\\(today\\|tomorrow\\|yesterday\\)\\>" time-string)
+     ((string-match "\\` *\\(today\\|tomorrow\\|yesterday\\)\\>" time-string)
       (setq mod (match-string 1 time-string)
             year (nth 5 nowdecode)
             month (nth 4 nowdecode)
@@ -1812,7 +1812,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
             ((equal mod "yesterday") (setq day (1- day))))
       (setq time-string (replace-match "" t t time-string)))
      ;; Time
-     ((string-match "^ *now *$" time-string)
+     ((string-match "\\` *now *\\'" time-string)
       (setq year (nth 5 nowdecode)
             month (nth 4 nowdecode)
             day (nth 3 nowdecode)
@@ -1823,7 +1823,9 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
       (setq time-string (replace-match "" t t time-string))))
     ;; Help matching incomplete ISO 8601 date representations, like "2018-08" or "2018-8-2"
     (when (string-match
-           "^ *\\([0-9]\\{4\\}\\)-\\([0-1]?[0-9]\\)\\(?:-\\([0-3]?[0-9]\\)\\)?\\([^-0-9]\\|$\\)"
+           (concat
+            "\\` *\\([0-9]\\{4\\}\\)-\\([0-1]?[0-9]\\)\\(?:-\\([0-3]?[0-9]\\)\\)?"
+            "\\([^-0-9]\\|\\'\\)")
            time-string)
       (let ((year (string-to-number (match-string 1 time-string)))
             (month (string-to-number (match-string 2 time-string)))
@@ -1832,7 +1834,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
               (replace-match (format "%04d-%02d-%02d\\4" year month day) t nil time-string))))
     ;; Help matching ISO date representation with year omitted, like "--08-02"
     (when (string-match
-           "^ *--\\([0-1][0-9]\\)-\\([0-3][0-9]\\)\\([^-0-9]\\|$\\)"
+           "\\` *--\\([0-1][0-9]\\)-\\([0-3][0-9]\\)\\([^-0-9]\\|\\'\\)"
            time-string)
       (let ((year (nth 5 nowdecode))
             (month (string-to-number (match-string 1 time-string)))
@@ -1841,7 +1843,9 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
               (replace-match (format "%04d-%02d-%02d\\3" year month day) t nil time-string))))
     ;; Help matching ISO 8601 week date representation, like "2018-W02-5" or "2018-W02"
     (when (string-match
-           "^ *\\([0-9]\\{4\\}\\)-W\\([0-9]\\{1,2\\}\\)\\(?:-\\([1-7]\\)\\)?\\([^-0-9]\\|$\\)"
+           (concat
+            "\\` *\\([0-9]\\{4\\}\\)-W\\([0-9]\\{1,2\\}\\)\\(?:-\\([1-7]\\)\\)?"
+            "\\([^-0-9]\\|\\'\\)")
            time-string)
       (let* ((iso-year (string-to-number (match-string 1 time-string)))
              (iso-week (string-to-number (match-string 2 time-string)))
@@ -2192,7 +2196,7 @@ buffer instead."
 (defun taskpaper-item-set-tag-fast-select ()
   "Set the tag for the item at point using fast tag selection."
   (interactive)
-  (let ((re (format "^\\(%s\\)\\(?:(\\(%s\\))\\)?$"
+  (let ((re (format "\\`\\(%s\\)\\(?:(\\(%s\\))\\)?\\'"
                     taskpaper-tag-name-regexp
                     taskpaper-tag-value-regexp))
         (tag (taskpaper-fast-tag-selection))
@@ -3654,7 +3658,7 @@ if the item matches the selection string STR."
         (set-text-properties
          (match-beginning 0) (match-end 0)
          (list 'face 'taskpaper-query-secondary-text-face)))
-      ;; Fontify non-word specifiers
+      ;; Fontify non-word operators and modifiers
       (goto-char (point-min))
       (while (re-search-forward
               (regexp-opt (append taskpaper-query-non-word-operator
