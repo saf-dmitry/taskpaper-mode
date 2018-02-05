@@ -175,7 +175,7 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 
 ## Completing Tasks
 
-Item is marked as complete by applying the `@done` tag. By default, items tagged with `@done` are visually crossed out.
+Item is marked as completed by applying the `@done` tag. By default, items tagged with `@done` are visually crossed out.
 
 The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`.
 
