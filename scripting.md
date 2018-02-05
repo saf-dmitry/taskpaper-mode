@@ -223,6 +223,8 @@ The next function sorts items according to their due dates. The sorting is done 
     (define-key taskpaper-mode-map (kbd "C-c C-s d")
                 'taskpaper-sort-by-due-date)
 
+As further examples see `taskpaper-sort-alpha` and `taskpaper-sort-by-type` function definitions.
+
 
 ### Quick Entry
 

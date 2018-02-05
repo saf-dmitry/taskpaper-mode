@@ -4068,11 +4068,11 @@ matched by this regular expression will be included."
   :group 'taskpaper
   :type 'boolean)
 
-(defcustom taskpaper-agenda-sorting-function nil
-  "Sorting function for items in Agenda buffer.
-It is called with two arguments, the items to compare, and should
-return non-nil if the first item should sort before the second
-one."
+(defcustom taskpaper-agenda-sorting-predicate nil
+  "Predicate function for sorting items in Agenda buffer.
+If non-nil, it is called with two arguments, the items to
+compare, and should return non-nil if the first item should sort
+before the second one."
   :group 'taskpaper
   :type 'symbol)
 
@@ -4217,8 +4217,8 @@ item originated."
     (nreverse items)))
 
 (defun taskpaper-agenda-sort-init (list)
-  "Sort list of items for Agenda buffer."
-  (let ((sfunc taskpaper-agenda-sorting-function))
+  "Sort list of items for Agenda view."
+  (let ((sfunc taskpaper-agenda-sorting-predicate))
     (if sfunc (sort list sfunc) list)))
 
 (defun taskpaper-agenda-insert-items (matcher)
