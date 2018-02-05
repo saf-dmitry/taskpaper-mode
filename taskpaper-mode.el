@@ -2728,6 +2728,12 @@ The optional argument REVERSE will reverse the sort order."
                  (taskpaper-item-get-attribute "text")))
    'taskpaper-string< nil reverse))
 
+(defconst taskpaper-sort-precedence-type
+  '(("project" . 3)("task" . 2)("note" . 1))
+  "Order of sorting precedence for item types.
+Items with the higher precedence will be sorted before items with
+the lower one.")
+
 (defun taskpaper-sort-by-type (&optional reverse)
   "Sort items on a certain level by type.
 The optional argument REVERSE will reverse the sort order."
@@ -2735,9 +2741,8 @@ The optional argument REVERSE will reverse the sort order."
   (taskpaper-sort-items-generic
    '(lambda nil
       (let ((type (taskpaper-item-get-attribute "type")))
-        (cond ((equal type "project") 1)
-              ((equal type "task") 2) (t 3))))
-   '< nil reverse))
+        (cdr (assoc type taskpaper-sort-precedence-type))))
+   '> nil reverse))
 
 ;;;; Outline path
 
@@ -3514,7 +3519,7 @@ matcher and the rest of the token list."
     (cons form tokens)))
 
 (defconst taskpaper-query-precedence-boolean
-  '(("and" . 0) ("or" . 1))
+  '(("and" . 0)("or" . 1))
   "Order of precedence for binary Boolean operators.
 Operators with lower precedence bind more strongly.")
 
