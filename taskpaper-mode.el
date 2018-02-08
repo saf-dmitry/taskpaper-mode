@@ -970,7 +970,7 @@ non-nil, force absolute path."
   "Insert a file link at point using completion.
 The path to the file is inserted relative to the directory of the
 current TaskPaper file, if the linked file is in the current
-directory or in a sub-directory of it, or if the path is written
+directory or in a subdirectory of it, or if the path is written
 relative to the current directory using \"../\". Otherwise an
 absolute path is used, if possible with \"~/\" for your home
 directory. An absolute path can be forced with a
@@ -2175,7 +2175,7 @@ buffer instead."
              (ncol (/ (window-width) fwidth))
              cnt tbl c e tg)
         ;; Insert selection dialog
-        (insert "Select a tag:\n\n")
+        (insert "\n")
         (setq tbl table cnt 0)
         (while (setq e (pop tbl))
           (setq tg (car e) c (cdr e))
@@ -3263,7 +3263,8 @@ item."
   "Regular expression for whitespace.")
 
 (defconst taskpaper-query-word-operator
-  '("and" "or" "not" "contains" "beginswith" "endswith" "matches")
+  '("and" "or" "not"
+    "contains" "beginswith" "endswith" "matches")
   "Valid query word operators.")
 
 (defconst taskpaper-query-non-word-operator
@@ -3275,7 +3276,8 @@ item."
   "Valid query type shortcuts.")
 
 (defconst taskpaper-query-relation-operator
-  '("=" "<" ">" "<=" ">=" "!=" "contains" "beginswith" "endswith" "matches")
+  '("=" "<" ">" "<=" ">=" "!="
+    "contains" "beginswith" "endswith" "matches")
   "Valid query relation operators.")
 
 (defconst taskpaper-query-relation-modifier
@@ -3292,7 +3294,7 @@ item."
 
 (defconst taskpaper-query-open-close
   '("(" ")")
-  "Opening and closing paretheses.")
+  "Opening and closing parentheses.")
 
 (defun taskpaper-query-word-operator-p (str)
   "Return non-nil if STR is a valid word operator."
@@ -3597,7 +3599,8 @@ Return constructed Lisp form implementing the matcher."
     (while tokens
       (setq temp (taskpaper-query-parse-boolean-binary tokens 0 left)
             left (car temp) tokens (cdr temp))
-      (when (and tokens (not (taskpaper-query-boolean-binary-p (nth 0 tokens))))
+      (when (and tokens
+                 (not (taskpaper-query-boolean-binary-p (nth 0 tokens))))
         (error "Boolean binary operator expected")))
     left))
 
@@ -3625,7 +3628,7 @@ if the item matches the selection string STR."
       (setq show-trailing-whitespace nil)
       (let* ((table taskpaper-custom-queries) tbl c e desc qs)
         ;; Insert selection dialog
-        (insert "Select a query:\n\n")
+        (insert "\n")
         (setq tbl table)
         (while (setq e (pop tbl))
           (cond
@@ -3634,12 +3637,12 @@ if the item matches the selection string STR."
            ((and (stringp (nth 0 e)) (not (eq (nth 0 e) "")))
             (insert (format "\n%s\n\n" (nth 0 e))))
            (t (setq c (nth 0 e) desc (nth 1 e) qs (nth 2 e))
-              (if (and c desc qs)
-                  (insert (format
-                           "%s %-20s %s\n"
-                           (propertize (char-to-string c)
-                                       'face 'taskpaper-fast-select-key-face)
-                           (concat desc "  ") qs))))))
+              (when (and c desc qs)
+                (insert (format
+                         "%s %-20s %s\n"
+                         (propertize (char-to-string c)
+                                     'face 'taskpaper-fast-select-key-face)
+                         (concat desc "  ") qs))))))
         (insert "\n") (goto-char (point-min)) (fit-window-to-buffer)
         ;; Select query
         (setq c (read-char-exclusive "Press key for query:"))
