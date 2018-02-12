@@ -2191,7 +2191,7 @@ buffer instead."
         (setq c (read-char-exclusive "Press key for tag:"))
         (if (setq e (rassoc c table) tg (car e))
             (prog1 tg (kill-buffer))
-          (setq quit-flag t))))))
+          (kill-buffer) (setq quit-flag t))))))
 
 (defun taskpaper-item-set-tag-fast-select ()
   "Set the tag for the item at point using fast tag selection."
@@ -3648,7 +3648,7 @@ if the item matches the selection string STR."
         (setq c (read-char-exclusive "Press key for query:"))
         (if (setq e (assoc c table) qs (nth 2 e))
             (prog1 qs (kill-buffer))
-          (setq quit-flag t))))))
+          (kill-buffer) (setq quit-flag t))))))
 
 (defun taskpaper-query-fast-select ()
   "Query buffer using fast query selection."
