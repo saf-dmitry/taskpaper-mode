@@ -3947,11 +3947,11 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   "Menu for TaskPaper mode."
   '("TaskPaper"
     ("Item"
-     ["Format As Project" taskpaper-item-format-as-project
+     ["Format as Project" taskpaper-item-format-as-project
       :active (outline-on-heading-p)]
-     ["Format As Task" taskpaper-item-format-as-task
+     ["Format as Task" taskpaper-item-format-as-task
       :active (outline-on-heading-p)]
-     ["Format As Note" taskpaper-item-format-as-note
+     ["Format as Note" taskpaper-item-format-as-note
       :active (outline-on-heading-p)])
     ("Visibility"
      ["Cycle Visibility" taskpaper-cycle

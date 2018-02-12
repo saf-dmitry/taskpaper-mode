@@ -40,6 +40,34 @@ Documentation for TaskPaper mode is available below, but you can also use Emacs'
 This document explains the installation, usage, and basic customization of TaskPaper mode package. For more advanced customization, hacking and scripting see the [Scripting Guide][tp-mode-scripting-guide].
 
 
+# Table of Contents
+
+ - [Installation and Activation](#installation-and-activation)
+ - [Usage](#usage)
+    - [Folding](#folding)
+    - [Outline Navigation](#outline-navigation)
+    - [Structure Editing](#structure-editing)
+    - [Tagging](#tagging)
+    - [Completing Tasks](#completing-tasks)
+    - [Calendar Integration](#calendar-integration)
+    - [Date & Time Formats](#date-time-formats)
+    - [Hyperlinks and Inline Images](#hyperlinks-and-inline-images)
+    - [Sorting](#sorting)
+    - [Filtering](#filtering)
+    - [Searching](#searching)
+    - [Refiling](#refiling)
+    - [Archiving](#archiving)
+    - [Multi-Document Support and Agenda View](#multi-document-support-and-agenda-view)
+    - [Miscellaneous](#miscellaneous)
+ - [Customization](#customization)
+    - [Syntax Highlighting](#syntax-highlighting)
+    - [Cleaner Outline View](#cleaner-outline-view)
+    - [Indentation Guides](#indentation-guides)
+ - [Acknowledgments](#acknowledgements)
+ - [Bugs](#bugs)
+ - [License](#license)
+
+
 # Installation and Activation
 
 Put `taskpaper-mode.el` on the load path and copy the following into your init file:
@@ -56,6 +84,7 @@ Files with the `.taskpaper` extension use TaskPaper mode by default. If you want
 
 
 ## Formatting Items
+
 
 In TaskPaper mode each line makes a new item.
 
@@ -146,7 +175,7 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-Tags provide another way to organize (and later search for) items. Type the `@` symbol preceded by a space and followed by a tag name to create a tag. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
+Tags provide another way to organize (and later search for) items. To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
 
  - `@today`
  - `@priority(1)`
@@ -231,12 +260,16 @@ Dates resolve to midnight of the given date.
  - `2017-W02-5`
  - `this week`
  - `next month`
- - `next Monday`
+ - `next Friday`
  - `last June 5`
  - `June`
  - `today`
  - `tomorrow`
  - `yesterday`
+
+If you enter the name of a specific time period, the date will be at its beginning. So `June` means June first.
+
+You can refer to relative dates using common words (`today`, `tomorrow`, `yesterday`). Words `this`, `next`, and `last` have specific meanings: `this Friday` always means the Friday in this week, `next Friday` always means the Friday in the next week, and `last Friday` always means the Friday in the last week, regardless of what day today is. Other units work in the same way.
 
 
 ### Times
@@ -327,7 +360,7 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all lev
 
 ## Searching
 
-You can create a sparse tree based on specific combinations of items' text and tags.
+You can create a sparse tree based on specific combinations of items' text, type, and tags. This is a great tool that lets you focus on the right things at the right time.
 
 TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to certain subtree or region by narrowing the buffer with `C-c #` (`taskpaper-narrow-to-subtree`) or `C-x n n` (`narrow-to region`) respectively.
 

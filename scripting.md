@@ -5,6 +5,13 @@
 This document covers some areas where users can automate and extend the functionality of TaskPaper mode using predefined hooks and API functions.
 
 
+# Table of Contents
+
+ - [API Functions](#api-functions)
+ - [Hooks](#hooks)
+ - [Scripting Examples](#scripting-examples)
+
+
 ## API Functions
 
 Following API functions can be used to automate and extend TaskPaper mode. For details see the documentation strings of these functions.
