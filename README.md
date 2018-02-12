@@ -50,7 +50,7 @@ This document explains the installation, usage, and basic customization of TaskP
     - [Tagging](#tagging)
     - [Completing Tasks](#completing-tasks)
     - [Calendar Integration](#calendar-integration)
-    - [Date & Time Formats](#date-time-formats)
+    - [Date and Time Formats](#date-and-time-formats)
     - [Hyperlinks and Inline Images](#hyperlinks-and-inline-images)
     - [Sorting](#sorting)
     - [Filtering](#filtering)
@@ -195,7 +195,7 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
             ("priority(2)" . ?2)
             ("priority(3)" . ?3)))
 
-Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses. The expression `%t` in the tag value is replaced with current date in [ISO 8601][iso8601-wiki] format, `%T` is replaced with current date and time, and `%^T` is like `%T`, but prompts the user for date/time.
+Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses. The expression `%t` in the tag value is replaced with current date in [ISO 8601][iso8601-wiki] format, `%T` is replaced with current date and time, and `%^T` is like `%T`, but prompts the user for date & time.
 
 If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure user option `taskpaper-tags-exclude-from-inheritance`.
 
@@ -223,7 +223,7 @@ The Emacs calendar created by Edward M. Reingold displays a three-month calendar
 
 The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the current date. If point is on a tag with value, interprets the value as date and goes to this date instead. With a `C-u` prefix, always goes to the current date.
 
-The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the date/time to insert at point. You can enter a date using date/time syntax described below. The current interpretation of your input will be displayed live in the minibuffer, right next to your input. If you find this distracting, turn the display off with the `taskpaper-read-date-display-live` user option.
+The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the date & time to insert at point. You can enter a date using date & time syntax described below. The current interpretation of your input will be displayed live in the minibuffer, right next to your input. If you find this distracting, turn the display off with the `taskpaper-read-date-display-live` user option.
 
 Parallel to the minibuffer prompt, a calendar is popped up (see the user option `taskpaper-read-date-popup-calendar`). You can control the calendar from the minibuffer using the following commands:
 
@@ -238,9 +238,9 @@ Parallel to the minibuffer prompt, a calendar is popped up (see the user option 
  - `!`: Mark diary items in calendar.
 
 
-## Date & Time Formats
+## Date and Time Formats
 
-These examples show the different formats that you can use when entering dates and times in the date/time prompt. The same formats can be used for date/time values in tags.
+These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Attend meeting @due(2017-08-11 8am)
     - Do weekly review @due(Friday 12:30)
@@ -521,7 +521,7 @@ Two user options control how the agenda buffer is displayed and whether the wind
 
 Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
-In the example below items will be sorted according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
+In the example below items will be sorted according to their due dates. The sorting is done by date & time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
     (setq taskpaper-agenda-sorting-predicate
           '(lambda (a b)

@@ -2046,7 +2046,7 @@ non-nil return the date converted to an internal time."
         (calendar-move-hook nil)
         (calendar-view-diary-initially-flag nil)
         (calendar-view-holidays-initially-flag nil)
-        (prompt (if prompt prompt "Date: ")) text)
+        (prompt (if prompt prompt "Date & time: ")) text)
     (save-excursion
       (save-window-excursion
         (when taskpaper-read-date-popup-calendar
