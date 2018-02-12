@@ -245,7 +245,7 @@ These examples show the different formats that you can use when entering dates a
     - Attend meeting @due(2017-08-11 8am)
     - Do weekly review @due(Friday 12:30)
 
-The TaskPaper mode understands English month and weekday abbreviations. Week refers to [ISO 8601][iso8601-wiki] standard week that starts on Monday, not Sunday. If the time string is unparseable, current time is returned.
+If the time string is unparseable, current time is returned.
 
 
 ### Dates
@@ -267,9 +267,9 @@ Dates resolve to midnight of the given date.
  - `tomorrow`
  - `yesterday`
 
-If you enter the name of a specific time period, the date will be at its beginning. So `June` means June first.
+The TaskPaper mode understands English month and weekday abbreviations. If you enter the name of a specific time period, the date will be at its beginning. So `June` without date means June first. Week refers to [ISO 8601][iso8601-wiki] standard week that starts on Monday, not Sunday.
 
-You can refer to relative dates using common words (`today`, `tomorrow`, `yesterday`). Words `this`, `next`, and `last` have specific meanings: `this Friday` always means the Friday in this week, `next Friday` always means the Friday in the next week, and `last Friday` always means the Friday in the last week, regardless of what day today is. Other units work in the same way.
+You can refer to relative dates using common words (`today`, `tomorrow`, `yesterday`, `last week`, etc.). Words `this`, `next`, and `last` have specific meanings: `this Friday` always means the Friday in this week, `next Friday` always means the Friday in the next week, and `last Friday` always means the Friday in the last week, regardless of what day today is. Other units work in the same way.
 
 
 ### Times
