@@ -44,6 +44,7 @@ This document explains the installation, usage, and basic customization of TaskP
 
  - [Installation and Activation](#installation-and-activation)
  - [Usage](#usage)
+    - [Formatting Items](#formatting-items)
     - [Folding](#folding)
     - [Outline Navigation](#outline-navigation)
     - [Structure Editing](#structure-editing)
@@ -175,12 +176,13 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-Tags provide another way to organize (and later search for) items. To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
+In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later search for) items. To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
 
  - `@today`
  - `@priority(1)`
+ - `@status(in press)`
 
-If you need to include parentheses in the tag value, precede them with a backslash.
+The value text inside can have whitespaces, but no newlines. If you need to include parentheses in the tag value, precede them with a backslash.
 
 After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
@@ -217,9 +219,9 @@ The Emacs calendar created by Edward M. Reingold displays a three-month calendar
 
  - `C-c >`: Access the calendar at the current date or date under cursor (`taskpaper-goto-calendar`).
 
- - `C-c <`: Insert a timestamp corresponding to the cursor date in the calendar (`taskpaper-date-from-calendar`).
+ - `C-c <`: Insert a time stamp corresponding to the cursor date in the calendar (`taskpaper-date-from-calendar`).
 
- - `C-c .`: Prompt for a date and insert a corresponding timestamp (`taskpaper-read-date-insert-timestamp`).
+ - `C-c .`: Prompt for a date and insert a corresponding time stamp (`taskpaper-read-date-insert-timestamp`).
 
 The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the current date. If point is on a tag with value, interprets the value as date and goes to this date instead. With a `C-u` prefix, always goes to the current date.
 
@@ -242,8 +244,8 @@ Parallel to the minibuffer prompt, a calendar is popped up (see the user option 
 
 These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
-    - Attend meeting @due(2017-08-11 8am)
     - Do weekly review @due(Friday 12:30)
+    - Attend meeting @due(2017-08-11 8 am)
 
 If the time string is unparseable, current time is returned.
 
@@ -267,7 +269,7 @@ Dates resolve to midnight of the given date.
  - `tomorrow`
  - `yesterday`
 
-The TaskPaper mode understands English month and weekday abbreviations. If you enter the name of a specific time period, the date will be at its beginning. So `June` without date means June first. Week refers to [ISO 8601][iso8601-wiki] standard week that starts on Monday, not Sunday.
+TaskPaper mode understands English month and weekday abbreviations. If you enter the name of a specific time period, the date will be at its beginning. So `June` without date means June first. Week refers to [ISO 8601][iso8601-wiki] standard week that starts on Monday, not Sunday.
 
 You can refer to relative dates using common words (`today`, `tomorrow`, `yesterday`, `last week`, etc.). Words `this`, `next`, and `last` have specific meanings: `this Friday` always means the Friday in this week, `next Friday` always means the Friday in the next week, and `last Friday` always means the Friday in the last week, regardless of what day today is. Other units work in the same way.
 
@@ -305,9 +307,9 @@ The shorthands `h`, `d`, `w`, `m`, and `y` stand for hour, day, week, month, and
 
 You can combine dates, times, and duration offsets:
 
- - `tomorrow 8am`
+ - `tomorrow 8 am`
  - `last Jan 2 14:25 -1w`
- - `this month 8:00 + 2 Fri`
+ - `this month 8:00 +2 Fri`
 
 Relative dates like `next Monday` should always be given as the _very first_ part of the time string. Duration offsets should always be given as the _very last_ part of the time string.
 
@@ -360,20 +362,20 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all lev
 
 ## Searching
 
-You can create a sparse tree based on specific combinations of items' text, type, and tags. This is a great tool that lets you focus on the right things at the right time.
+You can create a sparse tree based on specific combinations of items' assigned tags and attributes. This is a great tool that lets you focus on the right things at the right time.
 
-TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to certain subtree or region by narrowing the buffer with `C-c #` (`taskpaper-narrow-to-subtree`) or `C-x n n` (`narrow-to region`) respectively.
+TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to a certain subtree or region by narrowing the buffer with `C-c #` (`taskpaper-narrow-to-subtree`) or `C-x n n` (`narrow-to-region`) respectively.
 
-In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline.
+In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings while in minibuffer. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline.
 
-The syntax for query string is described below.
+The query language syntax is described below.
 
-__Note for TaskPaper app users:__ Though query syntax described here is a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
+__Note for TaskPaper app users:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
 
 
 ### Tags and Attributes
 
-Explicit attributes are associated with tags and have the same names, e.g., the tag `@priority(1)` added to an item will be translated to an attribute named "priority" whose value is "1". And vice versa, setting an explicit attribute will change the corresponding tag. TaskPaper mode also includes some implicit (built-in) read-only attributes, which are not associated with tags and set in other way:
+Every item in the outline has its own set of attributes. Explicit attributes are associated with assigned tags and have the same names, e.g., the tag `@priority(1)` added to an item will be translated to an attribute named "priority" whose value is "1". And vice versa, setting an explicit attribute programmatically will change the corresponding tag. TaskPaper mode also includes some implicit (built-in) read-only attributes, which are not associated with tags and set in other way:
 
  - `type`: Item's type (project, task, note, or blank)
  - `text`: Item's full line of text sans indentation
@@ -407,7 +409,7 @@ The default type of comparison is case-insensitive string comparison. You can ch
  - `n`: Numeric compare. Both sides of the compare are converted to numbers before comparing.
  - `d`: Date compare. Both sides of the compare are converted to dates before comparing.
 
-Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's existence will be tested.
+Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's presence will be tested.
 
 Here are some examples for predicates:
 
@@ -445,7 +447,7 @@ Binary logical `and` binds more strongly than `or`. Unary logical `not` binds mo
 
 ### Shortcuts
 
-It's common to search TaskPaper items based on there type: project, task, or note.
+It's common to search TaskPaper items based on their type: project, task, or note.
 
 For example you might want to find the "Inbox" project. The default way to do this would be:
 
@@ -478,7 +480,7 @@ The initial value in each item defines the key you have to press. The second par
 You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all leaf notes (notes, which may content other notes, but no task or project items) to be folded at startup by adding following to your init file:
 
     (add-hook 'taskpaper-mode-hook
-              '(lambda () (taskpaper-query "not @type=note")))
+              '(lambda () (taskpaper-query "not @type = note")))
 
 
 ## Refiling
@@ -491,14 +493,14 @@ When reorganizing your outline, you may want to refile or to copy some of the it
 
 The commands `C-c C-w` and `C-c M-w` offer possible target locations via outline path completion. This is the interface also used by the `C-c C-j` goto command.
 
-The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem.
+The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order` setting, it will be either the first or last subitem.
 
 
 ## Archiving
 
 When a project represented by a subtree is finished, you may want to move the tree out of the way.
 
-The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the user option `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order`, it will be either the first or last subitem. When the `taskpaper-archive-save-context` user option is non-nil, a `@project` tag with project hierarchy is added to the archived item.
+The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the user option `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order` setting, it will be either the first or last subitem. When the `taskpaper-archive-save-context` user option is non-nil, a `@project` tag with project hierarchy is added to the archived item.
 
 When archiving the hook `taskpaper-archive-hook` runs after successfully archiving a subtree. Hook functions are called with point on the subtree in the original location. At this stage, the subtree has been added to the archive location, but not yet deleted from the original one.
 
