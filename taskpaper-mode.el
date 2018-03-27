@@ -4029,7 +4029,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Access Calendar" taskpaper-goto-calendar]
      ["Insert Date from Calendar" taskpaper-date-from-calendar
       :active (get-buffer "*Calendar*")]
-     ["Insert Date..." taskpaper-read-date-insert-timestamp])
+     ["Insert Time Stamp..." taskpaper-read-date-insert-timestamp])
     ("Links & Images"
      ["Insert File Link..." taskpaper-insert-file-link-at-point]
      ["Show Inline Images" taskpaper-toggle-inline-images
