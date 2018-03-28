@@ -52,6 +52,7 @@ This document explains the installation, usage, and basic customization of TaskP
     - [Completing Tasks](#completing-tasks)
     - [Calendar Integration](#calendar-integration)
     - [Date and Time Formats](#date-and-time-formats)
+    - [Inline Formatting](#inline-formatting)
     - [Hyperlinks and Inline Images](#hyperlinks-and-inline-images)
     - [Sorting](#sorting)
     - [Filtering](#filtering)
@@ -312,6 +313,18 @@ You can combine dates, times, and duration offsets:
  - `this month 8:00 +2 Fri`
 
 Relative dates like `next Monday` should always be given as the _very first_ part of the time string. Duration offsets should always be given as the _very last_ part of the time string.
+
+
+## Inline Formatting
+
+You can use Markdown syntax for inline emphasis in notes. Text enclosed by single underscore (`_`) or asterisk (`*`) characters is emphasized. Double `_` or `*` produces strong emphasis:
+
+    This is _emphasis_.
+    This is __strong emphasis__.
+
+By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface. You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `_` or `*` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis.
+
+You can hide the markup delimiters by configuring user option `markdown-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden *for display purposes only*.
 
 
 ## Hyperlinks and Inline Images

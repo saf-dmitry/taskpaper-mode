@@ -292,6 +292,11 @@ overlays the UTF-8 character for display purposes only."
   :group 'taskpaper
   :type 'character)
 
+(defcustom taskpaper-hide-markup nil
+  "Non-nil means Font Lock should hide inline markup characters."
+  :group 'taskpaper
+  :type 'boolean)
+
 (defcustom taskpaper-mode-hook nil
   "Hook run when entering `taskpaper-mode'."
   :group 'taskpaper
@@ -374,14 +379,24 @@ and not an indirect buffer."
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
 
+(defconst taskpaper-markup-properties
+  '(face taskpaper-markup-face invisible taskpaper-markup)
+  "Properties to apply to inline markup.")
+
 (defsubst taskpaper-check-invisible ()
   "Return non-nil if point is in an invisible region."
-  (if (and
-       (or (not (boundp 'visible-mode)) (not visible-mode))
-       (or (get-char-property (point) 'invisible)
-           (get-char-property (max (point-min) (1- (point)))
-                              'invisible)))
-      (user-error "Unfold subtree before editing")))
+  (let ((invisible-at-point (get-char-property
+                             (point) 'invisible))
+        (invisible-before-point (get-char-property
+                                 (max (point-min) (1- (point)))
+                                 'invisible)))
+    (when (and
+           (or (not (boundp 'visible-mode)) (not visible-mode))
+           (or (and invisible-at-point
+                    (not (eq invisible-at-point 'taskpaper-markup)))
+               (and invisible-before-point
+                    (not (eq invisible-before-point 'taskpaper-markup)))))
+      (user-error "Unfold subtree before editing"))))
 
 (defun taskpaper-self-insert-command (N)
   "Modified version of `self-insert-command'."
@@ -446,14 +461,14 @@ Set the match data. Only the current line is checked."
   "Non-destructively sort elements of LIST as strings."
   (let ((res (copy-sequence list))) (sort res 'string-lessp)))
 
-(defconst taskpaper-nonsticky-props
+(defconst taskpaper-nonsticky-properties
   '(face mouse-face keymap help-echo display invisible intangible))
 
 (defsubst taskpaper-rear-nonsticky-at (pos)
   "Add nonsticky text properties at POS."
   (add-text-properties
    (1- pos) pos
-   (list 'rear-nonsticky taskpaper-nonsticky-props)))
+   (list 'rear-nonsticky taskpaper-nonsticky-properties)))
 
 (defun taskpaper-remove-flyspell-overlays-in (begin end)
   "Remove Flyspell overlays in region between BEGIN and END."
@@ -516,7 +531,7 @@ Group 3 matches the tag value, if any.")
     "webcal" "xmlrpc.beep" "xmlrpc.beeps" "xmpp" "xri" "z39.50r" "z39.50s")
   "URI schemes for URI, which should be opened in WWW browser.")
 
-(defvar taskpaper-uri-browser-regexp
+(defconst taskpaper-uri-browser-regexp
   (concat
    "\\<\\("
    "\\(?:"
@@ -567,6 +582,37 @@ Group 3 matches trailing tags, if any.")
    taskpaper-tag-value-regexp)
   "Regular expression for \"@done\" tag.")
 
+(defconst taskpaper-emphasis-prefix-regexp
+  "\\(?:^\\|[ \t([{<'\"‘“„«’/]\\)")
+
+(defconst taskpaper-emphasis-suffix-regexp
+  "\\(?:[] \t.,:;!?)}>'\"’”»/]\\|$\\)")
+
+(defconst taskpaper-emphasis-text-regexp
+  "\\(?:[^ _*\t\n]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)")
+
+(defconst taskpaper-emphasis-regexp
+  (format "%s\\(\\([_*]\\)\\(%s\\)\\(\\2\\)\\)%s"
+          taskpaper-emphasis-prefix-regexp
+          taskpaper-emphasis-text-regexp
+          taskpaper-emphasis-suffix-regexp)
+  "Regular expression for inline emphasis.
+Group 1 matches the entire expression, including delimiters.
+Group 2 matches the opening delimiters.
+Group 3 matches the text inside the delimiters.
+Group 4 matches the closing delimiters.")
+
+(defconst taskpaper-strong-regexp
+  (format "%s\\(\\([_*]\\{2\\}\\)\\(%s\\)\\(\\2\\)\\)%s"
+          taskpaper-emphasis-prefix-regexp
+          taskpaper-emphasis-text-regexp
+          taskpaper-emphasis-suffix-regexp)
+  "Regular expression for strong inline emphasis.
+Group 1 matches the entire expression, including delimiters.
+Group 2 matches the opening delimiters.
+Group 3 matches the text inside the delimiters.
+Group 4 matches the closing delimiters.")
+
 ;;;; Faces
 
 (defgroup taskpaper-faces nil
@@ -576,17 +622,17 @@ Group 3 matches trailing tags, if any.")
 
 (defface taskpaper-project-name-face
   '((t :inherit font-lock-function-name-face))
-  "Face for project name."
+  "Face for project names."
   :group 'taskpaper-faces)
 
 (defface taskpaper-project-mark-face
   '((t :inherit taskpaper-project-name-face))
-  "Face for project mark."
+  "Face for project marks."
   :group 'taskpaper-faces)
 
 (defface taskpaper-task-face
   '((t :inherit default))
-  "Face for task."
+  "Face for tasks."
   :group 'taskpaper-faces)
 
 (defface taskpaper-item-marked-as-done-face
@@ -596,32 +642,47 @@ Group 3 matches trailing tags, if any.")
 
 (defface taskpaper-task-undone-mark-face
   '((t :inherit taskpaper-task-face))
-  "Face for undone task mark."
+  "Face for undone task marks."
   :group 'taskpaper-faces)
 
 (defface taskpaper-task-done-mark-face
   '((t :inherit font-lock-comment-face))
-  "Face for done task mark."
+  "Face for done task marks."
   :group 'taskpaper-faces)
 
 (defface taskpaper-note-face
   '((t :inherit font-lock-comment-face))
-  "Face for note."
+  "Face for notes."
   :group 'taskpaper-faces)
 
 (defface taskpaper-tag-face
   '((t :inherit font-lock-comment-face))
-  "Face for tag."
+  "Face for tags."
   :group 'taskpaper-faces)
 
 (defface taskpaper-link-face
   '((t :inherit link))
-  "Face for link."
+  "Face for links."
   :group 'taskpaper-faces)
 
 (defface taskpaper-missing-link-face
   '((t :foreground "red" :inherit link))
-  "Face for file link to non-existing files."
+  "Face for file links to non-existing files."
+  :group 'taskpaper-faces)
+
+(defface taskpaper-emphasis-face
+  '((t (:inherit italic)))
+  "Face for inline emphasis."
+  :group 'taskpaper-faces)
+
+(defface taskpaper-strong-face
+  '((t (:inherit bold)))
+  "Face for strong inline emphasis."
+  :group 'taskpaper-faces)
+
+(defface taskpaper-markup-face
+  '((t (:inherit shadow :slant normal :weight normal)))
+  "Face for markup elements."
   :group 'taskpaper-faces)
 
 (defface taskpaper-query-error-face
@@ -671,6 +732,28 @@ Group 3 matches trailing tags, if any.")
          (list 'face 'taskpaper-item-marked-as-done-face))))
     t))
 
+(defun taskpaper-font-lock-emphasis (limit)
+  "Fontify inline emphasis."
+  (when (re-search-forward taskpaper-emphasis-regexp limit t)
+    (font-lock-prepend-text-property
+     (match-beginning 3) (match-end 3)
+     'face 'taskpaper-emphasis-face)
+    (add-text-properties (match-beginning 2) (match-end 2)
+                         taskpaper-markup-properties)
+    (add-text-properties (match-beginning 4) (match-end 4)
+                         taskpaper-markup-properties)))
+
+(defun taskpaper-font-lock-strong (limit)
+  "Fontify strong inline emphasis."
+  (when (re-search-forward taskpaper-strong-regexp limit t)
+    (font-lock-prepend-text-property
+     (match-beginning 3) (match-end 3)
+     'face 'taskpaper-strong-face)
+    (add-text-properties (match-beginning 2) (match-end 2)
+                         taskpaper-markup-properties)
+    (add-text-properties (match-beginning 4) (match-end 4)
+                         taskpaper-markup-properties)))
+
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'taskpaper-open-link-at-point)
@@ -684,7 +767,8 @@ Group 3 matches trailing tags, if any.")
      (match-beginning 1) (match-end 1))
     (add-text-properties
      (match-beginning 1) (match-end 1)
-     (list 'mouse-face 'highlight
+     (list 'face 'taskpaper-link-face
+           'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
            'help-echo "Follow Link"))
 	(taskpaper-rear-nonsticky-at (match-end 1))
@@ -697,7 +781,8 @@ Group 3 matches trailing tags, if any.")
      (match-beginning 1) (match-end 1))
     (add-text-properties
      (match-beginning 1) (match-end 1)
-     (list 'mouse-face 'highlight
+     (list 'face 'taskpaper-link-face
+           'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
            'help-echo "Follow Link"))
 	(taskpaper-rear-nonsticky-at (match-end 1))
@@ -794,7 +879,7 @@ If TAG is a number, get the corresponding match group."
 
 (defvar taskpaper-font-lock-keywords nil)
 (defun taskpaper-set-font-lock-defaults ()
-  "Set font lock defaults for the current buffer."
+  "Set Font Lock defaults for the current buffer."
   (let ((font-lock-keywords
          (list
           (cons taskpaper-task-regexp
@@ -805,14 +890,14 @@ If TAG is a number, get the corresponding match group."
                   (2 'taskpaper-project-mark-face)))
           (cons taskpaper-note-regexp
                 '((1 'taskpaper-note-face)))
-          (cons 'taskpaper-activate-email-links
-                '((1 'taskpaper-link-face t t)))
-          (cons 'taskpaper-activate-uri-links
-                '((1 'taskpaper-link-face t t)))
+          '(taskpaper-activate-email-links)
+          '(taskpaper-activate-uri-links)
           '(taskpaper-activate-file-links)
           '(taskpaper-activate-tags)
           '(taskpaper-font-lock-done-tasks)
           '(taskpaper-font-lock-done-projects)
+          '(taskpaper-font-lock-emphasis)
+          '(taskpaper-font-lock-strong)
           (when taskpaper-pretty-task-marks
             '(taskpaper-activate-task-marks)))))
     (setq taskpaper-font-lock-keywords (delq nil font-lock-keywords))
@@ -831,7 +916,7 @@ If TAG is a number, get the corresponding match group."
          deactivate-mark buffer-file-name buffer-file-truename)
     (decompose-region begin end)
     (remove-text-properties begin end
-                            (list 'display t 'mouse-face t 'keymap t))))
+                            '(display t mouse-face t keymap t invisible t))))
 
 ;;;; Files
 
@@ -3839,6 +3924,9 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   ;; Invisibility spec
   (taskpaper-set-local 'line-move-ignore-invisible t)
   (add-to-invisibility-spec '(outline . t))
+  (if taskpaper-hide-markup
+      (add-to-invisibility-spec 'taskpaper-markup)
+    (remove-from-invisibility-spec 'taskpaper-markup))
   ;; Outline settings
   ;; NOTE: Group 1 in `outline-regexp' is used by `replace-match'
   ;; in `taskpaper-promote' and `taskpaper-demote' functions.
