@@ -587,11 +587,11 @@ Group 3 matches trailing tags, if any.")
 
 (defconst taskpaper-emphasis-prefix-regexp
   "\\(?:^\\|[ \t([{<'\"‘“„«’/]\\)"
-  "Regular expression for match before opening emphasis delimiters.")
+  "Regular expression for assertion before opening emphasis delimiters.")
 
 (defconst taskpaper-emphasis-suffix-regexp
   "\\(?:[] \t.,:;!?)}>'\"’”»/]\\|$\\)"
-  "Regular expression for match after closing emphasis delimiters.")
+  "Regular expression for assertion after closing emphasis delimiters.")
 
 (defconst taskpaper-emphasis-text-regexp
   "\\(?:[^ _*\t\n]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)"
@@ -921,8 +921,8 @@ If TAG is a number, get the corresponding match group."
          (inhibit-modification-hooks t)
          deactivate-mark buffer-file-name buffer-file-truename)
     (decompose-region begin end)
-    (remove-text-properties begin end
-                            '(display t mouse-face t keymap t invisible t))))
+    (remove-text-properties
+     begin end '(display t mouse-face t keymap t invisible t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
@@ -936,7 +936,7 @@ If TAG is a number, get the corresponding match group."
     (remove-from-invisibility-spec 'taskpaper-markup)
     (when (called-interactively-p 'interactive)
       (message "Markup hiding disabled")))
-  (font-lock-fontify-buffer))
+  (when font-lock-mode (font-lock-fontify-buffer)))
 
 ;;;; Files
 
