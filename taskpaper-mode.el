@@ -2804,29 +2804,53 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (run-hooks 'taskpaper-after-sorting-items-hook)
   (message "Sorting items...done"))
 
+(defun taskpaper-sort-remove-markup (s)
+  "Remove inline markup from string S.
+This version removes characters with invisibility property
+`taskpaper-markup'."
+  (let (b)
+    (while (setq b (text-property-any
+                    0 (length s)
+                    'invisible 'taskpaper-markup s))
+      (setq s (concat
+               (substring s 0 b)
+               (substring s (or (next-single-property-change
+                                 b 'invisible s)
+                                (length s)))))))
+  s)
+
+(defun taskpaper-sort-alpha-get-sorting-key ()
+  "Return sorting key of item at point for alphabetical sorting.
+This version will remove indentation, type formatting and inline
+markup and return sorting key as string."
+  (setq item (buffer-substring
+              (line-beginning-position) (line-end-position))
+        item (taskpaper-sort-remove-markup item)
+        item (taskpaper-remove-indentation item)
+        item (taskpaper-remove-type-formatting item)))
+
+(defun taskpaper-sort-by-type-get-sorting-key ()
+  "Return sorting key of item at point for sorting by type."
+  (let ((type (taskpaper-item-get-attribute "type"))
+        (precedence '(("project" . 3)("task" . 2)("note" . 1))))
+    (cdr (assoc type precedence))))
+
 (defun taskpaper-sort-alpha (&optional reverse)
   "Sort items on a certain level alphabetically.
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil (taskpaper-remove-type-formatting
-                 (taskpaper-item-get-attribute "text")))
+   '(lambda nil (taskpaper-sort-alpha-get-sorting-key))
    'taskpaper-string< nil reverse))
-
-(defconst taskpaper-sort-precedence-type
-  '(("project" . 3)("task" . 2)("note" . 1))
-  "Order of sorting precedence for item types.
-Items with the higher precedence will be sorted before items with
-the lower one.")
 
 (defun taskpaper-sort-by-type (&optional reverse)
   "Sort items on a certain level by type.
-The optional argument REVERSE will reverse the sort order."
+Tasks will be sorted before notes and projects will be sorted
+before tasks. The optional argument REVERSE will reverse the sort
+order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil
-      (let ((type (taskpaper-item-get-attribute "type")))
-        (cdr (assoc type taskpaper-sort-precedence-type))))
+   '(lambda nil (taskpaper-sort-by-type-get-sorting-key))
    '> nil reverse))
 
 ;;;; Outline path
