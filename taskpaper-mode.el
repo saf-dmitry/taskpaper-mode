@@ -715,6 +715,21 @@ Group 4 matches the closing delimiters.")
           path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
+(defun taskpaper-range-property-any (begin end prop prop-values)
+  "Return non-nil if PROP from BEGIN to END is equal to one of the given PROP-VALUES.
+Also return non-nil if PROP is a list containing one of the
+PROP-VALUES. Return nil otherwise."
+  (let (props)
+    (catch 'found
+      (dolist (loc (number-sequence begin end))
+        (when (setq props (get-text-property loc prop))
+          (cond ((listp props)
+                 (dolist (val prop-values)
+                   (when (memq val props) (throw 'found loc))))
+                (t
+                 (dolist (val prop-values)
+                   (when (eq val props) (throw 'found loc))))))))))
+
 (defun taskpaper-font-lock-done-tasks (limit)
   "Fontify tasks marked as done."
   (while (re-search-forward taskpaper-task-regexp limit t)
@@ -741,24 +756,32 @@ Group 4 matches the closing delimiters.")
 (defun taskpaper-font-lock-emphasis (limit)
   "Fontify inline emphasis."
   (when (re-search-forward taskpaper-emphasis-regexp limit t)
-    (font-lock-prepend-text-property
-     (match-beginning 3) (match-end 3)
-     'face 'taskpaper-emphasis-face)
-    (add-text-properties (match-beginning 2) (match-end 2)
-                         taskpaper-markup-properties)
-    (add-text-properties (match-beginning 4) (match-end 4)
-                         taskpaper-markup-properties)))
+    (unless (taskpaper-range-property-any
+             (match-beginning 3) (match-beginning 3)
+             'face '(taskpaper-link-face
+                     taskpaper-missing-link-face))
+      (font-lock-prepend-text-property
+       (match-beginning 3) (match-end 3)
+       'face 'taskpaper-emphasis-face)
+      (add-text-properties (match-beginning 2) (match-end 2)
+                           taskpaper-markup-properties)
+      (add-text-properties (match-beginning 4) (match-end 4)
+                           taskpaper-markup-properties))))
 
 (defun taskpaper-font-lock-strong (limit)
   "Fontify strong inline emphasis."
   (when (re-search-forward taskpaper-strong-regexp limit t)
-    (font-lock-prepend-text-property
-     (match-beginning 3) (match-end 3)
-     'face 'taskpaper-strong-face)
-    (add-text-properties (match-beginning 2) (match-end 2)
-                         taskpaper-markup-properties)
-    (add-text-properties (match-beginning 4) (match-end 4)
-                         taskpaper-markup-properties)))
+    (unless (taskpaper-range-property-any
+             (match-beginning 3) (match-beginning 3)
+             'face '(taskpaper-link-face
+                     taskpaper-missing-link-face))
+      (font-lock-prepend-text-property
+       (match-beginning 3) (match-end 3)
+       'face 'taskpaper-strong-face)
+      (add-text-properties (match-beginning 2) (match-end 2)
+                           taskpaper-markup-properties)
+      (add-text-properties (match-beginning 4) (match-end 4)
+                           taskpaper-markup-properties))))
 
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
