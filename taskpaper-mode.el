@@ -592,7 +592,7 @@ Group 3 matches trailing tags, if any.")
   "\\(?:[^ _*\t\n]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)")
 
 (defconst taskpaper-emphasis-regexp
-  (format "%s\\(\\([_*]\\)\\(%s\\)\\(\\2\\)\\)%s"
+  (format "%s\\(\\(\\*\\|_\\)\\(%s\\)\\(\\2\\)\\)%s"
           taskpaper-emphasis-prefix-regexp
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
@@ -603,7 +603,7 @@ Group 3 matches the text inside the delimiters.
 Group 4 matches the closing delimiters.")
 
 (defconst taskpaper-strong-regexp
-  (format "%s\\(\\([_*]\\{2\\}\\)\\(%s\\)\\(\\2\\)\\)%s"
+  (format "%s\\(\\(\\*\\*\\|__\\)\\(%s\\)\\(\\2\\)\\)%s"
           taskpaper-emphasis-prefix-regexp
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
