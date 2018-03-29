@@ -296,6 +296,7 @@ overlays the UTF-8 character for display purposes only."
   "Non-nil means Font Lock should hide inline markup characters."
   :group 'taskpaper
   :type 'boolean)
+(make-variable-buffer-local 'taskpaper-hide-markup)
 
 (defcustom taskpaper-mode-hook nil
   "Hook run when entering `taskpaper-mode'."
@@ -557,6 +558,8 @@ Group 3 matches the tag value, if any.")
 
 ;;;; Font Lock regexps
 
+;; NOTE: Tasks should always be matched first, then projects and then notes
+
 (defconst taskpaper-task-regexp
   "^[ \t]*\\([-+*]\\)[ ]+\\([^\n]*\\)$"
   "Regular expression for task.
@@ -565,7 +568,7 @@ Group 2 matches the task name.")
 
 (defconst taskpaper-project-regexp
   (format
-   "^[ \t]*\\([^-+* \t\n][^\n]*\\)\\(:\\)[ \t]*\\(%s\\)?[ \t]*$"
+   "^[ \t]*\\([^\t\n][^\n]*\\)\\(:\\)[ \t]*\\(%s\\)?[ \t]*$"
    taskpaper-consecutive-tags-regexp)
   "Regular expression for project.
 Group 1 matches the project name.
@@ -583,13 +586,16 @@ Group 3 matches trailing tags, if any.")
   "Regular expression for \"@done\" tag.")
 
 (defconst taskpaper-emphasis-prefix-regexp
-  "\\(?:^\\|[ \t([{<'\"‘“„«’/]\\)")
+  "\\(?:^\\|[ \t([{<'\"‘“„«’/]\\)"
+  "Regular expression for match before opening emphasis delimiters.")
 
 (defconst taskpaper-emphasis-suffix-regexp
-  "\\(?:[] \t.,:;!?)}>'\"’”»/]\\|$\\)")
+  "\\(?:[] \t.,:;!?)}>'\"’”»/]\\|$\\)"
+  "Regular expression for match after closing emphasis delimiters.")
 
 (defconst taskpaper-emphasis-text-regexp
-  "\\(?:[^ _*\t\n]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)")
+  "\\(?:[^ _*\t\n]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)"
+  "Regular expression for emphasis text.")
 
 (defconst taskpaper-emphasis-regexp
   (format "%s\\(\\(\\*\\|_\\)\\(%s\\)\\(\\2\\)\\)%s"
@@ -918,6 +924,20 @@ If TAG is a number, get the corresponding match group."
     (remove-text-properties begin end
                             '(display t mouse-face t keymap t invisible t))))
 
+(defun taskpaper-toggle-markup-hiding ()
+  "Toggle the display or hiding of inline markup."
+  (interactive)
+  (setq taskpaper-hide-markup (if taskpaper-hide-markup nil t))
+  (if taskpaper-hide-markup
+      (progn
+        (add-to-invisibility-spec 'taskpaper-markup)
+        (when (called-interactively-p 'interactive)
+          (message "Markup hiding enabled")))
+    (remove-from-invisibility-spec 'taskpaper-markup)
+    (when (called-interactively-p 'interactive)
+      (message "Markup hiding disabled")))
+  (font-lock-fontify-buffer))
+
 ;;;; Files
 
 (defun taskpaper-save-all-taskpaper-buffers ()
@@ -1130,10 +1150,10 @@ Add inline image overlays to local image links in the buffer."
       (progn
         (taskpaper-remove-inline-images)
         (when (called-interactively-p 'interactive)
-          (message "Inline image display turned off")))
+          (message "Displaying of inline images disabled")))
     (taskpaper-display-inline-images)
     (when (called-interactively-p 'interactive)
-      (message "Inline image display turned on"))))
+      (message "Displaying of inline images enabled"))))
 
 ;;;; Outline API and navigation
 
@@ -2019,8 +2039,9 @@ is nil, return 0."
 (defun taskpaper-goto-calendar (&optional arg)
   "Go to the calendar at the current date.
 If point is on a tag with value, interpret the value as time
-string and go to the corresponding date instead. A prefix ARG can
-be used to force the current date."
+string and go to the corresponding date instead. A
+\\[universal-argument] prefix argument can be used to force the
+current date."
   (interactive "P")
   (let ((calendar-move-hook nil)
         (calendar-view-holidays-initially-flag nil)
@@ -2823,11 +2844,11 @@ This version removes characters with invisibility property
   "Return sorting key of item at point for alphabetical sorting.
 This version will remove indentation, type formatting and inline
 markup and return sorting key as string."
-  (setq item (buffer-substring
-              (line-beginning-position) (line-end-position))
-        item (taskpaper-sort-remove-markup item)
-        item (taskpaper-remove-indentation item)
-        item (taskpaper-remove-type-formatting item)))
+  (let ((item (buffer-substring
+               (line-beginning-position) (line-end-position))))
+    (setq item (taskpaper-sort-remove-markup item)
+          item (taskpaper-remove-indentation item)
+          item (taskpaper-remove-type-formatting item))))
 
 (defun taskpaper-sort-by-type-get-sorting-key ()
   "Return sorting key of item at point for sorting by type."
@@ -4051,6 +4072,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c C-x C-w") 'taskpaper-cut-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x M-w") 'taskpaper-copy-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-y") 'taskpaper-paste-subtree)
+
+(define-key taskpaper-mode-map (kbd "C-c C-x C-m") 'taskpaper-toggle-markup-hiding)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-v") 'taskpaper-toggle-inline-images)
 
 ;;;; Menu

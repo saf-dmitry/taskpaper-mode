@@ -324,7 +324,7 @@ You can use Markdown syntax for inline emphasis in notes. Text enclosed by singl
 
 By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface. You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `_` or `*` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis.
 
-You can hide the markup delimiters by configuring user option `markdown-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden *for display purposes only*.
+You can hide the markup delimiters by configuring user option `markdown-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden *for display purposes only*. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
 
 
 ## Hyperlinks and Inline Images

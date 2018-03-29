@@ -1,9 +1,9 @@
 
-Test:
-	Project:
-	- Task
-	1
-	2
-	_3_
-	4
-	5
+- Test: @tag1 @tag2
+2
+_3_
+5
+Task @tag @tag
+1
+4
+
