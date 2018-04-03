@@ -879,7 +879,8 @@ is essential."
           '(taskpaper-font-lock-done-tasks)
           '(taskpaper-font-lock-done-projects)
           (when taskpaper-use-inline-emphasis
-            '(taskpaper-font-lock-strong)
+            '(taskpaper-font-lock-strong))
+          (when taskpaper-use-inline-emphasis
             '(taskpaper-font-lock-emphasis))
           (when taskpaper-pretty-task-marks
             '(taskpaper-activate-task-marks)))))
