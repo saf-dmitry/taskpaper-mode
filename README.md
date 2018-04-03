@@ -317,14 +317,16 @@ Relative dates like `next Monday` should always be given as the _very first_ par
 
 ## Inline Formatting
 
-You can use Markdown syntax for inline emphasis in notes. Text enclosed by single underscore (`_`) or asterisk (`*`) characters is emphasized. Double `_` or `*` produces strong emphasis:
+You can use Markdown syntax for inline emphasis in notes. Text enclosed by single asterisk (`*`) or underscore (`_`) characters is emphasized. Double `*` or `_` produces strong emphasis:
 
-    This is _emphasis_.
-    This is __strong emphasis__.
+    Emphasis with *asterisks* or _underscores_.
+    Strong emphasis with **asterisks** or __underscores__.
 
-By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface. You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `_` or `*` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis.
+You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `*` or `_` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis. By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface.
 
 You can hide the markup delimiters by configuring user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden *for display purposes only*. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
+
+If you often use the asterisk or underscore in a different context, you can disable the interpretation of these characters by configuring user option `taskpaper-use-inline-emphasis`.
 
 
 ## Hyperlinks and Inline Images
@@ -383,7 +385,7 @@ In addition to the standard motion and editing commands both static and incremen
 
 The query language syntax is described below.
 
-__Note for TaskPaper app users:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
+__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
 
 
 ### Tags and Attributes
@@ -444,7 +446,7 @@ You don't need to enter the entire predicate pattern every time you search. Pred
  - `@text contains Inbox`
  - `@text contains[i] Inbox`
 
-__Note for TaskPaper app users:__ When using `matches` relation please keep in mind that TaskPaper v3 app searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
+__Note:__ When using `matches` relation please keep in mind that TaskPaper v3 app searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
 
 
 ### Boolean Expressions

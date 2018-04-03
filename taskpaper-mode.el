@@ -298,6 +298,13 @@ overlays the UTF-8 character for display purposes only."
   :type 'boolean)
 (make-variable-buffer-local 'taskpaper-hide-markup)
 
+(defcustom taskpaper-use-inline-emphasis t
+  "Non-nil means interpret emphasis delimiters for display.
+This will interpret \"*\" and \"_\" characters as inline emphasis
+delimiters for strong and emphasis markup similar to Markdown."
+  :group 'taskpaper
+  :type 'boolean)
+
 (defcustom taskpaper-mode-hook nil
   "Hook run when entering `taskpaper-mode'."
   :group 'taskpaper
@@ -871,8 +878,9 @@ is essential."
           '(taskpaper-activate-tags)
           '(taskpaper-font-lock-done-tasks)
           '(taskpaper-font-lock-done-projects)
-          '(taskpaper-font-lock-strong)
-          '(taskpaper-font-lock-emphasis)
+          (when taskpaper-use-inline-emphasis
+            '(taskpaper-font-lock-strong)
+            '(taskpaper-font-lock-emphasis))
           (when taskpaper-pretty-task-marks
             '(taskpaper-activate-task-marks)))))
     (setq taskpaper-font-lock-keywords (delq nil font-lock-keywords))
