@@ -380,63 +380,6 @@ and not an indirect buffer."
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
 
-(defconst taskpaper-markup-properties
-  '(face taskpaper-markup-face invisible taskpaper-markup)
-  "Properties to apply to inline markup.")
-
-(defsubst taskpaper-check-invisible ()
-  "Return non-nil if point is in an invisible region."
-  (let ((invisible-at-point (get-char-property
-                             (point) 'invisible))
-        (invisible-before-point (get-char-property
-                                 (max (point-min) (1- (point)))
-                                 'invisible)))
-    (when (and
-           (or (not (boundp 'visible-mode)) (not visible-mode))
-           (or (and invisible-at-point
-                    (not (eq invisible-at-point 'taskpaper-markup)))
-               (and invisible-before-point
-                    (not (eq invisible-before-point 'taskpaper-markup)))))
-      (user-error "Unfold subtree before editing"))))
-
-(defun taskpaper-self-insert-command (N)
-  "Modified version of `self-insert-command'."
-  (interactive "p")
-  (taskpaper-check-invisible) (self-insert-command N))
-
-(defun taskpaper-delete-char (N)
-  "Modified version of `delete-char'."
-  (interactive "p")
-  (taskpaper-check-invisible) (delete-char N))
-
-(defun taskpaper-delete-forward-char (N)
-  "Modified version of `delete-forward-char'."
-  (interactive "p")
-  (taskpaper-check-invisible) (delete-forward-char N))
-
-(defun taskpaper-delete-backward-char (N)
-  "Modified version of `delete-backward-char'."
-  (interactive "p")
-  (with-no-warnings
-    (taskpaper-check-invisible) (delete-backward-char N)))
-
-(defun taskpaper-remap (map &rest commands)
-  "In keymap MAP, remap the functions given in COMMANDS.
-COMMANDS is a list of alternating OLDDEF NEWDEF command names."
-  (let (new old)
-    (while commands
-      (setq old (pop commands) new (pop commands))
-      (if (fboundp 'command-remapping)
-          (define-key map (vector 'remap old) new)
-        (substitute-key-definition old new map global-map)))))
-
-(taskpaper-remap
- taskpaper-mode-map
- #'self-insert-command #'taskpaper-self-insert-command
- #'delete-char #'taskpaper-delete-char
- #'delete-forward-char #'taskpaper-delete-forward-char
- #'delete-backward-char #'taskpaper-delete-backward-char)
-
 (defun taskpaper-in-regexp-p (regexp)
   "Return non-nil if point is in a match for REGEXP.
 Set the match data. Only the current line is checked."
@@ -464,6 +407,10 @@ Set the match data. Only the current line is checked."
 
 (defconst taskpaper-nonsticky-properties
   '(face mouse-face keymap help-echo display invisible intangible))
+
+(defconst taskpaper-markup-properties
+  '(face taskpaper-markup-face invisible taskpaper-markup)
+  "Properties to apply to inline markup.")
 
 (defsubst taskpaper-rear-nonsticky-at (pos)
   "Add nonsticky text properties at POS."
@@ -908,7 +855,9 @@ If TAG is a number, get the corresponding match group."
 
 (defvar taskpaper-font-lock-keywords nil)
 (defun taskpaper-set-font-lock-defaults ()
-  "Set Font Lock defaults for the current buffer."
+  "Set Font Lock defaults for the current buffer.
+The order in which other fontification functions are called here,
+is essential."
   (let ((font-lock-keywords
          (list
           (cons taskpaper-task-regexp
@@ -1335,7 +1284,7 @@ buffer. When point is on an item, rotate the current subtree."
   (interactive "P")
   (cond
    (arg
-    (save-excursion
+    (progn
       (goto-char (point-min))
       (taskpaper-cycle nil)))
    (t
