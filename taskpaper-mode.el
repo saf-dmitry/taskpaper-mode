@@ -1,6 +1,6 @@
 ;;; taskpaper-mode.el --- Major mode for working with TaskPaper files
 
-;; Copyright 2016-2017 Dmitry Safronov
+;; Copyright 2016-2018 Dmitry Safronov
 
 ;; Author: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
@@ -466,8 +466,8 @@ Set the match data. Only the current line is checked."
           taskpaper-tag-value-regexp)
   "Regular expression for tag.
 Group 1 matches the whole tag expression.
-Group 2 matches the tag name.
-Group 3 matches the tag value, if any.")
+Group 2 matches the tag name without tag indicator.
+Group 3 matches the optional tag value without enclosing parentheses.")
 
 (defconst taskpaper-consecutive-tags-regexp
   (format "\\(?:%s[ \t]*\\)+" taskpaper-tag-regexp)
@@ -512,8 +512,6 @@ Group 3 matches the tag value, if any.")
 
 ;;;; Font Lock regexps
 
-;; NOTE: Tasks should always be matched first, then projects and then notes
-
 (defconst taskpaper-task-regexp
   "^[ \t]*\\([-+*]\\)[ ]+\\([^\n]*\\)$"
   "Regular expression for task.
@@ -527,7 +525,7 @@ Group 2 matches the task name.")
   "Regular expression for project.
 Group 1 matches the project name.
 Group 2 matches the project mark.
-Group 3 matches trailing tags, if any.")
+Group 3 matches optional trailing tags.")
 
 (defconst taskpaper-note-regexp
   "^[ \t]*\\(.*\\S-.*\\)$"
@@ -553,23 +551,23 @@ Suffix means assertion after closing emphasis delimiters.")
   "\\(?:[^ _*\t\n\\]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)"
   "Regular expression for emphasis text.")
 
-(defconst taskpaper-emphasis-regexp
-  (format "%s\\(\\(\\*\\|_\\)\\(%s\\)\\(\\2\\)\\)%s"
-          taskpaper-emphasis-prefix-regexp
-          taskpaper-emphasis-text-regexp
-          taskpaper-emphasis-suffix-regexp)
-  "Regular expression for inline emphasis.
-Group 1 matches the entire expression, including delimiters.
-Group 2 matches the opening delimiters.
-Group 3 matches the text inside the delimiters.
-Group 4 matches the closing delimiters.")
-
 (defconst taskpaper-strong-regexp
   (format "%s\\(\\(\\*\\*\\|__\\)\\(%s\\)\\(\\2\\)\\)%s"
           taskpaper-emphasis-prefix-regexp
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
   "Regular expression for strong inline emphasis.
+Group 1 matches the entire expression, including delimiters.
+Group 2 matches the opening delimiters.
+Group 3 matches the text inside the delimiters.
+Group 4 matches the closing delimiters.")
+
+(defconst taskpaper-emphasis-regexp
+  (format "%s\\(\\(\\*\\|_\\)\\(%s\\)\\(\\2\\)\\)%s"
+          taskpaper-emphasis-prefix-regexp
+          taskpaper-emphasis-text-regexp
+          taskpaper-emphasis-suffix-regexp)
+  "Regular expression for inline emphasis.
 Group 1 matches the entire expression, including delimiters.
 Group 2 matches the opening delimiters.
 Group 3 matches the text inside the delimiters.
@@ -922,8 +920,8 @@ is essential."
     (remove-text-properties
      begin end
      '(display t mouse-face t keymap t invisible t
-               taskpaper-tag t taskpaper-link t
-               taskpaper-emphasis t taskpaper-strong t))))
+       taskpaper-tag t taskpaper-link t
+       taskpaper-emphasis t taskpaper-strong t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
