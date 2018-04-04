@@ -52,8 +52,8 @@ This document explains the installation, usage, and basic customization of TaskP
     - [Completing Tasks](#completing-tasks)
     - [Calendar Integration](#calendar-integration)
     - [Date and Time Formats](#date-and-time-formats)
-    - [Inline Formatting](#inline-formatting)
     - [Hyperlinks and Inline Images](#hyperlinks-and-inline-images)
+    - [Inline Formatting](#inline-formatting)
     - [Sorting](#sorting)
     - [Filtering](#filtering)
     - [Searching](#searching)
@@ -315,20 +315,6 @@ You can combine dates, times, and duration offsets:
 Relative dates like `next Monday` should always be given as the _very first_ part of the time string. Duration offsets should always be given as the _very last_ part of the time string.
 
 
-## Inline Formatting
-
-You can use Markdown syntax for inline emphasis in notes. Text enclosed by single asterisk (`*`) or underscore (`_`) characters is emphasized. Double `*` or `_` produces strong emphasis:
-
-    Emphasis with *asterisks* or _underscores_.
-    Strong emphasis with **asterisks** or __underscores__.
-
-You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `*` or `_` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis. By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface.
-
-You can hide the markup delimiters by configuring user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden *for display purposes only*. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
-
-If you often use the asterisk or underscore in a different context, you can disable the interpretation of these characters by configuring user option `taskpaper-use-inline-emphasis`.
-
-
 ## Hyperlinks and Inline Images
 
 TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are some examples of the links that will be recognized.
@@ -349,6 +335,20 @@ If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-li
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
 The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting `taskpaper-max-image-size` user option. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.
+
+
+## Inline Formatting
+
+You can use [Markdown][markdown-wiki] syntax for inline emphasis in notes. Text enclosed by single asterisk (`*`) or underscore (`_`) characters is emphasized. Double `*` or `_` produces strong emphasis:
+
+    Emphasis with *asterisks* or _underscores_.
+    Strong emphasis with **asterisks** or __underscores__.
+
+You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `*` or `_` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis. By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface.
+
+You can hide the markup delimiters by configuring user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
+
+If you often use the asterisk or underscore in a different context, you can disable the interpretation of these characters by configuring user option `taskpaper-use-inline-emphasis`.
 
 
 ## Sorting
@@ -703,6 +703,8 @@ You should have received a copy of the GNU General Public License along with thi
 [emacs-imenu]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html
 
 [iso8601-wiki]: https://en.wikipedia.org/wiki/ISO_8601
+
+[markdown-wiki]: https://en.wikipedia.org/wiki/Markdown
 
 [emacs-regexp]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html
 

@@ -1264,7 +1264,8 @@ This version will not throw an error."
          nil)))))
 
 (defun taskpaper-outline-hide-other ()
-  "Hide everything except the current item, its ancestors and top-level items.
+  "Hide everything except the current item and its context.
+Shows only current item, its ancestors and top-level items.
 Essentially a slightly modified version of `outline-hide-other'."
   (interactive)
   (taskpaper-outline-hide-sublevels 1)
@@ -1429,7 +1430,7 @@ end.")
 (defalias 'taskpaper-outline-move-subtree-down 'outline-move-subtree-down
   "Move the current subtree down past ARG items of the same level.")
 
-;;;; Auto-formatting
+;;;; Item auto-formatting
 
 (defun taskpaper-new-item-same-level ()
   "Insert new item of the same level."
@@ -1451,7 +1452,7 @@ end.")
   (interactive)
   (taskpaper-new-item-same-level) (insert "- "))
 
-;;;; Item parsing and formatting
+;;;; Item parsing and type formatting
 
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
