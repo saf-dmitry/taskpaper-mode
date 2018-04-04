@@ -40,7 +40,7 @@ Documentation for TaskPaper mode is available below, but you can also use Emacs'
 This document explains the installation, usage, and basic customization of TaskPaper mode package. For more advanced customization, hacking and scripting see the [Scripting Guide][tp-mode-scripting-guide].
 
 
-# Table of Contents
+# Contents
 
  - [Installation and Activation](#installation-and-activation)
  - [Usage](#usage)
@@ -344,7 +344,9 @@ You can use [Markdown][markdown-wiki] syntax for inline emphasis in notes. Text 
     Emphasis with *asterisks* or _underscores_.
     Strong emphasis with **asterisks** or __underscores__.
 
-You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `*` or `_` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis. By default, emphasis will be displayed in italics while strong emphasis will be displayed in boldface.
+You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `*` or `_` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis. By default, emphasis will be displayed in italic while strong emphasis will be displayed in bold face.
+
+The span of the emphasis is limited to a single item. Arbitrary character-level inline emphasis is supported although not encouraged. Emphasis and strong emphasis can be nested.
 
 You can hide the markup delimiters by configuring user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
 

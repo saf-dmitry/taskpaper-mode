@@ -775,7 +775,7 @@ highlight accordingly."
 
 (defun taskpaper-font-lock-done-tasks (limit)
   "Fontify completed tasks from point to LIMIT."
-  (while (re-search-forward taskpaper-task-regexp limit t)
+  (when (re-search-forward taskpaper-task-regexp limit t)
     (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
       (when (string-match-p taskpaper-done-tag-regexp item)
         (add-text-properties
@@ -788,7 +788,7 @@ highlight accordingly."
 
 (defun taskpaper-font-lock-done-projects (limit)
   "Fontify completed projects from point to LIMIT."
-  (while (re-search-forward taskpaper-project-regexp limit t)
+  (when (re-search-forward taskpaper-project-regexp limit t)
     (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
       (when (string-match-p taskpaper-done-tag-regexp item)
         (add-text-properties
@@ -799,38 +799,58 @@ highlight accordingly."
 (defun taskpaper-font-lock-strong (limit)
   "Fontify strong inline emphasis from point to LIMIT."
   (when (re-search-forward taskpaper-strong-regexp limit t)
-    (if (or (get-text-property (match-beginning 2) 'taskpaper-tag)
-            (get-text-property (match-end 4)       'taskpaper-tag)
-            (get-text-property (match-beginning 2) 'taskpaper-link)
-            (get-text-property (match-end 4)       'taskpaper-link))
+    (if (or
+         (get-text-property (match-beginning 2) 'taskpaper-tag)
+         (get-text-property (match-end 4) 'taskpaper-tag)
+         (get-text-property (match-beginning 2) 'taskpaper-link)
+         (get-text-property (match-end 4) 'taskpaper-link)
+         (not (equal
+               (get-text-property (match-beginning 1) 'taskpaper-emphasis)
+               (get-text-property (match-end 1) 'taskpaper-emphasis))))
         ;; Move forward and recursively search again
-        (progn (goto-char (min (1+ (match-beginning 2)) limit))
-               (when (< (point) limit)
-                 (taskpaper-font-lock-strong limit)))
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit) (taskpaper-font-lock-strong limit)))
+      ;; Fontify
       (font-lock-prepend-text-property (match-beginning 3) (match-end 3)
                                        'face 'taskpaper-strong-face)
+      (add-text-properties (match-beginning 1) (match-end 1)
+                           (list 'taskpaper-strong
+                                 (list (match-beginning 1) (match-end 1))))
       (add-text-properties (match-beginning 2) (match-end 2)
                            taskpaper-markup-properties)
       (add-text-properties (match-beginning 4) (match-end 4)
-                           taskpaper-markup-properties))))
+                           taskpaper-markup-properties)
+      (backward-char 1)
+      t)))
 
 (defun taskpaper-font-lock-emphasis (limit)
   "Fontify inline emphasis from point to LIMIT."
   (when (re-search-forward taskpaper-emphasis-regexp limit t)
-    (if (or (get-text-property (match-beginning 2) 'taskpaper-tag)
-            (get-text-property (match-end 4)       'taskpaper-tag)
-            (get-text-property (match-beginning 2) 'taskpaper-link)
-            (get-text-property (match-end 4)       'taskpaper-link))
+    (if (or
+         (get-text-property (match-beginning 2) 'taskpaper-tag)
+         (get-text-property (match-end 4) 'taskpaper-tag)
+         (get-text-property (match-beginning 2) 'taskpaper-link)
+         (get-text-property (match-end 4) 'taskpaper-link)
+         (not (equal
+               (get-text-property (match-beginning 1) 'taskpaper-strong)
+               (get-text-property (match-end 1) 'taskpaper-strong))))
         ;; Move forward and recursively search again
-        (progn (goto-char (min (1+ (match-beginning 2)) limit))
-               (when (< (point) limit)
-                 (taskpaper-font-lock-emphasis limit)))
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit) (taskpaper-font-lock-emphasis limit)))
+      ;; Fontify
       (font-lock-prepend-text-property (match-beginning 3) (match-end 3)
                                        'face 'taskpaper-emphasis-face)
+      (add-text-properties (match-beginning 1) (match-end 1)
+                           (list 'taskpaper-emphasis
+                                 (list (match-beginning 1) (match-end 1))))
       (add-text-properties (match-beginning 2) (match-end 2)
                            taskpaper-markup-properties)
       (add-text-properties (match-beginning 4) (match-end 4)
-                           taskpaper-markup-properties))))
+                           taskpaper-markup-properties)
+      (backward-char 1)
+      t)))
 
 (defvar taskpaper-mouse-map-mark
   (let ((map (make-sparse-keymap)))
@@ -900,8 +920,10 @@ is essential."
          deactivate-mark buffer-file-name buffer-file-truename)
     (decompose-region begin end)
     (remove-text-properties
-     begin end '(display t mouse-face t keymap t invisible t
-                 taskpaper-tag t taskpaper-link t))))
+     begin end
+     '(display t mouse-face t keymap t invisible t
+               taskpaper-tag t taskpaper-link t
+               taskpaper-emphasis t taskpaper-strong t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
