@@ -138,12 +138,12 @@ used to select that tag through the fast-selection interface."
   :type 'boolean)
 
 (defcustom taskpaper-startup-folded nil
-  "Non-nil means switch to OVERVIEW when entering TaskPaper mode."
+  "Non-nil means, switch to OVERVIEW when entering TaskPaper mode."
   :group 'taskpaper
   :type 'boolean)
 
 (defcustom taskpaper-startup-with-inline-images nil
-  "Non-nil means show inline images when entering TaskPaper mode."
+  "Non-nil means, show inline images when entering TaskPaper mode."
   :group 'taskpaper
   :type 'boolean)
 
@@ -292,14 +292,19 @@ overlays the UTF-8 character for display purposes only."
   :group 'taskpaper
   :type 'character)
 
+(defcustom taskpaper-fontify-done-items t
+  "Non-nil means, fontify completed items."
+  :group 'taskpaper
+  :type 'boolean)
+
 (defcustom taskpaper-hide-markup nil
-  "Non-nil means Font Lock should hide inline markup characters."
+  "Non-nil means, hide inline markup characters."
   :group 'taskpaper
   :type 'boolean)
 (make-variable-buffer-local 'taskpaper-hide-markup)
 
 (defcustom taskpaper-use-inline-emphasis t
-  "Non-nil means interpret emphasis delimiters for display.
+  "Non-nil means, interpret emphasis delimiters for display.
 This will interpret \"*\" and \"_\" characters as inline emphasis
 delimiters for strong and emphasis markup similar to Markdown."
   :group 'taskpaper
@@ -595,19 +600,19 @@ Group 4 matches the closing delimiters.")
   "Face for tasks."
   :group 'taskpaper-faces)
 
-(defface taskpaper-item-marked-as-done-face
-  '((t :strike-through t :inherit font-lock-comment-face))
-  "Face for items marked as complete."
-  :group 'taskpaper-faces)
-
 (defface taskpaper-task-undone-mark-face
   '((t :inherit taskpaper-task-face))
   "Face for undone task marks."
   :group 'taskpaper-faces)
 
 (defface taskpaper-task-done-mark-face
-  '((t :inherit font-lock-comment-face))
+  '((t :inherit taskpaper-task-face))
   "Face for done task marks."
+  :group 'taskpaper-faces)
+
+(defface taskpaper-done-item-face
+  '((t :strike-through "red"))
+  "Face for items marked as complete."
   :group 'taskpaper-faces)
 
 (defface taskpaper-note-face
@@ -616,7 +621,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-tag-face
-  '((t :inherit font-lock-comment-face))
+  '((t :inherit font-lock-keyword-face))
   "Face for tags."
   :group 'taskpaper-faces)
 
@@ -759,15 +764,15 @@ highlight accordingly."
            (path (taskpaper-file-path-unescape path)))
       (if (not (taskpaper-file-remote-p path))
           (if (condition-case nil (file-exists-p path) (error nil))
-              (add-text-properties
+              (font-lock-prepend-text-property
                (match-beginning 1) (match-end 1)
-               (list 'face 'taskpaper-link-face))
-            (add-text-properties
+               'face 'taskpaper-link-face)
+            (font-lock-prepend-text-property
              (match-beginning 1) (match-end 1)
-             (list 'face 'taskpaper-missing-link-face)))
-        (add-text-properties
+             'face 'taskpaper-missing-link-face))
+        (font-lock-prepend-text-property
          (match-beginning 1) (match-end 1)
-         (list 'face 'taskpaper-link-face))))
+         'face 'taskpaper-link-face)))
     (taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
@@ -776,12 +781,12 @@ highlight accordingly."
   (when (re-search-forward taskpaper-task-regexp limit t)
     (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
       (when (string-match-p taskpaper-done-tag-regexp item)
-        (add-text-properties
+        (font-lock-prepend-text-property
          (match-beginning 1) (match-end 1)
-         (list 'face 'taskpaper-task-done-mark-face))
-        (add-text-properties
+         'face 'taskpaper-task-done-mark-face)
+        (font-lock-prepend-text-property
          (match-beginning 2) (match-end 2)
-         (list 'face 'taskpaper-item-marked-as-done-face))))
+         'face 'taskpaper-done-item-face)))
     t))
 
 (defun taskpaper-font-lock-done-projects (limit)
@@ -789,9 +794,9 @@ highlight accordingly."
   (when (re-search-forward taskpaper-project-regexp limit t)
     (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
       (when (string-match-p taskpaper-done-tag-regexp item)
-        (add-text-properties
+        (font-lock-prepend-text-property
          (match-beginning 0) (match-end 0)
-         (list 'face 'taskpaper-item-marked-as-done-face))))
+         'face 'taskpaper-done-item-face)))
     t))
 
 (defun taskpaper-font-lock-strong (limit)
@@ -812,9 +817,9 @@ highlight accordingly."
       ;; Fontify
       (font-lock-prepend-text-property (match-beginning 3) (match-end 3)
                                        'face 'taskpaper-strong-face)
-      (add-text-properties (match-beginning 1) (match-end 1)
-                           (list 'taskpaper-strong
-                                 (list (match-beginning 1) (match-end 1))))
+      (put-text-property (match-beginning 1) (match-end 1)
+                         'taskpaper-strong
+                         (list (match-beginning 1) (match-end 1)))
       (add-text-properties (match-beginning 2) (match-end 2)
                            taskpaper-markup-properties)
       (add-text-properties (match-beginning 4) (match-end 4)
@@ -840,9 +845,9 @@ highlight accordingly."
       ;; Fontify
       (font-lock-prepend-text-property (match-beginning 3) (match-end 3)
                                        'face 'taskpaper-emphasis-face)
-      (add-text-properties (match-beginning 1) (match-end 1)
-                           (list 'taskpaper-emphasis
-                                 (list (match-beginning 1) (match-end 1))))
+      (put-text-property (match-beginning 1) (match-end 1)
+                         'taskpaper-emphasis
+                         (list (match-beginning 1) (match-end 1)))
       (add-text-properties (match-beginning 2) (match-end 2)
                            taskpaper-markup-properties)
       (add-text-properties (match-beginning 4) (match-end 4)
@@ -894,8 +899,10 @@ is essential."
           '(taskpaper-activate-uri-links)
           '(taskpaper-activate-file-links)
           '(taskpaper-activate-tags)
-          '(taskpaper-font-lock-done-tasks)
-          '(taskpaper-font-lock-done-projects)
+          (when taskpaper-fontify-done-items
+            '(taskpaper-font-lock-done-tasks))
+          (when taskpaper-fontify-done-items
+            '(taskpaper-font-lock-done-projects))
           (when taskpaper-use-inline-emphasis
             '(taskpaper-font-lock-strong))
           (when taskpaper-use-inline-emphasis
@@ -4211,7 +4218,7 @@ matched by this regular expression will be included."
   :type 'regexp)
 
 (defcustom taskpaper-agenda-skip-unavailable-files nil
-  "If non-nil skip unavailable files in `taskpaper-agenda-files'."
+  "Non-nil means, silently skip unavailable agenda files"
   :group 'taskpaper
   :type 'boolean)
 
