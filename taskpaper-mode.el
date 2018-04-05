@@ -656,7 +656,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-query-secondary-text-face
-  '((t :inherit font-lock-comment-face))
+  '((t :inherit font-lock-keyword-face))
   "Face for secondary text in query string."
   :group 'taskpaper-faces)
 
