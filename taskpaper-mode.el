@@ -351,9 +351,9 @@ attention to case differences."
                                   start-pos nil ignore-case))))))
 
 (defun taskpaper-chomp (str)
-  "Chomp leading and trailing whitespaces from STR."
-  (setq str (replace-regexp-in-string "\\`[ \t\n\r]*" "" str)
-        str (replace-regexp-in-string "[ \t\n\r]*\\'" "" str))
+  "Trim leading and trailing whitespaces from STR."
+  (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
+    (setq str (replace-match "" t t str)))
   str)
 
 (defun taskpaper-overlay-display (ovl text &optional face evap)
@@ -386,8 +386,8 @@ is saved after user confirmation and then killed."
 
 (defun taskpaper-find-base-buffer-visiting (file)
   "Return the base buffer visiting FILE.
-Like `find-buffer-visiting' but always returns the base buffer
-and not an indirect buffer."
+Like `find-buffer-visiting' but always return the base buffer and
+not an indirect buffer."
   (let ((buf (or (get-file-buffer file)
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
@@ -646,7 +646,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-markup-face
-  '((t (:inherit shadow :slant normal :weight normal)))
+  '((t (:slant normal :weight normal :inherit shadow)))
   "Face for markup elements."
   :group 'taskpaper-faces)
 
@@ -722,7 +722,7 @@ If TAG is a number, get the corresponding match group."
            'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
            'help-echo "Follow Link"))
-	(taskpaper-rear-nonsticky-at (match-end 1))
+    (taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
 (defun taskpaper-activate-uri-links (limit)
@@ -737,7 +737,7 @@ If TAG is a number, get the corresponding match group."
            'mouse-face 'highlight
            'keymap taskpaper-mouse-map-link
            'help-echo "Follow Link"))
-	(taskpaper-rear-nonsticky-at (match-end 1))
+    (taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
 (defun taskpaper-file-path-unescape (path)
@@ -807,6 +807,7 @@ highlight accordingly."
          (get-text-property (match-end 4) 'taskpaper-tag)
          (get-text-property (match-beginning 2) 'taskpaper-link)
          (get-text-property (match-end 4) 'taskpaper-link)
+         ;; Check for emphasis overlap
          (not (equal
                (get-text-property (match-beginning 1) 'taskpaper-emphasis)
                (get-text-property (match-end 1) 'taskpaper-emphasis))))
@@ -835,6 +836,7 @@ highlight accordingly."
          (get-text-property (match-end 4) 'taskpaper-tag)
          (get-text-property (match-beginning 2) 'taskpaper-link)
          (get-text-property (match-end 4) 'taskpaper-link)
+         ;; Check for emphasis overlap
          (not (equal
                (get-text-property (match-beginning 1) 'taskpaper-strong)
                (get-text-property (match-end 1) 'taskpaper-strong))))
@@ -1091,23 +1093,28 @@ directory. An absolute path can be forced with a
          (path (replace-regexp-in-string " " "\\\\ " path)))
     (insert (concat "file:" path))))
 
+(defun taskpaper-open-link (link)
+  "Open link LINK."
+  (cond
+   ((string-match-p taskpaper-email-regexp link)
+    (compose-mail (replace-regexp-in-string "\\`mailto:" "" link)))
+   ((string-match-p taskpaper-file-path-regexp link)
+    (taskpaper-open-file (taskpaper-file-path-unescape link)))
+   (t (browse-url link))))
+
 (defun taskpaper-open-link-at-point ()
   "Open link at point."
   (interactive)
-  (cond
-   ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
-    (let ((uri (match-string-no-properties 1)))
-      (when (string-match "\\`www" uri) (setq uri (concat "http://" uri)))
-      (browse-url uri)))
-   ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
-    (let* ((path (match-string-no-properties 1))
-           (path (taskpaper-file-path-unescape path)))
-      (taskpaper-open-file path)))
-   ((taskpaper-in-regexp-p taskpaper-email-regexp)
-    (let* ((address (match-string-no-properties 1))
-           (address (replace-regexp-in-string "\\`mailto:" "" address)))
-      (compose-mail address)))
-   (t (user-error "No link at point"))))
+  (let ((link))
+    (cond ((taskpaper-in-regexp-p taskpaper-email-regexp)
+           (setq link (match-string-no-properties 1)))
+          ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
+           (setq link (match-string-no-properties 1)))
+          ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
+           (setq link (match-string-no-properties 1)))
+          (t (user-error "No link at point")))
+    (when (and link (not (equal link "")))
+      (taskpaper-open-link link))))
 
 ;;;; Inline images
 
@@ -3800,9 +3807,8 @@ if the item matches the selection string STR."
       (goto-char (point-min))
       (while (re-search-forward
               (regexp-opt taskpaper-query-word-operator 'words) nil t)
-        (set-text-properties
-         (match-beginning 0) (match-end 0)
-         (list 'face 'taskpaper-query-secondary-text-face)))
+        (put-text-property (match-beginning 0) (match-end 0)
+                           'face 'taskpaper-query-secondary-text-face))
       ;; Fontify non-word operators and modifiers
       (goto-char (point-min))
       (while (re-search-forward
@@ -3810,15 +3816,14 @@ if the item matches the selection string STR."
                                   taskpaper-query-relation-modifier
                                   taskpaper-query-open-close))
               nil t)
-        (set-text-properties
-         (match-beginning 0) (match-end 0)
-         (list 'face 'taskpaper-query-secondary-text-face)))
+        (put-text-property (match-beginning 0) (match-end 0)
+                           'face 'taskpaper-query-secondary-text-face))
       ;; Fontify double-quoted strings as the last step
       (goto-char (point-min))
       (while (re-search-forward
               taskpaper-query-quoted-string-regexp nil t)
-        (set-text-properties
-         (match-beginning 1) (match-end 1) (list 'face 'default))))))
+        (put-text-property (match-beginning 1) (match-end 1)
+                           'face 'default)))))
 
 (defun taskpaper-read-query-propertize (&optional _begin _end _length)
   "Propertize query string live in minibuffer.
@@ -3832,9 +3837,8 @@ part of `after-change-functions' hook."
           (taskpaper-query-fontify-query)
           (taskpaper-query-matcher (minibuffer-contents-no-properties)))
       (error
-       (set-text-properties
-        (point-at-bol) (point-max)
-        (list 'face 'taskpaper-query-error-face))))))
+       (put-text-property (point-at-bol) (point-max)
+                          'face 'taskpaper-query-error-face)))))
 
 (defun taskpaper-query-read-query (&optional prompt)
   "Prompt user for search query.
