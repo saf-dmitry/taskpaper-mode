@@ -479,28 +479,34 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   "Regular expression for consecutive tags.")
 
 (defconst taskpaper-uri-schemes-browser
-  '("aaa" "about" "acap" "apt" "attachment" "bzr" "bzr+ssh" "chrome" "cid"
-    "content" "crid" "cvs" "data" "dav" "dict" "dns" "doi" "dtn" "fax" "fax"
-    "feed" "finger" "fish" "ftp" "geo" "git" "go" "gopher" "h323" "http"
-    "https" "im" "imap" "info" "ipp" "irc" "irc6" "ircs" "iris.beep" "jar"
-    "ldap" "ldaps" "magnet" "mid" "mms" "mmsh" "modem" "modem" "mtqp" "mupdate"
-    "news" "nfs" "nntp" "opaquelocktoken" "pop" "pres" "prospero" "prospero"
-    "resource" "rmi" "rsync" "rtsp" "rtspu" "service" "sftp" "sip" "sips" "smb"
-    "sms" "snews" "snmp" "soap.beep" "soap.beeps" "ssh" "svn" "svn+ssh" "tag"
-    "tel" "telnet" "tftp" "tip" "tn3270" "udp" "urn" "uuid" "vemmi" "wais"
-    "webcal" "xmlrpc.beep" "xmlrpc.beeps" "xmpp" "xri" "z39.50r" "z39.50s")
+  '("aaa://" "about:" "acap://" "apt:" "bzr://" "bzr+ssh://"
+    "attachment:/" "chrome://" "cid:" "content://" "crid://" "cvs://"
+    "data:" "dav:" "dict://" "doi:" "dns:" "dtn:" "feed:" "file:/"
+    "finger://" "fish://" "ftp://" "geo:" "git://" "go:" "gopher://"
+    "h323:" "http://" "https://" "im:" "imap://" "info:" "ipp:"
+    "irc://" "irc6://" "ircs://" "iris.beep:" "jar:" "ldap://"
+    "ldaps://" "magnet:" "mailto:" "mid:"  "mtqp://" "mupdate://"
+    "news:" "nfs://" "nntp://" "opaquelocktoken:" "pop://" "pres:"
+    "resource://" "rmi://" "rsync://" "rtsp://" "rtspu://" "service:"
+    "sftp://" "sip:" "sips:" "smb://" "sms:" "snmp://" "soap.beep://"
+    "soap.beeps://" "ssh://" "svn://" "svn+ssh://" "tag:" "tel:"
+    "telnet://" "tftp://" "tip://" "tn3270://" "udp://" "urn:"
+    "uuid:" "vemmi://"  "webcal://" "xri://" "xmlrpc.beep://"
+    "xmlrpc.beeps://" "z39.50r://" "z39.50s://" "xmpp:"
+    ;; Compatibility
+    "fax:" "man:" "mms://" "mmsh://" "modem:" "prospero:" "snews:"
+    "wais://")
   "URI schemes for URI, which should be opened in WWW browser.")
 
 (defconst taskpaper-uri-browser-regexp
   (concat
    "\\<\\("
    "\\(?:"
-   (regexp-opt taskpaper-uri-schemes-browser) ":"
-   "\\(?:/\\{1,3\\}\\|[a-z0-9%.]\\)"
+   (regexp-opt taskpaper-uri-schemes-browser)
    "\\|"
    "www[:digit:]\\{0,3\\}[.]"
    "\\|"
-   "\\(?:[-a-z0-9_]+[.]\\)+[a-z]\\{2,4\\}/"
+   "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}/"
    "\\)"
    "\\(?:[^[:space:]()<>]+\\|(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)\\)+"
    "\\(?:(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)\\|[^][:space:]`!()[{};:'\".,<>?«»“”‘’]\\)"
@@ -508,8 +514,8 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   "Regular expression for URI, which should be opened in WWW browser.")
 
 (defconst taskpaper-email-regexp
-  "\\(\\(?:\\<mailto:\\)?[-a-zA-Z0-9=._+%]+@\\(?:[-a-zA-Z0-9_]+[.]\\)+[a-zA-Z]\\{2,4\\}\\)"
-  "Regular expression for mail URI.")
+  "\\(\\(?:\\<mailto:\\)?[[:alnum:]=._-+%]+@\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}\\)"
+  "Regular expression for email URI.")
 
 (defconst taskpaper-file-path-regexp
   "\\(?:^\\|[ \t]\\)\\(\\(?:file:\\|[.]\\{0,2\\}/\\|~/\\)\\(?:\\\\ \\|[^ \0\n]\\)*\\)"
