@@ -424,6 +424,23 @@ Set the match data. Only the current line is checked."
   '(face taskpaper-markup-face invisible taskpaper-markup)
   "Properties to apply to inline markup.")
 
+(defun taskpaper-range-property-any (begin end prop prop-val)
+  "Check PROP-VAL from BEGIN to END.
+Return non-nil if text property PROP from BEGIN to END is equal
+to one of the given values PROP-VALs. Also return non-nil if PROP
+is a list containing one of the PROP-VALs."
+  (let (props)
+    (catch 'found
+      (dolist (loc (number-sequence begin end))
+        (when (setq props (get-text-property loc prop))
+          (cond
+           ((listp props)
+            (dolist (val prop-val)
+              (when (memq val props) (throw 'found loc))))
+           (t
+            (dolist (val prop-val)
+              (when (eq val props) (throw 'found loc))))))))))
+
 (defsubst taskpaper-rear-nonsticky-at (pos)
   "Add nonsticky text properties at POS."
   (add-text-properties
@@ -485,17 +502,14 @@ Group 3 matches the optional tag value without enclosing parentheses.")
     "finger://" "fish://" "ftp://" "geo:" "git://" "go:" "gopher://"
     "h323:" "http://" "https://" "im:" "imap://" "info:" "ipp:"
     "irc://" "irc6://" "ircs://" "iris.beep:" "jar:" "ldap://"
-    "ldaps://" "magnet:" "mailto:" "mid:"  "mtqp://" "mupdate://"
+    "ldaps://" "magnet:" "mailto:" "mid:" "mtqp://" "mupdate://"
     "news:" "nfs://" "nntp://" "opaquelocktoken:" "pop://" "pres:"
     "resource://" "rmi://" "rsync://" "rtsp://" "rtspu://" "service:"
     "sftp://" "sip:" "sips:" "smb://" "sms:" "snmp://" "soap.beep://"
     "soap.beeps://" "ssh://" "svn://" "svn+ssh://" "tag:" "tel:"
     "telnet://" "tftp://" "tip://" "tn3270://" "udp://" "urn:"
-    "uuid:" "vemmi://"  "webcal://" "xri://" "xmlrpc.beep://"
-    "xmlrpc.beeps://" "z39.50r://" "z39.50s://" "xmpp:"
-    ;; Compatibility
-    "fax:" "man:" "mms://" "mmsh://" "modem:" "prospero:" "snews:"
-    "wais://")
+    "uuid:" "vemmi://" "webcal://" "xri://" "xmlrpc.beep://"
+    "xmlrpc.beeps://" "z39.50r://" "z39.50s://" "xmpp:")
   "URI schemes for URI, which should be opened in WWW browser.")
 
 (defconst taskpaper-uri-browser-regexp
@@ -504,13 +518,9 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\(?:"
    (regexp-opt taskpaper-uri-schemes-browser)
    "\\|"
-   "www[:digit:]\\{0,3\\}[.]"
-   "\\|"
-   "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}/"
+   "www[[:digit:]]\\{0,3\\}\\."
    "\\)"
-   "\\(?:[^[:space:]()<>]+\\|(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)\\)+"
-   "\\(?:(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)\\|[^][:space:]`!()[{};:'\".,<>?«»“”‘’]\\)"
-   "\\)")
+   "[^]\t\n \"'<>[^`{}]*[^]\t\n \"'<>[^`{}.,;]+\\)")
   "Regular expression for URI, which should be opened in WWW browser.")
 
 (defconst taskpaper-email-regexp
@@ -695,20 +705,28 @@ If TAG is a number, get the corresponding match group."
     map)
   "Mouse events for tags.")
 
-(defun taskpaper-activate-tags (limit)
-  "Add text properties to tags."
+(defun taskpaper-font-lock-tags (limit)
+  "Fontify tags from point to LIMIT."
   (when (re-search-forward taskpaper-tag-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (add-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'taskpaper-tag (list (match-beginning 1) (match-end 1))
-           'face (taskpaper-get-tag-face 2)
-           'mouse-face 'highlight
-           'keymap taskpaper-mouse-map-tag
-           'help-echo "Filter on Tag"))
-    (taskpaper-rear-nonsticky-at (match-end 1))
-    t))
+    (if (taskpaper-range-property-any
+         (match-beginning 1) (match-end 1)
+         'face '(taskpaper-markup-face taskpaper-link-face))
+        ;; Move forward and recursively search again
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit)
+            (taskpaper-font-lock-tags limit)))
+      (taskpaper-remove-flyspell-overlays-in
+       (match-beginning 1) (match-end 1))
+      (add-text-properties
+       (match-beginning 1) (match-end 1)
+       (list 'taskpaper-tag (list (match-beginning 1) (match-end 1))
+             'face (taskpaper-get-tag-face 2)
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-tag
+             'help-echo "Filter on Tag"))
+      (taskpaper-rear-nonsticky-at (match-end 1))
+      t)))
 
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
@@ -716,35 +734,51 @@ If TAG is a number, get the corresponding match group."
     map)
   "Mouse events for links.")
 
-(defun taskpaper-activate-email-links (limit)
-  "Fontify email links from point to LIMIT."
+(defun taskpaper-font-lock-email-links (limit)
+  "Fontify bare email links from point to LIMIT."
   (when (re-search-forward taskpaper-email-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (add-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-           'face 'taskpaper-link-face
-           'mouse-face 'highlight
-           'keymap taskpaper-mouse-map-link
-           'help-echo "Follow Link"))
-    (taskpaper-rear-nonsticky-at (match-end 1))
-    t))
+    (if (taskpaper-range-property-any
+         (match-beginning 1) (match-end 1)
+         'face '(taskpaper-markup-face taskpaper-tag-face))
+        ;; Move forward and recursively search again
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit)
+            (taskpaper-font-lock-email-links limit)))
+      (taskpaper-remove-flyspell-overlays-in
+       (match-beginning 1) (match-end 1))
+      (add-text-properties
+       (match-beginning 1) (match-end 1)
+       (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
+             'face 'taskpaper-link-face
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-link
+             'help-echo "Follow Link"))
+      (taskpaper-rear-nonsticky-at (match-end 1))
+      t)))
 
-(defun taskpaper-activate-uri-links (limit)
-  "Fontify URI links from point to LIMIT."
+(defun taskpaper-font-lock-uri-links (limit)
+  "Fontify bare URI links from point to LIMIT."
   (when (re-search-forward taskpaper-uri-browser-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (add-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-           'face 'taskpaper-link-face
-           'mouse-face 'highlight
-           'keymap taskpaper-mouse-map-link
-           'help-echo "Follow Link"))
-    (taskpaper-rear-nonsticky-at (match-end 1))
-    t))
+    (if (taskpaper-range-property-any
+         (match-beginning 1) (match-end 1)
+         'face '(taskpaper-markup-face taskpaper-tag-face))
+        ;; Move forward and recursively search again
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit)
+            (taskpaper-font-lock-uri-links limit)))
+      (taskpaper-remove-flyspell-overlays-in
+       (match-beginning 1) (match-end 1))
+      (add-text-properties
+       (match-beginning 1) (match-end 1)
+       (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
+             'face 'taskpaper-link-face
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-link
+             'help-echo "Follow Link"))
+      (taskpaper-rear-nonsticky-at (match-end 1))
+      t)))
 
 (defun taskpaper-file-path-unescape (path)
   "Remove file URL scheme and unescape spaces in PATH."
@@ -753,34 +787,42 @@ If TAG is a number, get the corresponding match group."
           path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
-(defun taskpaper-activate-file-links (limit)
-  "Fontify file links from point to LIMIT.
+(defun taskpaper-font-lock-file-links (limit)
+  "Fontify bare file links from point to LIMIT.
 In case of local files check to see if the file exists and
 highlight accordingly."
   (when (re-search-forward taskpaper-file-path-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (add-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-           'mouse-face 'highlight
-           'keymap taskpaper-mouse-map-link
-           'help-echo "Follow Link"))
-    (let* ((path (match-string-no-properties 1))
-           (path (taskpaper-file-path-unescape path)))
-      (if (not (taskpaper-file-remote-p path))
-          (if (condition-case nil (file-exists-p path) (error nil))
+    (if (taskpaper-range-property-any
+         (match-beginning 1) (match-end 1)
+         'face '(taskpaper-markup-face taskpaper-tag-face))
+        ;; Move forward and recursively search again
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit)
+            (taskpaper-font-lock-file-links limit)))
+      (taskpaper-remove-flyspell-overlays-in
+       (match-beginning 1) (match-end 1))
+      (add-text-properties
+       (match-beginning 1) (match-end 1)
+       (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-link
+             'help-echo "Follow Link"))
+      (let* ((path (match-string-no-properties 1))
+             (path (taskpaper-file-path-unescape path)))
+        (if (not (taskpaper-file-remote-p path))
+            (if (condition-case nil (file-exists-p path) (error nil))
+                (font-lock-prepend-text-property
+                 (match-beginning 1) (match-end 1)
+                 'face 'taskpaper-link-face)
               (font-lock-prepend-text-property
                (match-beginning 1) (match-end 1)
-               'face 'taskpaper-link-face)
-            (font-lock-prepend-text-property
-             (match-beginning 1) (match-end 1)
-             'face 'taskpaper-missing-link-face))
-        (font-lock-prepend-text-property
-         (match-beginning 1) (match-end 1)
-         'face 'taskpaper-link-face)))
-    (taskpaper-rear-nonsticky-at (match-end 1))
-    t))
+               'face 'taskpaper-missing-link-face))
+          (font-lock-prepend-text-property
+           (match-beginning 1) (match-end 1)
+           'face 'taskpaper-link-face)))
+      (taskpaper-rear-nonsticky-at (match-end 1))
+      t)))
 
 (defun taskpaper-font-lock-done-tasks (limit)
   "Fontify completed tasks from point to LIMIT."
@@ -808,58 +850,72 @@ highlight accordingly."
 (defun taskpaper-font-lock-strong (limit)
   "Fontify strong inline emphasis from point to LIMIT."
   (when (re-search-forward taskpaper-strong-regexp limit t)
-    (if (or
-         (get-text-property (match-beginning 2) 'taskpaper-tag)
-         (get-text-property (match-end 4) 'taskpaper-tag)
-         (get-text-property (match-beginning 2) 'taskpaper-link)
-         (get-text-property (match-end 4) 'taskpaper-link)
-         ;; Check for emphasis overlap
-         (not (equal
-               (get-text-property (match-beginning 1) 'taskpaper-emphasis)
-               (get-text-property (match-end 1) 'taskpaper-emphasis))))
+    (if (or (taskpaper-range-property-any
+             (match-beginning 2) (match-end 2)
+             'face '(taskpaper-markup-face
+                     taskpaper-tag-face
+                     taskpaper-link-face))
+            (taskpaper-range-property-any
+             (match-beginning 4) (match-end 4)
+             'face '(taskpaper-markup-face
+                     taskpaper-tag-face
+                     taskpaper-link-face))
+            ;; Check for emphasis overlap
+            (not (equal (get-text-property
+                         (match-beginning 1) 'taskpaper-emphasis)
+                        (get-text-property
+                         (match-end 1) 'taskpaper-emphasis))))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
-          (when (< (point) limit) (taskpaper-font-lock-strong limit)))
+          (when (< (point) limit)
+            (taskpaper-font-lock-strong limit)))
       ;; Fontify
-      (font-lock-prepend-text-property (match-beginning 3) (match-end 3)
-                                       'face 'taskpaper-strong-face)
-      (put-text-property (match-beginning 1) (match-end 1)
-                         'taskpaper-strong
-                         (list (match-beginning 1) (match-end 1)))
-      (add-text-properties (match-beginning 2) (match-end 2)
-                           taskpaper-markup-properties)
-      (add-text-properties (match-beginning 4) (match-end 4)
-                           taskpaper-markup-properties)
+      (font-lock-prepend-text-property
+       (match-beginning 3) (match-end 3) 'face 'taskpaper-strong-face)
+      (put-text-property
+       (match-beginning 1) (match-end 1)
+       'taskpaper-strong (list (match-beginning 1) (match-end 1)))
+      (add-text-properties
+       (match-beginning 2) (match-end 2) taskpaper-markup-properties)
+      (add-text-properties
+       (match-beginning 4) (match-end 4) taskpaper-markup-properties)
       (backward-char 1)
       t)))
 
 (defun taskpaper-font-lock-emphasis (limit)
   "Fontify inline emphasis from point to LIMIT."
   (when (re-search-forward taskpaper-emphasis-regexp limit t)
-    (if (or
-         (get-text-property (match-beginning 2) 'taskpaper-tag)
-         (get-text-property (match-end 4) 'taskpaper-tag)
-         (get-text-property (match-beginning 2) 'taskpaper-link)
-         (get-text-property (match-end 4) 'taskpaper-link)
-         ;; Check for emphasis overlap
-         (not (equal
-               (get-text-property (match-beginning 1) 'taskpaper-strong)
-               (get-text-property (match-end 1) 'taskpaper-strong))))
+    (if (or (taskpaper-range-property-any
+             (match-beginning 2) (match-end 2)
+             'face '(taskpaper-markup-face
+                     taskpaper-tag-face
+                     taskpaper-link-face))
+            (taskpaper-range-property-any
+             (match-beginning 4) (match-end 4)
+             'face '(taskpaper-markup-face
+                     taskpaper-tag-face
+                     taskpaper-link-face))
+            ;; Check for emphasis overlap
+            (not (equal (get-text-property
+                         (match-beginning 1) 'taskpaper-strong)
+                        (get-text-property
+                         (match-end 1) 'taskpaper-strong))))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
-          (when (< (point) limit) (taskpaper-font-lock-emphasis limit)))
+          (when (< (point) limit)
+            (taskpaper-font-lock-emphasis limit)))
       ;; Fontify
-      (font-lock-prepend-text-property (match-beginning 3) (match-end 3)
-                                       'face 'taskpaper-emphasis-face)
-      (put-text-property (match-beginning 1) (match-end 1)
-                         'taskpaper-emphasis
-                         (list (match-beginning 1) (match-end 1)))
-      (add-text-properties (match-beginning 2) (match-end 2)
-                           taskpaper-markup-properties)
-      (add-text-properties (match-beginning 4) (match-end 4)
-                           taskpaper-markup-properties)
+      (font-lock-prepend-text-property
+       (match-beginning 3) (match-end 3) 'face 'taskpaper-emphasis-face)
+      (put-text-property
+       (match-beginning 1) (match-end 1)
+       'taskpaper-emphasis (list (match-beginning 1) (match-end 1)))
+      (add-text-properties
+       (match-beginning 2) (match-end 2) taskpaper-markup-properties)
+      (add-text-properties
+       (match-beginning 4) (match-end 4) taskpaper-markup-properties)
       (backward-char 1)
       t)))
 
@@ -903,10 +959,10 @@ is essential."
                   (2 'taskpaper-project-mark-face)))
           (cons taskpaper-note-regexp
                 '((1 'taskpaper-note-face)))
-          '(taskpaper-activate-email-links)
-          '(taskpaper-activate-uri-links)
-          '(taskpaper-activate-file-links)
-          '(taskpaper-activate-tags)
+          '(taskpaper-font-lock-email-links)
+          '(taskpaper-font-lock-uri-links)
+          '(taskpaper-font-lock-file-links)
+          '(taskpaper-font-lock-tags)
           (when taskpaper-fontify-done-items
             '(taskpaper-font-lock-done-tasks))
           (when taskpaper-fontify-done-items
