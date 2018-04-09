@@ -464,6 +464,13 @@ is a list containing one of the PROP-VALs."
          (string-match (car ange-ftp-name-format) file))
     t)))
 
+(defun taskpaper-file-missing-p (file)
+  "Test if local FILE exists.
+Return non-nil if local FILE does not exist, otherwise return nil."
+  (if (and (not (taskpaper-file-remote-p file))
+           (not (condition-case nil (file-exists-p file) (error nil))))
+      t nil))
+
 ;;;; Re-usable regexps
 
 (defconst taskpaper-tag-name-char-regexp
@@ -787,6 +794,11 @@ If TAG is a number, get the corresponding match group."
           path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
+(defun taskpaper-get-file-link-face (file)
+  "Get the right face for file link."
+  (if (taskpaper-file-missing-p file)
+      'taskpaper-missing-link-face 'taskpaper-link-face))
+
 (defun taskpaper-font-lock-file-links (limit)
   "Fontify bare file links from point to LIMIT.
 In case of local files check to see if the file exists and
@@ -802,25 +814,15 @@ highlight accordingly."
             (taskpaper-font-lock-file-links limit)))
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
-      (add-text-properties
-       (match-beginning 1) (match-end 1)
-       (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-             'mouse-face 'highlight
-             'keymap taskpaper-mouse-map-link
-             'help-echo "Follow Link"))
-      (let* ((path (match-string-no-properties 1))
-             (path (taskpaper-file-path-unescape path)))
-        (if (not (taskpaper-file-remote-p path))
-            (if (condition-case nil (file-exists-p path) (error nil))
-                (font-lock-prepend-text-property
-                 (match-beginning 1) (match-end 1)
-                 'face 'taskpaper-link-face)
-              (font-lock-prepend-text-property
-               (match-beginning 1) (match-end 1)
-               'face 'taskpaper-missing-link-face))
-          (font-lock-prepend-text-property
-           (match-beginning 1) (match-end 1)
-           'face 'taskpaper-link-face)))
+      (let* ((file (match-string-no-properties 1))
+             (file (taskpaper-file-path-unescape file)))
+        (add-text-properties
+         (match-beginning 1) (match-end 1)
+         (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
+               'face (taskpaper-get-file-link-face file)
+               'mouse-face 'highlight
+               'keymap taskpaper-mouse-map-link
+               'help-echo "Follow Link")))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
