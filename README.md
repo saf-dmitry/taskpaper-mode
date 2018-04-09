@@ -1,6 +1,6 @@
 
 
-# Emacs TaskPaper Mode
+# Emacs TaskPaper Mode [![MELPA](https://melpa.org/packages/taskpaper-mode-badge.svg)][taskpaper-melpa]
 
 TaskPaper mode is an Emacs major mode for working with files in TaskPaper format. The format was invented by Jesse Grosjean and named after his [TaskPaper][taskpaper] macOS app, which is a system for organizing your outlines and tasks in a text file. The format itself is exceptionally readable and supports different item types, outline hierarchy, and tagging.
 
@@ -721,4 +721,6 @@ You should have received a copy of the GNU General Public License along with thi
 [birch-outline]: https://github.com/jessegrosjean/birch-outline
 
 [github-issues]: https://github.com/saf-dmitry/taskpaper-mode/issues
+
+[taskpaper-melpa]: https://melpa.org/#/taskpaper-mode
 
