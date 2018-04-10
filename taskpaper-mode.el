@@ -350,12 +350,6 @@ attention to case differences."
            (eq t (compare-strings suffix nil nil string
                                   start-pos nil ignore-case))))))
 
-(defun taskpaper-chomp (str)
-  "Trim leading and trailing whitespaces from STR."
-  (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
-    (setq str (replace-match "" t t str)))
-  str)
-
 (defun taskpaper-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE.
 EVAP non-nil means, set the `evaporate' property to t."
@@ -417,6 +411,12 @@ Set the match data. Only the current line is checked."
   "Non-destructively sort elements of LIST as strings."
   (let ((res (copy-sequence list))) (sort res 'string-lessp)))
 
+(defun taskpaper-chomp (str)
+  "Trim leading and trailing whitespaces from STR."
+  (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
+    (setq str (replace-match "" t t str)))
+  str)
+
 (defconst taskpaper-nonsticky-properties
   '(face mouse-face keymap help-echo display invisible intangible))
 
@@ -466,10 +466,25 @@ is a list containing one of the PROP-VALs."
 
 (defun taskpaper-file-missing-p (file)
   "Test if local FILE exists.
-Return non-nil if local FILE does not exist, otherwise return nil."
+Return non-nil if local FILE does not exist, otherwise return
+nil."
   (if (and (not (taskpaper-file-remote-p file))
-           (not (condition-case nil (file-exists-p file) (error nil))))
+           (not (condition-case nil
+                    (file-exists-p file) (error nil))))
       t nil))
+
+(defun taskpaper-file-path-escape (path)
+  "Escape special characters in PATH."
+  (when (stringp path)
+    (setq path (replace-regexp-in-string " " "\\\\ " path)))
+  path)
+
+(defun taskpaper-file-path-unescape (path)
+  "Unescape special characters in PATH."
+  (when (stringp path)
+    (setq path (replace-regexp-in-string "\\`file:" "" path)
+          path (replace-regexp-in-string "\\\\ " " " path)))
+  path)
 
 ;;;; Re-usable regexps
 
@@ -525,17 +540,40 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\(?:"
    (regexp-opt taskpaper-uri-schemes-browser)
    "\\|"
-   "www[[:digit:]]\\{0,3\\}\\."
+   "www[[:digit:]]\\{0,3\\}[.]"
+   "\\|"
+   "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}/"
    "\\)"
-   "[^]\t\n \"'<>[^`{}]*[^]\t\n \"'<>[^`{}.,;]+\\)")
-  "Regular expression for URI, which should be opened in WWW browser.")
+   "\\(?:"
+   "[^[:space:]()<>]+"
+   "\\|"
+   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "\\)+"
+   "\\(?:"
+   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "\\|"
+   "[^][:space:]()[{}<>.,;:!?`'\"«»„“”‘’]"
+   "\\)"
+   "\\)")
+  "Regular expression for web URI.")
 
 (defconst taskpaper-email-regexp
-  "\\(\\(?:\\<mailto:\\)?[[:alnum:]=._-+%]+@\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}\\)"
+  (concat
+   "\\("
+   "\\(?:\\<mailto:\\)?"
+   "[[:alnum:]=._-+%]+@"
+   "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}"
+   "\\)")
   "Regular expression for email URI.")
 
 (defconst taskpaper-file-path-regexp
-  "\\(?:^\\|[ \t]\\)\\(\\(?:file:\\|[.]\\{0,2\\}/\\|~/\\)\\(?:\\\\ \\|[^ \0\n]\\)*\\)"
+  (concat
+   "\\(?:^\\|[ \t]\\)"
+   "\\("
+   "file:\\(?:\\\\ \\|[^ \0\n]\\)+"
+   "\\|"
+   "\\(?:[.]\\{1,2\\}\\|~\\)?/\\(?:\\\\ \\|[^ \0\n]\\)*"
+   "\\)")
   "Regular expression for file URI.")
 
 ;;;; Font Lock regexps
@@ -786,13 +824,6 @@ If TAG is a number, get the corresponding match group."
              'help-echo "Follow Link"))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
-
-(defun taskpaper-file-path-unescape (path)
-  "Remove file URL scheme and unescape spaces in PATH."
-  (when (stringp path)
-    (setq path (replace-regexp-in-string "\\`file:" "" path)
-          path (replace-regexp-in-string "\\\\ " " " path)))
-  path)
 
 (defun taskpaper-get-file-link-face (file)
   "Get the right face for file link."
@@ -1154,7 +1185,7 @@ directory. An absolute path can be forced with a
 \\[universal-argument] prefix argument."
   (interactive "P")
   (let* ((path (taskpaper-file-path-complete arg))
-         (path (replace-regexp-in-string " " "\\\\ " path)))
+         (path (taskpaper-file-path-escape path)))
     (insert (concat "file:" path))))
 
 (defun taskpaper-open-link (link)
