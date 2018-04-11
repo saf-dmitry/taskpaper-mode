@@ -1,6 +1,6 @@
 
 
-# Emacs TaskPaper Mode [![MELPA](https://melpa.org/packages/taskpaper-mode-badge.svg)][taskpaper-melpa]
+# Emacs TaskPaper Mode [![MELPA][melpa-badge]][melpa-link]
 
 TaskPaper mode is an Emacs major mode for working with files in TaskPaper format. The format was invented by Jesse Grosjean and named after his [TaskPaper][taskpaper] macOS app, which is a system for organizing your outlines and tasks in a text file. The format itself is exceptionally readable and supports different item types, outline hierarchy, and tagging.
 
@@ -317,9 +317,9 @@ Relative dates like `next Monday` should always be given as the _very first_ par
 
 ## Hyperlinks and Inline Images
 
-TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are some examples of the links that will be recognized.
+TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
 
- - `https://www.taskpaper.com`
+ - `http://www.example.com/index.html`
  - `mailto:username@domain.org`
  - `file:filename.txt`
  - `./filename.txt`
@@ -692,6 +692,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
+[melpa-badge]: https://melpa.org/packages/taskpaper-mode-badge.svg
+
+[melpa-link]: https://melpa.org/#/taskpaper-mode
+
 [taskpaper]: https://www.taskpaper.com/
 
 [taskpaper-guide]: https://guide.taskpaper.com/getting-started/
@@ -721,6 +725,4 @@ You should have received a copy of the GNU General Public License along with thi
 [birch-outline]: https://github.com/jessegrosjean/birch-outline
 
 [github-issues]: https://github.com/saf-dmitry/taskpaper-mode/issues
-
-[taskpaper-melpa]: https://melpa.org/#/taskpaper-mode
 

@@ -552,7 +552,9 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\(?:"
    "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
    "\\|"
-   "[^][:space:]()[{}<>.,;:!?`'\"«»„“”‘’]"
+   "[^[:space:][:punct:]]"
+   "\\|"
+   "[/]"
    "\\)"
    "\\)")
   "Regular expression for web URI.")
