@@ -563,7 +563,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (concat
    "\\("
    "\\(?:\\<mailto:\\)?"
-   "[[:alnum:]=._-+%]+@"
+   "[-[:alnum:]=._+%]+@"
    "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}"
    "\\)")
   "Regular expression for email URI.")
@@ -775,6 +775,14 @@ If TAG is a number, get the corresponding match group."
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
+(defun taskpaper-get-link-face (link)
+  "Get the right face for LINK."
+  (cond
+   ((and (string-match-p taskpaper-file-path-regexp link)
+         (taskpaper-file-missing-p link))
+    'taskpaper-missing-link-face)
+   (t 'taskpaper-link-face)))
+
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'taskpaper-open-link-at-point)
@@ -794,13 +802,14 @@ If TAG is a number, get the corresponding match group."
             (taskpaper-font-lock-email-links limit)))
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
-      (add-text-properties
-       (match-beginning 1) (match-end 1)
-       (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-             'face 'taskpaper-link-face
-             'mouse-face 'highlight
-             'keymap taskpaper-mouse-map-link
-             'help-echo "Follow Link"))
+      (let ((link (match-string-no-properties 1)))
+        (add-text-properties
+         (match-beginning 1) (match-end 1)
+         (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
+               'face (taskpaper-get-link-face link)
+               'mouse-face 'highlight
+               'keymap taskpaper-mouse-map-link
+               'help-echo "Follow Link")))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -817,20 +826,16 @@ If TAG is a number, get the corresponding match group."
             (taskpaper-font-lock-uri-links limit)))
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
-      (add-text-properties
-       (match-beginning 1) (match-end 1)
-       (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-             'face 'taskpaper-link-face
-             'mouse-face 'highlight
-             'keymap taskpaper-mouse-map-link
-             'help-echo "Follow Link"))
+      (let ((link (match-string-no-properties 1)))
+        (add-text-properties
+         (match-beginning 1) (match-end 1)
+         (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
+               'face (taskpaper-get-link-face link)
+               'mouse-face 'highlight
+               'keymap taskpaper-mouse-map-link
+               'help-echo "Follow Link")))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
-
-(defun taskpaper-get-file-link-face (file)
-  "Get the right face for file link."
-  (if (taskpaper-file-missing-p file)
-      'taskpaper-missing-link-face 'taskpaper-link-face))
 
 (defun taskpaper-font-lock-file-links (limit)
   "Fontify bare file links from point to LIMIT.
@@ -847,12 +852,12 @@ highlight accordingly."
             (taskpaper-font-lock-file-links limit)))
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
-      (let* ((file (match-string-no-properties 1))
-             (file (taskpaper-file-path-unescape file)))
+      (let* ((link (match-string-no-properties 1))
+             (link (taskpaper-file-path-unescape link)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
          (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-               'face (taskpaper-get-file-link-face file)
+               'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
                'help-echo "Follow Link")))
