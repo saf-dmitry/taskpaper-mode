@@ -413,8 +413,9 @@ Set the match data. Only the current line is checked."
 
 (defun taskpaper-chomp (str)
   "Trim leading and trailing whitespaces from STR."
-  (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
-    (setq str (replace-match "" t t str)))
+  (save-match-data
+    (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
+      (setq str (replace-match "" t t str))))
   str)
 
 (defconst taskpaper-nonsticky-properties
@@ -542,7 +543,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\|"
    "www[[:digit:]]\\{0,3\\}[.]"
    "\\|"
-   "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}/"
+   "\\(?:[-[:alnum:]_]+[.]\\)+[[:alpha:]]\\{2,4\\}/"
    "\\)"
    "\\(?:"
    "[^[:space:]()<>]+"
@@ -563,8 +564,8 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (concat
    "\\("
    "\\(?:\\<mailto:\\)?"
-   "[-[:alnum:]=._+%]+@"
-   "\\(?:[[:alnum:]_-]+[.]\\)+[[:alpha:]]\\{2,4\\}"
+   "[-[:alnum:]_=.+%]+@"
+   "\\(?:[-[:alnum:]_]+[.]\\)+[[:alpha:]]\\{2,4\\}"
    "\\)")
   "Regular expression for email URI.")
 
@@ -574,7 +575,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\("
    "file:\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\|"
-   "\\(?:[.]\\{1,2\\}\\|~\\)?/\\(?:\\\\ \\|[^ \0\n]\\)*"
+   "\\(?:[.]\\{1,2\\}\\|~\\|[a-zA-Z]:\\)?/\\(?:\\\\ \\|[^ \0\n]\\)*"
    "\\)")
   "Regular expression for file URI.")
 
@@ -757,7 +758,9 @@ If TAG is a number, get the corresponding match group."
   (when (re-search-forward taskpaper-tag-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
-         'face '(taskpaper-markup-face taskpaper-link-face))
+         'face '(taskpaper-markup-face
+                 taskpaper-link-face
+                 taskpaper-missing-link-face))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
@@ -779,9 +782,15 @@ If TAG is a number, get the corresponding match group."
   "Get the right face for LINK."
   (cond
    ((and (string-match-p taskpaper-file-path-regexp link)
-         (taskpaper-file-missing-p link))
+         (taskpaper-file-missing-p (taskpaper-file-path-unescape link)))
     'taskpaper-missing-link-face)
    (t 'taskpaper-link-face)))
+
+(defun taskpaper-link-help-echo (link)
+  "Return help echo string for LINK."
+  (when (string-match-p taskpaper-file-path-regexp link)
+    (setq link (taskpaper-file-path-unescape link)))
+  (concat "Link: " link))
 
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
@@ -809,7 +818,7 @@ If TAG is a number, get the corresponding match group."
                'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo "Follow Link")))
+               'help-echo (taskpaper-link-help-echo link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -833,7 +842,7 @@ If TAG is a number, get the corresponding match group."
                'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo "Follow Link")))
+               'help-echo (taskpaper-link-help-echo link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -852,15 +861,14 @@ highlight accordingly."
             (taskpaper-font-lock-file-links limit)))
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
-      (let* ((link (match-string-no-properties 1))
-             (link (taskpaper-file-path-unescape link)))
+      (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
          (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
                'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo "Follow Link")))
+               'help-echo (taskpaper-link-help-echo link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -894,12 +902,14 @@ highlight accordingly."
              (match-beginning 2) (match-end 2)
              'face '(taskpaper-markup-face
                      taskpaper-tag-face
-                     taskpaper-link-face))
+                     taskpaper-link-face
+                     taskpaper-missing-link-face))
             (taskpaper-range-property-any
              (match-beginning 4) (match-end 4)
              'face '(taskpaper-markup-face
                      taskpaper-tag-face
-                     taskpaper-link-face))
+                     taskpaper-link-face
+                     taskpaper-missing-link-face))
             ;; Check for emphasis overlap
             (not (equal (get-text-property
                          (match-beginning 1) 'taskpaper-emphasis)
@@ -930,12 +940,14 @@ highlight accordingly."
              (match-beginning 2) (match-end 2)
              'face '(taskpaper-markup-face
                      taskpaper-tag-face
-                     taskpaper-link-face))
+                     taskpaper-link-face
+                     taskpaper-missing-link-face))
             (taskpaper-range-property-any
              (match-beginning 4) (match-end 4)
              'face '(taskpaper-markup-face
                      taskpaper-tag-face
-                     taskpaper-link-face))
+                     taskpaper-link-face
+                     taskpaper-missing-link-face))
             ;; Check for emphasis overlap
             (not (equal (get-text-property
                          (match-beginning 1) 'taskpaper-strong)
@@ -1169,17 +1181,10 @@ With optional argument IN-EMACS, visit the file in Emacs."
 Return absolute or relative path to the file as string. If ARG is
 non-nil, force absolute path."
   (let ((file (read-file-name "File: "))
-        (pwd  (file-name-as-directory (expand-file-name ".")))
-        (pwd1 (file-name-as-directory
-               (abbreviate-file-name (expand-file-name ".")))))
-    (cond
-     (arg (abbreviate-file-name (expand-file-name file)))
-     ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
-      (match-string 1 file))
-     ((string-match (concat "\\`" (regexp-quote pwd) "\\(.+\\)")
-                    (expand-file-name file))
-      (match-string 1 (expand-file-name file)))
-     (t file))))
+        (pwd (file-name-as-directory (expand-file-name "."))))
+    (if arg
+        (abbreviate-file-name (expand-file-name file))
+      (file-relative-name file pwd))))
 
 (defun taskpaper-insert-file-link-at-point (&optional arg)
   "Insert a file link at point using completion.

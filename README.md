@@ -319,7 +319,7 @@ Relative dates like `next Monday` should always be given as the _very first_ par
 
 TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
 
- - `http://www.example.com/index.html`
+ - `http://www.hostname.com/index.html`
  - `mailto:username@domain.org`
  - `file:filename.txt`
  - `./filename.txt`
