@@ -4035,7 +4035,7 @@ items, that matches. PROMPT can overwrite the default prompt."
         ;; Clear attribute cache
         (taskpaper-attribute-cache-clear)))))
 
-;;;; Ispell and Flyspell functions
+;;;; Ispell and Flyspell support
 
 (defun taskpaper-ispell-setup ()
   "Ispell setup for TaskPaper-mode."
@@ -4051,6 +4051,24 @@ items, that matches. PROMPT can overwrite the default prompt."
        (not (taskpaper-in-regexp-p taskpaper-email-regexp))
        (not (taskpaper-in-regexp-p taskpaper-file-path-regexp))))
 (put 'taskpaper-mode 'flyspell-mode-predicate 'taskpaper-mode-flyspell-verify)
+
+;;;; Bookmarks support
+
+(defun taskpaper-bookmark-jump-unhide ()
+  "Unhide the current position to show the bookmark location."
+  (and (derived-mode-p 'taskpaper-mode)
+       (or (outline-invisible-p)
+           (save-excursion
+             (goto-char (max (point-min) (1- (point))))
+             (outline-invisible-p)))
+       (taskpaper-outline-show-context)))
+
+(eval-after-load "bookmark"
+  '(if (boundp 'bookmark-after-jump-hook)
+       (add-hook 'bookmark-after-jump-hook 'taskpaper-bookmark-jump-unhide)
+     (defadvice bookmark-jump (after taskpaper-make-visible activate)
+       "Make the position visible."
+       (taskpaper-bookmark-jump-unhide))))
 
 ;;;; Miscellaneous
 
