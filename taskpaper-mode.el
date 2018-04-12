@@ -1181,10 +1181,17 @@ With optional argument IN-EMACS, visit the file in Emacs."
 Return absolute or relative path to the file as string. If ARG is
 non-nil, force absolute path."
   (let ((file (read-file-name "File: "))
-        (pwd (file-name-as-directory (expand-file-name "."))))
-    (if arg
-        (abbreviate-file-name (expand-file-name file))
-      (file-relative-name file pwd))))
+        (pwd  (file-name-as-directory (expand-file-name ".")))
+        (pwd1 (file-name-as-directory
+               (abbreviate-file-name (expand-file-name ".")))))
+    (cond
+     (arg (abbreviate-file-name (expand-file-name file)))
+     ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
+      (match-string 1 file))
+     ((string-match (concat "\\`" (regexp-quote pwd) "\\(.+\\)")
+                    (expand-file-name file))
+      (match-string 1 (expand-file-name file)))
+     (t file))))
 
 (defun taskpaper-insert-file-link-at-point (&optional arg)
   "Insert a file link at point using completion.
