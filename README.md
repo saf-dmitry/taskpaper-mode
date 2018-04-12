@@ -348,8 +348,6 @@ You can use whichever style you prefer; the only restriction is that the same ch
 
 The span of the emphasis is limited to a single item. Emphasis and strong emphasis can be nested. Inline emphasis inside projects and tasks is supported although not encouraged.
 
-You can hide the markup delimiters by configuring the user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but asterisks and underscores as emphasis markers will be hidden. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
-
 If you often use the asterisk or underscore in a different context, you can disable the interpretation of these characters by configuring the user option `taskpaper-use-inline-emphasis`.
 
 
@@ -645,6 +643,8 @@ Note: While using a list with face properties as shown for `due` _should_ work, 
 Additionally, the faces used for syntax highlighting can be modified to your liking by issuing `M-x customize-group RET taskpaper-faces RET`.
 
 You can activate the task marks by setting the user option `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. Tasks can then be marked as done by clicking on the task mark with `mouse-1`. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` user options.
+
+You can hide inline markup elements like emphasis delimiters by configuring the user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but the markup elements will be hidden. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
 
 
 ## Cleaner Outline View
