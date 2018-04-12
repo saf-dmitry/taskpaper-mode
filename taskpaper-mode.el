@@ -567,7 +567,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "[-[:alnum:]_=.+%]+@"
    "\\(?:[-[:alnum:]_]+[.]\\)+[[:alpha:]]\\{2,4\\}"
    "\\)")
-  "Regular expression for email URI.")
+  "Regular expression for email address.")
 
 (defconst taskpaper-file-path-regexp
   (concat
@@ -577,9 +577,13 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\|"
    "\\(?:[.]\\{1,2\\}\\|~\\|[a-zA-Z]:\\)?/\\(?:\\\\ \\|[^ \0\n]\\)*"
    "\\)")
-  "Regular expression for file URI.")
+  "Regular expression for file path.")
 
 ;;;; Font Lock regexps
+
+(defconst taskpaper-file-path-fl-regexp
+  (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
+  "Regular expression for file path.")
 
 (defconst taskpaper-task-regexp
   "^[ \t]*\\([-+*]\\)[ ]+\\([^\n]*\\)$"
@@ -799,7 +803,7 @@ If TAG is a number, get the corresponding match group."
   "Mouse events for links.")
 
 (defun taskpaper-font-lock-email-links (limit)
-  "Fontify bare email links from point to LIMIT."
+  "Fontify plain email links from point to LIMIT."
   (when (re-search-forward taskpaper-email-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
@@ -823,7 +827,7 @@ If TAG is a number, get the corresponding match group."
       t)))
 
 (defun taskpaper-font-lock-uri-links (limit)
-  "Fontify bare URI links from point to LIMIT."
+  "Fontify plain URI links from point to LIMIT."
   (when (re-search-forward taskpaper-uri-browser-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
@@ -847,10 +851,8 @@ If TAG is a number, get the corresponding match group."
       t)))
 
 (defun taskpaper-font-lock-file-links (limit)
-  "Fontify bare file links from point to LIMIT.
-In case of local files check to see if the file exists and
-highlight accordingly."
-  (when (re-search-forward taskpaper-file-path-regexp limit t)
+  "Fontify plain file links from point to LIMIT."
+  (when (re-search-forward taskpaper-file-path-fl-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
          'face '(taskpaper-markup-face taskpaper-tag-face))
@@ -1184,6 +1186,7 @@ non-nil, force absolute path."
         (pwd  (file-name-as-directory (expand-file-name ".")))
         (pwd1 (file-name-as-directory
                (abbreviate-file-name (expand-file-name ".")))))
+    (when (equal file "") (user-error "File name cannot be empty"))
     (cond
      (arg (abbreviate-file-name (expand-file-name file)))
      ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
