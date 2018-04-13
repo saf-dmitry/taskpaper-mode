@@ -350,6 +350,14 @@ attention to case differences."
            (eq t (compare-strings suffix nil nil string
                                   start-pos nil ignore-case))))))
 
+(defun taskpaper-remove-prefix (prefix string &optional ignore-case)
+  "Remove PREFIX from STRING.
+If IGNORE-CASE is non-nil, don't pay attention to case
+differences."
+  (when (string-prefix-p prefix string ignore-case)
+    (setq string (substring string (length prefix))))
+  string)
+
 (defun taskpaper-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE.
 EVAP non-nil means, set the `evaporate' property to t."
@@ -483,8 +491,7 @@ nil."
 (defun taskpaper-file-path-unescape (path)
   "Unescape special characters in PATH."
   (when (stringp path)
-    (setq path (replace-regexp-in-string "\\`file:" "" path)
-          path (replace-regexp-in-string "\\\\ " " " path)))
+    (setq path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
 ;;;; Re-usable regexps
@@ -786,7 +793,8 @@ If TAG is a number, get the corresponding match group."
    ((and (string-match-p
           (concat "\\`" taskpaper-file-path-regexp "\\'") link)
          (taskpaper-file-missing-p
-          (taskpaper-file-path-unescape link)))
+          (taskpaper-file-path-unescape
+           (taskpaper-remove-prefix "file:" link))))
     'taskpaper-missing-link-face)
    (t 'taskpaper-link-face)))
 
@@ -980,7 +988,8 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-activate-task-marks (limit)
   "Activate task marks from point to LIMIT."
   (when (re-search-forward taskpaper-task-regexp limit t)
-    (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
+    (let ((item (buffer-substring
+                 (match-beginning 0) (match-end 0))))
       (if (string-match-p taskpaper-done-tag-regexp item)
           (when taskpaper-bullet-done
             (put-text-property
@@ -1214,13 +1223,17 @@ directory. An absolute path can be forced with a
   (cond
    ((string-match-p
      (concat "\\`" taskpaper-email-regexp "\\'") link)
-    (compose-mail (replace-regexp-in-string "\\`mailto:" "" link)))
+    (compose-mail (taskpaper-remove-prefix "mailto:" link)))
    ((string-match-p
      (concat "\\`" taskpaper-uri-browser-regexp "\\'") link)
+    (when (string-prefix-p "www" link)
+      (setq link (concat "http://" link)))
     (browse-url link))
    ((string-match-p
      (concat "\\`" taskpaper-file-path-regexp "\\'") link)
-    (taskpaper-open-file (taskpaper-file-path-unescape link)))
+    (taskpaper-open-file
+     (taskpaper-file-path-unescape
+      (taskpaper-remove-prefix "file:" link))))
    (t (find-file-other-window link))))
 
 (defun taskpaper-open-link-at-point ()
@@ -1261,7 +1274,8 @@ Add inline image overlays to local image links in the buffer."
       (while (re-search-forward taskpaper-file-path-regexp nil t)
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
-               (path (taskpaper-file-path-unescape path))
+               (path (taskpaper-file-path-unescape
+                      (taskpaper-remove-prefix "file:" path)))
                (path (substitute-in-file-name (expand-file-name path)))
                (image (if (and taskpaper-max-image-size
                                (image-type-available-p 'imagemagick))
