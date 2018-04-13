@@ -571,7 +571,6 @@ Group 3 matches the optional tag value without enclosing parentheses.")
 
 (defconst taskpaper-file-path-regexp
   (concat
-   "\\(?:^\\|[ \t]\\)"
    "\\("
    "file:\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\|"
@@ -774,8 +773,7 @@ If TAG is a number, get the corresponding match group."
        (match-beginning 1) (match-end 1))
       (add-text-properties
        (match-beginning 1) (match-end 1)
-       (list 'taskpaper-tag (list (match-beginning 1) (match-end 1))
-             'face (taskpaper-get-tag-face 2)
+       (list 'face (taskpaper-get-tag-face 2)
              'mouse-face 'highlight
              'keymap taskpaper-mouse-map-tag
              'help-echo "Filter on Tag"))
@@ -785,14 +783,17 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
   (cond
-   ((and (string-match-p taskpaper-file-path-regexp link)
-         (taskpaper-file-missing-p (taskpaper-file-path-unescape link)))
+   ((and (string-match-p
+          (concat "\\`" taskpaper-file-path-regexp "\\'") link)
+         (taskpaper-file-missing-p
+          (taskpaper-file-path-unescape link)))
     'taskpaper-missing-link-face)
    (t 'taskpaper-link-face)))
 
 (defun taskpaper-link-help-echo (link)
   "Return help echo string for LINK."
-  (when (string-match-p taskpaper-file-path-regexp link)
+  (when (string-match-p
+         (concat "\\`" taskpaper-file-path-regexp "\\'") link)
     (setq link (taskpaper-file-path-unescape link)))
   (concat "Link: " link))
 
@@ -818,8 +819,7 @@ If TAG is a number, get the corresponding match group."
       (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
-         (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-               'face (taskpaper-get-link-face link)
+         (list 'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
                'help-echo (taskpaper-link-help-echo link))))
@@ -842,8 +842,7 @@ If TAG is a number, get the corresponding match group."
       (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
-         (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-               'face (taskpaper-get-link-face link)
+         (list 'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
                'help-echo (taskpaper-link-help-echo link))))
@@ -866,8 +865,7 @@ If TAG is a number, get the corresponding match group."
       (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
-         (list 'taskpaper-link (list (match-beginning 1) (match-end 1))
-               'face (taskpaper-get-link-face link)
+         (list 'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
                'help-echo (taskpaper-link-help-echo link))))
@@ -985,16 +983,18 @@ If TAG is a number, get the corresponding match group."
     (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
       (if (string-match-p taskpaper-done-tag-regexp item)
           (when taskpaper-bullet-done
-            (put-text-property (match-beginning 1) (match-end 1)
-                               'display (char-to-string taskpaper-bullet-done)))
+            (put-text-property
+             (match-beginning 1) (match-end 1)
+             'display (char-to-string taskpaper-bullet-done)))
         (when taskpaper-bullet
-          (put-text-property (match-beginning 1) (match-end 1)
-                             'display (char-to-string taskpaper-bullet)))))
-    (add-text-properties (match-beginning 1) (match-end 1)
-                         (list 'mouse-face 'highlight
-                               'keymap taskpaper-mouse-map-mark
-                               'help-echo "Toggle Done"
-                               'cursor 0))
+          (put-text-property
+           (match-beginning 1) (match-end 1)
+           'display (char-to-string taskpaper-bullet)))))
+    (add-text-properties
+     (match-beginning 1) (match-end 1)
+     (list 'mouse-face 'highlight
+           'keymap taskpaper-mouse-map-mark
+           'help-echo "Toggle Done"))
     (taskpaper-rear-nonsticky-at (match-end 1))
     t))
 
@@ -1045,7 +1045,6 @@ is essential."
     (remove-text-properties
      begin end
      '(display t mouse-face t keymap t invisible t
-       taskpaper-tag t taskpaper-link t
        taskpaper-emphasis t taskpaper-strong t))))
 
 (defun taskpaper-toggle-markup-hiding ()
@@ -1213,11 +1212,16 @@ directory. An absolute path can be forced with a
 (defun taskpaper-open-link (link)
   "Open link LINK."
   (cond
-   ((string-match-p taskpaper-email-regexp link)
+   ((string-match-p
+     (concat "\\`" taskpaper-email-regexp "\\'") link)
     (compose-mail (replace-regexp-in-string "\\`mailto:" "" link)))
-   ((string-match-p taskpaper-file-path-regexp link)
+   ((string-match-p
+     (concat "\\`" taskpaper-uri-browser-regexp "\\'") link)
+    (browse-url link))
+   ((string-match-p
+     (concat "\\`" taskpaper-file-path-regexp "\\'") link)
     (taskpaper-open-file (taskpaper-file-path-unescape link)))
-   (t (browse-url link))))
+   (t (find-file-other-window link))))
 
 (defun taskpaper-open-link-at-point ()
   "Open link at point."
@@ -1225,13 +1229,12 @@ directory. An absolute path can be forced with a
   (let ((link))
     (cond ((taskpaper-in-regexp-p taskpaper-email-regexp)
            (setq link (match-string-no-properties 1)))
-          ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
-           (setq link (match-string-no-properties 1)))
           ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
            (setq link (match-string-no-properties 1)))
+          ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
+           (setq link (match-string-no-properties 1)))
           (t (user-error "No link at point")))
-    (when (and link (not (equal link "")))
-      (taskpaper-open-link link))))
+    (taskpaper-open-link link)))
 
 ;;;; Inline images
 
