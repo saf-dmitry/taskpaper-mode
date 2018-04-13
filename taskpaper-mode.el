@@ -350,7 +350,7 @@ attention to case differences."
            (eq t (compare-strings suffix nil nil string
                                   start-pos nil ignore-case))))))
 
-(defun taskpaper-remove-prefix (prefix string &optional ignore-case)
+(defun taskpaper-string-remove-prefix (prefix string &optional ignore-case)
   "Remove PREFIX from STRING.
 If IGNORE-CASE is non-nil, don't pay attention to case
 differences."
@@ -794,7 +794,7 @@ If TAG is a number, get the corresponding match group."
           (concat "\\`" taskpaper-file-path-regexp "\\'") link)
          (taskpaper-file-missing-p
           (taskpaper-file-path-unescape
-           (taskpaper-remove-prefix "file:" link))))
+           (taskpaper-string-remove-prefix "file:" link))))
     'taskpaper-missing-link-face)
    (t 'taskpaper-link-face)))
 
@@ -1223,7 +1223,8 @@ directory. An absolute path can be forced with a
   (cond
    ((string-match-p
      (concat "\\`" taskpaper-email-regexp "\\'") link)
-    (compose-mail (taskpaper-remove-prefix "mailto:" link)))
+    (compose-mail
+     (taskpaper-string-remove-prefix "mailto:" link)))
    ((string-match-p
      (concat "\\`" taskpaper-uri-browser-regexp "\\'") link)
     (when (string-prefix-p "www" link)
@@ -1233,7 +1234,7 @@ directory. An absolute path can be forced with a
      (concat "\\`" taskpaper-file-path-regexp "\\'") link)
     (taskpaper-open-file
      (taskpaper-file-path-unescape
-      (taskpaper-remove-prefix "file:" link))))
+      (taskpaper-string-remove-prefix "file:" link))))
    (t (find-file-other-window link))))
 
 (defun taskpaper-open-link-at-point ()
@@ -1275,7 +1276,7 @@ Add inline image overlays to local image links in the buffer."
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
                (path (taskpaper-file-path-unescape
-                      (taskpaper-remove-prefix "file:" path)))
+                      (taskpaper-string-remove-prefix "file:" path)))
                (path (substitute-in-file-name (expand-file-name path)))
                (image (if (and taskpaper-max-image-size
                                (image-type-available-p 'imagemagick))
