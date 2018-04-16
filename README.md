@@ -332,13 +332,13 @@ Absolute file links are starting with `/` or `~/`. Relative file links starting 
 
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a plain file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
-TaskPaper mode has experimental support for inline [Markdown][markdown-wiki] links in form `[Link description](destination)`:
+TaskPaper mode also has experimental support for inline [Markdown][markdown-wiki] links in form `[Link description](destination)`:
 
  - `[URL](http://www.hostname.org/index.html)`
  - `[File](file:///home/username/filename.txt)`
  - `[Email](mailto:username@domain.org)`
 
-This syntax is useful for long links which can interrupt the reading. If markup hiding is enabled (see [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
+This descriptive syntax is useful for long links which can interrupt the reading. If markup hiding is enabled (see [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
 
 Links inside projects and tasks are supported although not encouraged.
 

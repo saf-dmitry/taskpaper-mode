@@ -814,18 +814,15 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-get-link-type (link)
   "Return link type as symbol.
 LINK should be an unescaped raw link. Recognized types are
-\"email\", \"uri-browser\", and \"file\"."
+\"email\", \"uri-browser\", \"file\" and \"unknown\"."
   (cond
-   ((string-match-p
-     (concat "\\`" taskpaper-email-regexp "\\'") link)
+   ((string-match-p (format "\\`%s\\'" taskpaper-email-regexp) link)
     'email)
-   ((string-match-p
-     (concat "\\`" taskpaper-uri-browser-regexp "\\'") link)
+   ((string-match-p (format "\\`%s\\'" taskpaper-uri-browser-regexp) link)
     'uri-browser)
-   ((string-match-p
-     (concat "\\`" taskpaper-file-path-regexp "\\'") link)
+   ((string-match-p (format "\\`%s\\'" taskpaper-file-path-regexp) link)
     'file)
-   (t nil)))
+   (t 'unknown)))
 
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
