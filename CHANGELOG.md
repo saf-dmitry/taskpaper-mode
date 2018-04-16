@@ -1,5 +1,14 @@
 
 
+# v0.5
+
+ - Added support for inline formatting
+ - Added experimental support for Markdown links
+ - Added support for bookmarks
+ - Improved syntax highlighting
+ - Improved plain link handling
+
+
 # v0.4
 
  - Added TaskPaper menu

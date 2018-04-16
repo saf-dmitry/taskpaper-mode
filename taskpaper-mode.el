@@ -47,7 +47,7 @@
 
 ;;;; Variables
 
-(defconst taskpaper-mode-version "0.4"
+(defconst taskpaper-mode-version "0.5"
   "TaskPaper mode version number.")
 
 (defvar taskpaper-mode-map (make-keymap)
@@ -419,13 +419,6 @@ Set the match data. Only the current line is checked."
   "Non-destructively sort elements of LIST as strings."
   (let ((res (copy-sequence list))) (sort res 'string-lessp)))
 
-(defun taskpaper-chomp (str)
-  "Trim leading and trailing whitespaces from STR."
-  (save-match-data
-    (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
-      (setq str (replace-match "" t t str))))
-  str)
-
 (defconst taskpaper-nonsticky-properties
   '(face mouse-face keymap help-echo display invisible intangible))
 
@@ -476,10 +469,9 @@ is a list containing one of the PROP-VALs."
 (defun taskpaper-file-missing-p (file)
   "Test if local FILE exists.
 Return non-nil if local FILE does not exist, otherwise return
-nil."
+nil. For performance reasons remote files are not checked."
   (if (and (not (taskpaper-file-remote-p file))
-           (not (condition-case nil
-                    (file-exists-p file) (error nil))))
+           (not (file-exists-p file)))
       t nil))
 
 (defun taskpaper-file-path-escape (path)
@@ -513,7 +505,7 @@ nil."
   "Regular expression for tag value.")
 
 (defconst taskpaper-tag-regexp
-  (format "\\(?:^\\|[ \t]\\)\\(@\\(%s\\)\\(?:(\\(%s\\))\\)?\\)"
+  (format "\\(?:^\\|[ \t]+\\)\\(@\\(%s\\)\\(?:(\\(%s\\))\\)?\\)"
           taskpaper-tag-name-regexp
           taskpaper-tag-value-regexp)
   "Regular expression for tag.
@@ -522,7 +514,7 @@ Group 2 matches the tag name without tag indicator.
 Group 3 matches the optional tag value without enclosing parentheses.")
 
 (defconst taskpaper-consecutive-tags-regexp
-  (format "\\(?:%s[ \t]*\\)+" taskpaper-tag-regexp)
+  (format "\\(?:%s\\)+" taskpaper-tag-regexp)
   "Regular expression for consecutive tags.")
 
 (defconst taskpaper-uri-schemes-browser
@@ -585,6 +577,35 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\)")
   "Regular expression for file path.")
 
+(defconst taskpaper-markdown-link-regexp
+  (concat
+   "\\("
+   "\\(\\[\\)"
+   "\\([^][\n]+\\)"
+   "\\(\\]\\)"
+   "\\((\\)"
+   "[ \t]*"
+   "\\("
+   "\\(?:"
+   "\\\\."
+   "\\|"
+   "[^[:space:]()]+"
+   "\\|"
+   "(\\(?:[^[:space:]()]+\\|([^[:space:]()]+)\\)*)"
+   "\\)+"
+   "\\)"
+   "[ \t]*"
+   "\\()\\)"
+   "\\)")
+  "Regular expression for Markdown-style inline links.
+Group 1 matches the entire expression.
+Group 2 matches the opening square bracket.
+Group 3 matches the link description.
+Group 4 matches the closing square bracket.
+Group 5 matches the opening parenthesis.
+Group 6 matches the link destination.
+Group 7 matches the closing parenthesis.")
+
 ;;;; Font Lock regexps
 
 (defconst taskpaper-file-path-fl-regexp
@@ -599,7 +620,7 @@ Group 2 matches the task name.")
 
 (defconst taskpaper-project-regexp
   (format
-   "^[ \t]*\\([^\t\n][^\n]*\\)\\(:\\)[ \t]*\\(%s\\)?[ \t]*$"
+   "^[ \t]*\\([^\t\n][^\n]*\\)\\(:\\)\\(%s\\)?[ \t]*$"
    taskpaper-consecutive-tags-regexp)
   "Regular expression for project.
 Group 1 matches the project name.
@@ -612,19 +633,17 @@ Group 3 matches optional trailing tags.")
 
 (defconst taskpaper-done-tag-regexp
   (format
-   "\\(?:^\\|[ \t]\\)@done\\(?:(%s)\\)?\\(?:[ \t]\\|$\\)"
+   "\\(?:^\\|[ \t]+\\)@done\\(?:(%s)\\)?\\(?:[ \t]\\|$\\)"
    taskpaper-tag-value-regexp)
   "Regular expression for \"@done\" tag.")
 
 (defconst taskpaper-emphasis-prefix-regexp
   "\\(?:^\\|[^_*\n\\]\\)"
-  "Regular expression for emphasis prefix.
-Prefix means assertion before opening emphasis delimiters.")
+  "Regular expression for emphasis prefix.")
 
 (defconst taskpaper-emphasis-suffix-regexp
   "\\(?:[^_*\n]\\|$\\)"
-  "Regular expression for emphasis suffix.
-Suffix means assertion after closing emphasis delimiters.")
+  "Regular expression for emphasis suffix.")
 
 (defconst taskpaper-emphasis-text-regexp
   "\\(?:[^ _*\t\n\\]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)"
@@ -787,21 +806,34 @@ If TAG is a number, get the corresponding match group."
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
+(defun taskpaper-get-link-type (link)
+  "Return link type as symbol.
+LINK should be an unescaped raw link. Recognized types are
+\"email\", \"uri-browser\", and \"file\"."
+  (cond
+   ((string-match-p
+     (concat "\\`" taskpaper-email-regexp "\\'") link)
+    'email)
+   ((string-match-p
+     (concat "\\`" taskpaper-uri-browser-regexp "\\'") link)
+    'uri-browser)
+   ((string-match-p
+     (concat "\\`" taskpaper-file-path-regexp "\\'") link)
+    'file)
+   (t nil)))
+
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
-  (cond
-   ((and (string-match-p
-          (concat "\\`" taskpaper-file-path-regexp "\\'") link)
-         (taskpaper-file-missing-p
-          (taskpaper-file-path-unescape
-           (taskpaper-string-remove-prefix "file:" link))))
-    'taskpaper-missing-link-face)
-   (t 'taskpaper-link-face)))
+  (if (and (equal (taskpaper-get-link-type link) 'file)
+           (taskpaper-file-missing-p
+            (taskpaper-file-path-unescape
+             (taskpaper-string-remove-prefix "file:" link))))
+      'taskpaper-missing-link-face
+    'taskpaper-link-face))
 
 (defun taskpaper-link-help-echo (link)
   "Return help echo string for LINK."
-  (when (string-match-p
-         (concat "\\`" taskpaper-file-path-regexp "\\'") link)
+  (when (equal (taskpaper-get-link-type link) 'file)
     (setq link (taskpaper-file-path-unescape link)))
   (concat "Link: " link))
 
@@ -810,6 +842,28 @@ If TAG is a number, get the corresponding match group."
     (define-key map [mouse-1] 'taskpaper-open-link-at-point)
     map)
   "Mouse events for links.")
+
+(defun taskpaper-font-lock-markdown-links (limit)
+  "Fontify Markdown-style links from point to LIMIT."
+  (when (re-search-forward taskpaper-markdown-link-regexp limit t)
+    (taskpaper-remove-flyspell-overlays-in
+     (match-beginning 1) (match-end 1))
+    (remove-text-properties
+     (match-beginning 1) (match-end 1)
+     (list 'mouse-face 'keymap 'help-echo))
+    (let ((link (match-string-no-properties 6)))
+      (add-text-properties
+       (match-beginning 3) (match-end 3)
+       (list 'face (taskpaper-get-link-face link)
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-link
+             'help-echo (taskpaper-link-help-echo link))))
+    (add-text-properties
+     (match-beginning 2) (match-end 2) taskpaper-markup-properties)
+    (add-text-properties
+     (match-beginning 4) (match-end 7) taskpaper-markup-properties)
+    (taskpaper-rear-nonsticky-at (match-end 1))
+    t))
 
 (defun taskpaper-font-lock-email-links (limit)
   "Fontify plain email links from point to LIMIT."
@@ -1025,6 +1079,7 @@ is essential."
           '(taskpaper-font-lock-email-links)
           '(taskpaper-font-lock-uri-links)
           '(taskpaper-font-lock-file-links)
+          '(taskpaper-font-lock-markdown-links)
           '(taskpaper-font-lock-tags)
           (when taskpaper-fontify-done-items
             '(taskpaper-font-lock-done-tasks))
@@ -1075,7 +1130,8 @@ is essential."
 (defun taskpaper-save-all-taskpaper-buffers ()
   "Save all TaskPaper mode buffers without user confirmation."
   (interactive)
-  (save-some-buffers t (lambda () (derived-mode-p 'taskpaper-mode))))
+  (save-some-buffers
+   t (lambda () (derived-mode-p 'taskpaper-mode))))
 
 (defconst taskpaper-file-apps-defaults-gnu
   '((remote . emacs)
@@ -1220,34 +1276,35 @@ directory. An absolute path can be forced with a
 
 (defun taskpaper-open-link (link)
   "Open link LINK."
-  (cond
-   ((string-match-p
-     (concat "\\`" taskpaper-email-regexp "\\'") link)
-    (compose-mail
-     (taskpaper-string-remove-prefix "mailto:" link)))
-   ((string-match-p
-     (concat "\\`" taskpaper-uri-browser-regexp "\\'") link)
-    (when (string-prefix-p "www" link)
-      (setq link (concat "http://" link)))
-    (browse-url link))
-   ((string-match-p
-     (concat "\\`" taskpaper-file-path-regexp "\\'") link)
-    (taskpaper-open-file
-     (taskpaper-file-path-unescape
-      (taskpaper-string-remove-prefix "file:" link))))
-   (t (find-file-other-window link))))
+  (let ((type (taskpaper-get-link-type link)))
+    (cond
+     ((equal type 'email)
+      (setq link (taskpaper-string-remove-prefix "mailto:" link))
+      (compose-mail-other-window link))
+     ((equal type 'uri-browser)
+      (when (string-prefix-p "www" link)
+        (setq link (concat "http://" link)))
+      (browse-url link))
+     ((equal type 'file)
+      (setq link (taskpaper-string-remove-prefix "file:" link)
+            link (taskpaper-file-path-unescape link))
+      (taskpaper-open-file link))
+     (t (find-file-other-window link)))))
 
 (defun taskpaper-open-link-at-point ()
   "Open link at point."
   (interactive)
   (let ((link))
-    (cond ((taskpaper-in-regexp-p taskpaper-email-regexp)
-           (setq link (match-string-no-properties 1)))
-          ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
-           (setq link (match-string-no-properties 1)))
-          ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
-           (setq link (match-string-no-properties 1)))
-          (t (user-error "No link at point")))
+    (cond
+     ((taskpaper-in-regexp-p taskpaper-markdown-link-regexp)
+      (setq link (match-string-no-properties 6)))
+     ((taskpaper-in-regexp-p taskpaper-email-regexp)
+      (setq link (match-string-no-properties 1)))
+     ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
+      (setq link (match-string-no-properties 1)))
+     ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
+      (setq link (match-string-no-properties 1)))
+     (t (user-error "No link at point")))
     (taskpaper-open-link link)))
 
 ;;;; Inline images
@@ -1275,8 +1332,8 @@ Add inline image overlays to local image links in the buffer."
       (while (re-search-forward taskpaper-file-path-regexp nil t)
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
-               (path (taskpaper-file-path-unescape
-                      (taskpaper-string-remove-prefix "file:" path)))
+               (path (taskpaper-string-remove-prefix "file:" path))
+               (path (taskpaper-file-path-unescape path))
                (path (substitute-in-file-name (expand-file-name path)))
                (image (if (and taskpaper-max-image-size
                                (image-type-available-p 'imagemagick))
@@ -1625,7 +1682,6 @@ end.")
 
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
-  (unless (stringp item) (error "Argument should be a string"))
   ;; Remove trailing whitespaces
   (setq item (replace-regexp-in-string "[ \t]+$" "" item))
   (save-match-data
@@ -1637,7 +1693,7 @@ end.")
                  (concat (match-string-no-properties 1 item)
                          (match-string-no-properties 2 item))))
           ((string-match
-            (format "^\\([ \t]*\\)\\([^\n]*\\):[ \t]*\\(%s\\)?[ \t]*$"
+            (format "^\\([ \t]*\\)\\([^\n]*\\):\\(%s\\)?$"
                     taskpaper-consecutive-tags-regexp) item)
            ;; Project
            (setq item
@@ -1651,22 +1707,15 @@ end.")
 
 (defun taskpaper-remove-indentation (item)
   "Remove indentation from ITEM."
-  (unless (stringp item) (error "Argument should be a string"))
-  (save-match-data
-    (cond ((string-match "^[ \t]*\\([^\n]*\\)$" item)
-           (setq item (match-string-no-properties 1 item)))
-          (t item)))
+  (setq item (replace-regexp-in-string "^[ \t]*" "" item))
   item)
 
 (defun taskpaper-remove-trailing-tags (item)
   "Remove trailing tags from ITEM."
-  (unless (stringp item) (error "Argument should be a string"))
-  (save-match-data
-    (cond ((string-match
-            (format "^\\([^\n]*?\\)[ \t]*\\(?:%s\\)?[ \t]*$"
-                    taskpaper-consecutive-tags-regexp) item)
-           (setq item (match-string-no-properties 1 item)))
-          (t item)))
+  (setq item (replace-regexp-in-string
+              (format "\\(?:%s\\)?[ \t]*$"
+                      taskpaper-consecutive-tags-regexp)
+              "" item))
   item)
 
 (defun taskpaper-item-type ()
@@ -1702,7 +1751,7 @@ Valid values are 'project, 'task, or 'note."
                          (match-string-no-properties 1 item) "- "
                          (match-string-no-properties 2 item))))
             ((equal type 'project)
-             (string-match (format "^\\([^\n]*?\\)[ \t]*\\(%s\\)?[ \t]*$"
+             (string-match (format "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
                                    taskpaper-consecutive-tags-regexp) item)
              (setq item (concat
                          (match-string-no-properties 1 item) ":"
@@ -1738,7 +1787,7 @@ tags.")
     (string-match-p (format "\\`%s\\'" taskpaper-tag-name-regexp) name)))
 
 (defun taskpaper-tag-value-escape (value)
-  "Escape parentheses in tag VALUE."
+  "Escape special characters in tag VALUE."
   (when (stringp value)
     (setq value (replace-regexp-in-string "[\n]+" " " value)
           value (replace-regexp-in-string "(" "\\\\(" value)
@@ -1746,7 +1795,7 @@ tags.")
   value)
 
 (defun taskpaper-tag-value-unescape (value)
-  "Unescape parentheses in tag VALUE."
+  "Unescape special characters in tag VALUE."
   (when (stringp value)
     (setq value (replace-regexp-in-string "\\\\(" "(" value)
           value (replace-regexp-in-string "\\\\)" ")" value)))
@@ -1770,12 +1819,13 @@ VALUE is the attribute value, as strings."
   (let (attrs name value)
     (save-excursion
       (goto-char (line-beginning-position))
-      (while (re-search-forward taskpaper-tag-regexp (line-end-position) t)
-        (setq name (match-string-no-properties 2)
-              value (match-string-no-properties 3)
-              value (taskpaper-tag-value-unescape value))
-        (unless (member name taskpaper-special-attributes)
-          (push (cons name value) attrs))))
+      (save-match-data
+        (while (re-search-forward taskpaper-tag-regexp (line-end-position) t)
+          (setq name (match-string-no-properties 2)
+                value (match-string-no-properties 3)
+                value (taskpaper-tag-value-unescape value))
+          (unless (member name taskpaper-special-attributes)
+            (push (cons name value) attrs)))))
     (nreverse attrs)))
 
 (defun taskpaper-remove-uninherited-attributes (attrs)
@@ -1876,15 +1926,16 @@ value."
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be removed: %s" name))
   (goto-char (line-beginning-position))
-  (while (re-search-forward taskpaper-tag-regexp (line-end-position) t)
-    (cond
-     ((and value
-           (equal (match-string 2) name)
-           (equal (match-string 3) (taskpaper-tag-value-escape value)))
-      (delete-region (match-beginning 0) (match-end 0)))
-     ((and (not value)
-           (equal (match-string 2) name))
-      (delete-region (match-beginning 0) (match-end 0))))))
+  (save-match-data
+    (while (re-search-forward taskpaper-tag-regexp (line-end-position) t)
+      (cond
+       ((and value
+             (equal (match-string 2) name)
+             (equal (match-string 3) (taskpaper-tag-value-escape value)))
+        (delete-region (match-beginning 0) (match-end 0)))
+       ((and (not value)
+             (equal (match-string 2) name))
+        (delete-region (match-beginning 0) (match-end 0)))))))
 
 (defun taskpaper-item-set-attribute (name &optional value add)
   "Set non-special attribute NAME for item at point.
@@ -2205,7 +2256,9 @@ current date."
               date (list (nth 4 time) (nth 3 time) (nth 5 time)))))
      (t (setq date nil)))
     (calendar)
-    (if (and date (not arg)) (calendar-goto-date date) (calendar-goto-today))))
+    (if (and date (not arg))
+        (calendar-goto-date date)
+      (calendar-goto-today))))
 
 (defun taskpaper-show-in-calendar ()
   "Show date at point in calendar.
