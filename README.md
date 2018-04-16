@@ -340,6 +340,8 @@ TaskPaper mode has experimental support for inline [Markdown][markdown-wiki] lin
 
 This syntax is useful for long links which can interrupt the reading. If markup hiding is enabled (see [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
 
+Links inside projects and tasks are supported although not encouraged.
+
 If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-link-at-point`) will launch a web browser for URLs (using `browse-url`) or start composing a mail message (using `compose-mail-other-window`). Furthermore, it will visit text and remote files in file links with Emacs and select a suitable application for local non-text files. Classification of files is based on file extension only. For non-specified extensions the system command to open files, like `open` on MS Windows and macOS, or the command specified in the mailcaps on GNU/Linux will be used. For more details see the user options `taskpaper-file-apps` and `taskpaper-open-non-existing-files`.
 
 The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting the user option `taskpaper-max-image-size`. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.

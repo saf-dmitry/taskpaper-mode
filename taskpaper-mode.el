@@ -545,14 +545,14 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\(?:[-[:alnum:]_]+[.]\\)+[[:alpha:]]\\{2,4\\}/"
    "\\)"
    "\\(?:"
-   "[^[:space:]()<>]+"
+   "[^ \t\n()<>]+"
    "\\|"
-   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "(\\(?:[^ \t\n()<>]+\\|([^ \t\n()<>]+)\\)*)"
    "\\)+"
    "\\(?:"
-   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "(\\(?:[^ \t\n()<>]+\\|([^ \t\n()<>]+)\\)*)"
    "\\|"
-   "[^[:space:][:punct:]]"
+   "[^ \t\n[:punct:]]"
    "\\|"
    "[/]"
    "\\)"
@@ -571,7 +571,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
 (defconst taskpaper-file-path-regexp
   (concat
    "\\("
-   "file:\\(?:\\\\ \\|[^ \0\n]\\)+"
+   "\\<file:\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\|"
    "\\(?:[.]\\{1,2\\}\\|~\\|[a-zA-Z]:\\)?/\\(?:\\\\ \\|[^ \0\n]\\)*"
    "\\)")
@@ -589,9 +589,9 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\(?:"
    "\\\\."
    "\\|"
-   "[^[:space:]()]+"
+   "[^ \t\n()]+"
    "\\|"
-   "(\\(?:[^[:space:]()]+\\|([^[:space:]()]+)\\)*)"
+   "(\\(?:[^ \t\n()]+\\|([^ \t\n()]+)\\)*)"
    "\\)+"
    "\\)"
    "[ \t]*"
@@ -638,15 +638,20 @@ Group 3 matches optional trailing tags.")
   "Regular expression for \"@done\" tag.")
 
 (defconst taskpaper-emphasis-prefix-regexp
-  "\\(?:^\\|[^_*\n\\]\\)"
+  "\\(?:^\\|[^\n*_\\]\\)"
   "Regular expression for emphasis prefix.")
 
 (defconst taskpaper-emphasis-suffix-regexp
-  "\\(?:[^_*\n]\\|$\\)"
+  "\\(?:[^\n*_]\\|$\\)"
   "Regular expression for emphasis suffix.")
 
 (defconst taskpaper-emphasis-text-regexp
-  "\\(?:[^ _*\t\n\\]\\|[^ _*\t\n]\\(?:\\\\.\\|[^\n]\\)*?[^ _*\t\n\\]\\)"
+  (concat
+   "\\(?:"
+   "[^ \t\n*_\\]"
+   "\\|"
+   "[^ \t\n*_]\\(?:\\\\.\\|[^\n]\\)*?[^ \t\n*_\\]"
+   "\\)")
   "Regular expression for emphasis text.")
 
 (defconst taskpaper-strong-regexp
@@ -2412,8 +2417,8 @@ If POINT is inside a tag, ignore the tag."
   (let (tag tags)
     (save-excursion
       (save-restriction
+        (widen) (goto-char (point-min))
         (save-match-data
-          (widen) (goto-char (point-min))
           (while (re-search-forward taskpaper-tag-regexp nil t)
             (unless (and point
                          (<= (match-beginning 0) point)
