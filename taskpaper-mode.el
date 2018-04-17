@@ -814,7 +814,7 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-get-link-type (link)
   "Return link type as symbol.
 LINK should be an unescaped raw link. Recognized types are
-\"email\", \"uri-browser\", \"file\" and \"unknown\"."
+'email, 'uri-browser, 'file, and 'unknown."
   (cond
    ((string-match-p (format "\\`%s\\'" taskpaper-email-regexp) link)
     'email)
@@ -835,8 +835,6 @@ LINK should be an unescaped raw link. Recognized types are
 
 (defun taskpaper-link-help-echo (link)
   "Return help echo string for LINK."
-  (when (equal (taskpaper-get-link-type link) 'file)
-    (setq link (taskpaper-file-path-unescape link)))
   (concat "Link: " link))
 
 (defvar taskpaper-mouse-map-link
@@ -1682,31 +1680,6 @@ end.")
 
 ;;;; Item parsing and type formatting
 
-(defun taskpaper-remove-type-formatting (item)
-  "Remove type formatting from ITEM."
-  ;; Remove trailing whitespaces
-  (setq item (replace-regexp-in-string "[ \t]+$" "" item))
-  (save-match-data
-    ;; Remove type formatting
-    (cond ((string-match
-            "^\\([ \t]*\\)[-+*][ ]+\\([^\n]*\\)$" item)
-           ;; Task
-           (setq item
-                 (concat (match-string-no-properties 1 item)
-                         (match-string-no-properties 2 item))))
-          ((string-match
-            (format "^\\([ \t]*\\)\\([^\n]*\\):\\(%s\\)?$"
-                    taskpaper-consecutive-tags-regexp) item)
-           ;; Project
-           (setq item
-                 (concat (match-string-no-properties 1 item)
-                         (match-string-no-properties 2 item)
-                         (match-string-no-properties 3 item))))
-          (t
-           ;; Note or blank
-           item)))
-  item)
-
 (defun taskpaper-remove-indentation (item)
   "Remove indentation from ITEM."
   (setq item (replace-regexp-in-string "^[ \t]*" "" item))
@@ -1737,6 +1710,31 @@ Type can be \"project\", \"task\", \"note\", or \"blank\"."
   (let ((item (buffer-substring-no-properties
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-remove-indentation item))))
+
+(defun taskpaper-remove-type-formatting (item)
+  "Remove type formatting from ITEM."
+  ;; Remove trailing whitespaces
+  (setq item (replace-regexp-in-string "[ \t]+$" "" item))
+  (save-match-data
+    ;; Remove type formatting
+    (cond ((string-match
+            "^\\([ \t]*\\)[-+*][ ]+\\([^\n]*\\)$" item)
+           ;; Task
+           (setq item
+                 (concat (match-string-no-properties 1 item)
+                         (match-string-no-properties 2 item))))
+          ((string-match
+            (format "^\\([ \t]*\\)\\([^\n]*\\):\\(%s\\)?$"
+                    taskpaper-consecutive-tags-regexp) item)
+           ;; Project
+           (setq item
+                 (concat (match-string-no-properties 1 item)
+                         (match-string-no-properties 2 item)
+                         (match-string-no-properties 3 item))))
+          (t
+           ;; Note or blank
+           item)))
+  item)
 
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
@@ -1913,11 +1911,10 @@ non-nil also check higher levels of the hierarchy."
 With optional argument VALUE, match only attributes with that
 value. If INHERIT is non-nil also check higher levels of the
 hierarchy."
-  (if (member name taskpaper-special-attributes) t
-    (unless (taskpaper-tag-name-p name)
-      (user-error "Invalid attribute name: %s" name))
-    (let ((attr (assoc name (taskpaper-item-get-attributes inherit))))
-      (if value (equal value (cdr attr)) attr))))
+  (unless (taskpaper-tag-name-p name)
+    (user-error "Invalid attribute name: %s" name))
+  (let ((attr (assoc name (taskpaper-item-get-attributes inherit))))
+    (if value (equal value (cdr attr)) attr)))
 
 (defun taskpaper-item-remove-attribute (name &optional value)
   "Remove all non-special attributes NAME from item at point.
