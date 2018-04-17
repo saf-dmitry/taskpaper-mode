@@ -648,9 +648,9 @@ Group 3 matches optional trailing tags.")
 (defconst taskpaper-emphasis-text-regexp
   (concat
    "\\(?:"
-   "[^ \t\n*_\\]"
+   "\\(?:\\\\.\\|[^ \t\n*_\\]\\)"
    "\\|"
-   "[^ \t\n*_]\\(?:\\\\.\\|[^\n]\\)*?[^ \t\n*_\\]"
+   "[^ \t\n*_][^\n]*?\\(?:\\\\.\\|[^ \t\n*_\\]\\)"
    "\\)")
   "Regular expression for emphasis text.")
 
