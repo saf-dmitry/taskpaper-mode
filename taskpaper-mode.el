@@ -432,7 +432,8 @@ Set the match data. Only the current line is checked."
   '(face mouse-face keymap help-echo display invisible intangible))
 
 (defconst taskpaper-markup-properties
-  '(face taskpaper-markup-face invisible taskpaper-markup)
+  '(face taskpaper-markup-face taskpaper-syntax markup
+    invisible taskpaper-markup)
   "Properties to apply to inline markup.")
 
 (defun taskpaper-range-property-any (begin end prop prop-val)
@@ -790,37 +791,31 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-font-lock-tags (limit)
   "Fontify tags from point to LIMIT."
   (when (re-search-forward taskpaper-tag-regexp limit t)
-    (if (taskpaper-range-property-any
-         (match-beginning 1) (match-end 1)
-         'face '(taskpaper-markup-face
-                 taskpaper-link-face
-                 taskpaper-missing-link-face))
-        ;; Move forward and recursively search again
-        (progn
-          (goto-char (min (1+ (match-beginning 1)) limit))
-          (when (< (point) limit)
-            (taskpaper-font-lock-tags limit)))
-      (taskpaper-remove-flyspell-overlays-in
-       (match-beginning 1) (match-end 1))
-      (add-text-properties
-       (match-beginning 1) (match-end 1)
-       (list 'face (taskpaper-get-tag-face 2)
-             'mouse-face 'highlight
-             'keymap taskpaper-mouse-map-tag
-             'help-echo "Filter on Tag"))
-      (taskpaper-rear-nonsticky-at (match-end 1))
-      t)))
+    (taskpaper-remove-flyspell-overlays-in
+     (match-beginning 1) (match-end 1))
+    (add-text-properties
+     (match-beginning 1) (match-end 1)
+     (list 'taskpaper-syntax 'tag
+           'face (taskpaper-get-tag-face 2)
+           'mouse-face 'highlight
+           'keymap taskpaper-mouse-map-tag
+           'help-echo "Filter on Tag"))
+    (taskpaper-rear-nonsticky-at (match-end 1))
+    t))
 
 (defun taskpaper-get-link-type (link)
   "Return link type as symbol.
 LINK should be an unescaped raw link. Recognized types are
 'email, 'uri-browser, 'file, and 'unknown."
   (cond
-   ((string-match-p (format "\\`%s\\'" taskpaper-email-regexp) link)
+   ((string-match-p
+     (format "\\`%s\\'" taskpaper-email-regexp) link)
     'email)
-   ((string-match-p (format "\\`%s\\'" taskpaper-uri-browser-regexp) link)
+   ((string-match-p
+     (format "\\`%s\\'" taskpaper-uri-browser-regexp) link)
     'uri-browser)
-   ((string-match-p (format "\\`%s\\'" taskpaper-file-path-regexp) link)
+   ((string-match-p
+     (format "\\`%s\\'" taskpaper-file-path-regexp) link)
     'file)
    (t 'unknown)))
 
@@ -833,36 +828,56 @@ LINK should be an unescaped raw link. Recognized types are
       'taskpaper-missing-link-face
     'taskpaper-link-face))
 
-(defun taskpaper-link-help-echo (link)
-  "Return help echo string for LINK."
-  (concat "Link: " link))
-
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'taskpaper-open-link-at-point)
     map)
   "Mouse events for links.")
 
+(defun taskpaper-font-lock-markdown-links (limit)
+  "Fontify Markdown-style links from point to LIMIT."
+  (when (re-search-forward taskpaper-markdown-link-regexp limit t)
+    (taskpaper-remove-flyspell-overlays-in
+     (match-beginning 1) (match-end 1))
+    (put-text-property
+     (match-beginning 1) (match-end 1)
+     'taskpaper-syntax 'markdown-link)
+    (let ((link (match-string-no-properties 6)))
+      (add-text-properties
+       (match-beginning 3) (match-end 3)
+       (list 'face (taskpaper-get-link-face link)
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-link
+             'help-echo (concat "Link: " link))))
+    (add-text-properties
+     (match-beginning 2) (match-end 2) taskpaper-markup-properties)
+    (add-text-properties
+     (match-beginning 4) (match-end 7) taskpaper-markup-properties)
+    (taskpaper-rear-nonsticky-at (match-end 1))
+    t))
+
 (defun taskpaper-font-lock-email-links (limit)
   "Fontify plain email links from point to LIMIT."
   (when (re-search-forward taskpaper-email-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
-         'face '(taskpaper-markup-face taskpaper-tag-face))
+         'taskpaper-syntax '(markup))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
           (when (< (point) limit)
             (taskpaper-font-lock-email-links limit)))
+      ;; Fontify
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
       (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
-         (list 'face (taskpaper-get-link-face link)
+         (list 'taskpaper-syntax 'plain-link
+               'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo (taskpaper-link-help-echo link))))
+               'help-echo (concat "Link: " link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -871,21 +886,23 @@ LINK should be an unescaped raw link. Recognized types are
   (when (re-search-forward taskpaper-uri-browser-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
-         'face '(taskpaper-markup-face taskpaper-tag-face))
+         'taskpaper-syntax '(markup))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
           (when (< (point) limit)
             (taskpaper-font-lock-uri-links limit)))
+      ;; Fontify
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
       (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
-         (list 'face (taskpaper-get-link-face link)
+         (list 'taskpaper-syntax 'plain-link
+               'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo (taskpaper-link-help-echo link))))
+               'help-echo (concat "Link: " link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -894,45 +911,25 @@ LINK should be an unescaped raw link. Recognized types are
   (when (re-search-forward taskpaper-file-path-fl-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
-         'face '(taskpaper-markup-face taskpaper-tag-face))
+         'taskpaper-syntax '(markup))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
           (when (< (point) limit)
             (taskpaper-font-lock-file-links limit)))
+      ;; Fontify
       (taskpaper-remove-flyspell-overlays-in
        (match-beginning 1) (match-end 1))
       (let ((link (match-string-no-properties 1)))
         (add-text-properties
          (match-beginning 1) (match-end 1)
-         (list 'face (taskpaper-get-link-face link)
+         (list 'taskpaper-syntax 'plain-link
+               'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo (taskpaper-link-help-echo link))))
+               'help-echo (concat "Link: " link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
-
-(defun taskpaper-font-lock-markdown-links (limit)
-  "Fontify Markdown-style links from point to LIMIT."
-  (when (re-search-forward taskpaper-markdown-link-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (remove-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'mouse-face 'keymap 'help-echo))
-    (let ((link (match-string-no-properties 6)))
-      (add-text-properties
-       (match-beginning 3) (match-end 3)
-       (list 'face (taskpaper-get-link-face link)
-             'mouse-face 'highlight
-             'keymap taskpaper-mouse-map-link
-             'help-echo (taskpaper-link-help-echo link))))
-    (add-text-properties
-     (match-beginning 2) (match-end 2) taskpaper-markup-properties)
-    (add-text-properties
-     (match-beginning 4) (match-end 7) taskpaper-markup-properties)
-    (taskpaper-rear-nonsticky-at (match-end 1))
-    t))
 
 (defun taskpaper-font-lock-done-tasks (limit)
   "Fontify completed tasks from point to LIMIT."
@@ -962,32 +959,20 @@ LINK should be an unescaped raw link. Recognized types are
   (when (re-search-forward taskpaper-strong-regexp limit t)
     (if (or (taskpaper-range-property-any
              (match-beginning 2) (match-end 2)
-             'face '(taskpaper-markup-face
-                     taskpaper-tag-face
-                     taskpaper-link-face
-                     taskpaper-missing-link-face))
+             'taskpaper-syntax '(markup plain-link tag))
             (taskpaper-range-property-any
              (match-beginning 4) (match-end 4)
-             'face '(taskpaper-markup-face
-                     taskpaper-tag-face
-                     taskpaper-link-face
-                     taskpaper-missing-link-face))
-            ;; Check for emphasis overlap
-            (not (equal (get-text-property
-                         (match-beginning 1) 'taskpaper-emphasis)
-                        (get-text-property
-                         (match-end 1) 'taskpaper-emphasis))))
+             'taskpaper-syntax '(markup plain-link tag)))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
           (when (< (point) limit)
             (taskpaper-font-lock-strong limit)))
       ;; Fontify
+      (put-text-property
+       (match-beginning 1) (match-end 1) 'taskpaper-syntax 'strong)
       (font-lock-prepend-text-property
        (match-beginning 3) (match-end 3) 'face 'taskpaper-strong-face)
-      (put-text-property
-       (match-beginning 1) (match-end 1)
-       'taskpaper-strong (list (match-beginning 1) (match-end 1)))
       (add-text-properties
        (match-beginning 2) (match-end 2) taskpaper-markup-properties)
       (add-text-properties
@@ -1000,32 +985,20 @@ LINK should be an unescaped raw link. Recognized types are
   (when (re-search-forward taskpaper-emphasis-regexp limit t)
     (if (or (taskpaper-range-property-any
              (match-beginning 2) (match-end 2)
-             'face '(taskpaper-markup-face
-                     taskpaper-tag-face
-                     taskpaper-link-face
-                     taskpaper-missing-link-face))
+             'taskpaper-syntax '(markup plain-link tag))
             (taskpaper-range-property-any
              (match-beginning 4) (match-end 4)
-             'face '(taskpaper-markup-face
-                     taskpaper-tag-face
-                     taskpaper-link-face
-                     taskpaper-missing-link-face))
-            ;; Check for emphasis overlap
-            (not (equal (get-text-property
-                         (match-beginning 1) 'taskpaper-strong)
-                        (get-text-property
-                         (match-end 1) 'taskpaper-strong))))
+             'taskpaper-syntax '(markup plain-link tag)))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
           (when (< (point) limit)
             (taskpaper-font-lock-emphasis limit)))
       ;; Fontify
+      (put-text-property
+       (match-beginning 1) (match-end 1) 'taskpaper-syntax 'emphasis)
       (font-lock-prepend-text-property
        (match-beginning 3) (match-end 3) 'face 'taskpaper-emphasis-face)
-      (put-text-property
-       (match-beginning 1) (match-end 1)
-       'taskpaper-emphasis (list (match-beginning 1) (match-end 1)))
       (add-text-properties
        (match-beginning 2) (match-end 2) taskpaper-markup-properties)
       (add-text-properties
@@ -1076,10 +1049,10 @@ is essential."
                   (2 'taskpaper-project-mark-face)))
           (cons taskpaper-note-regexp
                 '((1 'taskpaper-note-face)))
+          '(taskpaper-font-lock-markdown-links)
           '(taskpaper-font-lock-email-links)
           '(taskpaper-font-lock-uri-links)
           '(taskpaper-font-lock-file-links)
-          '(taskpaper-font-lock-markdown-links)
           '(taskpaper-font-lock-tags)
           (when taskpaper-fontify-done-items
             '(taskpaper-font-lock-done-tasks))
@@ -1108,8 +1081,8 @@ is essential."
     (decompose-region begin end)
     (remove-text-properties
      begin end
-     '(display t mouse-face t keymap t invisible t
-       taskpaper-emphasis t taskpaper-strong t))))
+     '(display t mouse-face t keymap t
+       invisible t taskpaper-syntax t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
