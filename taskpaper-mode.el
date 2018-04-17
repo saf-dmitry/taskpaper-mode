@@ -44,6 +44,7 @@
 (require 'calendar)
 (require 'parse-time)
 (require 'cal-iso)
+(require 'cl-lib)
 
 ;;;; Variables
 
@@ -435,21 +436,12 @@ Set the match data. Only the current line is checked."
   "Properties to apply to inline markup.")
 
 (defun taskpaper-range-property-any (begin end prop prop-val)
-  "Check PROP-VAL from BEGIN to END.
-Return non-nil if text property PROP from BEGIN to END is equal
-to one of the given values PROP-VALs. Also return non-nil if PROP
-is a list containing one of the PROP-VALs."
-  (let (props)
-    (catch 'found
-      (dolist (loc (number-sequence begin end))
-        (when (setq props (get-text-property loc prop))
-          (cond
-           ((listp props)
-            (dolist (val prop-val)
-              (when (memq val props) (throw 'found loc))))
-           (t
-            (dolist (val prop-val)
-              (when (eq val props) (throw 'found loc))))))))))
+  "Check property PROP from BEGIN to END.
+Return non-nil if at least one character between BEGIN and END
+has a property PROP whose value is one of the given values
+PROP-VAL."
+  (some (lambda (val) (text-property-any begin end prop val))
+        prop-val))
 
 (defsubst taskpaper-rear-nonsticky-at (pos)
   "Add nonsticky text properties at POS."
