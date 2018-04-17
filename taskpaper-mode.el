@@ -350,13 +350,21 @@ attention to case differences."
            (eq t (compare-strings suffix nil nil string
                                   start-pos nil ignore-case))))))
 
-(defun taskpaper-string-remove-prefix (prefix string &optional ignore-case)
-  "Remove PREFIX from STRING.
-If IGNORE-CASE is non-nil, don't pay attention to case
-differences."
-  (when (string-prefix-p prefix string ignore-case)
-    (setq string (substring string (length prefix))))
-  string)
+;; Compatibility for Emacs before v24.4
+(unless (fboundp 'string-remove-prefix)
+  (defun string-remove-prefix (prefix string)
+    "Remove PREFIX from STRING if present."
+    (if (string-prefix-p prefix string)
+        (substring string (length prefix))
+      string)))
+
+;; Compatibility for Emacs before v24.4
+(unless (fboundp 'string-remove-suffix)
+  (defun string-remove-suffix (suffix string)
+    "Remove SUFFIX from STRING if present."
+    (if (string-suffix-p suffix string)
+        (substring string 0 (- (length string) (length suffix)))
+      string)))
 
 (defun taskpaper-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE.
@@ -829,7 +837,7 @@ LINK should be an unescaped raw link. Recognized types are
   (if (and (equal (taskpaper-get-link-type link) 'file)
            (taskpaper-file-missing-p
             (taskpaper-file-path-unescape
-             (taskpaper-string-remove-prefix "file:" link))))
+             (string-remove-prefix "file:" link))))
       'taskpaper-missing-link-face
     'taskpaper-link-face))
 
@@ -1279,14 +1287,14 @@ directory. An absolute path can be forced with a
   (let ((type (taskpaper-get-link-type link)))
     (cond
      ((equal type 'email)
-      (setq link (taskpaper-string-remove-prefix "mailto:" link))
+      (setq link (string-remove-prefix "mailto:" link))
       (compose-mail-other-window link))
      ((equal type 'uri-browser)
       (when (string-prefix-p "www" link)
         (setq link (concat "http://" link)))
       (browse-url link))
      ((equal type 'file)
-      (setq link (taskpaper-string-remove-prefix "file:" link)
+      (setq link (string-remove-prefix "file:" link)
             link (taskpaper-file-path-unescape link))
       (taskpaper-open-file link))
      (t (find-file-other-window link)))))
@@ -1332,7 +1340,7 @@ Add inline image overlays to local image links in the buffer."
       (while (re-search-forward taskpaper-file-path-regexp nil t)
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
-               (path (taskpaper-string-remove-prefix "file:" path))
+               (path (string-remove-prefix "file:" path))
                (path (taskpaper-file-path-unescape path))
                (path (substitute-in-file-name (expand-file-name path)))
                (image (if (and taskpaper-max-image-size
