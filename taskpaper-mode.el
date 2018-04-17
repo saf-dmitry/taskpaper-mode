@@ -328,7 +328,7 @@ delimiters for strong and emphasis markup similar to Markdown."
   (browse-url
    "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"))
 
-;; NOTE: Added in Emacs v23.2
+;; Compatibility for Emacs before v23.2
 (unless (fboundp 'string-prefix-p)
   (defun string-prefix-p (prefix string &optional ignore-case)
     "Return non-nil if PREFIX is a prefix of STRING.
@@ -339,7 +339,7 @@ attention to case differences."
         (eq t (compare-strings prefix 0 prefix-length string 0
                                prefix-length ignore-case))))))
 
-;; NOTE: Added in Emacs v24.4
+;; Compatibility for Emacs before v24.4
 (unless (fboundp 'string-suffix-p)
   (defun string-suffix-p (suffix string  &optional ignore-case)
     "Return non-nil if SUFFIX is a suffix of STRING.
@@ -843,28 +843,6 @@ LINK should be an unescaped raw link. Recognized types are
     map)
   "Mouse events for links.")
 
-(defun taskpaper-font-lock-markdown-links (limit)
-  "Fontify Markdown-style links from point to LIMIT."
-  (when (re-search-forward taskpaper-markdown-link-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (remove-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'mouse-face 'keymap 'help-echo))
-    (let ((link (match-string-no-properties 6)))
-      (add-text-properties
-       (match-beginning 3) (match-end 3)
-       (list 'face (taskpaper-get-link-face link)
-             'mouse-face 'highlight
-             'keymap taskpaper-mouse-map-link
-             'help-echo (taskpaper-link-help-echo link))))
-    (add-text-properties
-     (match-beginning 2) (match-end 2) taskpaper-markup-properties)
-    (add-text-properties
-     (match-beginning 4) (match-end 7) taskpaper-markup-properties)
-    (taskpaper-rear-nonsticky-at (match-end 1))
-    t))
-
 (defun taskpaper-font-lock-email-links (limit)
   "Fontify plain email links from point to LIMIT."
   (when (re-search-forward taskpaper-email-regexp limit t)
@@ -933,6 +911,28 @@ LINK should be an unescaped raw link. Recognized types are
                'help-echo (taskpaper-link-help-echo link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
+
+(defun taskpaper-font-lock-markdown-links (limit)
+  "Fontify Markdown-style links from point to LIMIT."
+  (when (re-search-forward taskpaper-markdown-link-regexp limit t)
+    (taskpaper-remove-flyspell-overlays-in
+     (match-beginning 1) (match-end 1))
+    (remove-text-properties
+     (match-beginning 1) (match-end 1)
+     (list 'mouse-face 'keymap 'help-echo))
+    (let ((link (match-string-no-properties 6)))
+      (add-text-properties
+       (match-beginning 3) (match-end 3)
+       (list 'face (taskpaper-get-link-face link)
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-link
+             'help-echo (taskpaper-link-help-echo link))))
+    (add-text-properties
+     (match-beginning 2) (match-end 2) taskpaper-markup-properties)
+    (add-text-properties
+     (match-beginning 4) (match-end 7) taskpaper-markup-properties)
+    (taskpaper-rear-nonsticky-at (match-end 1))
+    t))
 
 (defun taskpaper-font-lock-done-tasks (limit)
   "Fontify completed tasks from point to LIMIT."
@@ -1220,7 +1220,7 @@ With optional argument IN-EMACS, visit the file in Emacs."
     (cond
      ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
       ;; Open using external command
-      (while (string-match "['\"]%s['\"]" cmd)
+      (while (string-match "\"%s\"\\|'%s'" cmd)
         (setq cmd (replace-match "%s" t t cmd)))
       (while (string-match "%s" cmd)
         (setq cmd (replace-match
@@ -1659,7 +1659,7 @@ end.")
 ;;;; Item auto-formatting
 
 (defun taskpaper-new-item-same-level ()
-  "Insert new item of the same level."
+  "Insert new item at same level."
   (interactive)
   (let (level indent)
     (save-excursion
@@ -1682,13 +1682,13 @@ end.")
 
 (defun taskpaper-remove-indentation (item)
   "Remove indentation from ITEM."
-  (setq item (replace-regexp-in-string "^[ \t]*" "" item))
+  (setq item (replace-regexp-in-string "^[ \t]+" "" item))
   item)
 
 (defun taskpaper-remove-trailing-tags (item)
   "Remove trailing tags from ITEM."
   (setq item (replace-regexp-in-string
-              (format "\\(?:%s\\)?[ \t]*$"
+              (format "%s[ \t]*$"
                       taskpaper-consecutive-tags-regexp)
               "" item))
   item)
@@ -1739,24 +1739,24 @@ Type can be \"project\", \"task\", \"note\", or \"blank\"."
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
 Valid values are 'project, 'task, or 'note."
-  (unless (member type (list 'project 'task 'note))
-    (error "Invalid item type: %s" type))
   (let* ((beg (line-beginning-position)) (end (line-end-position))
          (item (buffer-substring-no-properties beg end)))
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
-      (cond ((equal type 'task)
-             (string-match "^\\([ \t]*\\)\\([^\n]*\\)$" item)
-             (setq item (concat
-                         (match-string-no-properties 1 item) "- "
-                         (match-string-no-properties 2 item))))
-            ((equal type 'project)
-             (string-match (format "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
-                                   taskpaper-consecutive-tags-regexp) item)
-             (setq item (concat
-                         (match-string-no-properties 1 item) ":"
-                         (match-string-no-properties 2 item))))
-            (t item)))
+      (cond
+       ((equal type 'task)
+        (string-match "^\\([ \t]*\\)\\([^\n]*\\)$" item)
+        (setq item (concat
+                    (match-string-no-properties 1 item) "- "
+                    (match-string-no-properties 2 item))))
+       ((equal type 'project)
+        (string-match (format "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
+                              taskpaper-consecutive-tags-regexp) item)
+        (setq item (concat
+                    (match-string-no-properties 1 item) ":"
+                    (match-string-no-properties 2 item))))
+       ((equal type 'note) item)
+       (t (error "Invalid item type"))))
     (delete-region beg end) (insert item)))
 
 (defun taskpaper-item-format-as-project ()
@@ -3394,7 +3394,7 @@ last subitem."
       (set-buffer buffer)
       ;; Enforce TaskPaper mode for the archive buffer
       (when (not (derived-mode-p 'taskpaper-mode))
-        (call-interactively 'taskpaper-mode))
+        (call-interactively #'taskpaper-mode))
       ;; Show everything
       (widen) (goto-char (point-min)) (taskpaper-outline-show-all)
       ;; Go to the archive location and paste the subtree
@@ -4673,7 +4673,7 @@ item originated."
 Display the TaskPaper file which contains the item at point if
 follow mode is active."
   (interactive)
-  (call-interactively 'next-line)
+  (call-interactively #'next-line)
   (taskpaper-agenda-do-context-action))
 
 (defun taskpaper-agenda-previous-line ()
@@ -4681,7 +4681,7 @@ follow mode is active."
 Display the TaskPaper file which contains the item at point if
 follow mode is active."
   (interactive)
-  (call-interactively 'previous-line)
+  (call-interactively #'previous-line)
   (taskpaper-agenda-do-context-action))
 
 (defun taskpaper-agenda-quit ()
