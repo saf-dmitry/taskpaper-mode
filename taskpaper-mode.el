@@ -403,13 +403,15 @@ not an indirect buffer."
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
 
-(defun taskpaper-in-regexp-p (regexp)
-  "Return non-nil if point is in a match for REGEXP.
-Set the match data. Only the current line is checked."
+(defun taskpaper-in-regexp (regexp &optional pos)
+  "Return non-nil if POS is in a match for REGEXP.
+Set the match data. If POS is omitted or nil, the value of point
+is used by default. Only the current line is checked."
   (catch 'exit
-    (let ((pos (point)) (eol (line-end-position 1)))
+    (let ((pos (if pos pos (point)))
+          (eol (line-end-position 1)))
       (save-excursion
-        (beginning-of-line)
+        (goto-char pos) (beginning-of-line)
         (while (re-search-forward regexp eol t)
           (if (and (<= (match-beginning 0) pos)
                    (>= (match-end 0) pos))
@@ -1269,13 +1271,13 @@ directory. An absolute path can be forced with a
   (interactive)
   (let ((link))
     (cond
-     ((taskpaper-in-regexp-p taskpaper-markdown-link-regexp)
+     ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
       (setq link (match-string-no-properties 6)))
-     ((taskpaper-in-regexp-p taskpaper-email-regexp)
+     ((taskpaper-in-regexp taskpaper-email-regexp)
       (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp-p taskpaper-uri-browser-regexp)
+     ((taskpaper-in-regexp taskpaper-uri-browser-regexp)
       (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp-p taskpaper-file-path-regexp)
+     ((taskpaper-in-regexp taskpaper-file-path-regexp)
       (setq link (match-string-no-properties 1)))
      (t (user-error "No link at point")))
     (taskpaper-open-link link)))
@@ -2220,7 +2222,7 @@ current date."
         (calendar-view-diary-initially-flag nil)
         value time date)
     (cond
-     ((taskpaper-in-regexp-p taskpaper-tag-regexp)
+     ((taskpaper-in-regexp taskpaper-tag-regexp)
       (setq value (match-string-no-properties 3)
             value (taskpaper-tag-value-unescape value))
       (when value
@@ -2404,7 +2406,7 @@ buffer instead."
   (let ((completion-ignore-case t)
         (re (format "@%s*" taskpaper-tag-name-char-regexp))
         (pattern
-         (if (taskpaper-in-regexp-p taskpaper-tag-name-regexp)
+         (if (taskpaper-in-regexp taskpaper-tag-name-regexp)
              (match-string-no-properties 0) ""))
         (completion-buffer-name "*Completions*")
         (end (point)) completion)
@@ -2412,7 +2414,7 @@ buffer instead."
     (let ((window (get-buffer-window completion-buffer-name)))
       (when window (delete-window window)))
     ;; Check if there is something to complete
-    (unless (taskpaper-in-regexp-p re)
+    (unless (taskpaper-in-regexp re)
       (user-error "Nothing to complete"))
     ;; Try completion
     (setq completion (try-completion pattern attrs))
@@ -2499,7 +2501,7 @@ buffer instead."
 (defun taskpaper-remove-tag-at-point ()
   "Remove tag at point."
   (interactive)
-  (if (taskpaper-in-regexp-p taskpaper-tag-regexp)
+  (if (taskpaper-in-regexp taskpaper-tag-regexp)
       (delete-region (match-beginning 0) (match-end 0))
     (user-error "No tag at point.")))
 
@@ -2903,11 +2905,11 @@ returns non-nil if the item matches."
 If point is on the tag name, match only the tag name, otherwise
 match the tag-value combination."
   (interactive)
-  (if (taskpaper-in-regexp-p taskpaper-tag-regexp)
+  (if (taskpaper-in-regexp taskpaper-tag-regexp)
       (let* ((name (match-string-no-properties 2))
              (value (match-string-no-properties 3))
              (value (taskpaper-tag-value-unescape value)))
-        (if (taskpaper-in-regexp-p name)
+        (if (taskpaper-in-regexp name)
             (taskpaper-match-sparse-tree
              `(taskpaper-item-has-attribute ,name))
           (taskpaper-match-sparse-tree
@@ -4099,10 +4101,10 @@ items, that matches. PROMPT can overwrite the default prompt."
 
 (defun taskpaper-mode-flyspell-verify ()
   "Function used for `flyspell-generic-check-word-predicate'."
-  (and (not (taskpaper-in-regexp-p taskpaper-tag-regexp))
-       (not (taskpaper-in-regexp-p taskpaper-uri-browser-regexp))
-       (not (taskpaper-in-regexp-p taskpaper-email-regexp))
-       (not (taskpaper-in-regexp-p taskpaper-file-path-regexp))))
+  (and (not (taskpaper-in-regexp taskpaper-tag-regexp))
+       (not (taskpaper-in-regexp taskpaper-uri-browser-regexp))
+       (not (taskpaper-in-regexp taskpaper-email-regexp))
+       (not (taskpaper-in-regexp taskpaper-file-path-regexp))))
 (put 'taskpaper-mode 'flyspell-mode-predicate 'taskpaper-mode-flyspell-verify)
 
 ;;;; Bookmarks support
@@ -4344,16 +4346,16 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
       :active (region-active-p)])
     ("Tag"
      ["Complete Tag" taskpaper-complete-tag-at-point
-      :active (taskpaper-in-regexp-p (format "@%s*" taskpaper-tag-name-char-regexp))]
+      :active (taskpaper-in-regexp (format "@%s*" taskpaper-tag-name-char-regexp))]
      ["Select Tag..." taskpaper-item-set-tag-fast-select]
      ["Remove Tag" taskpaper-remove-tag-at-point
-      :active (taskpaper-in-regexp-p taskpaper-tag-regexp)]
+      :active (taskpaper-in-regexp taskpaper-tag-regexp)]
      "--"
      ["Toggle Done" taskpaper-item-toggle-done
       :active (outline-on-heading-p)])
     ("Date & Time"
      ["Show Date in Calendar" taskpaper-show-in-calendar
-      :active (taskpaper-in-regexp-p taskpaper-tag-regexp)]
+      :active (taskpaper-in-regexp taskpaper-tag-regexp)]
      ["Access Calendar" taskpaper-goto-calendar]
      ["Insert Date from Calendar" taskpaper-date-from-calendar
       :active (get-buffer "*Calendar*")]
