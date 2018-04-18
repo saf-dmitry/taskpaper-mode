@@ -49,7 +49,7 @@ This document explains the installation, usage, and basic customization of TaskP
     - [Outline Navigation](#outline-navigation)
     - [Structure Editing](#structure-editing)
     - [Tagging](#tagging)
-    - [Completing Tasks](#completing-tasks)
+    - [Completing Actions](#completing-actions)
     - [Calendar Integration](#calendar-integration)
     - [Date and Time Formats](#date-and-time-formats)
     - [Hyperlinks and Inline Images](#hyperlinks-and-inline-images)
@@ -205,9 +205,9 @@ If an item has a certain tag, all subitems will inherit the tag as well. To limi
 The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
 
 
-## Completing Tasks
+## Completing Actions
 
-Item is marked as completed by applying the `@done` tag. The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively, you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`.
+Item is marked as completed by applying the `@done` tag. The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively, you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. See the documentation string of `taskpaper-complete-save-date` for possible options. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`.
 
 By default, items tagged with `@done` are visually crossed out. You can change the way completed items are displayed by customizing `taskpaper-done-item-face` or disable the additional fontification of these items completely by configuring the user option `taskpaper-fontify-done-items`.
 

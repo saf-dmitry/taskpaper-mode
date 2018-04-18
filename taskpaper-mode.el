@@ -123,10 +123,16 @@ used to select that tag through the fast-selection interface."
   :group 'taskpaper
   :type '(repeat (string :tag "Tag name")))
 
-(defcustom taskpaper-complete-save-date t
-  "Non-nil means, include date when tagging with \"@done\"."
+(defcustom taskpaper-complete-save-date 'date
+  "Non-nil means, include date when tagging with \"@done\".
+Possible values for this option are:
+
+ date  Include date
+ time  Include date and time"
   :group 'taskpaper
-  :type 'boolean)
+  :type '(choice
+          (const date)
+          (const time)))
 
 (defcustom taskpaper-read-date-popup-calendar t
   "Non-nil means, pop up a calendar when prompting for a date."
@@ -2506,18 +2512,22 @@ buffer instead."
 (defun taskpaper-item-toggle-done ()
   "Toggle done state of item at point."
   (interactive)
-  (when (or (equal (taskpaper-item-get-attribute "type") "task")
-            (equal (taskpaper-item-get-attribute "type") "project"))
-    (if (taskpaper-item-has-attribute "done")
-        (taskpaper-item-remove-attribute "done")
-      ;; Remove extra tags
-      (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
-            taskpaper-tags-to-remove-when-done)
-      ;; Mark as complete
-      (taskpaper-item-set-attribute
-       "done"
-       (when taskpaper-complete-save-date
-         (format-time-string "%Y-%m-%d" (current-time)))))))
+  (let ((fmt (cond
+              ((eq taskpaper-complete-save-date t)     "%Y-%m-%d")
+              ((eq taskpaper-complete-save-date 'date) "%Y-%m-%d")
+              ((eq taskpaper-complete-save-date 'time) "%Y-%m-%d %H:%M")
+              (t nil))))
+    (when (or (equal (taskpaper-item-get-attribute "type") "task")
+              (equal (taskpaper-item-get-attribute "type") "project"))
+      (if (taskpaper-item-has-attribute "done")
+          (taskpaper-item-remove-attribute "done")
+        ;; Remove extra tags
+        (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
+              taskpaper-tags-to-remove-when-done)
+        ;; Mark as complete
+        (taskpaper-item-set-attribute
+         "done"
+         (when fmt (format-time-string fmt (current-time))))))))
 
 ;;;; Relation functions
 
