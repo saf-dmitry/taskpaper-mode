@@ -131,9 +131,9 @@ Possible values for this option are:
  time  Include date and time"
   :group 'taskpaper
   :type '(choice
-          (const nil)
-          (const date)
-          (const time)))
+          (const :tag "No date" nil)
+          (const :tag "Date" date)
+          (const :tag "Date and time" time)))
 
 (defcustom taskpaper-read-date-popup-calendar t
   "Non-nil means, pop up a calendar when prompting for a date."
