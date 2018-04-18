@@ -131,6 +131,7 @@ Possible values for this option are:
  time  Include date and time"
   :group 'taskpaper
   :type '(choice
+          (nil)
           (const date)
           (const time)))
 
