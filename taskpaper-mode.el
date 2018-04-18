@@ -1854,10 +1854,8 @@ non-nil also check higher levels of the hierarchy."
   (let* ((key (point-at-bol))
          (chattrs (taskpaper-attribute-cache-get key))
          spattrs exattrs ihattrs attrs)
-    (cond
-     (chattrs
-      (setq attrs chattrs))
-     (t
+    (if chattrs
+        (setq attrs chattrs)
       (setq spattrs (taskpaper-item-get-special-attributes))
       (setq exattrs (taskpaper-item-get-explicit-attributes))
       (when inherit
@@ -1868,7 +1866,7 @@ non-nil also check higher levels of the hierarchy."
                    (taskpaper-remove-uninherited-attributes
                     (taskpaper-item-get-explicit-attributes))
                    ihattrs)))))
-      (setq attrs (append spattrs exattrs ihattrs))))
+      (setq attrs (append spattrs exattrs ihattrs)))
     (taskpaper-uniquify attrs)))
 
 (defun taskpaper-item-get-attribute (name &optional inherit)
@@ -3072,7 +3070,7 @@ path also includes the current item."
   "Format the outline path entry ENTRY for display."
   (setq entry (taskpaper-remove-type-formatting entry)
         entry (taskpaper-remove-trailing-tags entry)
-        entry (replace-regexp-in-string "/" "." entry))
+        entry (replace-regexp-in-string "/" ":" entry))
   entry)
 
 (defun taskpaper-format-outline-path (olpath &optional prefix separator)
