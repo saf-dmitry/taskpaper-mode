@@ -7,6 +7,7 @@
  - Added support for bookmarks
  - Improved syntax highlighting
  - Improved plain link handling
+ - All faces renamed to not ending in "-face"
 
 
 # v0.4

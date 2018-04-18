@@ -38,13 +38,13 @@
 
 ;;;; Loaded modules
 
+(require 'cl-lib)
 (require 'outline)
 (require 'font-lock)
 (require 'easymenu)
 (require 'calendar)
 (require 'parse-time)
 (require 'cal-iso)
-(require 'cl-lib)
 
 ;;;; Variables
 
@@ -94,7 +94,7 @@ face can be a symbol corresponding to a name of an existing face,
 a color (in which case it will be interpreted as either
 foreground or background color according to the variable
 `taskpaper-faces-easy-properties' and the rest is inherited from
-the face `taskpaper-tag-face') or a property list of attributes,
+the face `taskpaper-tag') or a property list of attributes,
 like (:foreground \"blue\" :weight bold)."
   :group 'taskpaper
   :type '(repeat
@@ -434,7 +434,7 @@ is used by default. Only the current line is checked."
   '(face mouse-face keymap help-echo display invisible intangible))
 
 (defconst taskpaper-markup-properties
-  '(face taskpaper-markup-face taskpaper-syntax markup
+  '(face taskpaper-markup taskpaper-syntax markup
     invisible taskpaper-markup)
   "Properties to apply to inline markup.")
 
@@ -443,8 +443,8 @@ is used by default. Only the current line is checked."
 Return non-nil if at least one character between BEGIN and END
 has a property PROP whose value is one of the given values
 PROP-VAL."
-  (some (lambda (val) (text-property-any begin end prop val))
-        prop-val))
+  (cl-some (lambda (val) (text-property-any begin end prop val))
+           prop-val))
 
 (defsubst taskpaper-rear-nonsticky-at (pos)
   "Add nonsticky text properties at POS."
@@ -686,82 +686,82 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper
   :group 'faces)
 
-(defface taskpaper-project-name-face
+(defface taskpaper-project-name
   '((t :inherit font-lock-function-name-face))
   "Face for project names."
   :group 'taskpaper-faces)
 
-(defface taskpaper-project-mark-face
-  '((t :inherit taskpaper-project-name-face))
+(defface taskpaper-project-mark
+  '((t :inherit taskpaper-project-name))
   "Face for project marks."
   :group 'taskpaper-faces)
 
-(defface taskpaper-task-face
+(defface taskpaper-task
   '((t :inherit default))
   "Face for tasks."
   :group 'taskpaper-faces)
 
-(defface taskpaper-task-undone-mark-face
-  '((t :inherit taskpaper-task-face))
+(defface taskpaper-task-undone-mark
+  '((t :inherit taskpaper-task))
   "Face for undone task marks."
   :group 'taskpaper-faces)
 
-(defface taskpaper-task-done-mark-face
-  '((t :inherit taskpaper-task-face))
+(defface taskpaper-task-done-mark
+  '((t :inherit taskpaper-task))
   "Face for done task marks."
   :group 'taskpaper-faces)
 
-(defface taskpaper-done-item-face
+(defface taskpaper-done-item
   '((t :strike-through "red"))
   "Face for items marked as complete."
   :group 'taskpaper-faces)
 
-(defface taskpaper-note-face
+(defface taskpaper-note
   '((t :inherit font-lock-comment-face))
   "Face for notes."
   :group 'taskpaper-faces)
 
-(defface taskpaper-tag-face
+(defface taskpaper-tag
   '((t :inherit font-lock-keyword-face))
   "Face for tags."
   :group 'taskpaper-faces)
 
-(defface taskpaper-link-face
+(defface taskpaper-link
   '((t :inherit link))
   "Face for links."
   :group 'taskpaper-faces)
 
-(defface taskpaper-missing-link-face
+(defface taskpaper-missing-link
   '((t :foreground "red" :inherit link))
   "Face for file links to non-existing files."
   :group 'taskpaper-faces)
 
-(defface taskpaper-emphasis-face
+(defface taskpaper-emphasis
   '((t (:inherit italic)))
   "Face for inline emphasis."
   :group 'taskpaper-faces)
 
-(defface taskpaper-strong-face
+(defface taskpaper-strong
   '((t (:inherit bold)))
   "Face for strong inline emphasis."
   :group 'taskpaper-faces)
 
-(defface taskpaper-markup-face
+(defface taskpaper-markup
   '((t (:slant normal :weight normal :inherit shadow)))
   "Face for markup elements."
   :group 'taskpaper-faces)
 
-(defface taskpaper-query-error-face
+(defface taskpaper-query-error
   '((t :inherit error))
   "Face for malformed query string."
   :group 'taskpaper-faces)
 
-(defface taskpaper-fast-select-key-face
+(defface taskpaper-fast-select-key
   '((t :weight bold :inherit default))
   "Face for key in fast selection dialogs."
   :group 'taskpaper-faces)
 
-(defface taskpaper-query-secondary-text-face
+(defface taskpaper-query-secondary-text
   '((t :inherit font-lock-keyword-face))
   "Face for secondary text in query string."
   :group 'taskpaper-faces)
@@ -782,7 +782,7 @@ If TAG is a number, get the corresponding match group."
   (let ((tag (if (wholenump tag) (match-string tag) tag)))
     (or (taskpaper-face-from-face-or-color
          'taskpaper-tag-face (cdr (assoc tag taskpaper-tag-faces)))
-        'taskpaper-tag-face)))
+        'taskpaper-tag)))
 
 (defvar taskpaper-mouse-map-tag
   (let ((map (make-sparse-keymap)))
@@ -827,8 +827,8 @@ LINK should be an unescaped raw link. Recognized types are
            (taskpaper-file-missing-p
             (taskpaper-file-path-unescape
              (string-remove-prefix "file:" link))))
-      'taskpaper-missing-link-face
-    'taskpaper-link-face))
+      'taskpaper-missing-link
+    'taskpaper-link))
 
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
@@ -940,10 +940,10 @@ LINK should be an unescaped raw link. Recognized types are
       (when (string-match-p taskpaper-done-tag-regexp item)
         (font-lock-prepend-text-property
          (match-beginning 1) (match-end 1)
-         'face 'taskpaper-task-done-mark-face)
+         'face 'taskpaper-task-done-mark)
         (font-lock-prepend-text-property
          (match-beginning 2) (match-end 2)
-         'face 'taskpaper-done-item-face)))
+         'face 'taskpaper-done-item)))
     t))
 
 (defun taskpaper-font-lock-done-projects (limit)
@@ -953,7 +953,7 @@ LINK should be an unescaped raw link. Recognized types are
       (when (string-match-p taskpaper-done-tag-regexp item)
         (font-lock-prepend-text-property
          (match-beginning 0) (match-end 0)
-         'face 'taskpaper-done-item-face)))
+         'face 'taskpaper-done-item)))
     t))
 
 (defun taskpaper-font-lock-strong (limit)
@@ -974,7 +974,7 @@ LINK should be an unescaped raw link. Recognized types are
       (put-text-property
        (match-beginning 1) (match-end 1) 'taskpaper-syntax 'strong)
       (font-lock-prepend-text-property
-       (match-beginning 3) (match-end 3) 'face 'taskpaper-strong-face)
+       (match-beginning 3) (match-end 3) 'face 'taskpaper-strong)
       (add-text-properties
        (match-beginning 2) (match-end 2) taskpaper-markup-properties)
       (add-text-properties
@@ -1000,7 +1000,7 @@ LINK should be an unescaped raw link. Recognized types are
       (put-text-property
        (match-beginning 1) (match-end 1) 'taskpaper-syntax 'emphasis)
       (font-lock-prepend-text-property
-       (match-beginning 3) (match-end 3) 'face 'taskpaper-emphasis-face)
+       (match-beginning 3) (match-end 3) 'face 'taskpaper-emphasis)
       (add-text-properties
        (match-beginning 2) (match-end 2) taskpaper-markup-properties)
       (add-text-properties
@@ -1044,13 +1044,13 @@ is essential."
   (let ((font-lock-keywords
          (list
           (cons taskpaper-task-regexp
-                '((1 'taskpaper-task-undone-mark-face)
-                  (2 'taskpaper-task-face)))
+                '((1 'taskpaper-task-undone-mark)
+                  (2 'taskpaper-task)))
           (cons taskpaper-project-regexp
-                '((1 'taskpaper-project-name-face)
-                  (2 'taskpaper-project-mark-face)))
+                '((1 'taskpaper-project-name)
+                  (2 'taskpaper-project-mark)))
           (cons taskpaper-note-regexp
-                '((1 'taskpaper-note-face)))
+                '((1 'taskpaper-note)))
           '(taskpaper-font-lock-markdown-links)
           '(taskpaper-font-lock-email-links)
           '(taskpaper-font-lock-uri-links)
@@ -2464,7 +2464,7 @@ buffer instead."
           (if (and c tg)
               (insert
                (propertize (char-to-string c)
-                           'face 'taskpaper-fast-select-key-face)
+                           'face 'taskpaper-fast-select-key)
                " " tg (make-string (- fwidth 2 (length tg)) ?\ )))
           (when (= (setq cnt (1+ cnt)) ncol)
             (insert "\n") (setq cnt 0)))
@@ -3947,7 +3947,7 @@ if the item matches the selection string STR."
                 (insert (format
                          "%s %-20s %s\n"
                          (propertize (char-to-string c)
-                                     'face 'taskpaper-fast-select-key-face)
+                                     'face 'taskpaper-fast-select-key)
                          (concat desc "  ") qs))))))
         (insert "\n") (goto-char (point-min)) (fit-window-to-buffer)
         ;; Select query
@@ -3970,7 +3970,7 @@ if the item matches the selection string STR."
       (while (re-search-forward
               (regexp-opt taskpaper-query-word-operator 'words) nil t)
         (put-text-property (match-beginning 0) (match-end 0)
-                           'face 'taskpaper-query-secondary-text-face))
+                           'face 'taskpaper-query-secondary-text))
       ;; Fontify non-word operators and modifiers
       (goto-char (point-min))
       (while (re-search-forward
@@ -3979,7 +3979,7 @@ if the item matches the selection string STR."
                                   taskpaper-query-open-close))
               nil t)
         (put-text-property (match-beginning 0) (match-end 0)
-                           'face 'taskpaper-query-secondary-text-face))
+                           'face 'taskpaper-query-secondary-text))
       ;; Fontify double-quoted strings as the last step
       (goto-char (point-min))
       (while (re-search-forward
@@ -3995,12 +3995,13 @@ part of `after-change-functions' hook."
   (when (minibufferp (current-buffer))
     (condition-case nil
         (progn
-          (remove-text-properties (point-at-bol) (point-max) (list 'face))
+          (remove-text-properties
+           (point-at-bol) (point-max) (list 'face))
           (taskpaper-query-fontify-query)
           (taskpaper-query-matcher (minibuffer-contents-no-properties)))
       (error
        (put-text-property (point-at-bol) (point-max)
-                          'face 'taskpaper-query-error-face)))))
+                          'face 'taskpaper-query-error)))))
 
 (defun taskpaper-query-read-query (&optional prompt)
   "Prompt user for search query.
