@@ -4198,6 +4198,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (add-hook 'change-major-mode-hook 'taskpaper-outline-show-all nil t)
   (run-hooks 'taskpaper-mode-hook))
 
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.taskpaper\\'" . taskpaper-mode))
 
 ;;;; Key bindings
