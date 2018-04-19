@@ -4475,11 +4475,11 @@ Possible values for this option are:
  reorganize-frame  Show only the current window and the agenda window"
   :group 'taskpaper
   :type '(choice
-          (const current-window)
-          (const other-window)
-          (const only-window)
-          (const other-frame)
-          (const reorganize-frame)))
+          (const :tag "Current window" current-window)
+          (const :tag "Other window" other-window)
+          (const :tag "Current window only" only-window)
+          (const :tag "Other frame" other-frame)
+          (const :tag "Current window and agenda window" reorganize-frame)))
 
 (defcustom taskpaper-agenda-restore-windows-after-quit nil
   "Non-nil means, restore window configuration upon exiting agenda.
