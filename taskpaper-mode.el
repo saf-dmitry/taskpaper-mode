@@ -723,7 +723,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-tag
-  '((t :inherit font-lock-keyword-face))
+  '((t :inherit shadow))
   "Face for tags."
   :group 'taskpaper-faces)
 
@@ -763,7 +763,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-query-secondary-text
-  '((t :inherit font-lock-keyword-face))
+  '((t :inherit shadow))
   "Face for secondary text in query string."
   :group 'taskpaper-faces)
 
