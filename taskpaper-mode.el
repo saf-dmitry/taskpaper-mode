@@ -127,6 +127,7 @@ used to select that tag through the fast-selection interface."
   "Non-nil means, include date when tagging with \"@done\".
 Possible values for this option are:
 
+ nil   No date
  date  Include date
  time  Include date and time"
   :group 'taskpaper
@@ -415,7 +416,7 @@ not an indirect buffer."
 Set the match data. If POS is omitted or nil, the value of point
 is used by default. Only the current line is checked."
   (catch 'exit
-    (let ((pos (if pos pos (point)))
+    (let ((pos (or pos (point)))
           (eol (line-end-position 1)))
       (save-excursion
         (goto-char pos) (beginning-of-line)
@@ -618,34 +619,31 @@ Group 7 matches the closing parenthesis.")
 
 ;;;; Font Lock regexps
 
-(defconst taskpaper-file-path-fl-regexp
-  (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
-  "Regular expression for file path.")
-
 (defconst taskpaper-task-regexp
-  "^[ \t]*\\([-+*]\\)[ ]+\\([^\n]*\\)$"
+  "^[ \t]*\\(\\([-+*]\\)[ ]+\\([^\n]*\\)\\)$"
   "Regular expression for task.
-Group 1 matches the task mark.
-Group 2 matches the task name.")
+Group 1 matches the whole task.
+Group 2 matches the task mark.
+Group 3 matches the task name.")
 
 (defconst taskpaper-project-regexp
   (format
-   "^[ \t]*\\([^\t\n][^\n]*\\)\\(:\\)\\(%s\\)?[ \t]*$"
+   "^[ \t]*\\(\\([^\t\n][^\n]*\\)\\(:\\)\\(%s\\)?\\)[ \t]*$"
    taskpaper-consecutive-tags-regexp)
   "Regular expression for project.
-Group 1 matches the project name.
-Group 2 matches the project mark.
-Group 3 matches optional trailing tags.")
+Group 1 matches the whole project.
+Group 2 matches the project name.
+Group 3 matches the project mark.
+Group 4 matches optional trailing tags.")
 
 (defconst taskpaper-note-regexp
   "^[ \t]*\\(.*\\S-.*\\)$"
-  "Regular expression for note.")
+  "Regular expression for note.
+Group 1 matches the whole note.")
 
-(defconst taskpaper-done-tag-regexp
-  (format
-   "\\(?:^\\|[ \t]+\\)@done\\(?:(%s)\\)?\\(?:[ \t]\\|$\\)"
-   taskpaper-tag-value-regexp)
-  "Regular expression for \"@done\" tag.")
+(defconst taskpaper-file-link-regexp
+  (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
+  "Regular expression for plain file link.")
 
 (defconst taskpaper-emphasis-prefix-regexp
   "\\(?:^\\|[^\n*_\\]\\)"
@@ -830,7 +828,7 @@ LINK should be an unescaped raw link. Recognized types are
 
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
-  (if (and (equal (taskpaper-get-link-type link) 'file)
+  (if (and (eq (taskpaper-get-link-type link) 'file)
            (taskpaper-file-missing-p
             (taskpaper-file-path-unescape
              (string-remove-prefix "file:" link))))
@@ -917,7 +915,7 @@ LINK should be an unescaped raw link. Recognized types are
 
 (defun taskpaper-font-lock-file-links (limit)
   "Fontify plain file links from point to LIMIT."
-  (when (re-search-forward taskpaper-file-path-fl-regexp limit t)
+  (when (re-search-forward taskpaper-file-link-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
          'taskpaper-syntax '(markup))
@@ -943,24 +941,26 @@ LINK should be an unescaped raw link. Recognized types are
 (defun taskpaper-font-lock-done-tasks (limit)
   "Fontify completed tasks from point to LIMIT."
   (when (re-search-forward taskpaper-task-regexp limit t)
-    (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
-      (when (string-match-p taskpaper-done-tag-regexp item)
-        (font-lock-prepend-text-property
-         (match-beginning 1) (match-end 1)
-         'face 'taskpaper-task-done-mark)
-        (font-lock-prepend-text-property
-         (match-beginning 2) (match-end 2)
-         'face 'taskpaper-done-item)))
+    (when (save-excursion
+            (save-match-data
+              (taskpaper-item-has-attribute "done")))
+      (font-lock-prepend-text-property
+       (match-beginning 2) (match-end 2)
+       'face 'taskpaper-task-done-mark)
+      (font-lock-prepend-text-property
+       (match-beginning 3) (match-end 3)
+       'face 'taskpaper-done-item))
     t))
 
 (defun taskpaper-font-lock-done-projects (limit)
   "Fontify completed projects from point to LIMIT."
   (when (re-search-forward taskpaper-project-regexp limit t)
-    (let ((item (buffer-substring (match-beginning 0) (match-end 0))))
-      (when (string-match-p taskpaper-done-tag-regexp item)
-        (font-lock-prepend-text-property
-         (match-beginning 0) (match-end 0)
-         'face 'taskpaper-done-item)))
+    (when (save-excursion
+            (save-match-data
+              (taskpaper-item-has-attribute "done")))
+      (font-lock-prepend-text-property
+       (match-beginning 1) (match-end 1)
+       'face 'taskpaper-done-item))
     t))
 
 (defun taskpaper-font-lock-strong (limit)
@@ -1024,23 +1024,23 @@ LINK should be an unescaped raw link. Recognized types are
 (defun taskpaper-activate-task-marks (limit)
   "Activate task marks from point to LIMIT."
   (when (re-search-forward taskpaper-task-regexp limit t)
-    (let ((item (buffer-substring
-                 (match-beginning 0) (match-end 0))))
-      (if (string-match-p taskpaper-done-tag-regexp item)
-          (when taskpaper-bullet-done
-            (put-text-property
-             (match-beginning 1) (match-end 1)
-             'display (char-to-string taskpaper-bullet-done)))
-        (when taskpaper-bullet
+    (if (save-excursion
+          (save-match-data
+            (taskpaper-item-has-attribute "done")))
+        (when taskpaper-bullet-done
           (put-text-property
-           (match-beginning 1) (match-end 1)
-           'display (char-to-string taskpaper-bullet)))))
+           (match-beginning 2) (match-end 2)
+           'display (char-to-string taskpaper-bullet-done)))
+      (when taskpaper-bullet
+        (put-text-property
+         (match-beginning 2) (match-end 2)
+         'display (char-to-string taskpaper-bullet))))
     (add-text-properties
-     (match-beginning 1) (match-end 1)
+     (match-beginning 2) (match-end 2)
      (list 'mouse-face 'highlight
            'keymap taskpaper-mouse-map-mark
            'help-echo "Toggle Done"))
-    (taskpaper-rear-nonsticky-at (match-end 1))
+    (taskpaper-rear-nonsticky-at (match-end 2))
     t))
 
 (defvar taskpaper-font-lock-keywords nil)
@@ -1051,11 +1051,11 @@ is essential."
   (let ((font-lock-keywords
          (list
           (cons taskpaper-task-regexp
-                '((1 'taskpaper-task-undone-mark)
-                  (2 'taskpaper-task)))
+                '((2 'taskpaper-task-undone-mark)
+                  (3 'taskpaper-task)))
           (cons taskpaper-project-regexp
-                '((1 'taskpaper-project-name)
-                  (2 'taskpaper-project-mark)))
+                '((2 'taskpaper-project-name)
+                  (3 'taskpaper-project-mark)))
           (cons taskpaper-note-regexp
                 '((1 'taskpaper-note)))
           '(taskpaper-font-lock-markdown-links)
@@ -1260,14 +1260,14 @@ directory. An absolute path can be forced with a
   "Open link LINK."
   (let ((type (taskpaper-get-link-type link)))
     (cond
-     ((equal type 'email)
+     ((eq type 'email)
       (setq link (string-remove-prefix "mailto:" link))
       (compose-mail-other-window link))
-     ((equal type 'uri-browser)
+     ((eq type 'uri-browser)
       (when (string-prefix-p "www" link)
         (setq link (concat "http://" link)))
       (browse-url link))
-     ((equal type 'file)
+     ((eq type 'file)
       (setq link (string-remove-prefix "file:" link)
             link (taskpaper-file-path-unescape link))
       (taskpaper-open-file link))
@@ -1726,18 +1726,18 @@ Valid values are 'project, 'task, or 'note."
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
       (cond
-       ((equal type 'task)
+       ((eq type 'task)
         (string-match "^\\([ \t]*\\)\\([^\n]*\\)$" item)
         (setq item (concat
                     (match-string-no-properties 1 item) "- "
                     (match-string-no-properties 2 item))))
-       ((equal type 'project)
+       ((eq type 'project)
         (string-match (format "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
                               taskpaper-consecutive-tags-regexp) item)
         (setq item (concat
                     (match-string-no-properties 1 item) ":"
                     (match-string-no-properties 2 item))))
-       ((equal type 'note) item)
+       ((eq type 'note) item)
        (t (error "Invalid item type"))))
     (delete-region beg end) (insert item)))
 
@@ -1802,7 +1802,8 @@ VALUE is the attribute value, as strings."
     (save-excursion
       (goto-char (line-beginning-position))
       (save-match-data
-        (while (re-search-forward taskpaper-tag-regexp (line-end-position) t)
+        (while (re-search-forward
+                taskpaper-tag-regexp (line-end-position) t)
           (setq name (match-string-no-properties 2)
                 value (match-string-no-properties 3)
                 value (taskpaper-tag-value-unescape value))
@@ -2333,7 +2334,7 @@ non-nil return the date converted to an internal time."
         (calendar-move-hook nil)
         (calendar-view-diary-initially-flag nil)
         (calendar-view-holidays-initially-flag nil)
-        (prompt (if prompt prompt "Date & time: ")) text)
+        (prompt (or prompt "Date & time: ")) text)
     (save-excursion
       (save-window-excursion
         (when taskpaper-read-date-popup-calendar
@@ -3121,7 +3122,7 @@ path as string and POS is the corresponding buffer position.
 Single entries in OLPATH should be separated with a slash. When
 NO-EXCLUDE is set, do not exclude entries in the current
 subtree."
-  (let ((prompt (if prompt prompt "Path: "))
+  (let ((prompt (or prompt "Path: "))
         excluded-entries targets target)
     (when (and (outline-on-heading-p) (not no-exclude))
       ;; Exclude the subtree at point
@@ -3335,7 +3336,7 @@ If LOCATION is not given, the value of
     (save-excursion
       (outline-back-to-heading t)
       (while (taskpaper-outline-up-level-safe)
-        (when (equal "project" (taskpaper-item-get-attribute "type"))
+        (when (equal (taskpaper-item-get-attribute "type") "project")
           (setq project (taskpaper-item-get-attribute "text"))
           (push project projects))))
     (if projects (taskpaper-format-outline-path projects) nil)))
@@ -3671,7 +3672,7 @@ characters repsesenting different types ot tokens."
              "" str))
       (unless (= (length str) 0)
         (cond
-         ((equal (string-to-char str) ?@)
+         ((eq (string-to-char str) ?@)
           ;; Read attribute
           (if (string-match
                (concat "\\`" taskpaper-query-attribute-regexp) str)
@@ -3691,7 +3692,7 @@ characters repsesenting different types ot tokens."
                 (when st (push st tokens) (setq st nil))
                 (push val tokens))
             (error "Error while reading relation operator")))
-         ((equal (string-to-char str) ?\[)
+         ((eq (string-to-char str) ?\[)
           ;; Read relation modifier
           (if (string-match
                (concat "\\`" taskpaper-query-modifier-regexp) str)
@@ -3701,7 +3702,7 @@ characters repsesenting different types ot tokens."
                 (when st (push st tokens) (setq st nil))
                 (push val tokens))
             (error "Error while reading relation modifier")))
-         ((equal (string-to-char str) ?\()
+         ((eq (string-to-char str) ?\()
           ;; Read opening parenthesis
           (if (string-match
                (concat "\\`" taskpaper-query-open-regexp) str)
@@ -3712,7 +3713,7 @@ characters repsesenting different types ot tokens."
                 (setq depth (1+ depth))
                 (push val tokens))
             (error "Error while reading opening parenthesis")))
-         ((equal (string-to-char str) ?\))
+         ((eq (string-to-char str) ?\))
           ;; Read closing parenthesis
           (if (string-match
                (concat "\\`" taskpaper-query-close-regexp) str)
@@ -3725,7 +3726,7 @@ characters repsesenting different types ot tokens."
                   (setq depth (1- depth)))
                 (push val tokens))
             (error "Error while reading closing parenthesis")))
-         ((equal (string-to-char str) ?\")
+         ((eq (string-to-char str) ?\")
           ;; Read quoted string
           (if (string-match
                (concat "\\`" taskpaper-query-quoted-string-regexp) str)
@@ -3789,7 +3790,7 @@ matcher and the rest of the token list."
     (let ((token (nth 0 tokens)))
       (when (and token (taskpaper-query-search-term-p token))
         (setq val
-              (if (equal (string-to-char token) ?\")
+              (if (eq (string-to-char token) ?\")
                   (substring token 1 -1)
                 token))
         (pop tokens)))
