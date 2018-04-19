@@ -55,9 +55,7 @@
   "Keymap for TaskPaper mode.")
 
 (defvar taskpaper-mode-syntax-table
-  (let ((tab (make-syntax-table text-mode-syntax-table)))
-    (modify-syntax-entry ?@ "\'" tab)
-    tab)
+  (make-syntax-table text-mode-syntax-table)
   "Syntax table for TaskPaper mode.")
 
 (defvar taskpaper-read-date-history nil
@@ -332,12 +330,12 @@ delimiters for strong and emphasis markup similar to Markdown."
   (message "TaskPaper mode version %s" taskpaper-mode-version))
 
 (defun taskpaper-mode-manual ()
-  "Browse Taskpaper mode user's manual."
+  "Browse TaskPaper mode manual."
   (interactive)
   (browse-url
    "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"))
 
-;; Compatibility for Emacs before v23.2
+;; Compatibility for Emacs before v24.4
 (unless (fboundp 'string-prefix-p)
   (defun string-prefix-p (prefix string &optional ignore-case)
     "Return non-nil if PREFIX is a prefix of STRING.
@@ -377,24 +375,23 @@ attention to case differences."
 
 (defun taskpaper-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE.
-EVAP non-nil means, set the `evaporate' property to t."
+EVAP non-nil means, set the 'evaporate' property to t."
   (overlay-put ovl 'display text)
   (when face (overlay-put ovl 'face face))
   (when evap (overlay-put ovl 'evaporate t)))
 
 (defun taskpaper-new-marker (&optional pos)
-  "Return a new marker.
-Marker is at point, or at POS if non-nil."
+  "Return a new marker at POS.
+If POS is omitted or nil, the value of point is used by default."
   (let ((marker (copy-marker (or pos (point)) t))) marker))
 
-(defsubst taskpaper-get-at-bol (property)
-  "Get text property PROPERTY at the beginning of line."
-  (get-text-property (point-at-bol) property))
+(defsubst taskpaper-get-at-bol (prop)
+  "Get text property PROP at the beginning of line."
+  (get-text-property (point-at-bol) prop))
 
 (defun taskpaper-release-buffers (blist)
-  "Release all buffers in BLIST.
-When a buffer is unmodified, it is just killed. When modified, it
-is saved after user confirmation and then killed."
+  "Release all buffers in list BLIST.
+When a buffer is modified, it is saved after user confirmation."
   (let (file)
     (dolist (buf blist)
       (setq file (buffer-file-name buf))
@@ -405,8 +402,7 @@ is saved after user confirmation and then killed."
 
 (defun taskpaper-find-base-buffer-visiting (file)
   "Return the base buffer visiting FILE.
-Like `find-buffer-visiting' but always return the base buffer and
-not an indirect buffer."
+Like `find-buffer-visiting' but always return the base buffer."
   (let ((buf (or (get-file-buffer file)
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
@@ -419,7 +415,7 @@ is used by default. Only the current line is checked."
     (let ((pos (or pos (point)))
           (eol (line-end-position 1)))
       (save-excursion
-        (goto-char pos) (beginning-of-line)
+        (goto-char pos) (beginning-of-line 1)
         (while (re-search-forward regexp eol t)
           (if (and (<= (match-beginning 0) pos)
                    (>= (match-end 0) pos))
@@ -446,6 +442,12 @@ is used by default. Only the current line is checked."
     invisible taskpaper-markup)
   "Properties to apply to inline markup.")
 
+(defsubst taskpaper-rear-nonsticky-at (pos)
+  "Add nonsticky text properties at POS."
+  (add-text-properties
+   (1- pos) pos
+   (list 'rear-nonsticky taskpaper-nonsticky-properties)))
+
 (defun taskpaper-range-property-any (begin end prop prop-val)
   "Check property PROP from BEGIN to END.
 Return non-nil if at least one character between BEGIN and END
@@ -453,12 +455,6 @@ has a property PROP whose value is one of the given values
 PROP-VAL."
   (cl-some (lambda (val) (text-property-any begin end prop val))
            prop-val))
-
-(defsubst taskpaper-rear-nonsticky-at (pos)
-  "Add nonsticky text properties at POS."
-  (add-text-properties
-   (1- pos) pos
-   (list 'rear-nonsticky taskpaper-nonsticky-properties)))
 
 (defun taskpaper-remove-flyspell-overlays-in (begin end)
   "Remove Flyspell overlays in region between BEGIN and END."
@@ -508,7 +504,7 @@ nil. For performance reasons remote files are not checked."
   "Regular expression for tag name character.")
 
 (defconst taskpaper-tag-name-regexp
-  (concat taskpaper-tag-name-char-regexp "+")
+  (format "%s+" taskpaper-tag-name-char-regexp)
   "Regular expression for tag name.")
 
 (defconst taskpaper-tag-value-regexp
@@ -568,7 +564,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "[/]"
    "\\)"
    "\\)")
-  "Regular expression for web URI.")
+  "Regular expression for browser URI.")
 
 (defconst taskpaper-email-regexp
   (concat
@@ -608,8 +604,8 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "[ \t]*"
    "\\()\\)"
    "\\)")
-  "Regular expression for Markdown-style inline links.
-Group 1 matches the entire expression.
+  "Regular expression for Markdown-style links.
+Group 1 matches the entire link expression.
 Group 2 matches the opening square bracket.
 Group 3 matches the link description.
 Group 4 matches the closing square bracket.
@@ -622,7 +618,7 @@ Group 7 matches the closing parenthesis.")
 (defconst taskpaper-task-regexp
   "^[ \t]*\\(\\([-+*]\\)[ ]+\\([^\n]*\\)\\)$"
   "Regular expression for task.
-Group 1 matches the whole task.
+Group 1 matches the whole task expression.
 Group 2 matches the task mark.
 Group 3 matches the task name.")
 
@@ -631,7 +627,7 @@ Group 3 matches the task name.")
    "^[ \t]*\\(\\([^\t\n][^\n]*\\)\\(:\\)\\(%s\\)?\\)[ \t]*$"
    taskpaper-consecutive-tags-regexp)
   "Regular expression for project.
-Group 1 matches the whole project.
+Group 1 matches the whole project expression.
 Group 2 matches the project name.
 Group 3 matches the project mark.
 Group 4 matches optional trailing tags.")
@@ -639,7 +635,7 @@ Group 4 matches optional trailing tags.")
 (defconst taskpaper-note-regexp
   "^[ \t]*\\(.*\\S-.*\\)$"
   "Regular expression for note.
-Group 1 matches the whole note.")
+Group 1 matches the whole note expression.")
 
 (defconst taskpaper-file-link-regexp
   (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
@@ -668,7 +664,7 @@ Group 1 matches the whole note.")
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
   "Regular expression for strong inline emphasis.
-Group 1 matches the entire expression, including delimiters.
+Group 1 matches the entire expression.
 Group 2 matches the opening delimiters.
 Group 3 matches the text inside the delimiters.
 Group 4 matches the closing delimiters.")
@@ -679,7 +675,7 @@ Group 4 matches the closing delimiters.")
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
   "Regular expression for inline emphasis.
-Group 1 matches the entire expression, including delimiters.
+Group 1 matches the entire expression.
 Group 2 matches the opening delimiters.
 Group 3 matches the text inside the delimiters.
 Group 4 matches the closing delimiters.")
@@ -774,7 +770,7 @@ Group 4 matches the closing delimiters.")
 ;;;; Font Lock
 
 (defun taskpaper-face-from-face-or-color (inherit face-or-color)
-  "Create a face list that inherits INHERIT, but set the color.
+  "Create a face list that set the color and inherits INHERIT.
 When FACE-OR-COLOR is not a string, just return it."
   (if (stringp face-or-color)
       (list :inherit inherit
@@ -798,22 +794,31 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-font-lock-tags (limit)
   "Fontify tags from point to LIMIT."
   (when (re-search-forward taskpaper-tag-regexp limit t)
-    (taskpaper-remove-flyspell-overlays-in
-     (match-beginning 1) (match-end 1))
-    (add-text-properties
-     (match-beginning 1) (match-end 1)
-     (list 'taskpaper-syntax 'tag
-           'face (taskpaper-get-tag-face 2)
-           'mouse-face 'highlight
-           'keymap taskpaper-mouse-map-tag
-           'help-echo "Filter on Tag"))
-    (taskpaper-rear-nonsticky-at (match-end 1))
+    (if (taskpaper-range-property-any
+         (match-beginning 1) (match-end 1)
+         'taskpaper-syntax '(markup plain-link))
+        ;; Move forward and recursively search again
+        (progn
+          (goto-char (min (1+ (match-beginning 1)) limit))
+          (when (< (point) limit)
+            (taskpaper-font-lock-tags limit)))
+      ;; Fontify
+      (taskpaper-remove-flyspell-overlays-in
+       (match-beginning 1) (match-end 1))
+      (add-text-properties
+       (match-beginning 1) (match-end 1)
+       (list 'taskpaper-syntax 'tag
+             'face (taskpaper-get-tag-face 2)
+             'mouse-face 'highlight
+             'keymap taskpaper-mouse-map-tag
+             'help-echo "Filter on Tag"))
+      (taskpaper-rear-nonsticky-at (match-end 1)))
     t))
 
 (defun taskpaper-get-link-type (link)
   "Return link type as symbol.
 LINK should be an unescaped raw link. Recognized types are
-'email, 'uri-browser, 'file, and 'unknown."
+'email', 'uri-browser', 'file', and 'unknown'."
   (cond
    ((string-match-p
      (format "\\`%s\\'" taskpaper-email-regexp) link)
@@ -1087,7 +1092,6 @@ is essential."
          (inhibit-read-only t) (inhibit-point-motion-hooks t)
          (inhibit-modification-hooks t)
          deactivate-mark buffer-file-name buffer-file-truename)
-    (decompose-region begin end)
     (remove-text-properties
      begin end
      '(display t mouse-face t keymap t
@@ -1137,9 +1141,10 @@ is essential."
 
 (defun taskpaper-default-apps ()
   "Return the default applications for this operating system."
-  (cond ((eq system-type 'darwin) taskpaper-file-apps-defaults-macos)
-        ((eq system-type 'windows-nt) taskpaper-file-apps-defaults-windowsnt)
-        (t taskpaper-file-apps-defaults-gnu)))
+  (cond
+   ((eq system-type 'darwin) taskpaper-file-apps-defaults-macos)
+   ((eq system-type 'windows-nt) taskpaper-file-apps-defaults-windowsnt)
+   (t taskpaper-file-apps-defaults-gnu)))
 
 (defun taskpaper-apps-regexp-alist (list &optional add-auto-mode)
   "Convert file extensions to regular expressions in the cars of LIST.
@@ -1486,7 +1491,8 @@ Essentially a slightly modified version of `outline-hide-other'."
 Essentially a much simplified version of `next-line'."
   (interactive)
   (beginning-of-line 2)
-  (while (and (not (eobp)) (get-char-property (1- (point)) 'invisible))
+  (while (and (not (eobp))
+              (get-char-property (1- (point)) 'invisible))
     (beginning-of-line 2)))
 
 (defvar taskpaper-cycle-global-status 1)
@@ -1519,7 +1525,8 @@ buffer. When point is on an item, rotate the current subtree."
         (taskpaper-outline-hide-sublevels 1)
         (message "OVERVIEW")
         (setq taskpaper-cycle-global-status 2))))
-     ((save-excursion (beginning-of-line 1) (looking-at outline-regexp))
+     ((save-excursion
+        (beginning-of-line 1) (looking-at outline-regexp))
       ;; Local cycling
       (outline-back-to-heading)
       (let ((goal-column 0) eoh eol eos)
@@ -1720,7 +1727,7 @@ Type can be \"project\", \"task\", \"note\", or \"blank\"."
 
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
-Valid values are 'project, 'task, or 'note."
+Valid values are 'project', 'task', or 'note'."
   (let* ((beg (line-beginning-position)) (end (line-end-position))
          (item (buffer-substring-no-properties beg end)))
     (setq item (taskpaper-remove-type-formatting item))
@@ -1756,12 +1763,20 @@ Valid values are 'project, 'task, or 'note."
   (interactive)
   (taskpaper-item-format 'note))
 
-;;;: Attribute utilities
+;;;: Tag and attribute utilities
 
-(defconst taskpaper-special-attributes '("type" "text")
-  "The special item attributes.
-These are implicit attributes that are not associated with
-tags.")
+(defun taskpaper-in-tag-p (&optional pos)
+  "Return non-nil if POS is in a tag.
+If POS is omitted or nil, the value of point is used by default.
+This function does not set or modify the match data."
+  (let ((pos (or pos (point))))
+    (save-excursion
+      (save-match-data
+        (and (taskpaper-in-regexp taskpaper-tag-regexp pos)
+             (not (taskpaper-in-regexp
+                   taskpaper-markdown-link-regexp pos))
+             (not (taskpaper-in-regexp
+                   taskpaper-file-path-regexp pos)))))))
 
 (defun taskpaper-tag-name-p (name)
   "Return non-nil when NAME is a valid tag name."
@@ -1771,7 +1786,7 @@ tags.")
 (defun taskpaper-tag-value-escape (value)
   "Escape special characters in tag VALUE."
   (when (stringp value)
-    (setq value (replace-regexp-in-string "[\n]+" " " value)
+    (setq value (replace-regexp-in-string "\n+" " " value)
           value (replace-regexp-in-string "(" "\\\\(" value)
           value (replace-regexp-in-string ")" "\\\\)" value)))
   value)
@@ -1783,8 +1798,13 @@ tags.")
           value (replace-regexp-in-string "\\\\)" ")" value)))
   value)
 
+(defconst taskpaper-special-attributes '("type" "text")
+  "The special item attributes.
+These are implicit attributes that are not associated with
+tags.")
+
 (defun taskpaper-item-get-special-attributes ()
-  "Get special attrbutes for item at point.
+  "Get special attrbutes for the item at point.
 Return alist (NAME . VALUE) where NAME is the attribute name and
 VALUE is the attribute value, as strings."
   (let (attrs name value)
@@ -1795,28 +1815,31 @@ VALUE is the attribute value, as strings."
     attrs))
 
 (defun taskpaper-item-get-explicit-attributes ()
-  "Get explicit attrbutes for item at point.
+  "Get explicit attrbutes for the item at point.
 Return alist (NAME . VALUE) where NAME is the attribute name and
 VALUE is the attribute value, as strings."
   (let (attrs name value)
     (save-excursion
-      (goto-char (line-beginning-position))
+      (beginning-of-line 1)
       (save-match-data
         (while (re-search-forward
                 taskpaper-tag-regexp (line-end-position) t)
-          (setq name (match-string-no-properties 2)
-                value (match-string-no-properties 3)
-                value (taskpaper-tag-value-unescape value))
-          (unless (member name taskpaper-special-attributes)
-            (push (cons name value) attrs)))))
+          (when (taskpaper-in-tag-p (match-beginning 1))
+            (setq name (match-string-no-properties 2)
+                  value (match-string-no-properties 3)
+                  value (taskpaper-tag-value-unescape value))
+            (unless (member name taskpaper-special-attributes)
+              (push (cons name value) attrs))))))
     (nreverse attrs)))
 
 (defun taskpaper-remove-uninherited-attributes (attrs)
   "Remove attributes excluded from inheritance from alist ATTRS."
-  (let ((exattrs taskpaper-tags-exclude-from-inheritance) excluded)
+  (let ((exattrs taskpaper-tags-exclude-from-inheritance)
+        excluded)
     (when exattrs
       (dolist (attr attrs)
-        (when (not (member (car attr) exattrs)) (push attr excluded)))
+        (when (not (member (car attr) exattrs))
+          (push attr excluded)))
       (setq attrs (nreverse excluded))))
   attrs)
 
@@ -1869,11 +1892,10 @@ non-nil also check higher levels of the hierarchy."
       (when inherit
         (save-excursion
           (while (taskpaper-outline-up-level-safe)
-            (setq ihattrs
-                  (append
-                   (taskpaper-remove-uninherited-attributes
-                    (taskpaper-item-get-explicit-attributes))
-                   ihattrs)))))
+            (setq ihattrs (append
+                           (taskpaper-remove-uninherited-attributes
+                            (taskpaper-item-get-explicit-attributes))
+                           ihattrs)))))
       (setq attrs (append spattrs exattrs ihattrs)))
     (taskpaper-uniquify attrs)))
 
@@ -1905,17 +1927,20 @@ value."
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be removed: %s" name))
-  (goto-char (line-beginning-position))
+  (when value (setq value (taskpaper-tag-value-escape value)))
+  (beginning-of-line 1)
   (save-match-data
-    (while (re-search-forward taskpaper-tag-regexp (line-end-position) t)
-      (cond
-       ((and value
-             (equal (match-string 2) name)
-             (equal (match-string 3) (taskpaper-tag-value-escape value)))
-        (delete-region (match-beginning 0) (match-end 0)))
-       ((and (not value)
-             (equal (match-string 2) name))
-        (delete-region (match-beginning 0) (match-end 0)))))))
+    (while (re-search-forward
+            taskpaper-tag-regexp (line-end-position) t)
+      (when (taskpaper-in-tag-p (match-beginning 1))
+        (cond
+         ((and value
+               (equal (match-string 2) name)
+               (equal (match-string 3) value))
+          (delete-region (match-beginning 0) (match-end 0)))
+         ((and (not value)
+               (equal (match-string 2) name))
+          (delete-region (match-beginning 0) (match-end 0))))))))
 
 (defun taskpaper-item-set-attribute (name &optional value add)
   "Set non-special attribute NAME for item at point.
@@ -1927,12 +1952,11 @@ value."
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be set: %s" name))
   (unless add (taskpaper-item-remove-attribute name))
-  (goto-char (line-end-position))
+  (when value (setq value (taskpaper-tag-value-escape value)))
+  (end-of-line 1)
   (delete-horizontal-space) (unless (bolp) (insert " "))
   (if value
-      (progn
-        (setq value (taskpaper-tag-value-escape value))
-        (insert (format "@%s(%s)" name value)))
+      (insert (format "@%s(%s)" name value))
     (insert (format "@%s" name))))
 
 (defun taskpaper-string-get-attributes (str)
@@ -2386,21 +2410,22 @@ non-nil return the date converted to an internal time."
 
 ;;;; Tags
 
-(defun taskpaper-get-buffer-tags (&optional point)
-  "Get a list of all tag names in the current buffer, for completion.
-If POINT is inside a tag, ignore the tag."
+(defun taskpaper-get-buffer-tags (&optional pos)
+  "Get a list of all tag names in the current buffer.
+If optional POS is inside a tag, ignore the tag. "
   (let (tag tags)
     (save-excursion
       (save-restriction
         (widen) (goto-char (point-min))
         (save-match-data
           (while (re-search-forward taskpaper-tag-regexp nil t)
-            (unless (and point
-                         (<= (match-beginning 0) point)
-                         (>= (match-end 0) point))
+            (when (taskpaper-in-tag-p (match-beginning 1))
               (setq tag (match-string-no-properties 2))
-              (push tag tags)))))
-      (taskpaper-sort (taskpaper-uniquify tags)))))
+              (unless (and pos
+                           (<= (match-beginning 0) pos)
+                           (>= (match-end 0) pos))
+                (push tag tags)))))))
+    (taskpaper-sort (taskpaper-uniquify tags))))
 
 (defun taskpaper-complete-tag-at-point (&optional attrs)
   "Complete tag name or query attribute at point.
@@ -2507,7 +2532,8 @@ buffer instead."
 (defun taskpaper-remove-tag-at-point ()
   "Remove tag at point."
   (interactive)
-  (if (taskpaper-in-regexp taskpaper-tag-regexp)
+  (if (and (taskpaper-in-tag-p)
+           (taskpaper-in-regexp taskpaper-tag-regexp))
       (delete-region (match-beginning 0) (match-end 0))
     (user-error "No tag at point.")))
 
@@ -2915,7 +2941,8 @@ returns non-nil if the item matches."
 If point is on the tag name, match only the tag name, otherwise
 match the tag-value combination."
   (interactive)
-  (if (taskpaper-in-regexp taskpaper-tag-regexp)
+  (if (and (taskpaper-in-tag-p)
+           (taskpaper-in-regexp taskpaper-tag-regexp))
       (let* ((name (match-string-no-properties 2))
              (value (match-string-no-properties 3))
              (value (taskpaper-tag-value-unescape value)))
@@ -2957,7 +2984,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
       (setq begin (point))
       (goto-char (point-max))
       ;; Add newline, if nessessary
-      (unless (bolp) (end-of-line) (newline))
+      (unless (bolp) (end-of-line 1) (newline))
       (setq end (point-max))
       (goto-char begin)
       (outline-show-all)
@@ -2969,7 +2996,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
       (outline-end-of-subtree)
       (if (eq (char-after) ?\n) (forward-char 1)
         ;; Add newline, if nessessary
-        (unless (bolp) (end-of-line) (newline)))
+        (unless (bolp) (end-of-line 1) (newline)))
       (setq end (point))
       (goto-char begin)
       (outline-show-subtree)
@@ -3163,7 +3190,7 @@ subtree."
         (outline-end-of-subtree)
         (if (eq (char-after) ?\n) (forward-char 1)
           ;; Add newline, if nessessary
-          (unless (bolp) (end-of-line) (newline)))
+          (unless (bolp) (end-of-line 1) (newline)))
         (setq end (point))
         ;; Paste duplicate
         (insert-before-markers
@@ -3181,7 +3208,7 @@ If CUT is non-nil, actually cut the subtree."
         (outline-end-of-subtree)
         (if (eq (char-after) ?\n) (forward-char 1)
           ;; Add newline, if nessessary
-          (unless (bolp) (end-of-line) (newline)))
+          (unless (bolp) (end-of-line 1) (newline)))
         (setq end (point))
         ;; Cut/copy region into the kill ring
         (if cut
@@ -3245,7 +3272,7 @@ ring."
          begin end)
     ;; Paste the subtree and mark it
     (beginning-of-line 2)
-    (unless (bolp) (end-of-line) (newline))
+    (unless (bolp) (end-of-line 1) (newline))
     (setq begin (point))
     (insert-before-markers text)
     ;; Add newline, if nessessary
@@ -3392,7 +3419,7 @@ last subitem."
             (goto-char (match-end 0))
           ;; No archive heading found, insert it at EOB
           (goto-char (point-max)) (delete-blank-lines)
-          (unless (bolp) (end-of-line) (newline))
+          (unless (bolp) (end-of-line 1) (newline))
           (insert heading "\n"))
         ;; File the subtree under the archive heading
         (outline-back-to-heading)
@@ -3402,7 +3429,7 @@ last subitem."
        (t
         ;; No archive heading specified, go to EOB
         (goto-char (point-max)) (delete-blank-lines)
-        (unless (bolp) (end-of-line) (newline))
+        (unless (bolp) (end-of-line 1) (newline))
         ;; Paste the subtree at EOB
         (taskpaper-paste-subtree)))
       ;; Add the context information
@@ -3466,7 +3493,7 @@ item."
             (goto-char (match-end 0))
           ;; No location found, insert it at EOB
           (goto-char (point-max)) (delete-blank-lines)
-          (unless (bolp) (end-of-line) (newline))
+          (unless (bolp) (end-of-line 1) (newline))
           (insert location "\n"))
         ;; File the entry under the target location
         (outline-back-to-heading)
@@ -3476,7 +3503,7 @@ item."
        (t
         ;; No location specified, go to EOB
         (goto-char (point-max)) (delete-blank-lines)
-        (unless (bolp) (end-of-line) (newline))
+        (unless (bolp) (end-of-line 1) (newline))
         ;; Paste the entry at EOB
         (taskpaper-paste-subtree nil text)))
       ;; Save the buffer, if it is not the current buffer
