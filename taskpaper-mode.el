@@ -283,8 +283,8 @@ first element is a string, it will be used as block separator."
                   (string :tag "Block separator"))))
 
 (defcustom taskpaper-iquery-default nil
-  "Non-nil means, all querying commands will use
-`taskpaper-iquery' instead of default `taskpaper-query'."
+  "Non-nil means, querying commands will use `taskpaper-iquery'
+instead of default `taskpaper-query'."
   :group 'taskpaper
   :type 'boolean)
 
@@ -3571,7 +3571,7 @@ Return the number of matches."
   "Regular expression for word.")
 
 (defconst taskpaper-query-whitespace-regexp
-  "[ \t\n\r]*"
+  "\\`[ \t\n\r]*"
   "Regular expression for whitespace.")
 
 (defconst taskpaper-query-word-operator
@@ -3661,10 +3661,8 @@ characters repsesenting different types ot tokens."
   (let ((depth 0) tokens val st)
     (while (> (length str) 0)
       ;; Trim leading whitespaces
-      (setq str
-            (replace-regexp-in-string
-             (concat "\\`" taskpaper-query-whitespace-regexp)
-             "" str))
+      (when (string-match taskpaper-query-whitespace-regexp str)
+        (setq str (replace-match "" nil nil str)))
       (unless (= (length str) 0)
         (cond
          ((eq (string-to-char str) ?@)
