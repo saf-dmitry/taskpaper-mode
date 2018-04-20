@@ -282,6 +282,12 @@ first element is a string, it will be used as block separator."
                         (string :tag "Query string"))
                   (string :tag "Block separator"))))
 
+(defcustom taskpaper-iquery-default nil
+  "Non-nil means, all querying commands will use
+`taskpaper-iquery' instead of default `taskpaper-query'."
+  :group 'taskpaper
+  :type 'boolean)
+
 (defcustom taskpaper-pretty-task-marks t
   "Non-nil means, enable the composition display of task marks.
 This does not change the underlying buffer content, but it
@@ -787,7 +793,7 @@ If TAG is a number, get the corresponding match group."
 
 (defvar taskpaper-mouse-map-tag
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'taskpaper-search-tag-at-point)
+    (define-key map [mouse-1] 'taskpaper-query-tag-at-point)
     map)
   "Mouse events for tags.")
 
@@ -2878,81 +2884,6 @@ epoch."
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (taskpaper-num<> a b)))))
 
-;;;; Filtering
-
-(defvar taskpaper-occur-highlights nil
-  "List of overlays used for occur matches.")
-(make-variable-buffer-local 'taskpaper-occur-highlights)
-
-(defun taskpaper-occur-add-highlights (begin end)
-  "Highlight from BEGIN to END."
-  (let ((overlay (make-overlay begin end)))
-    (overlay-put overlay 'face 'secondary-selection)
-    (push overlay taskpaper-occur-highlights)))
-
-(defun taskpaper-occur-remove-highlights (&optional _begin _end)
-  "Remove the occur highlights from the buffer."
-  (interactive)
-  (mapc 'delete-overlay taskpaper-occur-highlights)
-  (setq taskpaper-occur-highlights nil))
-
-(defun taskpaper-occur (&optional regexp)
-  "Make a sparse tree showing items matching REGEXP.
-Return the number of matches."
-  (interactive)
-  (setq regexp (or regexp (read-regexp "Regexp: ")))
-  (when (equal regexp "") (user-error "Regexp cannot be empty"))
-  (taskpaper-occur-remove-highlights)
-  (outline-flag-region (point-min) (point-max) t)
-  (goto-char (point-min))
-  (let ((cnt 0))
-    (while (re-search-forward regexp nil t)
-      (setq cnt (1+ cnt))
-      (taskpaper-occur-add-highlights
-       (match-beginning 0) (match-end 0))
-      (taskpaper-outline-show-context))
-    (add-hook 'before-change-functions
-              'taskpaper-occur-remove-highlights
-              nil 'local)
-    (when (called-interactively-p 'any)
-      (message "%d match(es)" cnt))
-    cnt))
-
-(defun taskpaper-match-sparse-tree (matcher)
-  "Create a sparse tree according to MATCHER.
-MATCHER is a Lisp form to be evaluated at an outline item and
-returns non-nil if the item matches."
-  (taskpaper-occur-remove-highlights)
-  (outline-flag-region (point-min) (point-max) t)
-  (let ((re (concat "^" outline-regexp)))
-    (goto-char (point-min))
-    (save-excursion
-      (while (let (case-fold-search)
-               (re-search-forward re nil t))
-        (when (let ((case-fold-search t))
-                (save-excursion (eval matcher)))
-          (taskpaper-outline-show-context))))))
-
-(defun taskpaper-search-tag-at-point ()
-  "Create a sparse tree showing items tagging with tag at point.
-If point is on the tag name, match only the tag name, otherwise
-match the tag-value combination."
-  (interactive)
-  (if (and (taskpaper-in-tag-p)
-           (taskpaper-in-regexp taskpaper-tag-regexp))
-      (let ((name  (match-string-no-properties 2))
-            (value (match-string-no-properties 3)) query)
-        (cond ((and name
-                    (>= (point) (match-beginning 2))
-                    (<= (point) (match-end 2)))
-               (setq query (concat "@" name)))
-              ((and name value)
-               (setq value (taskpaper-tag-value-unescape value))
-               (setq query (concat "@" name " = " value)))
-              (t (setq query (concat "@" name))))
-        (taskpaper-query query))
-    (user-error "No tag at point")))
-
 ;;;; Sorting
 
 (defun taskpaper-sort-items-generic
@@ -3508,6 +3439,46 @@ item."
       (when (not (eq this-buffer buffer)) (save-buffer))))
   (when (called-interactively-p 'any) (message "Entry added.")))
 
+;;;; Filtering
+
+(defvar taskpaper-occur-highlights nil
+  "List of overlays used for occur matches.")
+(make-variable-buffer-local 'taskpaper-occur-highlights)
+
+(defun taskpaper-occur-add-highlights (begin end)
+  "Highlight from BEGIN to END."
+  (let ((overlay (make-overlay begin end)))
+    (overlay-put overlay 'face 'secondary-selection)
+    (push overlay taskpaper-occur-highlights)))
+
+(defun taskpaper-occur-remove-highlights (&optional _begin _end)
+  "Remove the occur highlights from the buffer."
+  (interactive)
+  (mapc 'delete-overlay taskpaper-occur-highlights)
+  (setq taskpaper-occur-highlights nil))
+
+(defun taskpaper-occur (&optional regexp)
+  "Make a sparse tree showing items matching REGEXP.
+Return the number of matches."
+  (interactive)
+  (setq regexp (or regexp (read-regexp "Regexp: ")))
+  (when (equal regexp "") (user-error "Regexp cannot be empty"))
+  (taskpaper-occur-remove-highlights)
+  (outline-flag-region (point-min) (point-max) t)
+  (goto-char (point-min))
+  (let ((cnt 0))
+    (while (re-search-forward regexp nil t)
+      (setq cnt (1+ cnt))
+      (taskpaper-occur-add-highlights
+       (match-beginning 0) (match-end 0))
+      (taskpaper-outline-show-context))
+    (add-hook 'before-change-functions
+              'taskpaper-occur-remove-highlights
+              nil 'local)
+    (when (called-interactively-p 'any)
+      (message "%d match(es)" cnt))
+    cnt))
+
 ;;;; Querying
 
 (defun taskpaper-query-op-to-func (op mod)
@@ -3949,56 +3920,17 @@ Return constructed Lisp form implementing the matcher."
     ;; Return Lisp form
     left))
 
-(defun taskpaper-query-matcher (str)
-  "Parse query string STR.
+(defun taskpaper-query-matcher (query)
+  "Parse query string QUERY.
 Return constructed Lisp form implementing the matcher. The
 matcher is to be evaluated at an outline item and returns non-nil
 if the item matches the selection string STR."
   (let (tokens)
     ;; Tokenize query string and expand shortcuts
-    (setq tokens (taskpaper-query-read-tokenize str))
+    (setq tokens (taskpaper-query-read-tokenize query))
     (setq tokens (taskpaper-query-expand-type-shortcuts tokens))
     ;; Parse token list and construct matcher
     (if tokens (taskpaper-query-parse tokens) t)))
-
-(defun taskpaper-query-selection ()
-  "Fast selection for queries with single keys."
-  (unless taskpaper-custom-queries (error "No predefined queries"))
-  (save-excursion
-    (save-window-excursion
-      (switch-to-buffer-other-window
-       (get-buffer-create "*TaskPaper queries*"))
-      (erase-buffer)
-      (toggle-truncate-lines 1)
-      (setq show-trailing-whitespace nil)
-      (let* ((table taskpaper-custom-queries) tbl c e desc qs)
-        ;; Insert selection dialog
-        (insert "\n")
-        (setq tbl table)
-        (while (setq e (pop tbl))
-          (cond
-           ((and (stringp (nth 0 e)) (eq (nth 0 e) ""))
-            (insert "\n"))
-           ((and (stringp (nth 0 e)) (not (eq (nth 0 e) "")))
-            (insert (format "\n%s\n\n" (nth 0 e))))
-           (t (setq c (nth 0 e) desc (nth 1 e) qs (nth 2 e))
-              (when (and c desc qs)
-                (insert (format
-                         "%s %-20s %s\n"
-                         (propertize (char-to-string c)
-                                     'face 'taskpaper-fast-select-key)
-                         (concat desc "  ") qs))))))
-        (insert "\n") (goto-char (point-min)) (fit-window-to-buffer)
-        ;; Select query
-        (setq c (read-char-exclusive "Press key for query:"))
-        (if (setq e (assoc c table) qs (nth 2 e))
-            (prog1 qs (kill-buffer))
-          (kill-buffer) (setq quit-flag t))))))
-
-(defun taskpaper-query-fast-select ()
-  "Query buffer using fast query selection."
-  (interactive)
-  (taskpaper-query (taskpaper-query-selection)))
 
 (defun taskpaper-query-fontify-query ()
   "Fontify query in minibuffer."
@@ -4025,6 +3957,21 @@ if the item matches the selection string STR."
               taskpaper-query-quoted-string-regexp nil t)
         (put-text-property (match-beginning 1) (match-end 1)
                            'face 'default)))))
+
+(defun taskpaper-match-sparse-tree (matcher)
+  "Create a sparse tree according to MATCHER.
+MATCHER is a Lisp form to be evaluated at an outline item and
+returns non-nil if the item matches."
+  (taskpaper-occur-remove-highlights)
+  (outline-flag-region (point-min) (point-max) t)
+  (let ((re (concat "^" outline-regexp)))
+    (goto-char (point-min))
+    (save-excursion
+      (while (let (case-fold-search)
+               (re-search-forward re nil t))
+        (when (let ((case-fold-search t))
+                (save-excursion (eval matcher)))
+          (taskpaper-outline-show-context))))))
 
 (defun taskpaper-read-query-propertize (&optional _begin _end _length)
   "Propertize query string live in minibuffer.
@@ -4070,13 +4017,13 @@ prompt."
                      'taskpaper-read-query-propertize))
       str)))
 
-(defun taskpaper-query (&optional str)
-  "Create a sparse tree according to query string STR."
+(defun taskpaper-query (&optional query)
+  "Create a sparse tree according to query string QUERY."
   (interactive)
-  (setq str (or str (taskpaper-query-read-query)))
+  (setq query (or query (taskpaper-query-read-query)))
   (message "Querying...")
-  (let ((matcher (taskpaper-query-matcher str)))
-    (if matcher (taskpaper-match-sparse-tree matcher)))
+  (let ((matcher (taskpaper-query-matcher query)))
+    (when matcher (taskpaper-match-sparse-tree matcher)))
   (message "Querying...done"))
 
 (defun taskpaper-iquery-query (&optional _begin _end _length)
@@ -4130,6 +4077,67 @@ string. PROMPT can overwrite the default prompt."
                      'taskpaper-iquery-query)
         ;; Clear attribute cache
         (taskpaper-attribute-cache-clear)))))
+
+(defun taskpaper-query-selection ()
+  "Fast selection for queries with single keys."
+  (unless taskpaper-custom-queries (error "No predefined queries"))
+  (save-excursion
+    (save-window-excursion
+      (switch-to-buffer-other-window
+       (get-buffer-create "*TaskPaper queries*"))
+      (erase-buffer)
+      (toggle-truncate-lines 1)
+      (setq show-trailing-whitespace nil)
+      (let* ((table taskpaper-custom-queries) tbl c e desc qs)
+        ;; Insert selection dialog
+        (insert "\n")
+        (setq tbl table)
+        (while (setq e (pop tbl))
+          (cond
+           ((and (stringp (nth 0 e)) (eq (nth 0 e) ""))
+            (insert "\n"))
+           ((and (stringp (nth 0 e)) (not (eq (nth 0 e) "")))
+            (insert (format "\n%s\n\n" (nth 0 e))))
+           (t (setq c (nth 0 e) desc (nth 1 e) qs (nth 2 e))
+              (when (and c desc qs)
+                (insert (format
+                         "%s %-20s %s\n"
+                         (propertize (char-to-string c)
+                                     'face 'taskpaper-fast-select-key)
+                         (concat desc "  ") qs))))))
+        (insert "\n") (goto-char (point-min)) (fit-window-to-buffer)
+        ;; Select query
+        (setq c (read-char-exclusive "Press key for query:"))
+        (if (setq e (assoc c table) qs (nth 2 e))
+            (prog1 qs (kill-buffer))
+          (kill-buffer) (setq quit-flag t))))))
+
+(defun taskpaper-query-fast-select ()
+  "Query buffer using fast query selection."
+  (interactive)
+  (let ((query (taskpaper-query-selection)))
+    (if taskpaper-iquery-default
+        (taskpaper-iquery query) (taskpaper-query query))))
+
+(defun taskpaper-query-tag-at-point ()
+  "Query buffer for tag at point.
+If point is on the tag name, match only the tag name, otherwise
+match the tag-value combination."
+  (interactive)
+  (if (and (taskpaper-in-tag-p)
+           (taskpaper-in-regexp taskpaper-tag-regexp))
+      (let ((name  (match-string-no-properties 2))
+            (value (match-string-no-properties 3)) query)
+        (cond ((and name
+                    (>= (point) (match-beginning 2))
+                    (<= (point) (match-end 2)))
+               (setq query (concat "@" name)))
+              ((and name value)
+               (setq value (taskpaper-tag-value-unescape value))
+               (setq query (concat "@" name " = \"" value "\"")))
+              (t (setq query (concat "@" name))))
+        (taskpaper-query query))
+    (user-error "No tag at point")))
 
 ;;;; Ispell and Flyspell support
 
@@ -4287,7 +4295,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c C-i") 'taskpaper-iquery)
 (define-key taskpaper-mode-map (kbd "C-c C-q") 'taskpaper-query)
 (define-key taskpaper-mode-map (kbd "C-c C-r") 'taskpaper-remove-tag-at-point)
-(define-key taskpaper-mode-map (kbd "C-c C-t") 'taskpaper-search-tag-at-point)
+(define-key taskpaper-mode-map (kbd "C-c C-t") 'taskpaper-query-tag-at-point)
 (define-key taskpaper-mode-map (kbd "C-c C-w") 'taskpaper-refile-subtree)
 (define-key taskpaper-mode-map (kbd "C-c M-w") 'taskpaper-refile-subtree-copy)
 
@@ -4747,7 +4755,7 @@ user will not be touched."
     (define-key map (kbd "I") 'taskpaper-iquery)
     (define-key map (kbd "Q") 'taskpaper-query)
     (define-key map (kbd "S") 'taskpaper-query-fast-select)
-    (define-key map (kbd "t") 'taskpaper-search-tag-at-point)
+    (define-key map (kbd "t") 'taskpaper-query-tag-at-point)
     (define-key map (kbd "/") 'taskpaper-occur)
     (define-key map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
     (define-key map (kbd "v") 'taskpaper-outline-copy-visible)

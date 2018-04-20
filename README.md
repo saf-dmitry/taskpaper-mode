@@ -380,7 +380,7 @@ Filtering hides items that don't match the search creating a sparse tree, so tha
 
 The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted; the highlights disappear when the buffer is changed by an editing command, or by pressing `C-c C-c`.
 
-The command `C-c C-t` (`taskpaper-search-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the tag name, only the name is considered. If the cursor is on the tag value, both the name and value are considered. Alternatively, you can select the tag by clicking on it with `mouse-1`.
+The command `C-c C-t` (`taskpaper-query-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the tag name, only the name is considered. If the cursor is on the tag value, both the name and value are considered. Alternatively, you can select the tag by clicking on it with `mouse-1`.
 
 The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all levels (also bound to `ESC ESC`).
 
@@ -499,6 +499,8 @@ Fast selection interface allows you to save your commonly used search queries an
 
 The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first element is a string, it will be used as block title to visually group queries. Pressing `C-c ?` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
+By default, querying uses non-incremental mode. If you want to use incremental mode for saved queries, configure user option `taskpaper-iquery-default`.
+
 
 ### Startup View
 
@@ -599,7 +601,7 @@ You can also querying the agenda view to further narrow your search. Following c
 
  - `S`: Query agenda buffer using custom query selection dialog (`taskpaper-query-fast-select`).
 
- - `t`: Show a filtered view of the items that contain the tag under cursor (`taskpaper-search-tag-at-point`).
+ - `t`: Show a filtered view of the items that contain the tag under cursor (`taskpaper-query-tag-at-point`).
 
  - `/`: Prompt for a regexp and show a filtered view with all matches highlighted (`taskpaper-occur`).
 
