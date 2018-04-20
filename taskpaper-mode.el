@@ -4094,10 +4094,11 @@ The function should be called from minibuffer as part of
               (when matcher (taskpaper-match-sparse-tree matcher)))
           (error nil))))))
 
-(defun taskpaper-iquery (&optional prompt)
+(defun taskpaper-iquery (&optional query prompt)
   "Create a sparse tree according to query string.
 Query results are updated incrementally as you type, showing
-items, that matches. PROMPT can overwrite the default prompt."
+items, that matches. If non-nil, QUERY is an initial query
+string. PROMPT can overwrite the default prompt."
   (interactive)
   (let ((map (make-sparse-keymap))
         (prompt (or prompt "I-query: "))
@@ -4121,7 +4122,7 @@ items, that matches. PROMPT can overwrite the default prompt."
             (add-hook 'after-change-functions
                       'taskpaper-iquery-query 'append)
             ;; Read query string
-            (read-string prompt nil taskpaper-query-history))
+            (read-string prompt query taskpaper-query-history))
         ;; Remove hooks
         (remove-hook 'after-change-functions
                      'taskpaper-read-query-propertize)
