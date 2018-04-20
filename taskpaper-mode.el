@@ -5,7 +5,7 @@
 ;; Author: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; URL: <https://github.com/saf-dmitry/taskpaper-mode>
-;; Keywords: outlines, notetaking, task management, taskpaper
+;; Keywords: outlines, notetaking, task management, productivity, taskpaper
 
 ;; This file is not part of GNU Emacs.
 
@@ -819,17 +819,14 @@ If TAG is a number, get the corresponding match group."
   "Return link type as symbol.
 LINK should be an unescaped raw link. Recognized types are
 'email', 'uri-browser', 'file', and 'unknown'."
-  (cond
-   ((string-match-p
-     (format "\\`%s\\'" taskpaper-email-regexp) link)
-    'email)
-   ((string-match-p
-     (format "\\`%s\\'" taskpaper-uri-browser-regexp) link)
-    'uri-browser)
-   ((string-match-p
-     (format "\\`%s\\'" taskpaper-file-path-regexp) link)
-    'file)
-   (t 'unknown)))
+  (let* ((fmt "\\`%s\\'")
+         (email-re (format fmt taskpaper-email-regexp))
+         (uri-re   (format fmt taskpaper-uri-browser-regexp))
+         (file-re  (format fmt taskpaper-file-path-regexp)))
+    (cond ((string-match-p email-re link) 'email)
+          ((string-match-p uri-re   link) 'uri-browser)
+          ((string-match-p file-re  link) 'file)
+          (t 'unknown))))
 
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
@@ -2231,12 +2228,12 @@ epoch."
 If S is already a number of seconds, just return it. If it is a
 string, parse it as a time string and convert to float time. If S
 is nil, return 0."
-  (cond
-   ((numberp s) s)
-   ((stringp s)
-    (condition-case nil
-        (taskpaper-time-string-to-seconds s) (error 0.)))
-   (t 0.)))
+  (cond ((numberp s) s)
+        ((stringp s)
+         (condition-case nil
+             (taskpaper-time-string-to-seconds s)
+           (error 0.)))
+        (t 0.)))
 
 ;;;; Interaction with calendar
 
@@ -2252,11 +2249,12 @@ current date."
         (calendar-view-diary-initially-flag nil)
         value time date)
     (cond
-     ((taskpaper-in-regexp taskpaper-tag-regexp)
-      (setq value (match-string-no-properties 3)
-            value (taskpaper-tag-value-unescape value))
+     ((and (taskpaper-in-tag-p)
+           (taskpaper-in-regexp taskpaper-tag-regexp))
+      (setq value (match-string-no-properties 3))
       (when value
-        (setq time (taskpaper-parse-time-string value)
+        (setq value (taskpaper-tag-value-unescape value)
+              time (taskpaper-parse-time-string value)
               date (list (nth 4 time) (nth 3 time) (nth 5 time)))))
      (t (setq date nil)))
     (calendar)
@@ -2515,15 +2513,15 @@ buffer instead."
         (tag (taskpaper-fast-tag-selection))
         name value)
     (unless (string-match re tag) (error "Invalid tag specifier: %s" tag))
-    (setq name (match-string-no-properties 1 tag)
+    (setq name  (match-string-no-properties 1 tag)
           value (match-string-no-properties 2 tag))
     ;; Expand tag value
     (cond ((equal value "%t")
-           (setq value
-                 (format-time-string "%Y-%m-%d" (current-time))))
+           (setq value (format-time-string
+                        "%Y-%m-%d" (current-time))))
           ((equal value "%T")
-           (setq value
-                 (format-time-string "%Y-%m-%d %H:%M" (current-time))))
+           (setq value (format-time-string
+                        "%Y-%m-%d %H:%M" (current-time))))
           ((equal value "%^T")
            (setq value (taskpaper-read-date)))
           (t value))
@@ -2544,9 +2542,9 @@ buffer instead."
               ((eq taskpaper-complete-save-date t)     "%Y-%m-%d")
               ((eq taskpaper-complete-save-date 'date) "%Y-%m-%d")
               ((eq taskpaper-complete-save-date 'time) "%Y-%m-%d %H:%M")
-              (t nil))))
-    (when (or (equal (taskpaper-item-get-attribute "type") "task")
-              (equal (taskpaper-item-get-attribute "type") "project"))
+              (t nil)))
+        (type (taskpaper-item-get-attribute "type")))
+    (when (member type (list "task" "project"))
       (if (taskpaper-item-has-attribute "done")
           (taskpaper-item-remove-attribute "done")
         ;; Remove extra tags
@@ -2918,7 +2916,8 @@ Return the number of matches."
     (add-hook 'before-change-functions
               'taskpaper-occur-remove-highlights
               nil 'local)
-    (when (called-interactively-p 'any) (message "%d match(es)" cnt))
+    (when (called-interactively-p 'any)
+      (message "%d match(es)" cnt))
     cnt))
 
 (defun taskpaper-match-sparse-tree (matcher)
@@ -3118,7 +3117,8 @@ PREFIX is a prefix to be included in the returned string.
 SEPARATOR is inserted between the different entries of the path,
 the default is \"/\"."
   (setq olpath (delq nil olpath) separator (or separator "/"))
-  (concat prefix (mapconcat #'taskpaper-format-olpath-prep olpath separator)))
+  (concat prefix (mapconcat #'taskpaper-format-olpath-prep
+                            olpath separator)))
 
 ;;;; Goto interface
 
@@ -3228,17 +3228,14 @@ well. If optional TXT string is given, check it instead of the
 current kill."
   (save-match-data
     (let* ((kill (or txt (and kill-ring (current-kill 0)) ""))
-           (start-level
-            (and kill
-                 (string-match
-                  "\\`\\(?:[\t\n]*?\n\\)?\\([\t]*[^\t\n]\\)"
-                  kill)
-                 (- (match-end 1) (match-beginning 1))))
+           (start-level (and kill
+                             (string-match "\\`\\([\t]*[^\t\n]\\)" kill)
+                             (- (match-end 1) (match-beginning 1))))
            (start (1+ (or (match-beginning 1) -1))))
       (if (not start-level) nil
         (catch 'exit
-          (while (setq start
-                       (string-match "^\\([\t]*[^\t\n]\\)" kill (1+ start)))
+          (while (setq start (string-match
+                              "^\\([\t]*[^\t\n]\\)" kill (1+ start)))
             (when (< (- (match-end 1) (match-beginning 1)) start-level)
               (throw 'exit nil)))
           t)))))
@@ -3579,7 +3576,7 @@ item."
 
 (defconst taskpaper-query-operator-regexp
   "\\([<>!]=\\|[<>=]\\)"
-  "Regular expression for non-alphanumeric relation operator.")
+  "Regular expression for non-word relation operator.")
 
 (defconst taskpaper-query-modifier-regexp
   "\\(\\[[isnd]\\]\\)"
@@ -3629,7 +3626,7 @@ item."
 
 (defconst taskpaper-query-boolean-not
   '("not")
-  "Valid Boolean NOT operators.")
+  "Valid Boolean NOT operator.")
 
 (defconst taskpaper-query-boolean-binary
   '("and" "or")
@@ -3649,8 +3646,7 @@ item."
 
 (defun taskpaper-query-attribute-p (str)
   "Return non-nil if STR is a valid attribute."
-  (let ((re (concat
-             "\\`" taskpaper-query-attribute-regexp "\\'")))
+  (let ((re (format "\\`%s\\'" taskpaper-query-attribute-regexp)))
     (string-match-p re str)))
 
 (defun taskpaper-query-relation-operator-p (str)
@@ -3827,7 +3823,7 @@ matcher and the rest of the token list."
     (setq op (taskpaper-query-op-to-func op mod))
     ;; Unescape double quotes in search term
     (when val (setq val (replace-regexp-in-string "\\\\\"" "\"" val)))
-    ;; Convert time string to speedup matching
+    ;; Convert time string to time to speed up matching
     (and (equal mod "d") val (setq val (taskpaper-2ft val)))
     ;; Build Lisp form
     (cond
@@ -3836,6 +3832,7 @@ matcher and the rest of the token list."
      (t
       (setq form
             `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
+    ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 
 (defun taskpaper-query-parse-boolean-unary (tokens)
@@ -3861,6 +3858,7 @@ matcher and the rest of the token list."
       (setq form right))
      (t
       (error "Invalid Boolean unary expression")))
+    ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 
 (defconst taskpaper-query-precedence-boolean
@@ -3913,6 +3911,7 @@ parsing algorithm known as Pratt's algorithm. See also variable
       (setq form left))
      (t
       (error "Invalid Boolean binary expression")))
+    ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 
 (defun taskpaper-query-parse-parentheses (tokens)
@@ -3933,6 +3932,7 @@ matcher and the rest of the token list."
     (if (taskpaper-query-close-p (nth 0 tokens))
         (pop tokens)
       (error "Closing parenthesis expected"))
+    ;; Return Lisp form and list of remaining tokens
     (cons left tokens)))
 
 (defun taskpaper-query-parse (tokens)
@@ -3945,6 +3945,7 @@ Return constructed Lisp form implementing the matcher."
       (when (and tokens
                  (not (taskpaper-query-boolean-binary-p (nth 0 tokens))))
         (error "Boolean binary operator expected")))
+    ;; Return Lisp form
     left))
 
 (defun taskpaper-query-matcher (str)
@@ -4008,7 +4009,7 @@ if the item matches the selection string STR."
               (regexp-opt taskpaper-query-word-operator 'words) nil t)
         (put-text-property (match-beginning 0) (match-end 0)
                            'face 'taskpaper-query-secondary-text))
-      ;; Fontify non-word operators and modifiers
+      ;; Fontify non-word operators, modifiers, and paretheses
       (goto-char (point-min))
       (while (re-search-forward
               (regexp-opt (append taskpaper-query-non-word-operator
@@ -4227,7 +4228,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   ;; Isearch settings
   (setq-local outline-isearch-open-invisible-function
               (lambda (&rest _) (taskpaper-outline-show-context)))
-  ;; Misc. settings
+  ;; Miscellaneous settings
   (taskpaper-ispell-setup)
   (setq-local require-final-newline mode-require-final-newline)
   ;; Startup settings
