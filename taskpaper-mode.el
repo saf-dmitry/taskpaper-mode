@@ -417,8 +417,8 @@ is used by default. Only the current line is checked."
       (save-excursion
         (goto-char pos) (beginning-of-line 1)
         (while (re-search-forward regexp eol t)
-          (if (and (<= (match-beginning 0) pos)
-                   (>= (match-end 0) pos))
+          (if (and (>= pos (match-beginning 0))
+                   (<= pos (match-end 0)))
               (throw 'exit (cons (match-beginning 0)
                                  (match-end 0)))))))))
 
@@ -2940,15 +2940,17 @@ match the tag-value combination."
   (interactive)
   (if (and (taskpaper-in-tag-p)
            (taskpaper-in-regexp taskpaper-tag-regexp))
-      (let* ((name (match-string-no-properties 2))
-             (value (match-string-no-properties 3))
-             (value (taskpaper-tag-value-unescape value)))
-        (if (taskpaper-in-regexp name)
-            (taskpaper-match-sparse-tree
-             `(taskpaper-item-has-attribute ,name))
-          (taskpaper-match-sparse-tree
-           `(equal ,value
-                   (taskpaper-item-get-attribute ,name)))))
+      (let ((name  (match-string-no-properties 2))
+            (value (match-string-no-properties 3)) query)
+        (cond ((and name
+                    (>= (point) (match-beginning 2))
+                    (<= (point) (match-end 2)))
+               (setq query (concat "@" name)))
+              ((and name value)
+               (setq value (taskpaper-tag-value-unescape value))
+               (setq query (concat "@" name " = " value)))
+              (t (setq query (concat "@" name))))
+        (taskpaper-query query))
     (user-error "No tag at point")))
 
 ;;;; Sorting
