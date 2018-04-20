@@ -1906,15 +1906,13 @@ non-nil also check higher levels of the hierarchy."
     (user-error "Invalid attribute name: %s" name))
   (cdr (assoc name (taskpaper-item-get-attributes inherit))))
 
-(defun taskpaper-item-has-attribute (name &optional value inherit)
+(defun taskpaper-item-has-attribute (name &optional inherit)
   "Return non-nil if item at point has attribute NAME.
-With optional argument VALUE, match only attributes with that
-value. If INHERIT is non-nil also check higher levels of the
+If INHERIT is non-nil also check higher levels of the
 hierarchy."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
-  (let ((attr (assoc name (taskpaper-item-get-attributes inherit))))
-    (if value (equal value (cdr attr)) attr)))
+  (assoc name (taskpaper-item-get-attributes inherit)))
 
 (defun taskpaper-item-remove-attribute (name &optional value)
   "Remove all non-special attributes NAME from item at point.
@@ -1972,13 +1970,13 @@ instead of item at point."
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-get-attribute name)))
 
-(defun taskpaper-string-has-attribute (str name &optional value)
+(defun taskpaper-string-has-attribute (str name)
   "Return non-nil if item string STR has attribute NAME.
 Like `taskpaper-item-has-attribute' but uses argument string
 instead of item at point."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
-    (taskpaper-item-has-attribute name value)))
+    (taskpaper-item-has-attribute name)))
 
 (defun taskpaper-string-remove-attribute (str name &optional value)
   "Remove all non-special attributes NAME from item string STR.
@@ -2949,7 +2947,8 @@ match the tag-value combination."
             (taskpaper-match-sparse-tree
              `(taskpaper-item-has-attribute ,name))
           (taskpaper-match-sparse-tree
-           `(taskpaper-item-has-attribute ,name ,value))))
+           `(equal ,value
+                   (taskpaper-item-get-attribute ,name)))))
     (user-error "No tag at point")))
 
 ;;;; Sorting
@@ -3828,7 +3827,7 @@ matcher and the rest of the token list."
     ;; Build Lisp form
     (cond
      ((not val)
-      (setq form `(taskpaper-item-has-attribute ,attr nil t)))
+      (setq form `(taskpaper-item-has-attribute ,attr t)))
      (t
       (setq form
             `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
