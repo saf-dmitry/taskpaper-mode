@@ -8,6 +8,7 @@
  - Improved syntax highlighting
  - Improved plain link handling
  - All faces renamed to not ending in "-face"
+ - Improved date & time prompt
 
 
 # v0.4

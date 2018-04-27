@@ -228,7 +228,7 @@ The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the curr
 
 The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the date & time to insert at point. You can enter a date using date & time syntax described below. The current interpretation of your input will be displayed live in the minibuffer, right next to your input. If you find this distracting, turn the display off with the user option `taskpaper-read-date-display-live`.
 
-Parallel to the minibuffer prompt, a calendar is popped up (see the user option `taskpaper-read-date-popup-calendar`). You can control the calendar from the minibuffer using the following commands:
+Parallel to the minibuffer prompt the current interpretation of your input is tracked in the calendar window (see the user option `taskpaper-read-date-popup-calendar`). You can control the calendar from the minibuffer using the following commands:
 
  - `RET`: Choose date at cursor in calendar.
 
@@ -246,7 +246,7 @@ Parallel to the minibuffer prompt, a calendar is popped up (see the user option 
 These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Do weekly review @due(Friday 12:30)
-    - Attend meeting @due(2017-08-11 8 am)
+    - Attend meeting @due(2017-08-11 8am)
 
 If the time string is unparseable, current time is returned.
 
@@ -279,8 +279,8 @@ You can refer to relative dates using common words (`today`, `tomorrow`, `yester
 
 Times are relative to the current date.
 
- - `6 am`
- - `6:45 pm`
+ - `6am`
+ - `6:45pm`
  - `12:45`
  - `now`
 
@@ -308,7 +308,7 @@ The shorthands `h`, `d`, `w`, `m`, and `y` stand for hour, day, week, month, and
 
 You can combine dates, times, and duration offsets:
 
- - `tomorrow 8 am`
+ - `tomorrow 8am`
  - `last Jan 2 14:25 -1w`
  - `this month 8:00 +2 Fri`
 

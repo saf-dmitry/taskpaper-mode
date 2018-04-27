@@ -2184,13 +2184,12 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
           hour   (or (nth 2 tl) hour   (nth 2 nowdecode))
           minute (or (nth 1 tl) minute (nth 1 nowdecode))
           second (or (nth 0 tl) second (nth 0 nowdecode)))
-    ;; Set `taskpaper-time-was-given' flag
     (when (nth 2 tl) (setq taskpaper-time-was-given t))
-    ;; Weekday was given but no day
+    ;; Weekday was given
     (when (and (nth 6 tl) (not (nth 3 tl)))
       (setq wday (nth 6 tl)
             wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
-      ;; Re-calculate weekday according to ISO 8601 week day definition
+      ;; Make weekday ISO 8601 conform
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday wday1))))
     ;; Evaluate duration offset
@@ -2218,7 +2217,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
              (setq month (+ month deltan)))
             ((member deltaw '("y" "year" "years"))
              (setq year (+ year deltan)))))
-    ;; Get rid of out-of-range values for seconds, minutes, hours, days, and months
+    ;; Get rid of out-of-range values
     (decode-time (apply 'encode-time (list second minute hour day month year)))))
 
 (defun taskpaper-time-string-to-seconds (s)
@@ -2249,8 +2248,8 @@ string and go to the corresponding date instead. A
 current date."
   (interactive "P")
   (let ((calendar-move-hook nil)
-        (calendar-view-holidays-initially-flag nil)
         (calendar-view-diary-initially-flag nil)
+        (calendar-view-holidays-initially-flag nil)
         value time date)
     (cond
      ((and (taskpaper-in-tag-p)
@@ -2329,6 +2328,20 @@ Return to the current window."
       (setq taskpaper-calendar-selected-date time))
     (when (active-minibuffer-window) (exit-minibuffer))))
 
+(defun taskpaper-read-date-recenter-calendar (&optional _begin _end _length)
+  "Display the date prompt interpretation live in calendar."
+  (when (minibufferp (current-buffer))
+    (let* ((str (buffer-substring (point-at-bol) (point-max)))
+           (time (taskpaper-parse-time-string str))
+           (date (list (nth 4 time) (nth 3 time) (nth 5 time)))
+           (cwin (get-buffer-window "*Calendar*" t)))
+      (when cwin
+        (let ((inhibit-message t) (calendar-move-hook nil))
+          (with-selected-window cwin
+            (calendar-goto-date date)
+            ;; Compatibility for Emacs before v25
+            (unless (boundp 'inhibilt-message) (message nil))))))))
+
 (defvar taskpaper-read-date-overlay nil)
 (defun taskpaper-read-date-display ()
   "Display the date prompt interpretation live in minibuffer."
@@ -2383,12 +2396,16 @@ non-nil return the date converted to an internal time."
                 ;; Activate live preview
                 (add-hook 'post-command-hook
                           'taskpaper-read-date-display)
+                (add-hook 'after-change-functions
+                          'taskpaper-read-date-recenter-calendar)
                 ;; Read date
                 (setq text (read-string prompt nil
                                         taskpaper-read-date-history)))
             ;; Deactivate live preview
             (remove-hook 'post-command-hook
                          'taskpaper-read-date-display)
+            (remove-hook 'after-change-functions
+                         'taskpaper-read-date-recenter-calendar)
             ;; Restore calendar keymap
             (setq calendar-mode-map old-map)
             ;; Remove live preview overlay
