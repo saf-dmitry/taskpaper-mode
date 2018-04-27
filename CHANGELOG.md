@@ -1,5 +1,11 @@
 
 
+# v0.6
+
+ - Improved date & time prompt tracks date & time input live in calendar
+ - New date & time parser accepts multiple duration offsets and flexible order of elements
+
+
 # v0.5
 
  - Added support for inline formatting
@@ -8,7 +14,6 @@
  - Improved syntax highlighting
  - Improved plain link handling
  - All faces renamed to not ending in "-face"
- - Improved date & time prompt
 
 
 # v0.4

@@ -48,7 +48,7 @@
 
 ;;;; Variables
 
-(defconst taskpaper-mode-version "0.5"
+(defconst taskpaper-mode-version "0.6"
   "TaskPaper mode version number.")
 
 (defvar taskpaper-mode-map (make-keymap)
@@ -2013,212 +2013,394 @@ and return the values as a list of strings."
 (defvar taskpaper-time-was-given nil)
 (make-variable-buffer-local 'taskpaper-time-was-given)
 
-(defun taskpaper-parse-time-string (time-string)
-  "Parse the time string TIME-STRING.
-Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
-  (setq taskpaper-time-was-given nil)
-  (let ((mod-re (regexp-opt '("this" "next" "last")))
-        (nowdecode (decode-time (current-time)))
-        (case-fold-search t)
-        dir deltan deltaw mod tl year month day hour minute second wday wday1)
-    ;; Strip duration offset as the very last part of `time-string', if any,
-    ;; parse and postpone interpreting it until the rest of the parsing is done
-    (when (string-match
-           (concat
-            " *\\([-+]\\) ?\\([0-9]+\\) ?"
-            "\\([hdwmy]\\|hours?\\|days?\\|weeks?\\|months?\\|years?\\|"
-            (mapconcat 'car parse-time-weekdays "\\|") "\\) *\\'")
-           time-string)
-      (setq dir (string-to-char (match-string 1 time-string))
-            deltan (string-to-number (match-string 2 time-string))
-            deltaw (match-string 3 time-string))
-      (setq time-string (replace-match "" t t time-string)))
-    ;; Strip relative dates and times as the very first part of `time-string',
-    ;; if any, and parse it
+(defconst taskpaper-time-whitespace-regexp
+  "\\`[ \t\n\r]*"
+  "Regular expression for whitespace characters.")
+
+(defconst taskpaper-time-non-whitespace-regexp
+  "\\`[^ \t\n\r]*"
+  "Regular expression non-whitespace characters.")
+
+(defconst taskpaper-time-relative-word-regexp
+  "\\`\\(today\\|tomorrow\\|yesterday\\|now\\)\\>"
+  "Regular expression for relative date and time.")
+
+(defconst taskpaper-time-relative-period-regexp
+  (concat
+   "\\`\\(this\\|next\\|last\\) +"
+   "\\(year\\|month\\|day\\|week\\)\\>")
+  "Regular expression for relative time period.")
+
+(defconst taskpaper-time-relative-month-regexp
+  (concat
+   "\\`\\(this\\|next\\|last\\) +"
+   "\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
+   "\\(?: +\\([0-9]?[0-9]\\)\\)?\\(?:[ ]\\|\\'\\)")
+  "Regular expression for relative month name.")
+
+(defconst taskpaper-time-relative-weekday-regexp
+  (concat
+   "\\`\\(this\\|next\\|last\\) +"
+   "\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
+  "Regular expression for relative weekday.")
+
+(defconst taskpaper-time-month-regexp
+  (concat
+   "\\`\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
+   "\\(?: +\\([0-9]?[0-9]\\)\\)?\\(?:[ ]\\|\\'\\)")
+  "Regular expression for month name.")
+
+(defconst taskpaper-time-weekday-regexp
+  (concat
+   "\\`\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
+  "Regular expression for weekday.")
+
+(defconst taskpaper-time-iso-date-regexp
+  (concat
+   "\\`\\([0-9][0-9][0-9][0-9]\\)"
+   "\\(?:-\\([0-9]?[0-9]\\)\\(?:-\\([0-9]?[0-9]\\)\\)?\\)?"
+   "\\([ ]\\|\\'\\)")
+  "Regular expression for ISO 8601 date.")
+
+(defconst taskpaper-time-iso-week-date-regexp
+  (concat
+   "\\`\\([0-9][0-9][0-9][0-9]\\)-w\\([0-9]?[0-9]\\)"
+   "\\(?:-\\([0-9]\\)\\)?"
+   "\\([ ]\\|\\'\\)")
+  "Regular expression for ISO 8601 week date.")
+
+(defconst taskpaper-time-iso-date-short-regexp
+  "\\`--\\([0-9]?[0-9]\\)-\\([0-9]?[0-9]\\)\\([ ]\\|\\'\\)"
+  "Regular expression for ISO 8601 date without year.")
+
+(defconst taskpaper-time-ampm-time-regexp
+  "\\`\\([0-9]?[0-9]\\)\\(?::\\([0-9][0-9]\\)\\)?\\([ap]m\\)\\>"
+  "Regular expression for am/pm time.")
+
+(defconst taskpaper-time-time-regexp
+  "\\`\\([0-9]?[0-9]\\):\\([0-9][0-9]\\)\\(?:[ ]\\|\\'\\)"
+  "Regular expression for time.")
+
+(defconst taskpaper-time-duration-offset-regexp
+  (concat
+   "\\`\\([-+]\\) *\\([0-9]+\\) *"
+   "\\([hdwmy]\\|hours?\\|days?\\|weeks?\\|months?\\|years?\\|"
+   (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
+  "Regular expression for duration offset.")
+
+(defun taskpaper-time-relative-spec-to-delta (spec)
+  "Convert relative date specifier to delta."
+  (cond ((equal spec "this")  0)
+        ((equal spec "next")  1)
+        ((equal spec "last") -1)))
+
+(defun taskpaper-time-parse-relative-word (nowdecode time-str)
+  "Parse relative date word."
+  (let ((year   (nth 5 nowdecode))
+        (month  (nth 4 nowdecode))
+        (day    (nth 3 nowdecode))
+        (hour   (nth 2 nowdecode))
+        (minute (nth 1 nowdecode))
+        (second (nth 0 nowdecode))
+        date-word)
+    (when (string-match taskpaper-time-relative-word-regexp time-str)
+      (setq date-word (match-string 1 time-str)
+            time-str (replace-match "" t t time-str)))
+    (cond ((equal date-word "today")
+           (setq hour 0 minute 0 second 0))
+          ((equal date-word "tomorrow")
+           (setq day (1+ day) hour 0 minute 0 second 0))
+          ((equal date-word "yesterday")
+           (setq day (1- day) hour 0 minute 0 second 0))
+          ((equal date-word "now")
+           (setq taskpaper-time-was-given t)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-relative-period (nowdecode time-str)
+  "Parse relative time period."
+  (let ((wday   (nth 6 nowdecode))
+        (year   (nth 5 nowdecode))
+        (month  (nth 4 nowdecode))
+        (day    (nth 3 nowdecode))
+        (hour   (nth 2 nowdecode))
+        (minute (nth 1 nowdecode))
+        (second (nth 0 nowdecode))
+        spec period delta wday1)
+    (when (string-match taskpaper-time-relative-period-regexp time-str)
+      (setq spec (match-string 1 time-str)
+            period (match-string 2 time-str)
+            delta (taskpaper-time-relative-spec-to-delta spec)
+            time-str (replace-match "" t t time-str)))
+    (cond ((equal period "year")
+           (setq year (+ year delta)
+                 month 1 day 1 hour 0 minute 0 second 0))
+          ((equal period "month")
+           (setq month (+ month delta)
+                 day 1 hour 0 minute 0 second 0))
+          ((equal period "day")
+           (setq day (+ day delta)
+                 hour 0 minute 0 second 0))
+          ((equal period "week")
+           ;; Make weekday ISO 8601 conform
+           (and (= wday 0) (setq wday 7))
+           (setq wday1 1
+                 day (+ day (- wday1 wday) (* delta 7))
+                 hour 0 minute 0 second 0)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-relative-month (nowdecode time-str)
+  "Parse relative month name with optional date."
+  (let ((year   (nth 5 nowdecode))
+        (month  (nth 4 nowdecode))
+        (day    (nth 3 nowdecode))
+        (hour   (nth 2 nowdecode))
+        (minute (nth 1 nowdecode))
+        (second (nth 0 nowdecode))
+        spec delta)
+    (when (string-match taskpaper-time-relative-month-regexp time-str)
+      (setq spec (match-string 1 time-str)
+            month (cdr (assoc (match-string 2 time-str) parse-time-months))
+            day (if (match-end 3) (string-to-number (match-string 3 time-str)) 1)
+            delta (taskpaper-time-relative-spec-to-delta spec)
+            year (+ year delta)
+            hour 0 minute 0 second 0
+            time-str (replace-match "" t t time-str)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-relative-weekday (nowdecode time-str)
+  "Parse relative wheekday."
+  (let ((wday   (nth 6 nowdecode))
+        (year   (nth 5 nowdecode))
+        (month  (nth 4 nowdecode))
+        (day    (nth 3 nowdecode))
+        (hour   (nth 2 nowdecode))
+        (minute (nth 1 nowdecode))
+        (second (nth 0 nowdecode))
+        spec wday1 delta)
+    (when (string-match taskpaper-time-relative-weekday-regexp time-str)
+      (setq spec (match-string 1 time-str)
+            wday1 (cdr (assoc (match-string 2 time-str) parse-time-weekdays))
+            delta (taskpaper-time-relative-spec-to-delta spec)
+            time-str (replace-match "" t t time-str)))
+    ;; Make weekday ISO 8601 conform
+    (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
+    (setq day (+ day (- wday1 wday) (* delta 7))
+          hour 0 minute 0 second 0)
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-month (timedecode time-str)
+  "Parse month name with optional day."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode)))
+    (when (string-match taskpaper-time-month-regexp time-str)
+      (setq month (cdr (assoc (match-string 1 time-str) parse-time-months))
+            day (if (match-end 2) (string-to-number (match-string 2 time-str)) 1)
+            time-str (replace-match "" t t time-str)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-weekday (timedecode time-str)
+  "Parse weekday."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode))
+        wday wday1)
+    (when (string-match taskpaper-time-weekday-regexp time-str)
+      (setq wday1 (cdr (assoc (match-string 1 time-str) parse-time-weekdays))
+            wday (nth 6 (decode-time (encode-time 0 0 0 day month year)))
+            time-str (replace-match "" t t time-str)))
+    ;; Make weekday ISO 8601 conform
+    (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
+    (setq day (+ day (- wday1 wday)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-iso-date (timedecode time-str)
+  "Parse ISO 8601 date representation."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode)))
+    (when (string-match taskpaper-time-iso-date-regexp time-str)
+      (setq year (string-to-number (match-string 1 time-str))
+            month (if (match-end 2) (string-to-number (match-string 2 time-str)) 1)
+            day (if (match-end 3) (string-to-number (match-string 3 time-str)) 1)
+            time-str (replace-match "" t t time-str)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-iso-week-date (timedecode time-str)
+  "Parse ISO 8601 week date representation."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode))
+        iso-year iso-week iso-wday iso-date)
+    (when (string-match taskpaper-time-iso-week-date-regexp time-str)
+      (setq iso-year (string-to-number (match-string 1 time-str))
+            iso-week (string-to-number (match-string 2 time-str))
+            iso-wday (if (match-end 3) (string-to-number (match-string 3 time-str)) 1)
+            iso-wday (if (= iso-wday 7) 0 iso-wday)
+            iso-date (calendar-gregorian-from-absolute
+                      (calendar-iso-to-absolute (list iso-week iso-wday iso-year)))
+            month (nth 0 iso-date) day (nth 1 iso-date) year (nth 2 iso-date)
+            time-str (replace-match "" t t time-str)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-iso-date-short (timedecode time-str)
+  "Parse ISO 8601 date representation without year."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode)))
+    (when (string-match taskpaper-time-iso-date-short-regexp time-str)
+      (setq month (string-to-number (match-string 1 time-str))
+            day (string-to-number (match-string 2 time-str))
+            time-str (replace-match "" t t time-str)))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-time (timedecode time-str)
+  "Parse time."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode)) pm)
     (cond
-     ;; Years
-     ((string-match (concat "\\` *\\(" mod-re "\\) year\\>") time-string)
-      (setq mod (match-string 1 time-string)
-            year (nth 5 nowdecode)
-            month 1
-            day 1
-            hour 0
-            minute 0
-            second 0)
-      (cond ((equal mod "next") (setq year (1+ year)))
-            ((equal mod "last") (setq year (1- year))))
-      (setq time-string (replace-match "" t t time-string)))
-     ;; Months
-     ((string-match (concat "\\` *\\(" mod-re "\\) month\\>") time-string)
-      (setq mod (match-string 1 time-string)
-            year (nth 5 nowdecode)
-            month (nth 4 nowdecode)
-            day 1
-            hour 0
-            minute 0
-            second 0)
-      (cond ((equal mod "next") (setq month (1+ month)))
-            ((equal mod "last") (setq month (1- month))))
-      (setq time-string (replace-match "" t t time-string)))
-     ;; Month names with optional day
-     ((string-match
-       (concat "\\` *\\(" mod-re "\\) "
-               "\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
-               "\\(?: \\([0-3]?[0-9]\\)\\)?\\(?:[ ]\\|\\'\\)")
-       time-string)
-      (setq mod (match-string 1 time-string)
-            year (nth 5 nowdecode)
-            month (cdr (assoc (downcase (match-string 2 time-string)) parse-time-months))
-            day (if (match-end 3) (string-to-number (match-string 3 time-string)) 1)
-            hour 0
-            minute 0
-            second 0)
-      (cond ((equal mod "next") (setq year (1+ year)))
-            ((equal mod "last") (setq year (1- year))))
-      (setq time-string (replace-match "" t t time-string)))
-     ;; Weeks
-     ((string-match (concat "\\` *\\(" mod-re "\\) week\\>") time-string)
-      (setq mod (match-string 1 time-string)
-            wday 1 wday1 (nth 6 nowdecode)
-            year (nth 5 nowdecode)
-            month (nth 4 nowdecode)
-            day (nth 3 nowdecode)
-            hour 0
-            minute 0
-            second 0)
-      (and (= wday1 0) (setq wday1 7)) (setq day (+ day (- wday wday1)))
-      (cond ((equal mod "next") (setq day (+ day 7)))
-            ((equal mod "last") (setq day (- day 7))))
-      (setq time-string (replace-match "" t t time-string)))
-     ;; Weekdays
-     ((string-match
-       (concat "\\` *\\(" mod-re "\\) "
-               "\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
-       time-string)
-      (setq mod (match-string 1 time-string)
-            wday (cdr (assoc (downcase (match-string 2 time-string)) parse-time-weekdays))
-            wday1 (nth 6 nowdecode)
-            year (nth 5 nowdecode)
-            month (nth 4 nowdecode)
-            day (nth 3 nowdecode)
-            hour 0
-            minute 0
-            second 0)
+     ((string-match taskpaper-time-ampm-time-regexp time-str)
+      (setq hour (string-to-number (match-string 1 time-str))
+            minute (if (match-end 2) (string-to-number (match-string 2 time-str)) 0)
+            second 0
+            pm (equal ?p (string-to-char (match-string 3 time-str)))
+            time-str (replace-match "" t t time-str)))
+     ((string-match taskpaper-time-time-regexp time-str)
+      (setq hour (string-to-number (match-string 1 time-str))
+            minute (string-to-number (match-string 2 time-str))
+            second 0
+            time-str (replace-match "" t t time-str))))
+    ;; Evaluate pm period
+    (and (not pm) (= hour 12) (setq hour 0))
+    (and pm (< hour 12) (setq hour (+ 12 hour)))
+    (setq taskpaper-time-was-given t)
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-time-parse-duration-offset (timedecode time-str)
+  "Parse duration offset."
+  (let ((year   (nth 5 timedecode))
+        (month  (nth 4 timedecode))
+        (day    (nth 3 timedecode))
+        (hour   (nth 2 timedecode))
+        (minute (nth 1 timedecode))
+        (second (nth 0 timedecode))
+        dir delta unit wday wday1)
+    (when (string-match taskpaper-time-duration-offset-regexp time-str)
+      (setq dir (string-to-char (match-string 1 time-str))
+            delta (string-to-number (match-string 2 time-str))
+            delta (* delta (if (= dir ?-) -1 1))
+            unit (match-string 3 time-str)
+            wday1 (cdr (assoc unit parse-time-weekdays))
+            time-str (replace-match "" t t time-str)))
+    (when wday1
+      (setq wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
-      (setq day (+ day (- wday wday1)))
-      (cond ((equal mod "next") (setq day (+ day 7)))
-            ((equal mod "last") (setq day (- day 7))))
-      (setq time-string (replace-match "" t t time-string)))
-     ;; Days
-     ((string-match "\\` *\\(today\\|tomorrow\\|yesterday\\)\\>" time-string)
-      (setq mod (match-string 1 time-string)
-            year (nth 5 nowdecode)
-            month (nth 4 nowdecode)
-            day (nth 3 nowdecode)
-            hour 0
-            minute 0
-            second 0)
-      (cond ((equal mod "tomorrow") (setq day (1+ day)))
-            ((equal mod "yesterday") (setq day (1- day))))
-      (setq time-string (replace-match "" t t time-string)))
-     ;; Time
-     ((string-match "\\` *now *\\'" time-string)
-      (setq year (nth 5 nowdecode)
-            month (nth 4 nowdecode)
-            day (nth 3 nowdecode)
-            hour (nth 2 nowdecode)
-            minute (nth 1 nowdecode)
-            second (nth 0 nowdecode)
-            taskpaper-time-was-given t)
-      (setq time-string (replace-match "" t t time-string))))
-    ;; Help matching incomplete ISO 8601 date representations, like "2018-08" or "2018-8-2"
-    (when (string-match
-           (concat
-            "\\` *\\([0-9]\\{4\\}\\)-\\([0-1]?[0-9]\\)\\(?:-\\([0-3]?[0-9]\\)\\)?"
-            "\\([^-0-9]\\|\\'\\)")
-           time-string)
-      (let ((year (string-to-number (match-string 1 time-string)))
-            (month (string-to-number (match-string 2 time-string)))
-            (day (if (match-end 3) (string-to-number (match-string 3 time-string)) 1)))
-        (setq time-string
-              (replace-match (format "%04d-%02d-%02d\\4" year month day) t nil time-string))))
-    ;; Help matching ISO date representation with year omitted, like "--08-02"
-    (when (string-match
-           "\\` *--\\([0-1][0-9]\\)-\\([0-3][0-9]\\)\\([^-0-9]\\|\\'\\)"
-           time-string)
-      (let ((year (nth 5 nowdecode))
-            (month (string-to-number (match-string 1 time-string)))
-            (day (string-to-number (match-string 2 time-string))))
-        (setq time-string
-              (replace-match (format "%04d-%02d-%02d\\3" year month day) t nil time-string))))
-    ;; Help matching ISO 8601 week date representation, like "2018-W02-5" or "2018-W02"
-    (when (string-match
-           (concat
-            "\\` *\\([0-9]\\{4\\}\\)-W\\([0-9]\\{1,2\\}\\)\\(?:-\\([1-7]\\)\\)?"
-            "\\([^-0-9]\\|\\'\\)")
-           time-string)
-      (let* ((iso-year (string-to-number (match-string 1 time-string)))
-             (iso-week (string-to-number (match-string 2 time-string)))
-             (iso-wday (if (match-end 3) (string-to-number (match-string 3 time-string)) 1))
-             (iso-wday (if (= iso-wday 7) 0 iso-wday))
-             (iso-date (calendar-gregorian-from-absolute
-                        (calendar-iso-to-absolute (list iso-week iso-wday iso-year))))
-             (month (nth 0 iso-date)) (day (nth 1 iso-date)) (year (nth 2 iso-date)))
-        (setq time-string
-              (replace-match (format "%04d-%02d-%02d\\4" year month day) t nil time-string))))
-    ;; Help matching am/pm times
-    (when (string-match
-           "\\([0-2]?[0-9]\\)\\(?::\\([0-5][0-9]\\)\\)? ?\\(am\\|pm\\)\\>"
-           time-string)
-      (let ((hour (string-to-number (match-string 1 time-string)))
-            (minute (if (match-end 2) (string-to-number (match-string 2 time-string)) 0))
-            (pm (equal ?p (string-to-char (downcase (match-string 3 time-string))))))
-        (and (not pm) (= hour 12) (setq hour 0)) (and pm (< hour 12) (setq hour (+ 12 hour)))
-        (setq time-string
-              (replace-match (format "%02d:%02d" hour minute) t t time-string))))
-    ;; Parse the rest of `time-string' using `parse-time-string' and expand date and time
-    (setq tl (condition-case nil (parse-time-string time-string) (error nil))
-          year   (or (nth 5 tl) year   (nth 5 nowdecode))
-          month  (or (nth 4 tl) month  (nth 4 nowdecode))
-          day    (or (nth 3 tl) day    (nth 3 nowdecode))
-          hour   (or (nth 2 tl) hour   (nth 2 nowdecode))
-          minute (or (nth 1 tl) minute (nth 1 nowdecode))
-          second (or (nth 0 tl) second (nth 0 nowdecode)))
-    (when (nth 2 tl) (setq taskpaper-time-was-given t))
-    ;; Weekday was given
-    (when (and (nth 6 tl) (not (nth 3 tl)))
-      (setq wday (nth 6 tl)
-            wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
-      ;; Make weekday ISO 8601 conform
-      (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
-      (setq day (+ day (- wday wday1))))
+      (setq delta (+ (- wday1 wday) (* delta 7)) unit "d"))
     ;; Evaluate duration offset
-    (when (and dir deltan deltaw)
-      (let ((wday (cdr (assoc (downcase deltaw) parse-time-weekdays)))
-            (wday1 (nth 6 (decode-time (encode-time 0 0 0 day month year))))
-            delta)
-        (if wday
-            (progn (setq delta (mod (+ 7 (- wday wday1)) 7))
-                   (and (= delta 0) (setq delta 7))
-                   (when (= dir ?-)
-                     (progn (setq delta (- delta 7))
-                            (and (= delta 0) (setq delta -7))))
-                   (when (> deltan 1)
-                     (setq delta (+ delta (* (1- deltan) (if (= dir ?-) -7 7)))))
-                   (setq deltan delta deltaw "d"))
-          (setq deltan (* deltan (if (= dir ?-) -1 1)))))
-      (cond ((member deltaw '("h" "hour" "hours"))
-             (setq hour (+ hour deltan) taskpaper-time-was-given t))
-            ((member deltaw '("d" "day" "days"))
-             (setq day (+ day deltan)))
-            ((member deltaw '("w" "week" "weeks"))
-             (setq day (+ day (* 7 deltan))))
-            ((member deltaw '("m" "month" "months"))
-             (setq month (+ month deltan)))
-            ((member deltaw '("y" "year" "years"))
-             (setq year (+ year deltan)))))
+    (cond ((member unit '("h" "hour" "hours"))
+           (setq hour (+ hour delta) taskpaper-time-was-given t))
+          ((member unit '("d" "day" "days"))
+           (setq day (+ day delta)))
+          ((member unit '("w" "week" "weeks"))
+           (setq day (+ day (* 7 delta))))
+          ((member unit '("m" "month" "months"))
+           (setq month (+ month delta)))
+          ((member unit '("y" "year" "years"))
+           (setq year (+ year delta))))
+    ;; Return decoded time and remaining time string
+    (cons (list second minute hour day month year) time-str)))
+
+(defun taskpaper-parse-time-string (time-str)
+  "Parse the time string TIME-STR.
+Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
+  (let* ((nowdecode (decode-time (current-time)))
+         (timedecode nowdecode) temp)
+    (setq time-str (downcase time-str) taskpaper-time-was-given nil)
+    (while (> (length time-str) 0)
+      ;; Trim leading whitespaces
+      (when (string-match taskpaper-time-whitespace-regexp time-str)
+        (setq time-str (replace-match "" nil nil time-str)))
+      (unless (= (length time-str) 0)
+        (cond
+         ;; Relative date
+         ((string-match-p taskpaper-time-relative-word-regexp time-str)
+          (setq temp (taskpaper-time-parse-relative-word nowdecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Relative time period
+         ((string-match-p taskpaper-time-relative-period-regexp time-str)
+          (setq temp (taskpaper-time-parse-relative-period nowdecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Relative month name with optional date
+         ((string-match-p taskpaper-time-relative-month-regexp time-str)
+          (setq temp (taskpaper-time-parse-relative-month nowdecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Relative weekday
+         ((string-match-p taskpaper-time-relative-weekday-regexp time-str)
+          (setq temp (taskpaper-time-parse-relative-weekday nowdecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Month name with optional day
+         ((string-match-p taskpaper-time-month-regexp time-str)
+          (setq temp (taskpaper-time-parse-month timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Weekday
+         ((string-match-p taskpaper-time-weekday-regexp time-str)
+          (setq temp (taskpaper-time-parse-weekday timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; ISO 8601 date
+         ((string-match-p taskpaper-time-iso-date-regexp time-str)
+          (setq temp (taskpaper-time-parse-iso-date timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; ISO 8601 week date
+         ((string-match taskpaper-time-iso-week-date-regexp time-str)
+          (setq temp (taskpaper-time-parse-iso-week-date timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; ISO 8601 date with year omitted
+         ((string-match-p taskpaper-time-iso-date-short-regexp time-str)
+          (setq temp (taskpaper-time-parse-iso-date-short timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Time
+         ((or (string-match-p taskpaper-time-time-regexp time-str)
+              (string-match-p taskpaper-time-ampm-time-regexp time-str))
+          (setq temp (taskpaper-time-parse-time timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Duration offset
+         ((string-match-p taskpaper-time-duration-offset-regexp time-str)
+          (setq temp (taskpaper-time-parse-duration-offset timedecode time-str)
+                timedecode (car temp) time-str (cdr temp)))
+         ;; Unparseable run of non-whitespace characters
+         ((string-match taskpaper-time-non-whitespace-regexp time-str)
+          (setq time-str (replace-match "" t t time-str))))))
     ;; Get rid of out-of-range values
-    (decode-time (apply 'encode-time (list second minute hour day month year)))))
+    (decode-time (apply 'encode-time timedecode))))
 
 (defun taskpaper-time-string-to-seconds (s)
   "Convert a timestamp string S to a float number of seconds.

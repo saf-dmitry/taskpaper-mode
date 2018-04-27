@@ -301,18 +301,18 @@ Duration offsets are relative to the current date.
  - `+1 year`
  - `+3 Wed`
 
-The shorthands `h`, `d`, `w`, `m`, and `y` stand for hour, day, week, month, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past. Fractional (like `-0.5m`) and multiple (like `+2d +6h` or `+1y3m`) duration offsets are not supported.
+The shorthands `h`, `d`, `w`, `m`, and `y` stand for hour, day, week, month, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past.
 
 
 ### Combinations
 
 You can combine dates, times, and duration offsets:
 
+ - `+2m +2d`
+ - `+10d 8:00`
  - `tomorrow 8am`
- - `last Jan 2 14:25 -1w`
- - `this month 8:00 +2 Fri`
-
-Relative dates like `next Monday` should always be given as the _very first_ part of the time string. Duration offsets should always be given as the _very last_ part of the time string.
+ - `2018-08-19 21:00`
+ - `Jan 17 +1w 14:25`
 
 
 ## Hyperlinks and Inline Images
