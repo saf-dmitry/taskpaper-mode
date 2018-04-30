@@ -2028,7 +2028,7 @@ and return the values as a list of strings."
 (defconst taskpaper-time-relative-period-regexp
   (concat
    "\\`\\(this\\|next\\|last\\) +"
-   "\\(year\\|month\\|day\\|week\\)\\>")
+   "\\(year\\|quarter\\|month\\|week\\|day\\)\\>")
   "Regular expression for relative time period.")
 
 (defconst taskpaper-time-relative-month-regexp
@@ -2084,7 +2084,7 @@ and return the values as a list of strings."
 (defconst taskpaper-time-duration-offset-regexp
   (concat
    "\\`\\([-+]\\) *\\([0-9]+\\) *"
-   "\\([hdwmy]\\|hours?\\|days?\\|weeks?\\|months?\\|years?\\|"
+   "\\([hdwmqy]\\|hours?\\|days?\\|weeks?\\|months?\\|quarters?\\|years?\\|"
    (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
   "Regular expression for duration offset.")
 
@@ -2132,21 +2132,25 @@ and return the values as a list of strings."
             period (match-string 2 time-str)
             delta (taskpaper-time-relative-spec-to-delta spec)
             time-str (replace-match "" t t time-str)))
-    (cond ((equal period "year")
-           (setq year (+ year delta)
-                 month 1 day 1 hour 0 minute 0 second 0))
-          ((equal period "month")
-           (setq month (+ month delta)
-                 day 1 hour 0 minute 0 second 0))
-          ((equal period "day")
-           (setq day (+ day delta)
-                 hour 0 minute 0 second 0))
-          ((equal period "week")
-           ;; Make weekday ISO 8601 conform
-           (and (= wday 0) (setq wday 7))
-           (setq wday1 1
-                 day (+ day (- wday1 wday) (* delta 7))
-                 hour 0 minute 0 second 0)))
+    (cond
+     ((equal period "year")
+      (setq year (+ year delta)
+            month 1 day 1 hour 0 minute 0 second 0))
+     ((equal period "quarter")
+      (setq month (+ (1+ (* (floor (/ (1- month) 3)) 3)) (* delta 3))
+            day 1 hour 0 minute 0 second 0))
+     ((equal period "month")
+      (setq month (+ month delta)
+            day 1 hour 0 minute 0 second 0))
+     ((equal period "week")
+      ;; Make weekday ISO 8601 conform
+      (and (= wday 0) (setq wday 7))
+      (setq wday1 1
+            day (+ day (- wday1 wday) (* delta 7))
+            hour 0 minute 0 second 0))
+     ((equal period "day")
+      (setq day (+ day delta)
+            hour 0 minute 0 second 0)))
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
 
@@ -2324,6 +2328,7 @@ and return the values as a list of strings."
      ((assoc unit parse-time-weekdays)
       (setq wday1 (cdr (assoc unit parse-time-weekdays))
             wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
+      ;; Make weekday ISO 8601 conform
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday1 wday) (* delta 7))))
      ((member unit '("h" "hour" "hours"))
@@ -2331,9 +2336,11 @@ and return the values as a list of strings."
      ((member unit '("d" "day" "days"))
       (setq day (+ day delta)))
      ((member unit '("w" "week" "weeks"))
-      (setq day (+ day (* 7 delta))))
+      (setq day (+ day (* delta 7))))
      ((member unit '("m" "month" "months"))
       (setq month (+ month delta)))
+     ((member unit '("q" "quarter" "quarters"))
+      (setq month (+ month (* delta 3))))
      ((member unit '("y" "year" "years"))
       (setq year (+ year delta))))
     ;; Return decoded time and remaining time string

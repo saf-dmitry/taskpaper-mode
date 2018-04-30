@@ -264,7 +264,8 @@ Dates resolve to midnight of the given date.
  - `2017-W02`
  - `2017-W02-5`
  - `this week`
- - `next month`
+ - `last month`
+ - `next quarter`
  - `next Friday`
  - `last June 5`
  - `June`
@@ -295,15 +296,17 @@ Duration offsets are relative to the current date.
  - `-1d`
  - `-4w`
  - `+2m`
+ - `+2q`
  - `+1y`
  - `+2 hours`
  - `-1 day`
  - `-4 weeks`
  - `+2 months`
+ - `+2 quarters`
  - `+1 year`
  - `+3 Wed`
 
-The shorthands `h`, `d`, `w`, `m`, and `y` stand for hour, day, week, month, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past.
+The shorthands `h`, `d`, `w`, `m`, `q`, and `y` stand for hour, day, week, month, quarter, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past.
 
 
 ### Combinations
