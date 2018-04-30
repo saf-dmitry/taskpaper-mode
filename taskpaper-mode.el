@@ -2074,7 +2074,7 @@ and return the values as a list of strings."
   "Regular expression for ISO 8601 date without year.")
 
 (defconst taskpaper-time-ampm-time-regexp
-  "\\`\\([0-9]?[0-9]\\)\\(?::\\([0-9][0-9]\\)\\)?\\([ap]m\\)\\>"
+  "\\`\\([0-9]?[0-9]\\)\\(?::\\([0-9][0-9]\\)\\)?\\([ap]m?\\)\\>"
   "Regular expression for am/pm time.")
 
 (defconst taskpaper-time-time-regexp
@@ -2319,23 +2319,23 @@ and return the values as a list of strings."
             delta (string-to-number (match-string 2 time-str))
             delta (* delta (if (= dir ?-) -1 1))
             unit (match-string 3 time-str)
-            wday1 (cdr (assoc unit parse-time-weekdays))
             time-str (replace-match "" t t time-str)))
-    (when wday1
-      (setq wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
+    (cond
+     ((assoc unit parse-time-weekdays)
+      (setq wday1 (cdr (assoc unit parse-time-weekdays))
+            wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
-      (setq delta (+ (- wday1 wday) (* delta 7)) unit "d"))
-    ;; Evaluate duration offset
-    (cond ((member unit '("h" "hour" "hours"))
-           (setq hour (+ hour delta) taskpaper-time-was-given t))
-          ((member unit '("d" "day" "days"))
-           (setq day (+ day delta)))
-          ((member unit '("w" "week" "weeks"))
-           (setq day (+ day (* 7 delta))))
-          ((member unit '("m" "month" "months"))
-           (setq month (+ month delta)))
-          ((member unit '("y" "year" "years"))
-           (setq year (+ year delta))))
+      (setq day (+ day (- wday1 wday) (* delta 7))))
+     ((member unit '("h" "hour" "hours"))
+      (setq hour (+ hour delta) taskpaper-time-was-given t))
+     ((member unit '("d" "day" "days"))
+      (setq day (+ day delta)))
+     ((member unit '("w" "week" "weeks"))
+      (setq day (+ day (* 7 delta))))
+     ((member unit '("m" "month" "months"))
+      (setq month (+ month delta)))
+     ((member unit '("y" "year" "years"))
+      (setq year (+ year delta))))
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
 
@@ -2474,13 +2474,14 @@ string and show the corresponding date."
 Date is stored as internal time representation.")
 
 (defun taskpaper-eval-in-calendar (form)
-  "Eval FORM in the calendar window.
-Return to the current window."
-  (let ((sf (selected-frame))
-        (sw (selected-window)))
-    (select-window (get-buffer-window "*Calendar*" t))
-    (eval form)
-    (select-window sw) (select-frame-set-input-focus sf)))
+  "Eval FORM in the calendar window."
+  (let ((cwin (get-buffer-window "*Calendar*" t)))
+    (when cwin
+      (let ((inhibit-message t))
+        (with-selected-window cwin
+          (eval form)
+          ;; Compatibility for Emacs before v25
+          (unless (boundp 'inhibilt-message) (message nil)))))))
 
 (defvar taskpaper-read-date-minibuffer-local-map
   (let* ((map (make-sparse-keymap)))
@@ -2851,13 +2852,13 @@ Case is significant."
         (t (string= a b))))
 
 (defun taskpaper-string< (a b)
-  "Return t if first arg string is less than second in lexicographic order.
+  "Return t if first arg string is less than second.
 Case is significant."
   (cond ((not (and a b)) nil)
         (t (string< a b))))
 
 (defun taskpaper-string<= (a b)
-  "Return t if first arg string is less than or equal to second in lexicographic order.
+  "Return t if first arg string is less than or equal to second.
 Case is significant."
   (cond ((not (and a b))
          nil)
@@ -2866,7 +2867,7 @@ Case is significant."
              (string= a b)))))
 
 (defun taskpaper-string> (a b)
-  "Return t if first arg string is greater than second in lexicographic order.
+  "Return t if first arg string is greater than second.
 Case is significant."
   (cond ((not (and a b))
          nil)
@@ -2875,7 +2876,7 @@ Case is significant."
               (not (string= a b))))))
 
 (defun taskpaper-string>= (a b)
-  "Return t if first arg string is greater than or equal to second in lexicographic order.
+  "Return t if first arg string is greater than or equal to second.
 Case is significant."
   (cond ((not (and a b)) nil)
         (t (not (string< a b)))))
@@ -2927,7 +2928,7 @@ Case is ignored."
          (string= a b))))
 
 (defun taskpaper-istring< (a b)
-  "Return t if first arg string is less than second in lexicographic order.
+  "Return t if first arg string is less than second.
 Case is ignored."
   (cond ((not (and a b))
          nil)
@@ -2936,7 +2937,7 @@ Case is ignored."
          (string< a b))))
 
 (defun taskpaper-istring<= (a b)
-  "Return t if first arg string is less than or equal to second in lexicographic order.
+  "Return t if first arg string is less than or equal to second.
 Case is ignored."
   (cond ((not (and a b))
          nil)
@@ -2945,7 +2946,7 @@ Case is ignored."
          (or (string= a b) (string< a b)))))
 
 (defun taskpaper-istring> (a b)
-  "Return t if first arg string is greater than second in lexicographic order.
+  "Return t if first arg string is greater than second.
 Case is ignored."
   (cond ((not (and a b))
          nil)
@@ -2955,7 +2956,7 @@ Case is ignored."
               (not (string< a b))))))
 
 (defun taskpaper-istring>= (a b)
-  "Return t if first arg string is greater than or equal to second in lexicographic order.
+  "Return t if first arg string is greater than or equal to second.
 Case is ignored."
   (cond ((not (and a b))
          nil)
@@ -3757,11 +3758,11 @@ Return the number of matches."
   "\\(\"\\(?:\\\\\"\\|[^\"]\\)*\"\\)"
   "Regular expression for double-quoted string.")
 
-(defconst taskpaper-query-open-regexp
+(defconst taskpaper-query-lparen-regexp
   "\\((\\)"
   "Regular expression for opening parenthesis.")
 
-(defconst taskpaper-query-close-regexp
+(defconst taskpaper-query-rparen-regexp
   "\\()\\)"
   "Regular expression for closing parenthesis.")
 
@@ -3803,7 +3804,7 @@ Return the number of matches."
   '("and" "or")
   "Valid Boolean binary operators.")
 
-(defconst taskpaper-query-open-close
+(defconst taskpaper-query-lparen-rparen
   '("(" ")")
   "Opening and closing parentheses.")
 
@@ -3828,11 +3829,11 @@ Return the number of matches."
   "Return non-nil if STR is a valid relation modifier."
   (member str taskpaper-query-relation-modifier))
 
-(defun taskpaper-query-open-p (str)
+(defun taskpaper-query-lparen-p (str)
   "Return non-nil if STR is the opening parenthesis."
   (equal str "("))
 
-(defun taskpaper-query-close-p (str)
+(defun taskpaper-query-rparen-p (str)
   "Return non-nil if STR is the closing parenthesis."
   (equal str ")"))
 
@@ -3850,8 +3851,8 @@ Return the number of matches."
        (not (taskpaper-query-attribute-p str))
        (not (taskpaper-query-relation-operator-p str))
        (not (taskpaper-query-relation-modifier-p str))
-       (not (taskpaper-query-open-p str))
-       (not (taskpaper-query-close-p str))))
+       (not (taskpaper-query-lparen-p str))
+       (not (taskpaper-query-rparen-p str))))
 
 (defun taskpaper-query-read-tokenize (str)
   "Read query string STR into tokens.
@@ -3897,7 +3898,7 @@ characters repsesenting different types ot tokens."
          ((eq (string-to-char str) ?\()
           ;; Read opening parenthesis
           (if (string-match
-               (concat "\\`" taskpaper-query-open-regexp) str)
+               (concat "\\`" taskpaper-query-lparen-regexp) str)
               (progn
                 (setq val (match-string-no-properties 1 str))
                 (setq str (replace-match "" nil nil str))
@@ -3908,7 +3909,7 @@ characters repsesenting different types ot tokens."
          ((eq (string-to-char str) ?\))
           ;; Read closing parenthesis
           (if (string-match
-               (concat "\\`" taskpaper-query-close-regexp) str)
+               (concat "\\`" taskpaper-query-rparen-regexp) str)
               (progn
                 (setq val (match-string-no-properties 1 str))
                 (setq str (replace-match "" nil nil str))
@@ -4014,7 +4015,7 @@ matcher and the rest of the token list."
       (setq not t) (pop tokens))
     ;; Get the right side
     (cond
-     ((taskpaper-query-open-p (nth 0 tokens))
+     ((taskpaper-query-lparen-p (nth 0 tokens))
       (setq temp (taskpaper-query-parse-parentheses tokens)))
      (t
       (setq temp (taskpaper-query-parse-predicate tokens))))
@@ -4048,7 +4049,7 @@ parsing algorithm known as Pratt's algorithm. See also variable
     ;; Get the left side
     (when (and tokens (not left))
       (cond
-       ((taskpaper-query-open-p (nth 0 tokens))
+       ((taskpaper-query-lparen-p (nth 0 tokens))
         (setq temp (taskpaper-query-parse-parentheses tokens)))
        (t
         (setq temp (taskpaper-query-parse-boolean-unary tokens))))
@@ -4060,7 +4061,7 @@ parsing algorithm known as Pratt's algorithm. See also variable
     ;; Get the right side
     (when (and tokens bool left)
       (cond
-       ((taskpaper-query-open-p (nth 0 tokens))
+       ((taskpaper-query-lparen-p (nth 0 tokens))
         (setq temp (taskpaper-query-parse-parentheses tokens)))
        (t
         ;; Get the current precedence
@@ -4088,17 +4089,17 @@ parsing algorithm known as Pratt's algorithm. See also variable
 Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list."
   (let (temp left)
-    (if (taskpaper-query-open-p (nth 0 tokens))
+    (if (taskpaper-query-lparen-p (nth 0 tokens))
         (pop tokens)
       (error "Opening parenthesis expected"))
-    (while (and tokens (not (taskpaper-query-close-p (nth 0 tokens))))
+    (while (and tokens (not (taskpaper-query-rparen-p (nth 0 tokens))))
       ;; Parse Boolean binary expression
       (setq temp (taskpaper-query-parse-boolean-binary tokens 0 left)
             left (car temp) tokens (cdr temp))
-      (when (and (not (taskpaper-query-close-p (nth 0 tokens)))
+      (when (and (not (taskpaper-query-rparen-p (nth 0 tokens)))
                  (not (taskpaper-query-boolean-binary-p (nth 0 tokens))))
         (error "Boolean binary operator or closing parenthesis expected")))
-    (if (taskpaper-query-close-p (nth 0 tokens))
+    (if (taskpaper-query-rparen-p (nth 0 tokens))
         (pop tokens)
       (error "Closing parenthesis expected"))
     ;; Return Lisp form and list of remaining tokens
@@ -4144,7 +4145,7 @@ if the item matches the selection string STR."
       (while (re-search-forward
               (regexp-opt (append taskpaper-query-non-word-operator
                                   taskpaper-query-relation-modifier
-                                  taskpaper-query-open-close))
+                                  taskpaper-query-lparen-rparen))
               nil t)
         (put-text-property (match-beginning 0) (match-end 0)
                            'face 'taskpaper-query-secondary-text))

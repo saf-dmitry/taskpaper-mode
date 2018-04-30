@@ -17,6 +17,8 @@ The file format is fairly simple:
 
  - Files are expected to use the UTF-8 encoding and use `\n` to separate lines.
 
+ - Each line makes a new item: project, task, or note.
+
  - A task is a line that begins with a hyphen (`-`) followed by a space, which can optionally be prefixed (i.e. indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
 
  - A project is a line that isn't a task and ends with a colon (`:`) followed by a newline. Tags can exist after the colon, but if any non-tag text is present, then it won't be recognized as a project.
@@ -306,7 +308,7 @@ The shorthands `h`, `d`, `w`, `m`, and `y` stand for hour, day, week, month, and
 
 ### Combinations
 
-You can combine dates, times, and duration offsets:
+You can combine dates, times, and duration offsets in any order:
 
  - `+2m +2d`
  - `+10d 8:00`
