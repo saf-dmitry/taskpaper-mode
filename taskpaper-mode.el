@@ -2057,14 +2057,14 @@ and return the values as a list of strings."
 
 (defconst taskpaper-time-iso-date-regexp
   (concat
-   "\\`\\([0-9][0-9][0-9][0-9]\\)"
+   "\\`\\([0-9]?[0-9]?[0-9][0-9]\\)"
    "\\(?:-\\([0-9]?[0-9]\\)\\(?:-\\([0-9]?[0-9]\\)\\)?\\)?"
    "\\([ ]\\|\\'\\)")
   "Regular expression for ISO 8601 date.")
 
 (defconst taskpaper-time-iso-week-date-regexp
   (concat
-   "\\`\\([0-9][0-9][0-9][0-9]\\)-w\\([0-9]?[0-9]\\)"
+   "\\`\\([0-9]?[0-9]?[0-9][0-9]\\)-w\\([0-9]?[0-9]\\)"
    "\\(?:-\\([0-9]\\)\\)?"
    "\\([ ]\\|\\'\\)")
   "Regular expression for ISO 8601 week date.")
@@ -2093,6 +2093,18 @@ and return the values as a list of strings."
   (cond ((equal spec "this")  0)
         ((equal spec "next")  1)
         ((equal spec "last") -1)))
+
+(defun taskpaper-small-year-to-year (year)
+  "Convert 2-digit years into 4-digit years.
+YEAR is expanded into one of the 30 next years, if possible, or
+into a past one. Any year larger than 99 is returned unchanged."
+  (if (>= year 100) year
+    (let* ((current (nth 5 (decode-time (current-time))))
+           (century (/ current 100))
+           (offset (- year (% current 100))))
+      (cond ((> offset  30) (+ (* (1- century) 100) year))
+            ((> offset -70) (+ (* century 100) year))
+            (t (+ (* (1+ century) 100) year))))))
 
 (defun taskpaper-time-parse-relative-word (nowdecode time-str)
   "Parse relative date word."
@@ -2239,7 +2251,8 @@ and return the values as a list of strings."
         (minute (nth 1 timedecode))
         (second (nth 0 timedecode)))
     (when (string-match taskpaper-time-iso-date-regexp time-str)
-      (setq year (string-to-number (match-string 1 time-str))
+      (setq year (taskpaper-small-year-to-year
+                  (string-to-number (match-string 1 time-str)))
             month (if (match-end 2) (string-to-number (match-string 2 time-str)) 1)
             day (if (match-end 3) (string-to-number (match-string 3 time-str)) 1)
             time-str (replace-match "" t t time-str)))
@@ -2256,7 +2269,8 @@ and return the values as a list of strings."
         (second (nth 0 timedecode))
         iso-year iso-week iso-wday iso-date)
     (when (string-match taskpaper-time-iso-week-date-regexp time-str)
-      (setq iso-year (string-to-number (match-string 1 time-str))
+      (setq iso-year (taskpaper-small-year-to-year
+                      (string-to-number (match-string 1 time-str)))
             iso-week (string-to-number (match-string 2 time-str))
             iso-wday (if (match-end 3) (string-to-number (match-string 3 time-str)) 1)
             iso-wday (if (= iso-wday 7) 0 iso-wday)
