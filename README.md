@@ -290,7 +290,7 @@ Times are relative to the current date.
 
 ### Duration Offsets
 
-Duration offsets are relative to the current date.
+Duration offsets are relative to the current time.
 
  - `+2h`
  - `-1d`
@@ -384,7 +384,7 @@ Filtering hides items that don't match the search creating a sparse tree, so tha
 
 The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted; the highlights disappear when the buffer is changed by an editing command, or by pressing `C-c C-c`.
 
-The command `C-c C-t` (`taskpaper-query-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the tag name, only the name is considered. If the cursor is on the tag value, both the name and value are considered. Alternatively, you can select the tag by clicking on it with `mouse-1`.
+The command `C-c C-t` (`taskpaper-query-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the associated tag's value, filtering will be performed based on that tag and value. Alternatively, you can select the tag by clicking on it with `mouse-1`.
 
 The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all levels (also bound to `ESC ESC`).
 
@@ -395,7 +395,7 @@ You can create a sparse tree based on specific combinations of items' assigned t
 
 TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to a certain subtree or region by narrowing the buffer with `C-c #` (`taskpaper-narrow-to-subtree`) or `C-x n n` (`narrow-to-region`) respectively.
 
-In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings while in minibuffer. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline.
+If your query has a formatting error the query string highlights red in the minibuffer. In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings while in minibuffer. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline. Pressing `C-g` or `ESC ESC ESC` quits the I-query mode while preserving the outline view.
 
 The query language syntax is described below.
 

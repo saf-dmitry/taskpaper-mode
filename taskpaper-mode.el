@@ -759,7 +759,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-query-error
-  '((t :inherit error))
+  '((t :foreground "red" :inherit default))
   "Face for malformed query string."
   :group 'taskpaper-faces)
 
@@ -2148,7 +2148,7 @@ past one. Return unchanged any year larger than 99."
     (cons (list second minute hour day month year) time-str)))
 
 (defun taskpaper-time-parse-iso-date-short (nowdecode time-str)
-  "Parse ISO 8601 date representation without year."
+  "Parse ISO 8601 date representation with year omitted."
   (let ((year   (nth 5 nowdecode))
         (month  (nth 4 nowdecode))
         (day    (nth 3 nowdecode))
@@ -2240,7 +2240,7 @@ past one. Return unchanged any year larger than 99."
     (cons (list second minute hour day month year) time-str)))
 
 (defun taskpaper-time-parse-relative-weekday (nowdecode time-str)
-  "Parse relative wheekday."
+  "Parse relative weekday."
   (let ((wday   (nth 6 nowdecode))
         (year   (nth 5 nowdecode))
         (month  (nth 4 nowdecode))
@@ -2336,7 +2336,6 @@ past one. Return unchanged any year larger than 99."
      ((assoc unit parse-time-weekdays)
       (setq wday1 (cdr (assoc unit parse-time-weekdays))
             wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
-      ;; Make weekday ISO 8601 conform
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday1 wday) (* inc 7))))
      ((member unit '("h" "hour" "hours"))
