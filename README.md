@@ -311,13 +311,12 @@ The shorthands `h`, `d`, `w`, `m`, `q`, and `y` stand for hour, day, week, month
 
 ### Combinations
 
-You can combine dates, times, and duration offsets in any order:
+You can combine dates, times, and duration offsets:
 
- - `+2m +2d`
- - `+10d 8:00`
+ - `+2m +2d 5pm`
  - `tomorrow 8am`
- - `2018-08-19 21:00`
- - `Jan 17 +1w 14:25`
+ - `2017-08-19 21:00`
+ - `2017 Jan 10 14:25`
 
 
 ## Hyperlinks and Inline Images
