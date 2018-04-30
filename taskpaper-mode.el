@@ -2459,8 +2459,9 @@ current date."
 If point is on a tag with value, interpret the value as time
 string and show the corresponding date."
   (interactive)
-  (let ((win (selected-window)))
-    (taskpaper-goto-calendar) (select-window win)))
+  (let ((swin (selected-window)) (sframe (selected-frame)))
+    (taskpaper-goto-calendar)
+    (select-window swin) (select-frame-set-input-focus sframe)))
 
 (defun taskpaper-get-date-from-calendar ()
   "Return a list (month day year) of date at point in calendar."
@@ -2560,6 +2561,7 @@ Date is stored as internal time representation.")
 Return formatted date as string. If optional argument TO-TIME is
 non-nil return the date converted to an internal time."
   (let ((mouse-autoselect-window nil)
+        (calendar-setup nil)
         (calendar-move-hook nil)
         (calendar-view-diary-initially-flag nil)
         (calendar-view-holidays-initially-flag nil)

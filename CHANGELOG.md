@@ -3,7 +3,7 @@
 # v0.6
 
  - Improved date & time prompt tracks date & time input live in calendar
- - New date & time parser accepts multiple duration offsets and flexible order of elements
+ - New date & time parser accepts multiple duration offsets, quarters, and flexible order of elements
 
 
 # v0.5
