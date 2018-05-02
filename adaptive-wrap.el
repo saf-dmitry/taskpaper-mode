@@ -1,10 +1,10 @@
 ;;; adaptive-wrap.el --- Smart line-wrapping with wrap-prefix
 
-;; Copyright 2011-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2011-2013, 2017  Free Software Foundation, Inc.
 
 ;; Author: Stephen Berman <stephen.berman@gmx.net>
 ;;         Stefan Monnier <monnier@iro.umontreal.ca>
-;;         Dmitry Safronov <saf.dmitry@gmail.com>
+;; Version: 0.5.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,19 +13,18 @@
 
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; This package provides the `adaptive-wrap-prefix-mode' minor mode which sets
 ;; the wrap-prefix property on the fly so that single-long-line paragraphs get
-;; word-wrapped in a way similar to what you'd get with `M-q' using
-;; `adaptive-fill-mode', but without actually changing the buffer's text.
-;; The present version is adapted to work with tabs and one-line paragraphs.
+;; word-wrapped in a way similar to what you'd get with M-q using
+;; adaptive-fill-mode, but without actually changing the buffer's text.
 
 ;;; Code:
 
@@ -33,18 +32,38 @@
 
 (defcustom adaptive-wrap-extra-indent 0
   "Number of extra spaces to indent in `adaptive-wrap-prefix-mode'.
-The `adaptive-wrap-prefix-mode' indents the visual lines to the
-level of the actual line plus `adaptive-wrap-extra-indent'. A
-negative value will do a relative unindent."
+
+`adaptive-wrap-prefix-mode' indents the visual lines to
+the level of the actual line plus `adaptive-wrap-extra-indent'.
+A negative value will do a relative de-indent.
+
+Examples:
+
+actual indent = 2
+extra indent = -1
+
+  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+ eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+ enim ad minim veniam, quis nostrud exercitation ullamco laboris
+ nisi ut aliquip ex ea commodo consequat.
+
+actual indent = 2
+extra indent = 2
+
+  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+    enim ad minim veniam, quis nostrud exercitation ullamco laboris
+    nisi ut aliquip ex ea commodo consequat."
   :type 'integer
+  :safe 'integerp
   :group 'visual-line)
 (make-variable-buffer-local 'adaptive-wrap-extra-indent)
 
 (defun adaptive-wrap-fill-context-prefix-mod (begin end &optional first-line-regexp)
   "Compute a fill prefix from the text between BEGIN and END.
-Essentially a version of `fill-context-prefix' which does not
-reject a prefix based on a one-line paragraph if that prefix
-would act as a paragraph-separator."
+Essentially a slightly modified version of `fill-context-prefix'
+which does not reject a prefix based on a one-line paragraph if
+that prefix would act as a paragraph-separator."
   (or first-line-regexp
       (setq first-line-regexp adaptive-fill-first-line-regexp))
   (save-excursion
@@ -91,22 +110,20 @@ Like `fill-context-prefix-mod', but with length adjusted by
 `adaptive-wrap-extra-indent'."
   (let* ((fcp (or (adaptive-wrap-fill-context-prefix-mod begin end) ""))
          (fcp-len (string-width fcp)))
-    (if (>= adaptive-wrap-extra-indent 0)
-        (concat
-         (make-string fcp-len ?\s)
-         (make-string adaptive-wrap-extra-indent ?\s))
+    (if (or (<= 0 adaptive-wrap-extra-indent)
+            (<  0 (+ adaptive-wrap-extra-indent fcp-len)))
+        (make-string (+ fcp-len adaptive-wrap-extra-indent) ?\s)
       "")))
 
 (defun adaptive-wrap-prefix-function (begin end)
-  "Indent the region between BEGIN and END with adaptive filling."
+  "Indent the region between BEG and END with adaptive filling."
   (goto-char begin)
   (while (< (point) end)
     (let ((lbp (line-beginning-position)))
-      (put-text-property
-       (point)
-       (progn (search-forward "\n" end 'move) (point))
-       'wrap-prefix
-       (adaptive-wrap-fill-context-prefix lbp (point))))))
+      (put-text-property (point)
+                         (progn (search-forward "\n" end 'move) (point))
+                         'wrap-prefix
+                         (adaptive-wrap-fill-context-prefix lbp (point))))))
 
 ;;;###autoload
 (define-minor-mode adaptive-wrap-prefix-mode
@@ -115,6 +132,9 @@ Like `fill-context-prefix-mod', but with length adjusted by
   :group 'visual-line
   (if adaptive-wrap-prefix-mode
       (progn
+        ;; HACK ATTACK!  We need to run after font-lock, but jit-lock-register
+        ;; doesn't accept an `append' argument, so we add ourselves beforehand,
+        ;; to make sure we're at the end of the hook (bug#15155).
         (add-hook 'jit-lock-functions
                   #'adaptive-wrap-prefix-function 'append t)
         (jit-lock-register #'adaptive-wrap-prefix-function))
@@ -122,15 +142,14 @@ Like `fill-context-prefix-mod', but with length adjusted by
     (with-silent-modifications
       (save-restriction
         (widen)
-        (remove-text-properties
-         (point-min) (point-max) '(wrap-prefix nil))))))
+        (remove-text-properties (point-min) (point-max) '(wrap-prefix nil))))))
 
 (define-key-after (lookup-key menu-bar-options-menu [line-wrapping])
   [adaptive-wrap]
   '(menu-item "Adaptive Wrap" adaptive-wrap-prefix-mode
-              :visible (menu-bar-menu-frame-live-and-visible-p)
-              :help "Wrap long lines with adaptive filling"
-              :button (:toggle . (bound-and-true-p adaptive-wrap-prefix-mode)))
+	      :visible (menu-bar-menu-frame-live-and-visible-p)
+	      :help "Show wrapped long lines with an adjustable prefix"
+	      :button (:toggle . (bound-and-true-p adaptive-wrap-prefix-mode)))
   word-wrap)
 
 (provide 'adaptive-wrap)
