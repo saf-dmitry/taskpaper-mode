@@ -788,7 +788,7 @@ When FACE-OR-COLOR is not a string, just return it."
 If TAG is a number, get the corresponding match group."
   (let ((tag (if (wholenump tag) (match-string tag) tag)))
     (or (taskpaper-face-from-face-or-color
-         'taskpaper-tag-face (cdr (assoc tag taskpaper-tag-faces)))
+         'taskpaper-tag (cdr (assoc tag taskpaper-tag-faces)))
         'taskpaper-tag)))
 
 (defvar taskpaper-mouse-map-tag
