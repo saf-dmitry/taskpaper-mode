@@ -1311,7 +1311,9 @@ directory. An absolute path can be forced with a
 
 (defun taskpaper-display-inline-images ()
   "Display inline images in the buffer.
-Add inline image overlays to local image links in the buffer."
+Add inline image overlays to local image links in the buffer. An
+image link is a link to file matching return value from
+`image-file-name-regexp'."
   (interactive)
   (unless (display-graphic-p) (error "Images cannot be displayed"))
   (taskpaper-remove-inline-images)
@@ -1332,7 +1334,9 @@ Add inline image overlays to local image links in the buffer."
                            :max-width  (car taskpaper-max-image-size)
                            :max-height (cdr taskpaper-max-image-size))
                         (create-image path))))
-          (when (and (file-exists-p path) image)
+          (when (and (file-exists-p path)
+                     (string-match-p (image-file-name-regexp) path)
+                     image)
             (let ((ov (make-overlay begin end)))
               (overlay-put ov 'display image)
               (overlay-put ov 'face 'default)

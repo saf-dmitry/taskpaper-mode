@@ -74,7 +74,26 @@ This document explains the installation, usage, and basic customization of TaskP
 
 # Installation and Activation
 
-Put `taskpaper-mode.el` on the load path and copy the following into your init file:
+
+## Using Package Manager
+
+The recommended way to install TaskPaper mode is to install the package from [MELPA][melpa] using `package.el`. First, configure `package.el` and the MELPA repository by adding the following to your init file:
+
+    (require 'package)
+    (add-to-list 'package-archives
+                 '("melpa" . "https://melpa.org/packages/"))
+    (package-initialize)
+
+Then, after restarting Emacs or evaluating the above statements, issue the following command: `M-x package-install RET taskpaper-mode RET`.
+
+Alternatively, if you manage loading packages with `use-package.el` then you can automatically install and configure TaskPaper mode by adding a declaration such as this one to your init file:
+
+    (use-package taskpaper-mode :ensure t)
+
+
+## Direct Download
+
+Download `taskpaper-mode.el` and save the file where Emacs can find it (i.e., a directory in your `load-path`). Copy the following into your init file:
 
     (require 'taskpaper-mode)
 
@@ -245,7 +264,7 @@ Parallel to the minibuffer prompt the current interpretation of your input is tr
 
 ## Date and Time Formats
 
-These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
+To assist project planning you can store dates and times in tag values and perform date search `[d]` on them (see [Searching](#searching) section). These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Do weekly review @due(Friday 12:30)
     - Attend meeting @due(2017-08-11 8am)
@@ -306,7 +325,7 @@ Duration offsets are relative to the current time.
  - `+1 year`
  - `+3 Wed`
 
-The shorthands `h`, `d`, `w`, `m`, `q`, and `y` stand for hour, day, week, month, quarter, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past.
+The shorthands `h`, `d`, `w`, `m`, `q`, and `y` stand for hour, day, week, month, quarter, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past. In case of weekdays the date will be the Nth such day, e.g., `+2 Tue` means the second Tuesday from now.
 
 
 ### Combinations
@@ -314,7 +333,7 @@ The shorthands `h`, `d`, `w`, `m`, `q`, and `y` stand for hour, day, week, month
 You can combine dates, times, and duration offsets:
 
  - `+2m +2d 5pm`
- - `tomorrow 8am`
+ - `tomorrow at 8am`
  - `2017-08-19 21:00`
  - `2017 Jan 10 14:25`
 
@@ -717,6 +736,8 @@ You should have received a copy of the GNU General Public License along with thi
 [taskpaper-guide]: https://guide.taskpaper.com/getting-started/
 
 [tp-mode-scripting-guide]: ./scripting.md
+
+[melpa]: https://melpa.org
 
 [emacs-ivy]: https://github.com/abo-abo/swiper
 
