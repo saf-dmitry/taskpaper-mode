@@ -1327,20 +1327,27 @@ image link is a link to file matching return value from
                (path (string-remove-prefix "file:" path))
                (path (taskpaper-file-path-unescape path))
                (path (substitute-in-file-name (expand-file-name path)))
-               (image (if (and taskpaper-max-image-size
-                               (image-type-available-p 'imagemagick))
-                          (create-image
-                           path 'imagemagick nil
-                           :max-width  (car taskpaper-max-image-size)
-                           :max-height (cdr taskpaper-max-image-size))
-                        (create-image path))))
+               image)
+          ;; Check file path
           (when (and (file-exists-p path)
+                     (not (file-remote-p path))
                      (string-match-p (image-file-name-regexp) path)
-                     image)
-            (let ((ov (make-overlay begin end)))
-              (overlay-put ov 'display image)
-              (overlay-put ov 'face 'default)
-              (push ov taskpaper-inline-image-overlays))))))))
+                     (not (taskpaper-in-regexp
+                           taskpaper-markdown-link-regexp begin)))
+            ;; Create image
+            (setq image (if (and taskpaper-max-image-size
+                                 (image-type-available-p 'imagemagick))
+                            (create-image
+                             path 'imagemagick nil
+                             :max-width  (car taskpaper-max-image-size)
+                             :max-height (cdr taskpaper-max-image-size))
+                          (create-image path)))
+            ;; Display image
+            (when image
+              (let ((ov (make-overlay begin end)))
+                (overlay-put ov 'display image)
+                (overlay-put ov 'face 'default)
+                (push ov taskpaper-inline-image-overlays)))))))))
 
 (defun taskpaper-toggle-inline-images ()
   "Toggle displaying of inline images in the buffer."
