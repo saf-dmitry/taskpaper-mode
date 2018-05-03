@@ -332,10 +332,10 @@ The shorthands `h`, `d`, `w`, `m`, `q`, and `y` stand for hour, day, week, month
 
 You can combine dates, times, and duration offsets:
 
- - `+2m +2d 5pm`
  - `tomorrow at 8am`
  - `2017-08-19 21:00`
  - `2017 Jan 10 14:25`
+ - `today +2m +2d 5pm`
 
 
 ## Hyperlinks and Inline Images
