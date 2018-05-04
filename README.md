@@ -264,7 +264,7 @@ Parallel to the minibuffer prompt the current interpretation of your input is tr
 
 ## Date and Time Formats
 
-To assist project planning you can store dates and times in tag values and perform date search `[d]` on them (see [Searching](#searching) section). These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
+To assist project planning you can store dates and times in tag values and perform date search `[d]` on them (see [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Do weekly review @due(Friday 12:30)
     - Attend meeting @due(2017-08-11 8am)

@@ -1312,7 +1312,7 @@ directory. An absolute path can be forced with a
 (defun taskpaper-display-inline-images ()
   "Display inline images in the buffer.
 Add inline image overlays to local image links in the buffer. An
-image link is a link to file matching return value from
+image link is a plain link to file matching return value from
 `image-file-name-regexp'."
   (interactive)
   (unless (display-graphic-p) (error "Images cannot be displayed"))
@@ -2538,7 +2538,9 @@ Date is stored as internal time representation.")
     (when (active-minibuffer-window) (exit-minibuffer))))
 
 (defun taskpaper-read-date-recenter-calendar (&optional _begin _end _length)
-  "Display the date prompt interpretation live in calendar."
+  "Display the date prompt interpretation live in calendar.
+The function should be called from minibuffer as part of
+`after-change-functions' hook."
   (when (minibufferp (current-buffer))
     (let* ((str (buffer-substring (point-at-bol) (point-max)))
            (time (taskpaper-parse-time-string str))
@@ -4167,7 +4169,7 @@ if the item matches the selection string STR."
               (regexp-opt taskpaper-query-word-operator 'words) nil t)
         (put-text-property (match-beginning 0) (match-end 0)
                            'face 'taskpaper-query-secondary-text))
-      ;; Fontify non-word operators, modifiers, and paretheses
+      ;; Fontify non-word operators, modifiers, and parentheses
       (goto-char (point-min))
       (while (re-search-forward
               (regexp-opt (append taskpaper-query-non-word-operator
