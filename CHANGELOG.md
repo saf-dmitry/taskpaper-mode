@@ -2,8 +2,9 @@
 
 # v0.6
 
- - Improved date & time prompt tracks date & time input live in calendar
- - New date & time parser accepts multiple duration offsets, quarters, and flexible order of elements
+ - Added optional date & time expansion in tag selection dialog
+ - Improved date & time prompt tracks date input live in calendar
+ - New date & time parser understands quarters and accepts multiple duration offsets
 
 
 # v0.5

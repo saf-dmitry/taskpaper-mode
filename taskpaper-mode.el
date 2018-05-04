@@ -2749,15 +2749,13 @@ buffer instead."
     (setq name  (match-string-no-properties 1 tag)
           value (match-string-no-properties 2 tag))
     ;; Expand tag value
-    (cond ((equal value "%t")
-           (setq value (format-time-string
-                        "%Y-%m-%d" (current-time))))
-          ((equal value "%T")
-           (setq value (format-time-string
-                        "%Y-%m-%d %H:%M" (current-time))))
-          ((equal value "%^T")
-           (setq value (taskpaper-read-date)))
-          (t value))
+    (when (string-prefix-p "%%" value)
+      (setq value (string-remove-prefix "%%" value))
+      (if (equal value "")
+          (setq value (taskpaper-read-date))
+        (let ((time (taskpaper-parse-time-string value))
+              (fmt (if taskpaper-time-was-given "%Y-%m-%d %H:%M" "%Y-%m-%d")))
+          (setq value (format-time-string fmt (apply 'encode-time time))))))
     (taskpaper-item-set-attribute name value)))
 
 (defun taskpaper-remove-tag-at-point ()

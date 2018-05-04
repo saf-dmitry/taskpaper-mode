@@ -211,15 +211,16 @@ After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of t
 In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called _fast tag selection_. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the user option `taskpaper-tag-alist` in your init file:
 
     (setq taskpaper-tag-alist
-          '(("next"        . ?n)
-            ("today"       . ?t)
-            ("due(%^T)"    . ?d)
-            ("added(%T)"   . ?a)
+          '(("today"       . ?t)
+            ("due(%%)"     . ?d)
+            ("due(%%+7d)"  . ?s)
             ("priority(1)" . ?1)
             ("priority(2)" . ?2)
             ("priority(3)" . ?3)))
 
-Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses. The expression `%t` in the tag value is replaced with current date in [ISO 8601][iso8601-wiki] format, `%T` is replaced with current date and time, and `%^T` is like `%T`, but prompts the user for date & time.
+Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses.
+
+If the tag value begins with `%%` the following time string will be expanded into an absolute date in [ISO 8601][iso8601-wiki] format. E.g., if today is 8 May 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
 
 If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure the user option `taskpaper-tags-exclude-from-inheritance`.
 
