@@ -2747,9 +2747,10 @@ buffer instead."
         name value)
     (unless (string-match re tag) (error "Invalid tag specifier: %s" tag))
     (setq name  (match-string-no-properties 1 tag)
-          value (match-string-no-properties 2 tag))
+          value (match-string-no-properties 2 tag)
+          value (taskpaper-tag-value-unescape value))
     ;; Expand tag value
-    (when (string-prefix-p "%%" value)
+    (when (and value (string-prefix-p "%%" value))
       (setq value (string-remove-prefix "%%" value))
       (if (equal value "")
           (setq value (taskpaper-read-date))
