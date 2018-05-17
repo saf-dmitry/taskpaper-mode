@@ -118,6 +118,7 @@ Functions for working with TaskPaper files and buffers.
  - `taskpaper-agenda-files`
  - `taskpaper-agenda-file-p`
  - `taskpaper-save-all-taskpaper-buffers`
+ - `taskpaper-outline-normalize-indentation`
 
 
 ### Quick Entry

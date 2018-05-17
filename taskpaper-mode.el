@@ -1457,6 +1457,18 @@ This version will not throw an error."
              (not (eobp)))
       (funcall func))))
 
+(defun taskpaper-outline-normalize-indentation ()
+  "Normalize outline indentation.
+The variable `tab-width' controls the amount of spaces per
+indentation level."
+  (interactive)
+  (save-restriction
+    (widen) (goto-char (point-min))
+    (while (re-search-forward "^[ \t]+" nil t)
+      (let ((indent (floor (string-width (match-string 0)) tab-width)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (insert (make-string indent ?\t))))))
+
 ;;;; Folding
 
 (eval-and-compile
@@ -2433,15 +2445,17 @@ otherwise use current time."
     ;; Get rid of out-of-range values
     (decode-time (apply 'encode-time timedecode))))
 
-(defun taskpaper-time-string-to-seconds (s)
-  "Convert a timestamp string S to a float number of seconds.
+(defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
+  "Convert a time string S to a float number of seconds.
 Return the float number of seconds since the beginning of the
-epoch."
-  (float-time (apply 'encode-time (taskpaper-parse-time-string s))))
+epoch. When TIMEDECODE is given, calculate time based on this
+time, otherwise use current time."
+  (float-time (apply 'encode-time
+                     (taskpaper-parse-time-string time-str timedecode))))
 
 (defun taskpaper-2ft (s)
   "Convert S to a float number of seconds.
-If S is already a number of seconds, just return it. If it is a
+If S is already a number of seconds, just return it. If S is a
 string, parse it as a time string and convert to float time. If S
 is nil, return 0."
   (cond ((numberp s) s)
