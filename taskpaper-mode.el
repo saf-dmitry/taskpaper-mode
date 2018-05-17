@@ -2367,12 +2367,15 @@ past one. Return unchanged any year larger than 99."
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
 
-(defun taskpaper-parse-time-string (time-str)
+(defun taskpaper-parse-time-string (time-str &optional timedecode)
   "Parse the time string TIME-STR.
-Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ)."
-  (let* ((nowdecode (decode-time (current-time)))
-         (timedecode nowdecode) temp)
-    (setq time-str (downcase time-str) taskpaper-time-was-given nil)
+Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ). When
+TIMEDECODE is given, calculate date and time based on this time,
+otherwise use current time."
+  (let ((nowdecode (decode-time (current-time))) temp)
+    (setq taskpaper-time-was-given nil
+          time-str (downcase time-str)
+          timedecode (or timedecode nowdecode))
     (while (> (length time-str) 0)
       ;; Trim leading whitespaces
       (when (string-match taskpaper-time-whitespace-regexp time-str)
