@@ -2029,7 +2029,7 @@ instead of item at point. Return new string."
   "Convert tag value VALUE to a list.
 Treat the tag value string as a comma-separated list of values
 and return the values as a list of strings."
-  (split-string value ", *" nil))
+  (when (stringp value) (split-string value ", *" nil)))
 
 ;;;; Date and time
 
