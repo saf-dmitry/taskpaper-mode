@@ -2445,6 +2445,14 @@ otherwise use current time."
     ;; Get rid of out-of-range values
     (decode-time (apply 'encode-time timedecode))))
 
+(defun taskpaper-expand-time-string (time-str &optional timedecode)
+  "Parse and format time string.
+Return the formatted time string. When TIMEDECODE is given,
+calculate time based on this time, otherwise use current time."
+  (let ((time (taskpaper-parse-time-string time-str timedecode))
+        (fmt (if taskpaper-time-was-given "%Y-%m-%d %H:%M" "%Y-%m-%d")))
+    (format-time-string fmt (apply 'encode-time time))))
+
 (defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
   "Convert a time string S to a float number of seconds.
 Return the float number of seconds since the beginning of the
@@ -2588,9 +2596,7 @@ The function should be called from minibuffer as part of
                    "   "))
              (insert "   ")))
       (let* ((str (buffer-substring (point-at-bol) (point-max)))
-             (time (taskpaper-parse-time-string str))
-             (fmt (if taskpaper-time-was-given "%Y-%m-%d %H:%M" "%Y-%m-%d"))
-             (txt (format-time-string fmt (apply 'encode-time time))))
+             (txt (taskpaper-expand-time-string str)))
         (setq taskpaper-read-date-overlay
               (make-overlay (1- (point-at-eol)) (point-at-eol)))
         (taskpaper-overlay-display
@@ -2774,9 +2780,7 @@ buffer instead."
       (setq value (string-remove-prefix "%%" value))
       (if (equal value "")
           (setq value (taskpaper-read-date))
-        (let ((time (taskpaper-parse-time-string value))
-              (fmt (if taskpaper-time-was-given "%Y-%m-%d %H:%M" "%Y-%m-%d")))
-          (setq value (format-time-string fmt (apply 'encode-time time))))))
+        (setq value (taskpaper-expand-time-string value))))
     (taskpaper-item-set-attribute name value)))
 
 (defun taskpaper-remove-tag-at-point ()
