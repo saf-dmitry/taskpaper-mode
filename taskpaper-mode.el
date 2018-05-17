@@ -134,6 +134,11 @@ Possible values for this option are:
           (const :tag "Date" date)
           (const :tag "Date and time" time)))
 
+(defcustom taskpaper-after-completion-hook nil
+  "Hook run when tagging with \"@done\"."
+  :group 'taskpaper
+  :type 'hook)
+
 (defcustom taskpaper-read-date-popup-calendar t
   "Non-nil means, pop up a calendar when prompting for a date."
   :group 'taskpaper
@@ -2809,7 +2814,9 @@ buffer instead."
         ;; Mark as complete
         (taskpaper-item-set-attribute
          "done"
-         (when fmt (format-time-string fmt (current-time))))))))
+         (when fmt (format-time-string fmt (current-time))))
+        ;; Run hook
+        (run-hooks 'taskpaper-after-completion-hook)))))
 
 ;;;; Relation functions
 
