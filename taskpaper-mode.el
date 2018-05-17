@@ -2095,7 +2095,8 @@ and return the values as a list of strings."
 (defconst taskpaper-time-duration-offset-regexp
   (concat
    "\\`\\([-+]\\) *\\([0-9]+\\) *"
-   "\\([hdwmqy]\\|hours?\\|days?\\|weeks?\\|months?\\|quarters?\\|years?\\|"
+   "\\([hdwmqy]\\|mins?\\|minutes?\\|hours?\\|"
+   "days?\\|weeks?\\|months?\\|quarters?\\|years?\\|"
    (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
   "Regular expression for duration offset.")
 
@@ -2349,6 +2350,8 @@ past one. Return unchanged any year larger than 99."
             wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
       (setq day (+ day (- wday1 wday) (* inc 7))))
+     ((member unit '("min" "mins" "minute" "minutes"))
+      (setq minute (+ minute inc) taskpaper-time-was-given t))
      ((member unit '("h" "hour" "hours"))
       (setq hour (+ hour inc) taskpaper-time-was-given t))
      ((member unit '("d" "day" "days"))
