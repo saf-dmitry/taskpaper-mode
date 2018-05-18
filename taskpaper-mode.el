@@ -2450,12 +2450,14 @@ otherwise use current time."
     ;; Get rid of out-of-range values
     (decode-time (apply 'encode-time timedecode))))
 
-(defun taskpaper-expand-time-string (time-str &optional timedecode)
+(defun taskpaper-expand-time-string (time-str &optional timedecode with-time)
   "Parse and format time string.
 Return the formatted time string. When TIMEDECODE is given,
-calculate time based on this time, otherwise use current time."
+calculate time based on this time, otherwise use current time.
+Optional argument WITH-TIME can be used to include time."
   (let ((time (taskpaper-parse-time-string time-str timedecode))
-        (fmt (if taskpaper-time-was-given "%Y-%m-%d %H:%M" "%Y-%m-%d")))
+        (fmt (if (or with-time taskpaper-time-was-given)
+                 "%Y-%m-%d %H:%M" "%Y-%m-%d")))
     (format-time-string fmt (apply 'encode-time time))))
 
 (defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
@@ -2607,10 +2609,11 @@ The function should be called from minibuffer as part of
         (taskpaper-overlay-display
          taskpaper-read-date-overlay txt 'secondary-selection)))))
 
-(defun taskpaper-read-date (&optional prompt to-time)
+(defun taskpaper-read-date (&optional prompt with-time to-time)
   "Prompt the user for a date using PROMPT.
-Return formatted date as string. If optional argument TO-TIME is
-non-nil return the date converted to an internal time."
+Return formatted date as string. Optional argument WITH-TIME can
+be used to include time. If optional argument TO-TIME is non-nil
+return the date converted to an internal time."
   (let ((mouse-autoselect-window nil)
         (calendar-setup nil)
         (calendar-move-hook nil)
@@ -2659,8 +2662,9 @@ non-nil return the date converted to an internal time."
     (let* ((date (taskpaper-parse-time-string text))
            (time (or taskpaper-calendar-selected-date
                      (apply 'encode-time date)))
-           (fmt (if (and taskpaper-time-was-given
-                         (not taskpaper-calendar-selected-date))
+           (fmt (if (or with-time
+                        (and taskpaper-time-was-given
+                             (not taskpaper-calendar-selected-date)))
                     "%Y-%m-%d %H:%M" "%Y-%m-%d")))
       ;; Return the selected date
       (if to-time time (format-time-string fmt time)))))
