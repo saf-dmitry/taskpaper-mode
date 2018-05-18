@@ -345,6 +345,7 @@ You can combine dates, times, and duration offsets:
 
 When you need tasks that repeat themselves on a regular basis, you can set a recurring due date. Use relative dates in your tag values, and then do a date based search (see [Searching](#searching) section). Here are a few examples of recurring tasks:
 
+    - Due everyday @due(today)
     - Due on each Tuesday @due(Tue)
     - Due on at the Monday start of each week @due(this week)
     - Due on the 1st of each month @due(this month)
