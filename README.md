@@ -328,7 +328,7 @@ Duration offsets are relative to the current time.
  - `+1 year`
  - `+3 Wed`
 
-The shorthands `min`, `h`, `d`, `w`, `m`, `q`, and `y` stand for minute, hour, day, week, month, quarter, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past. In case of weekdays the date will be the Nth such day, e.g., `+2 Tue` means the second Tuesday from now.
+The shorthands `min`, `h`, `d`, `w`, `m`, `q`, and `y` stand for minute, hour, day, week, month, quarter, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past. In case of weekdays the date will be the nth such day, e.g., `+2 Tue` means the second Tuesday from now.
 
 
 ### Combinations
