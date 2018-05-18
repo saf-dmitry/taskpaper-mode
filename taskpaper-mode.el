@@ -2454,7 +2454,8 @@ otherwise use current time."
   "Parse and format time string.
 Return the formatted time string. When TIMEDECODE is given,
 calculate time based on this time, otherwise use current time.
-Optional argument WITH-TIME can be used to include time."
+Optional argument WITH-TIME can be used to include time into
+formatted output."
   (let ((time (taskpaper-parse-time-string time-str timedecode))
         (fmt (if (or with-time taskpaper-time-was-given)
                  "%Y-%m-%d %H:%M" "%Y-%m-%d")))
@@ -2612,8 +2613,9 @@ The function should be called from minibuffer as part of
 (defun taskpaper-read-date (&optional prompt with-time to-time)
   "Prompt the user for a date using PROMPT.
 Return formatted date as string. Optional argument WITH-TIME can
-be used to include time. If optional argument TO-TIME is non-nil
-return the date converted to an internal time."
+be used to include time into formatted output. If optional
+argument TO-TIME is non-nil return the date converted to an
+internal time."
   (let ((mouse-autoselect-window nil)
         (calendar-setup nil)
         (calendar-move-hook nil)

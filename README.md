@@ -341,6 +341,20 @@ You can combine dates, times, and duration offsets:
  - `today +2m +2d 5pm`
 
 
+### Recurring Actions
+
+When you need tasks that repeat themselves on a regular basis, you can set a recurring due date. Use relative dates in your tag values, and then do a date based search (see [Searching](#searching) section). Here are a few examples of recurring tasks:
+
+    - Due on each Tuesday @due(Tue)
+    - Due on at the Monday start of each week @due(this week)
+    - Due on the 1st of each month @due(this month)
+    - Due on the 15th of each month @due(this month +15d)
+    - Due on the 3rd Friday of each month @due(this month +3 Fri)
+    - Due on the last Friday of each month @due(next month -1 Fri)
+
+It doesn't cover all cases, but may work for you.
+
+
 ## Hyperlinks and Inline Images
 
 TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
