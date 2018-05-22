@@ -340,6 +340,8 @@ You can combine dates, times, and duration offsets:
  - `2017 Jan 10 14:25`
  - `today +2m +2d 5pm`
 
+The time string is evaluated from left to right.
+
 
 ### Recurring Actions
 
@@ -350,8 +352,6 @@ When you need tasks that repeat themselves on a regular basis, you can set a rec
     - Due on at the Monday start of each week @due(this week)
     - Due on the 1st of each month @due(this month)
     - Due on the 15th of each month @due(this month +15d)
-    - Due on the 3rd Friday of each month @due(this month +3 Fri)
-    - Due on the last Friday of each month @due(next month -1 Fri)
 
 It doesn't cover all cases, but may work for you.
 
