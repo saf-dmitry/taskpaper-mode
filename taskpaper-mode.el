@@ -2453,9 +2453,10 @@ otherwise use current time."
 (defun taskpaper-expand-time-string (time-str &optional timedecode with-time)
   "Parse and format time string.
 Return the formatted time string. When TIMEDECODE is given,
-calculate time based on this time, otherwise use current time.
-Optional argument WITH-TIME can be used to include time into
-formatted output."
+calculate time based on this time, otherwise use current time. If
+the original time string specifies a time or if the optional
+argument WITH-TIME is non-nil, the formatted output contains the
+date and the time. Otherwise, only the date is included."
   (let ((time (taskpaper-parse-time-string time-str timedecode))
         (fmt (if (or with-time taskpaper-time-was-given)
                  "%Y-%m-%d %H:%M" "%Y-%m-%d")))
@@ -2612,10 +2613,11 @@ The function should be called from minibuffer as part of
 
 (defun taskpaper-read-date (&optional prompt with-time to-time)
   "Prompt the user for a date using PROMPT.
-Return formatted date as string. Optional argument WITH-TIME can
-be used to include time into formatted output. If optional
-argument TO-TIME is non-nil return the date converted to an
-internal time."
+Return formatted date as string. If the user specifies a time or
+if the optional argument WITH-TIME is non-nil, the formatted
+output contains the date and the time. Otherwise, only the date
+is included. If optional argument TO-TIME is non-nil return the
+time converted to an internal time."
   (let ((mouse-autoselect-window nil)
         (calendar-setup nil)
         (calendar-move-hook nil)
@@ -2674,7 +2676,7 @@ internal time."
 (defun taskpaper-read-date-insert-timestamp ()
   "Prompt the user for a date and insert the timestamp at point."
   (interactive)
-  (insert (format "%s" (taskpaper-read-date))))
+  (insert-before-markers (format "%s" (taskpaper-read-date))))
 
 ;;;; Tags
 
