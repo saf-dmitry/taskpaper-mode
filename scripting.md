@@ -34,6 +34,11 @@ The mapping routines can call any arbitrary function.
  - `taskpaper-outline-backward-same-level-safe`
 
 
+### Item Path
+
+ - `taskpaper-item-has-children-p`
+
+
 ### Sorting and Filtering
 
 General functions for extending sorting and filtering functionality.

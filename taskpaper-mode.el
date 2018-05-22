@@ -1478,6 +1478,17 @@ indentation level."
       (let ((indent (floor (string-width (match-string 0)) tab-width)))
         (replace-match (make-string indent ?\t))))))
 
+;;;; Item path API
+
+(defun taskpaper-item-has-children-p ()
+  "Return non-nil if item at point has children."
+  (let (eoh eos)
+    (save-excursion
+      (outline-back-to-heading t)
+      (outline-end-of-heading) (setq eoh (point))
+      (outline-end-of-subtree) (setq eos (point)))
+    (not (= eos eoh))))
+
 ;;;; Folding
 
 (eval-and-compile
