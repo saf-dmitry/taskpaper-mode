@@ -333,7 +333,7 @@ delimiters for strong and emphasis markup similar to Markdown."
   :group 'taskpaper
   :type 'hook)
 
-;;;; Common definitions
+;;;; Generally useful functions
 
 (defun taskpaper-mode-version ()
   "Show TaskPaper mode version."
@@ -491,6 +491,11 @@ nil. For performance reasons remote files are not checked."
   (if (and (not (taskpaper-file-remote-p file))
            (not (file-exists-p file)))
       t nil))
+
+(defun taskpaper-file-image-p (file)
+  "Return non-nil if FILE is an image file."
+  (save-match-data
+    (string-match (image-file-name-regexp) file)))
 
 (defun taskpaper-file-path-escape (path)
   "Escape special characters in PATH."
@@ -1336,7 +1341,7 @@ image link is a plain link to file matching return value from
           ;; Check file path
           (when (and (file-exists-p path)
                      (not (file-remote-p path))
-                     (string-match-p (image-file-name-regexp) path)
+                     (taskpaper-file-image-p path)
                      (not (taskpaper-in-regexp
                            taskpaper-markdown-link-regexp begin)))
             ;; Create image
@@ -1471,8 +1476,7 @@ indentation level."
     (widen) (goto-char (point-min))
     (while (re-search-forward "^[ \t]+" nil t)
       (let ((indent (floor (string-width (match-string 0)) tab-width)))
-        (delete-region (match-beginning 0) (match-end 0))
-        (insert (make-string indent ?\t))))))
+        (replace-match (make-string indent ?\t))))))
 
 ;;;; Folding
 
