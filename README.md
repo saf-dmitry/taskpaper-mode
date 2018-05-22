@@ -483,6 +483,7 @@ Here are some examples for predicates:
  - `@type = note`
  - `@due <=[d] +10d`
  - `@priority >[n] 3`
+ - `@amount <[n] 1.2e3`
  - `@text endswith ?`
  - `@text matches "v[.0-9]"`
  - `@text contains[s] new logo`
