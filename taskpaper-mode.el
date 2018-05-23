@@ -494,8 +494,7 @@ nil. For performance reasons remote files are not checked."
 
 (defun taskpaper-file-image-p (file)
   "Return non-nil if FILE is an image file."
-  (save-match-data
-    (string-match (image-file-name-regexp) file)))
+  (string-match-p (image-file-name-regexp) file))
 
 (defun taskpaper-file-path-escape (path)
   "Escape special characters in PATH."

@@ -37,6 +37,7 @@ The mapping routines can call any arbitrary function.
 ### Item Path
 
  - `taskpaper-item-has-children-p`
+ - `taskpaper-item-get-outline-path`
 
 
 ### Sorting and Filtering
@@ -111,9 +112,10 @@ Some handy functions for checking attribute values.
  - `taskpaper-item-format`
 
 
-### Date Prompt
+### Date and Time
 
  - `taskpaper-read-date`
+ - `taskpaper-expand-time-string`
 
 
 ### Buffers and Files
