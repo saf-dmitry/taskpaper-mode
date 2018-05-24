@@ -245,6 +245,34 @@ The next function sorts items according to their due dates. The sorting is done 
 As further examples see `taskpaper-sort-alpha` and `taskpaper-sort-by-type` function definitions.
 
 
+### Repeating Actions
+
+You can specify the recurrence of repeating actions using a dedicated repeater tag. In the following example the time value of the `repeat` tag is the repeater specification:
+
+    - Pay electricity bill @repeat(+1m) @due(2018-02-01)
+
+The intended interpretation is that the task is due on 2018-02-01 and repeats itself every (one) month starting from that time. Meaningful repeater values are duration offsets and combination thereof, which shift time into the future, i.e., `+5d`, `+2w`, etc.
+
+The following function checks if the item at point has the repeater attribute `@repeat`, and if yes, shifts the time value of the `@due` attribute to the next possible future time as specified by the repeater value. If no due date is set or if the function is called with the `C-u` prefix argument, the time shift is calculated from the current time instead.
+
+    (defun taskpaper-item-repeat-maybe (&optional from-now)
+      "Re-schedule recurring item."
+      (interactive "P")
+      (let ((ts  (taskpaper-item-get-attribute "due"))
+            (rep (taskpaper-item-get-attribute "repeat"))
+            time-str ctime)
+        (when rep
+          (setq time-str (if (and ts (not from-now)) ts "now"))
+          (while (taskpaper-time<= time-str "now")
+            (setq ctime time-str
+                  time-str (taskpaper-expand-time-string
+                            (concat time-str " " rep)))
+            (when (taskpaper-time<= time-str ctime)
+              (error "Invalid repeater specification")))
+          (taskpaper-item-remove-attribute "done")
+          (taskpaper-item-set-attribute "due" time-str))))
+
+
 ### Quick Entry
 
 The API function `taskpaper-add-entry` can be used in Lisp programs to add entries inside Emacs or in shell scripts to add entries from the command line. The following small shell script will add entries to the top-level project "Inbox" located in the file `~/gtd.taskpaper`. If the project doesn't exist, it will be created at the end of given file as top-level item. The entry text should be given as single argument (quoted or not) to the shell script. A tag `@added` with the current date will be appended to the entry.
