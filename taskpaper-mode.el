@@ -2342,21 +2342,21 @@ past one. Return unchanged any year larger than 99."
         (day    (nth 3 timedecode))
         (hour   (nth 2 timedecode))
         (minute (nth 1 timedecode))
-        (second (nth 0 timedecode)) pm)
+        (second (nth 0 timedecode)) ampm)
     (cond
      ((string-match taskpaper-time-ampm-time-regexp time-str)
       (setq hour (string-to-number (match-string 1 time-str))
             minute (if (match-end 2) (string-to-number (match-string 2 time-str)) 0)
             second 0
-            pm (equal ?p (string-to-char (match-string 3 time-str)))
+            ampm (if (match-end 3) (string-to-char (match-string 3 time-str)))
             time-str (replace-match "" t t time-str)))
      ((string-match taskpaper-time-time-regexp time-str)
       (setq hour (string-to-number (match-string 1 time-str))
             minute (string-to-number (match-string 2 time-str))
             second 0
             time-str (replace-match "" t t time-str))))
-    (and (not pm) (= hour 12) (setq hour 0))
-    (and pm (< hour 12) (setq hour (+ 12 hour)))
+    (and (equal ?a ampm) (= hour 12) (setq hour 0))
+    (and (equal ?p ampm) (< hour 12) (setq hour (+ hour 12)))
     (setq taskpaper-time-was-given t)
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))

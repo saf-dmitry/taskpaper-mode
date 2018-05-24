@@ -220,7 +220,7 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
 
 Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses.
 
-If the tag value begins with `%%` the following time string will be expanded into an absolute date in [ISO 8601][iso8601-wiki] format. E.g., if today is 8 May 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
+If the tag value begins with `%%` the following time string will be expanded into an absolute date in [ISO 8601][iso8601-wiki] format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
 
 If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure the user option `taskpaper-tags-exclude-from-inheritance`.
 
@@ -265,7 +265,7 @@ Parallel to the minibuffer prompt the current interpretation of your input is tr
 
 ## Date and Time Formats
 
-Dates and times are an essential part of any task management system. To assist project planning you can store dates and times in tag values and perform date search `[d]` on them (see [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
+Dates and times are an essential part of any task management system. You can store dates and times in tag values and perform date search `[d]` on them (see [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Do weekly review @due(Friday 12:30)
     - Attend meeting @due(2017-08-11 8am)
