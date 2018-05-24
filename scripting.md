@@ -251,7 +251,7 @@ You can specify the recurrence of repeating actions using a dedicated repeater t
 
     - Pay electricity bill @repeat(+1m) @due(2018-02-01)
 
-The intended interpretation is that the task is due on 2018-02-01 and repeats itself every (one) month starting from that time. Meaningful repeater values are duration offsets and combination thereof, which shift time into the future, i.e., `+5d`, `+2w`, etc.
+The intended interpretation is that the task is due on 2018-02-01 and repeats itself every (one) month starting from that time. Meaningful repeater values are duration offsets and combination thereof, which shift time into the future, i.e., `+5d`, `+2w`, `+2 Tue`, etc.
 
 The following function checks if the item at point has the repeater attribute `@repeat`, and if yes, shifts the time value of the `@due` attribute to the next possible future time as specified by the repeater value. If no due date is set or if the function is called with the `C-u` prefix argument, the time shift is calculated from the current time instead.
 

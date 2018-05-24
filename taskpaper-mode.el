@@ -2348,7 +2348,7 @@ past one. Return unchanged any year larger than 99."
       (setq hour (string-to-number (match-string 1 time-str))
             minute (if (match-end 2) (string-to-number (match-string 2 time-str)) 0)
             second 0
-            ampm (if (match-end 3) (string-to-char (match-string 3 time-str)))
+            ampm (when (match-end 3) (string-to-char (match-string 3 time-str)))
             time-str (replace-match "" t t time-str)))
      ((string-match taskpaper-time-time-regexp time-str)
       (setq hour (string-to-number (match-string 1 time-str))
@@ -3547,25 +3547,25 @@ deleted from the original location."
 Return file name for archive file. If LOCATION is not given, the
 value of `taskpaper-archive-location' is used."
   (setq location (or location taskpaper-archive-location))
-  (if (string-match "\\(.*\\)::\\(.*\\)" location)
-      (if (= (match-beginning 1) (match-end 1))
-          (buffer-file-name (buffer-base-buffer))
-        (expand-file-name
-         (format (match-string-no-properties 1 location)
-                 (file-name-sans-extension
-                  (file-name-nondirectory
-                   (buffer-file-name (buffer-base-buffer)))))))))
+  (when (string-match "\\(.*\\)::\\(.*\\)" location)
+    (if (= (match-beginning 1) (match-end 1))
+        (buffer-file-name (buffer-base-buffer))
+      (expand-file-name
+       (format (match-string-no-properties 1 location)
+               (file-name-sans-extension
+                (file-name-nondirectory
+                 (buffer-file-name (buffer-base-buffer)))))))))
 
 (defun taskpaper-extract-archive-heading (&optional location)
   "Extract the heading from archive LOCATION.
 If LOCATION is not given, the value of
 `taskpaper-archive-location' is used."
   (setq location (or location taskpaper-archive-location))
-  (if (string-match "\\(.*\\)::\\(.*\\)" location)
-      (format (match-string-no-properties 2 location)
-              (file-name-sans-extension
-               (file-name-nondirectory
-                (buffer-file-name (buffer-base-buffer)))))))
+  (when (string-match "\\(.*\\)::\\(.*\\)" location)
+    (format (match-string-no-properties 2 location)
+            (file-name-sans-extension
+             (file-name-nondirectory
+              (buffer-file-name (buffer-base-buffer)))))))
 
 (defun taskpaper-archive-get-project ()
   "Get project hierarchy for the item at point."
