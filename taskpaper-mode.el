@@ -445,6 +445,10 @@ is used by default. Only the current line is checked."
   "Non-destructively sort elements of LIST as strings."
   (let ((res (copy-sequence list))) (sort res 'string-lessp)))
 
+(defun taskpaper-unlogged-message (&rest args)
+  "Display a message without logging."
+  (let ((message-log-max nil)) (apply 'message args)))
+
 (defconst taskpaper-nonsticky-properties
   '(face mouse-face keymap help-echo display invisible intangible))
 
@@ -1563,12 +1567,12 @@ buffer. When point is on an item, rotate the current subtree."
              (eq taskpaper-cycle-global-status 2))
         ;; Move from overview to all
         (taskpaper-outline-show-all)
-        (message "SHOW ALL")
+        (taskpaper-unlogged-message "SHOW ALL")
         (setq taskpaper-cycle-global-status 1))
        (t
         ;; Default to overview
         (taskpaper-outline-hide-sublevels 1)
-        (message "OVERVIEW")
+        (taskpaper-unlogged-message "OVERVIEW")
         (setq taskpaper-cycle-global-status 2))))
      ((save-excursion
         (beginning-of-line 1) (looking-at outline-regexp))
@@ -1584,20 +1588,20 @@ buffer. When point is on an item, rotate the current subtree."
         (cond
          ((= eos eoh)
           ;; Leaf item
-          (message "LEAF ITEM"))
+          (taskpaper-unlogged-message "LEAF ITEM"))
          ((>= eol eos)
           ;; Entire subtree is hidden in one line
           (taskpaper-outline-show-children)
-          (message "CHILDREN")
+          (taskpaper-unlogged-message "CHILDREN")
           (setq this-command 'taskpaper-cycle-children))
          ((eq last-command 'taskpaper-cycle-children)
           ;; Show everything
           (taskpaper-outline-show-subtree)
-          (message "SUBTREE"))
+          (taskpaper-unlogged-message "SUBTREE"))
          (t
           ;; Hide the subtree (default action)
           (taskpaper-outline-hide-subtree)
-          (message "FOLDED")))))
+          (taskpaper-unlogged-message "FOLDED")))))
      (t
       ;; Not at an item
       (outline-back-to-heading))))))
@@ -2348,7 +2352,7 @@ past one. Return unchanged any year larger than 99."
       (setq hour (string-to-number (match-string 1 time-str))
             minute (if (match-end 2) (string-to-number (match-string 2 time-str)) 0)
             second 0
-            ampm (when (match-end 3) (string-to-char (match-string 3 time-str)))
+            ampm (string-to-char (match-string 3 time-str))
             time-str (replace-match "" t t time-str)))
      ((string-match taskpaper-time-time-regexp time-str)
       (setq hour (string-to-number (match-string 1 time-str))
@@ -3333,6 +3337,14 @@ the default is \"/\"."
   (concat prefix (mapconcat #'taskpaper-format-olpath-prep
                             olpath separator)))
 
+(defun taskpaper-item-display-outline-path (&optional self)
+  "Display the current outline path in the echo area.
+When SELF is non-nil, the path also includes the current item."
+  (interactive "P")
+  (let ((olpath (taskpaper-format-outline-path
+                 (taskpaper-item-get-outline-path self))))
+    (taskpaper-unlogged-message "%s" olpath)))
+
 ;;;; Goto interface
 
 (defun taskpaper-goto-get-targets (&optional excluded-entries)
@@ -3762,67 +3774,6 @@ Return the number of matches."
 
 ;;;; Querying
 
-(defun taskpaper-query-op-to-func (op mod)
-  "Convert operator OP and modifier MOD into function."
-  (setq op
-        (cond
-         ((equal op "<" )
-          '(taskpaper-time<
-            taskpaper-num<
-            taskpaper-string<
-            taskpaper-istring<))
-         ((equal op ">" )
-          '(taskpaper-time>
-            taskpaper-num>
-            taskpaper-string>
-            taskpaper-istring>))
-         ((equal op "=" )
-          '(taskpaper-time=
-            taskpaper-num=
-            taskpaper-string=
-            taskpaper-istring=))
-         ((equal op "<=")
-          '(taskpaper-time<=
-            taskpaper-num<=
-            taskpaper-string<=
-            taskpaper-istring<=))
-         ((equal op ">=")
-          '(taskpaper-time>=
-            taskpaper-num>=
-            taskpaper-string>=
-            taskpaper-istring>=))
-         ((equal op "!=")
-          '(taskpaper-time<>
-            taskpaper<>
-            taskpaper-string<>
-            taskpaper-istring<>))
-         ((equal op "contains")
-          '(taskpaper-istring-contain-p
-            taskpaper-istring-contain-p
-            taskpaper-string-contain-p
-            taskpaper-istring-contain-p))
-         ((equal op "beginswith")
-          '(taskpaper-istring-prefix-p
-            taskpaper-istring-prefix-p
-            taskpaper-string-prefix-p
-            taskpaper-istring-prefix-p))
-         ((equal op "endswith")
-          '(taskpaper-istring-suffix-p
-            taskpaper-istring-suffix-p
-            taskpaper-string-suffix-p
-            taskpaper-istring-suffix-p))
-         ((equal op "matches")
-          '(taskpaper-istring-match-p
-            taskpaper-istring-match-p
-            taskpaper-string-match-p
-            taskpaper-istring-match-p))
-         (t (error "Invalid relation operator: %s" op))))
-  (cond ((equal mod "d") (nth 0 op))
-        ((equal mod "n") (nth 1 op))
-        ((equal mod "s") (nth 2 op))
-        ((equal mod "i") (nth 3 op))
-        (t (error "Invalid relaton modifier: %s" mod))))
-
 (defconst taskpaper-query-attribute-regexp
   (format "\\(@%s+\\)" taskpaper-tag-name-char-regexp)
   "Regular expression for attribute.")
@@ -4045,6 +3996,67 @@ characters repsesenting different types ot tokens."
              (setq prev token)
              (push token expanded))))
     (nreverse expanded)))
+
+(defun taskpaper-query-op-to-func (op mod)
+  "Convert operator OP and modifier MOD into function."
+  (setq op
+        (cond
+         ((equal op "<" )
+          '(taskpaper-time<
+            taskpaper-num<
+            taskpaper-string<
+            taskpaper-istring<))
+         ((equal op ">" )
+          '(taskpaper-time>
+            taskpaper-num>
+            taskpaper-string>
+            taskpaper-istring>))
+         ((equal op "=" )
+          '(taskpaper-time=
+            taskpaper-num=
+            taskpaper-string=
+            taskpaper-istring=))
+         ((equal op "<=")
+          '(taskpaper-time<=
+            taskpaper-num<=
+            taskpaper-string<=
+            taskpaper-istring<=))
+         ((equal op ">=")
+          '(taskpaper-time>=
+            taskpaper-num>=
+            taskpaper-string>=
+            taskpaper-istring>=))
+         ((equal op "!=")
+          '(taskpaper-time<>
+            taskpaper<>
+            taskpaper-string<>
+            taskpaper-istring<>))
+         ((equal op "contains")
+          '(taskpaper-istring-contain-p
+            taskpaper-istring-contain-p
+            taskpaper-string-contain-p
+            taskpaper-istring-contain-p))
+         ((equal op "beginswith")
+          '(taskpaper-istring-prefix-p
+            taskpaper-istring-prefix-p
+            taskpaper-string-prefix-p
+            taskpaper-istring-prefix-p))
+         ((equal op "endswith")
+          '(taskpaper-istring-suffix-p
+            taskpaper-istring-suffix-p
+            taskpaper-string-suffix-p
+            taskpaper-istring-suffix-p))
+         ((equal op "matches")
+          '(taskpaper-istring-match-p
+            taskpaper-istring-match-p
+            taskpaper-string-match-p
+            taskpaper-istring-match-p))
+         (t (error "Invalid relation operator: %s" op))))
+  (cond ((equal mod "d") (nth 0 op))
+        ((equal mod "n") (nth 1 op))
+        ((equal mod "s") (nth 2 op))
+        ((equal mod "i") (nth 3 op))
+        (t (error "Invalid relaton modifier: %s" mod))))
 
 (defun taskpaper-query-parse-predicate (tokens)
   "Parse next predicate expression in token list TOKENS.
@@ -4567,6 +4579,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c @") 'taskpaper-item-set-tag-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c /") 'taskpaper-occur)
 (define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-fast-select)
+(define-key taskpaper-mode-map (kbd "C-c :") 'taskpaper-item-display-outline-path)
 
 (define-key taskpaper-mode-map (kbd "C-c C-a") 'taskpaper-outline-show-all)
 (define-key taskpaper-mode-map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
