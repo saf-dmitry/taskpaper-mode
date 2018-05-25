@@ -3321,7 +3321,7 @@ path also includes the current item."
         (push item olpath)))
     olpath))
 
-(defun taskpaper-format-olpath-prep (entry)
+(defun taskpaper-format-olpath-entry (entry)
   "Format the outline path entry ENTRY for display."
   (setq entry (taskpaper-remove-type-formatting entry)
         entry (taskpaper-remove-trailing-tags entry)
@@ -3334,16 +3334,17 @@ PREFIX is a prefix to be included in the returned string.
 SEPARATOR is inserted between the different entries of the path,
 the default is \"/\"."
   (setq olpath (delq nil olpath) separator (or separator "/"))
-  (concat prefix (mapconcat #'taskpaper-format-olpath-prep
+  (concat prefix (mapconcat #'taskpaper-format-olpath-entry
                             olpath separator)))
 
-(defun taskpaper-item-display-outline-path (&optional self)
+(defun taskpaper-item-display-outline-path (&optional prefix self)
   "Display the current outline path in the echo area.
+PREFIX is a prefix to be included in the displayed output.
 When SELF is non-nil, the path also includes the current item."
-  (interactive "P")
-  (let ((olpath (taskpaper-format-outline-path
-                 (taskpaper-item-get-outline-path self))))
-    (taskpaper-unlogged-message "%s" olpath)))
+  (interactive)
+  (let ((output (taskpaper-format-outline-path
+                 (taskpaper-item-get-outline-path self) prefix)))
+    (taskpaper-unlogged-message "%s" output)))
 
 ;;;; Goto interface
 
