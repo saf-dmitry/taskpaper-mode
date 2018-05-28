@@ -6,12 +6,13 @@ TaskPaper mode is an Emacs major mode for working with files in TaskPaper format
 
 TaskPaper format knows about four things: _projects_, _tasks_, _notes_, and _tags_. Items can be indented (using literal tabs) under other items to create outline structure, which defines parent-child hierarchical relationship:
 
-    To create items:
-        - To create a project, type a line ending with a colon.
-        - To create a task, type a dash followed by a space.
-        - To create a note, type any line that isn't a project or task.
-        - To create a tag, type "@" followed by the tag's name.
-            Tags can have a value in parentheses after the name.
+    Project meeting:
+        - Select and invite participants @next
+        - Prepare and distribute meeting agenda
+        - Book conference room @due(2018-06-20)
+            Room M-2612
+        - Print handouts for attendees @done(2018-05-11)
+        - Review meeting notes @waiting
 
 The file format is fairly simple:
 
@@ -158,7 +159,7 @@ The following commands jump to other items in the buffer.
 
 The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
-To make navigation in long documents easier the command `C-c :` (`taskpaper-item-display-outline-path`) shows the current outline path in the echo area.
+To assist navigation in long documents the command `C-c :` (`taskpaper-item-display-outline-path`) shows the current outline path in the echo area.
 
 
 ## Structure Editing
