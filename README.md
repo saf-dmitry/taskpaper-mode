@@ -439,7 +439,7 @@ If your query has a formatting error the query string highlights red in the mini
 
 By default, incremental query results are not updated immediately every time you press a key. Instead, the query is evaluated after a certain period of idle time (one tenth of a second, by default). If you would like to change this behavior, customize the user option `taskpaper-iquery-delay`. For example, when working on long documents over a slow network connections slightly increasing the delay may give you a better search "responsiveness". To disable the delay entirely set the `taskpaper-iquery-delay` value to zero:
 
-    (setq taskpaper-query-delay 0)
+    (setq taskpaper-iquery-delay 0)
 
 The query language syntax is described below.
 
