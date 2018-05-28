@@ -185,7 +185,18 @@ The next example uses `taskpaper-map-tree` outline mapping function and `taskpap
          `(lambda ()
             (taskpaper-item-remove-attribute ,name ,value)))))
 
-The next more complex example utilizes `taskpaper-map-region` outline mapping function and `taskpaper-archive-subtree` function to archive all completed items in the current buffer:
+The function described in the next example marks all items in the subtree under cursor as completed by adding a `@done` tag with the current date to them. Items, which have been completed before, remain untouched.
+
+    (defun taskpaper-outline-complete-subtree ()
+      "Complete all items in the current subtree."
+      (interactive)
+      (let ((ts (format-time-string "%Y-%m-%d" (current-time))))
+        (taskpaper-map-tree
+         `(lambda ()
+            (unless (taskpaper-item-has-attribute "done")
+              (taskpaper-item-set-attribute "done" ,ts))))))
+
+The following more complex example utilizes `taskpaper-map-region` outline mapping function and `taskpaper-archive-subtree` function to archive all completed items in the current buffer:
 
     (defun my-taskpaper-archive-done ()
       "Archive all completed items."
