@@ -279,7 +279,7 @@ The following function checks if the item at point has the repeater attribute `@
                   time-str (taskpaper-expand-time-string
                             (concat time-str " " rep)))
             (when (taskpaper-time<= time-str ctime)
-              (error "Invalid repeater specification")))
+              (error "Invalid repeater specification: %s" rep)))
           (taskpaper-item-remove-attribute "done")
           (taskpaper-item-set-attribute "due" time-str))))
 
