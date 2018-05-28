@@ -483,6 +483,12 @@ PROP-VAL."
        (fboundp 'flyspell-delete-region-overlays)
        (flyspell-delete-region-overlays begin end)))
 
+(defun taskpaper-unescape-double-quotes (str)
+  "Unescape double quotation marks in STR."
+  (when (stringp str)
+    (setq str (replace-regexp-in-string "\\\\\"" "\"" str)))
+  str)
+
 (defun taskpaper-file-remote-p (file)
   "Test whether FILE specifies a location on a remote system."
   (cond
@@ -4065,6 +4071,13 @@ characters repsesenting different types ot tokens."
         ((equal mod "i") (nth 3 op))
         (t (error "Invalid relaton modifier: %s" mod))))
 
+(defun taskpaper-query-bool-to-func (bool)
+  "Convert Boolean operator to function."
+  (cond ((equal bool "or")  'or)
+        ((equal bool "and") 'and)
+        ((equal bool "not") 'not)
+        (t (error "Invalid Boolean operator: %s" bool))))
+
 (defun taskpaper-query-parse-predicate (tokens)
   "Parse next predicate expression in token list TOKENS.
 Return a cons of the constructed Lisp form implementing the
@@ -4082,26 +4095,22 @@ matcher and the rest of the token list."
         (setq mod (substring token 1 -1)) (pop tokens)))
     (let ((token (nth 0 tokens)))
       (when (and token (taskpaper-query-search-term-p token))
-        (setq val
-              (if (eq (string-to-char token) ?\")
-                  (substring token 1 -1)
-                token))
+        (setq val (if (eq (string-to-char token) ?\")
+                      (substring token 1 -1)
+                    token))
         (pop tokens)))
     ;; Provide default values
     (setq attr (or attr "text") op (or op "contains") mod (or mod "i"))
     ;; Convert operator to function
     (setq op (taskpaper-query-op-to-func op mod))
     ;; Unescape double quotes in search term
-    (when val (setq val (replace-regexp-in-string "\\\\\"" "\"" val)))
+    (when val (setq val (taskpaper-unescape-double-quotes val)))
     ;; Convert time string to time to speed up matching
     (and (equal mod "d") val (setq val (taskpaper-2ft val)))
     ;; Build Lisp form
     (cond
-     ((not val)
-      (setq form `(taskpaper-item-has-attribute ,attr t)))
-     (t
-      (setq form
-            `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
+     ((not val) (setq form `(taskpaper-item-has-attribute ,attr t)))
+     (t (setq form `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
     ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 
@@ -4109,10 +4118,11 @@ matcher and the rest of the token list."
   "Parse next unary Boolean expression in token list TOKENS.
 Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list."
-  (let (not temp right form)
+  (let (temp bool right form)
     ;; Get operator
-    (when (and tokens (taskpaper-query-boolean-not-p (nth 0 tokens)))
-      (setq not t) (pop tokens))
+    (let ((token (nth 0 tokens)))
+      (when (and token (taskpaper-query-boolean-not-p token))
+        (setq bool token) (pop tokens)))
     ;; Get the right side
     (cond
      ((taskpaper-query-lparen-p (nth 0 tokens))
@@ -4120,19 +4130,18 @@ matcher and the rest of the token list."
      (t
       (setq temp (taskpaper-query-parse-predicate tokens))))
     (setq right (car temp) tokens (cdr temp))
+    ;; Convert operator to function
+    (when bool (setq bool (taskpaper-query-bool-to-func bool)))
     ;; Build Lisp form
     (cond
-     ((and not right)
-      (setq form `(not ,right)))
-     (right
-      (setq form right))
-     (t
-      (error "Invalid Boolean unary expression")))
+     ((and bool right) (setq form `(,bool ,right)))
+     (right (setq form right))
+     (t (error "Invalid Boolean unary expression")))
     ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 
 (defconst taskpaper-query-precedence-boolean
-  '(("and" . 0)("or" . 1))
+  '(("and" . 0) ("or" . 1))
   "Order of precedence for binary Boolean operators.
 Operators with lower precedence bind more strongly.")
 
@@ -4166,21 +4175,17 @@ parsing algorithm known as Pratt's algorithm. See also variable
        (t
         ;; Get the current precedence
         (setq cprec (cdr (assoc bool taskpaper-query-precedence-boolean)))
-        (setq temp
-              (if (> cprec prec)
-                  (taskpaper-query-parse-boolean-binary tokens cprec)
-                (taskpaper-query-parse-boolean-unary tokens)))))
+        (setq temp (if (> cprec prec)
+                       (taskpaper-query-parse-boolean-binary tokens cprec)
+                     (taskpaper-query-parse-boolean-unary tokens)))))
       (setq right (car temp) tokens (cdr temp)))
+    ;; Convert operator to function
+    (when bool (setq bool (taskpaper-query-bool-to-func bool)))
     ;; Build Lisp form
-    (when bool
-      (setq bool (cond ((equal bool "or") 'or) ((equal bool "and") 'and))))
     (cond
-     ((and bool left right)
-      (setq form `(,bool ,left ,right)))
-     ((and left (not bool))
-      (setq form left))
-     (t
-      (error "Invalid Boolean binary expression")))
+     ((and bool left right) (setq form `(,bool ,left ,right)))
+     ((and left (not bool)) (setq form left))
+     (t (error "Invalid Boolean binary expression")))
     ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 
