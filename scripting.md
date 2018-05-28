@@ -153,14 +153,14 @@ Following are some scripting examples, which utilize the API functions mentioned
 
 The following two functions are similar to `taskpaper-outline-promote-subtree` and `taskpaper-outline-demote-subtree` but work on selected region instead of current subtree. They use `taskpaper-map-region` mapping function together with `taskpaper-outline-promote` and `taskpaper-outline-demote` functions to promote/demote all items in a region.
 
-    (defun taskpaper-outline-promote-region ()
+    (defun my-taskpaper-outline-promote-region ()
       "Promote all items in region."
       (interactive)
       (taskpaper-map-region
        'taskpaper-outline-promote
        (region-beginning) (region-end)))
 
-    (defun taskpaper-outline-demote-region ()
+    (defun my-taskpaper-outline-demote-region ()
       "Demote all items in region."
       (interactive)
       (taskpaper-map-region
@@ -187,7 +187,7 @@ The next example uses `taskpaper-map-tree` outline mapping function and `taskpap
 
 The function described in the next example marks all items in the subtree under cursor as completed by adding a `@done` tag with the current date to them. Items, which have been completed before, remain untouched.
 
-    (defun taskpaper-outline-complete-subtree ()
+    (defun my-taskpaper-outline-complete-subtree ()
       "Complete all items in the current subtree."
       (interactive)
       (let ((ts (format-time-string "%Y-%m-%d" (current-time))))
@@ -227,7 +227,7 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
 
 You can define your own sorting functions using the generic sorting function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in descending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
 
-    (defun taskpaper-sort-by-priority ()
+    (defun my-taskpaper-sort-by-priority ()
       "Sort items on a certain level by priority."
       (interactive)
       (taskpaper-sort-items-generic
@@ -237,11 +237,11 @@ You can define your own sorting functions using the generic sorting function `ta
        'taskpaper-num<))
 
     (define-key taskpaper-mode-map (kbd "C-c C-s p")
-                'taskpaper-sort-by-priority)
+                'my-taskpaper-sort-by-priority)
 
 The next function sorts items according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
-    (defun taskpaper-sort-by-due-date ()
+    (defun my-taskpaper-sort-by-due-date ()
       "Sort items on a certain level by due date."
       (interactive)
       (taskpaper-sort-items-generic
@@ -251,7 +251,7 @@ The next function sorts items according to their due dates. The sorting is done 
        'taskpaper-time<))
 
     (define-key taskpaper-mode-map (kbd "C-c C-s d")
-                'taskpaper-sort-by-due-date)
+                'my-taskpaper-sort-by-due-date)
 
 As further examples see `taskpaper-sort-alpha` and `taskpaper-sort-by-type` function definitions.
 
@@ -266,7 +266,7 @@ The intended interpretation is that the task is due on 2018-02-01 and repeats it
 
 The following function checks if the item at point has the repeater attribute `@repeat`, and if yes, shifts the time value of the `@due` attribute to the next possible future time as specified by the repeater value. If no due date is set or if the function is called with the `C-u` prefix argument, the time shift is calculated from the current time instead.
 
-    (defun taskpaper-item-repeat-maybe (&optional from-now)
+    (defun my-taskpaper-item-repeat-maybe (&optional from-now)
       "Re-schedule recurring item."
       (interactive "P")
       (let ((ts  (taskpaper-item-get-attribute "due"))
