@@ -48,7 +48,7 @@
 
 ;;;; Variables
 
-(defconst taskpaper-mode-version "0.6"
+(defconst taskpaper-mode-version "0.7"
   "TaskPaper mode version number.")
 
 (defvar taskpaper-mode-map (make-keymap)
@@ -292,6 +292,12 @@ first element is a string, it will be used as block separator."
 instead of default `taskpaper-query'."
   :group 'taskpaper
   :type 'boolean)
+
+(defcustom taskpaper-iquery-delay 0.1
+  "The number of seconds to wait before evaluating incremental
+query."
+  :group 'taskpaper
+  :type 'number)
 
 (defcustom taskpaper-pretty-task-marks t
   "Non-nil means, enable the composition display of task marks.
@@ -4222,7 +4228,7 @@ if the item matches the selection string STR."
     (setq tokens (taskpaper-query-read-tokenize query))
     (setq tokens (taskpaper-query-expand-type-shortcuts tokens))
     ;; Parse token list and construct matcher
-    (if tokens (taskpaper-query-parse tokens) t)))
+    (if tokens (taskpaper-query-parse tokens) nil)))
 
 (defun taskpaper-query-fontify-query ()
   "Fontify query in minibuffer."
@@ -4315,23 +4321,25 @@ prompt."
   (setq query (or query (taskpaper-query-read-query)))
   (message "Querying...")
   (let ((matcher (taskpaper-query-matcher query)))
-    (when matcher (taskpaper-match-sparse-tree matcher)))
+    (if matcher
+        (taskpaper-match-sparse-tree matcher)
+      (taskpaper-outline-show-all)))
   (message "Querying...done"))
 
-(defun taskpaper-iquery-query (&optional _begin _end _length)
-  "Evaluate querying in main window.
-The function should be called from minibuffer as part of
-`after-change-functions' hook."
+(defun taskpaper-iquery-query ()
+  "Evaluate query in main window."
   (when (and (minibufferp (current-buffer))
              (minibuffer-selected-window))
-    (let ((str (minibuffer-contents-no-properties)))
-      ;; Select the main window
+    (let* ((str (minibuffer-contents-no-properties))
+           (matcher (taskpaper-query-matcher str)))
       (with-selected-window (minibuffer-selected-window)
-        ;; Evaluate query
-        (condition-case nil
-            (let ((matcher (taskpaper-query-matcher str)))
-              (when matcher (taskpaper-match-sparse-tree matcher)))
-          (error nil))))))
+        (if matcher
+            (condition-case nil
+                (taskpaper-match-sparse-tree matcher) (error nil))
+          (taskpaper-outline-show-all))))))
+
+(defvar taskpaper-iquery-idle-timer nil
+  "The idle timer object for I-query mode.")
 
 (defun taskpaper-iquery (&optional query prompt)
   "Create a sparse tree according to query string.
@@ -4344,8 +4352,6 @@ string. PROMPT can overwrite the default prompt."
         (attrs (append (taskpaper-get-buffer-tags)
                        taskpaper-special-attributes))
         (win (get-buffer-window (current-buffer))) str)
-    ;; Build attribute cache
-    (taskpaper-attribute-cache-build)
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
       (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
@@ -4355,18 +4361,20 @@ string. PROMPT can overwrite the default prompt."
           (minibuffer-message-timeout 0.5))
       (unwind-protect
           (progn
-            ;; Add hooks
+            ;; Build attribute cache
+            (taskpaper-attribute-cache-build)
+            ;; Add hooks and set idle timer
+            (setq taskpaper-iquery-idle-timer
+                  (run-with-idle-timer
+                   taskpaper-iquery-delay t 'taskpaper-iquery-query))
             (add-hook 'after-change-functions
                       'taskpaper-read-query-propertize 'append)
-            (add-hook 'after-change-functions
-                      'taskpaper-iquery-query 'append)
             ;; Read query string
             (read-string prompt query taskpaper-query-history))
-        ;; Remove hooks
+        ;; Remove hooks and cancel idle timer
         (remove-hook 'after-change-functions
                      'taskpaper-read-query-propertize)
-        (remove-hook 'after-change-functions
-                     'taskpaper-iquery-query)
+        (cancel-timer taskpaper-iquery-idle-timer)
         ;; Clear attribute cache
         (taskpaper-attribute-cache-clear)))))
 

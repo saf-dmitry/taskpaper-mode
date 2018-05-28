@@ -1,5 +1,10 @@
 
 
+# v0.7
+
+ - Improved incremental search responsiveness on long documents
+
+
 # v0.6
 
  - Added optional date & time expansion in tag selection dialog
