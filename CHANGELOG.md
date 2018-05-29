@@ -3,7 +3,8 @@
 # v0.7
 
  - Improved incremental search responsiveness on long documents
- - Renamed mapping functions
+ - Unified naming of outline mapping functions
+ - Extended outline mapping API
 
 
 # v0.6

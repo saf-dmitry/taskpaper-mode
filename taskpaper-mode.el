@@ -1478,12 +1478,45 @@ This version will not throw an error."
                (not (eobp)))
         (funcall func)))))
 
+(defun taskpaper-outline-map-children (func)
+  "Call FUNC for every child of the current item."
+  (outline-back-to-heading t)
+  (let ((level (save-match-data (funcall outline-level))))
+    (save-excursion
+      (while
+          (and (progn
+                 (taskpaper-outline-next-item-safe)
+                 (> (save-match-data (funcall outline-level)) level))
+               (not (eobp)))
+        (funcall func)))))
+
+(defun taskpaper-outline-map-ancestors (func)
+  "Call FUNC for every ancestor of the current item."
+  (outline-back-to-heading t)
+  (save-excursion
+    (while (taskpaper-outline-up-level-safe)
+      (funcall func))))
+
+(defun taskpaper-outline-map-following-siblings (func)
+  "Call FUNC for every following sibling of the current item."
+  (outline-back-to-heading t)
+  (save-excursion
+    (while (taskpaper-outline-forward-same-level-safe)
+      (funcall func))))
+
+(defun taskpaper-outline-map-preceeding-siblings (func)
+  "Call FUNC for every preceeding sibling of the current item"
+  (outline-back-to-heading t)
+  (save-excursion
+    (while (taskpaper-outline-backward-same-level-safe)
+      (funcall func))))
+
 (defun taskpaper-outline-map-region (func begin end)
   "Call FUNC for every item between BEGIN and END."
   (save-excursion
     (setq end (copy-marker end))
     (goto-char begin)
-    (if (outline-on-heading-p t) (funcall func))
+    (when (outline-on-heading-p t) (funcall func))
     (while
         (and (progn
                (taskpaper-outline-next-item-safe)
