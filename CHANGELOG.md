@@ -3,6 +3,7 @@
 # v0.7
 
  - Improved incremental search responsiveness on long documents
+ - Renamed mapping functions
 
 
 # v0.6

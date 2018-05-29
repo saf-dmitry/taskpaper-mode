@@ -1473,7 +1473,7 @@ This version will not throw an error."
       (funcall func)
       (while
           (and (progn
-                 (outline-next-heading)
+                 (taskpaper-outline-next-item-safe)
                  (> (save-match-data (funcall outline-level)) level))
                (not (eobp)))
         (funcall func)))))
@@ -1486,7 +1486,7 @@ This version will not throw an error."
     (if (outline-on-heading-p t) (funcall func))
     (while
         (and (progn
-               (outline-next-heading)
+               (taskpaper-outline-next-item-safe)
                (< (point) end))
              (not (eobp)))
       (funcall func))))
