@@ -117,12 +117,12 @@ used to select that tag through the fast-selection interface."
   :type '(repeat (string :tag "Tag name")))
 
 (defcustom taskpaper-tags-to-remove-when-done nil
-  "List of tags to remove when tagging with \"@done\"."
+  "List of tags to remove when completing item."
   :group 'taskpaper
   :type '(repeat (string :tag "Tag name")))
 
 (defcustom taskpaper-complete-save-date 'date
-  "Non-nil means, include date when tagging with \"@done\".
+  "Non-nil means, include date when completing item.
 Possible values for this option are:
 
  nil   No date
@@ -134,8 +134,17 @@ Possible values for this option are:
           (const :tag "Date" date)
           (const :tag "Date and time" time)))
 
+(defcustom taskpaper-blocker-hook nil
+  "Hook for functions that are allowed to block completion of item.
+Functions in this hook should not modify the buffer. Each
+function gets as its single argument a buffer position at the
+beginning of item. If any of the functions in this hook returns
+nil, the completion is blocked."
+  :group 'taskpaper
+  :type 'hook)
+
 (defcustom taskpaper-after-completion-hook nil
-  "Hook run when tagging with \"@done\"."
+  "Hook run when completing item."
   :group 'taskpaper
   :type 'hook)
 
@@ -2846,13 +2855,19 @@ buffer instead."
     (when (member type (list "task" "project"))
       (if (taskpaper-item-has-attribute "done")
           (taskpaper-item-remove-attribute "done")
+        ;; Run blocker hook
+        (when taskpaper-blocker-hook
+          (unless (save-excursion
+                    (save-restriction
+                      (run-hook-with-args-until-failure
+                       'taskpaper-blocker-hook (point-at-bol))))
+            (user-error "Completing is blocked")))
         ;; Remove extra tags
         (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
               taskpaper-tags-to-remove-when-done)
-        ;; Mark as complete
+        ;; Complete item
         (taskpaper-item-set-attribute
-         "done"
-         (when fmt (format-time-string fmt (current-time))))
+         "done" (when fmt (format-time-string fmt (current-time))))
         ;; Run hook
         (run-hooks 'taskpaper-after-completion-hook)))))
 
