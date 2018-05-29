@@ -1465,8 +1465,8 @@ This version will not throw an error."
       (progn (outline-previous-heading) (not (bobp)))
     (error nil)))
 
-(defun taskpaper-map-tree (func)
-  "Call FUNC for every (possibly invisible) item of the current subtree."
+(defun taskpaper-outline-map-tree (func)
+  "Call FUNC for every item of the current subtree."
   (outline-back-to-heading t)
   (let ((level (save-match-data (funcall outline-level))))
     (save-excursion
@@ -1478,8 +1478,8 @@ This version will not throw an error."
                (not (eobp)))
         (funcall func)))))
 
-(defun taskpaper-map-region (func begin end)
-  "Call FUNC for every (possibly invisible) item between BEGIN and END."
+(defun taskpaper-outline-map-region (func begin end)
+  "Call FUNC for every item between BEGIN and END."
   (save-excursion
     (setq end (copy-marker end))
     (goto-char begin)
@@ -1700,12 +1700,12 @@ end.")
 (defun taskpaper-outline-promote-subtree ()
   "Promote the current (possibly invisible) subtree."
   (interactive)
-  (taskpaper-map-tree 'taskpaper-outline-promote))
+  (taskpaper-outline-map-tree 'taskpaper-outline-promote))
 
 (defun taskpaper-outline-demote-subtree ()
   "Demote the current (possibly invisible) subtree."
   (interactive)
-  (taskpaper-map-tree 'taskpaper-outline-demote))
+  (taskpaper-outline-map-tree 'taskpaper-outline-demote))
 
 ;;;; Vertical tree movement
 
@@ -3406,7 +3406,7 @@ subtree."
         excluded-entries targets target)
     (when (and (outline-on-heading-p) (not no-exclude))
       ;; Exclude the subtree at point
-      (taskpaper-map-tree
+      (taskpaper-outline-map-tree
        (lambda ()
          (setq excluded-entries
                (append excluded-entries
@@ -3533,7 +3533,7 @@ ring."
       (save-restriction
         (narrow-to-region begin end)
         (while (not (= shift 0))
-          (taskpaper-map-region func (point-min) (point-max))
+          (taskpaper-outline-map-region func (point-min) (point-max))
           (setq shift (+ delta shift)))
         (goto-char (point-min))
         (setq end (point-max))))

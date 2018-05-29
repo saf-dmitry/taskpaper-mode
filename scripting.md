@@ -21,8 +21,8 @@ Following API functions can be used to automate and extend TaskPaper mode. For d
 
 The mapping routines can call any arbitrary function.
 
- - `taskpaper-map-tree`
- - `taskpaper-map-region`
+ - `taskpaper-outline-map-tree`
+ - `taskpaper-outline-map-region`
  - `taskpaper-outline-up-level-safe`
  - `taskpaper-outline-next-item`
  - `taskpaper-outline-next-item-safe`
@@ -152,26 +152,26 @@ Following are some scripting examples, which utilize the API functions mentioned
 
 ### Mapping and Structure Editing
 
-The following two functions are similar to `taskpaper-outline-promote-subtree` and `taskpaper-outline-demote-subtree` but work on selected region instead of current subtree. They use `taskpaper-map-region` mapping function together with `taskpaper-outline-promote` and `taskpaper-outline-demote` functions to promote/demote all items in a region.
+The following two functions are similar to `taskpaper-outline-promote-subtree` and `taskpaper-outline-demote-subtree` but work on selected region instead of current subtree. They use `taskpaper-outline-map-region` mapping function together with `taskpaper-outline-promote` and `taskpaper-outline-demote` functions to promote/demote all items in a region.
 
     (defun my-taskpaper-outline-promote-region ()
       "Promote all items in region."
       (interactive)
-      (taskpaper-map-region
+      (taskpaper-outline-map-region
        'taskpaper-outline-promote
        (region-beginning) (region-end)))
 
     (defun my-taskpaper-outline-demote-region ()
       "Demote all items in region."
       (interactive)
-      (taskpaper-map-region
+      (taskpaper-outline-map-region
        'taskpaper-outline-demote
        (region-beginning) (region-end)))
 
 
 ### Mapping and Attribute Setting
 
-The next example uses `taskpaper-map-tree` outline mapping function and `taskpaper-item-remove-attribute` function to remove all occurrences of certain tag from all items in the subtree under cursor. The user will be prompted for tag name and tag value to remove. If no value is provided, tags with any value or no value at all will be considered.
+The next example uses `taskpaper-outline-map-tree` outline mapping function and `taskpaper-item-remove-attribute` function to remove all occurrences of certain tag from all items in the subtree under cursor. The user will be prompted for tag name and tag value to remove. If no value is provided, tags with any value or no value at all will be considered.
 
     (defun my-taskpaper-outline-remove-tag ()
       "Remove certain tag from all items in the current subtree.
@@ -182,7 +182,7 @@ The next example uses `taskpaper-map-tree` outline mapping function and `taskpap
       (let ((name (read-string "Tag name: "))
             (value (read-string "Tag value: ")))
         (when (equal value "") (setq value nil))
-        (taskpaper-map-tree
+        (taskpaper-outline-map-tree
          `(lambda ()
             (taskpaper-item-remove-attribute ,name ,value)))))
 
@@ -192,17 +192,17 @@ The function described in the next example marks all items in the subtree under 
       "Complete all items in the current subtree."
       (interactive)
       (let ((ts (format-time-string "%Y-%m-%d" (current-time))))
-        (taskpaper-map-tree
+        (taskpaper-outline-map-tree
          `(lambda ()
             (unless (taskpaper-item-has-attribute "done")
               (taskpaper-item-set-attribute "done" ,ts))))))
 
-The following more complex example utilizes `taskpaper-map-region` outline mapping function and `taskpaper-archive-subtree` function to archive all completed items in the current buffer:
+The following more complex example utilizes `taskpaper-outline-map-region` outline mapping function and `taskpaper-archive-subtree` function to archive all completed items in the current buffer:
 
     (defun my-taskpaper-archive-done ()
       "Archive all completed items."
       (interactive)
-      (taskpaper-map-region
+      (taskpaper-outline-map-region
        '(lambda nil
           (when (taskpaper-item-has-attribute "done")
             (taskpaper-archive-subtree)
@@ -214,7 +214,7 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
     (defun my-taskpaper-archive-done ()
       "Archive all completed items."
       (interactive)
-      (taskpaper-map-region
+      (taskpaper-outline-map-region
        '(lambda nil
           (when (taskpaper-time<=
                  (taskpaper-item-get-attribute "done")
