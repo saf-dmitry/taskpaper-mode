@@ -4269,7 +4269,14 @@ if the item matches the selection string STR."
               nil t)
         (put-text-property (match-beginning 0) (match-end 0)
                            'face 'taskpaper-query-secondary-text))
-      ;; Fontify double-quoted strings as the last step
+      ;; Fontify attribute names
+      (goto-char (point-min))
+      (while (re-search-forward
+              (format "@%s" taskpaper-tag-name-regexp)
+              nil t)
+        (put-text-property (match-beginning 0) (match-end 0)
+                           'face 'default))
+      ;; Fontify double-quoted strings
       (goto-char (point-min))
       (while (re-search-forward
               taskpaper-query-quoted-string-regexp nil t)
