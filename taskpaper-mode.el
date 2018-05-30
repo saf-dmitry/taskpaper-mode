@@ -2097,10 +2097,10 @@ instead of item at point. Return new string."
     (taskpaper-item-set-attribute name value add)
     (buffer-string)))
 
-(defun taskpaper-tag-value-to-list (value)
-  "Convert tag value VALUE to a list.
-Treat the tag value string as a comma-separated list of values
-and return the values as a list of strings."
+(defun taskpaper-attribute-value-to-list (value)
+  "Convert attribute value VALUE to a list.
+Treat the value string as a comma-separated list of values and
+return the values as a list of strings."
   (when (stringp value) (split-string value ", *" nil)))
 
 ;;;; Date and time
