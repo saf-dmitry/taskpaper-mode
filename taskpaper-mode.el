@@ -4279,7 +4279,7 @@ if the item matches the selection string STR."
     (if tokens (taskpaper-query-parse tokens) nil)))
 
 (defun taskpaper-query-fontify-query ()
-  "Fontify query in minibuffer."
+  "Fontify query string in minibuffer."
   (save-excursion
     (let ((case-fold-search nil))
       ;; Fontify word operators
@@ -4311,21 +4311,6 @@ if the item matches the selection string STR."
         (put-text-property (match-beginning 1) (match-end 1)
                            'face 'default)))))
 
-(defun taskpaper-match-sparse-tree (matcher)
-  "Create a sparse tree according to MATCHER.
-MATCHER is a Lisp form to be evaluated at an outline item and
-returns non-nil if the item matches."
-  (taskpaper-occur-remove-highlights)
-  (outline-flag-region (point-min) (point-max) t)
-  (let ((re (concat "^" outline-regexp)))
-    (goto-char (point-min))
-    (save-excursion
-      (while (let (case-fold-search)
-               (re-search-forward re nil t))
-        (when (let ((case-fold-search t))
-                (save-excursion (eval matcher)))
-          (taskpaper-outline-show-context))))))
-
 (defun taskpaper-read-query-propertize (&optional _begin _end _length)
   "Propertize query string live in minibuffer.
 Incrementally read query string, validate it and propertize
@@ -4341,6 +4326,21 @@ part of `after-change-functions' hook."
       (error
        (put-text-property (point-at-bol) (point-max)
                           'face 'taskpaper-query-error)))))
+
+(defun taskpaper-match-sparse-tree (matcher)
+  "Create a sparse tree according to MATCHER.
+MATCHER is a Lisp form to be evaluated at an outline item and
+returns non-nil if the item matches."
+  (taskpaper-occur-remove-highlights)
+  (outline-flag-region (point-min) (point-max) t)
+  (let ((re (concat "^" outline-regexp)))
+    (goto-char (point-min))
+    (save-excursion
+      (while (let (case-fold-search)
+               (re-search-forward re nil t))
+        (when (let ((case-fold-search t))
+                (save-excursion (eval matcher)))
+          (taskpaper-outline-show-context))))))
 
 (defun taskpaper-query-read-query (&optional prompt)
   "Prompt user for search query.
