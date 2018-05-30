@@ -2903,12 +2903,12 @@ buffer instead."
 
 (defun taskpaper-num= (a b)
   "Return non-nil if two arg numbers are equal.
-String args are converted to numbers before test. When second arg
-is a list, return non-nil if any of its members matches."
+String args are converted to numbers before test. When first arg
+is a list, return non-nil if any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-num= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-num= x b)) a)))
         (t
          (setq a (cond ((numberp a) a)
                        ((stringp a) (string-to-number a))
@@ -2919,13 +2919,13 @@ is a list, return non-nil if any of its members matches."
          (= a b))))
 
 (defun taskpaper-num< (a b)
-  "Return non-nil if first arg number is less than second.
-String args are converted to numbers before test. When second arg
-is a list, return non-nil if any of its members matches."
+  "Return non-nil if first arg number is less than first.
+String args are converted to numbers before test. When first arg
+is a list, return non-nil if any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-num< a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-num< x b)) a)))
         (t
          (setq a (cond ((numberp a) a)
                        ((stringp a) (string-to-number a))
@@ -2936,13 +2936,13 @@ is a list, return non-nil if any of its members matches."
          (< a b))))
 
 (defun taskpaper-num<= (a b)
-  "Return non-nil if first arg number is less than or equal to second.
-String args are converted to numbers before test. When second arg
-is a list, return non-nil if any of its members matches."
+  "Return non-nil if first arg number is less than or equal to first.
+String args are converted to numbers before test. When first arg
+is a list, return non-nil if any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-num<= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-num<= x b)) a)))
         (t
          (setq a (cond ((numberp a) a)
                        ((stringp a) (string-to-number a))
@@ -2953,13 +2953,13 @@ is a list, return non-nil if any of its members matches."
          (<= a b))))
 
 (defun taskpaper-num> (a b)
-  "Return non-nil if first arg number is greater than second.
-String args are converted to numbers before test. When second arg
-is a list, return non-nil if any of its members matches."
+  "Return non-nil if first arg number is greater than first.
+String args are converted to numbers before test. When first arg
+is a list, return non-nil if any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-num> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-num> x b)) a)))
         (t
          (setq a (cond ((numberp a) a)
                        ((stringp a) (string-to-number a))
@@ -2970,13 +2970,13 @@ is a list, return non-nil if any of its members matches."
          (> a b))))
 
 (defun taskpaper-num>= (a b)
-  "Return non-nil if first arg number is greater than or equal to second.
-String args are converted to numbers before test. When second arg
-is a list, return non-nil if any of its members matches."
+  "Return non-nil if first arg number is greater than or equal to first.
+String args are converted to numbers before test. When first arg
+is a list, return non-nil if any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-num>= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-num>= x b)) a)))
         (t
          (setq a (cond ((numberp a) a)
                        ((stringp a) (string-to-number a))
@@ -2988,12 +2988,12 @@ is a list, return non-nil if any of its members matches."
 
 (defun taskpaper-num<> (a b)
   "Return non-nil if two arg numbers are not equal.
-String args are converted to numbers before test. When second arg
-is a list, return non-nil if any of its members matches."
+String args are converted to numbers before test. When first arg
+is a list, return non-nil if any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-num<> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-num<> x b)) a)))
         (t
          (setq a (cond ((numberp a) a)
                        ((stringp a) (string-to-number a))
@@ -3005,213 +3005,213 @@ is a list, return non-nil if any of its members matches."
 
 (defun taskpaper-string= (a b)
   "Return non-nil if two arg strings have identical contents.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string= x b)) a)))
         (t
          (string= a b))))
 
 (defun taskpaper-string< (a b)
-  "Return non-nil if first arg string is less than second.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string is less than first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string< a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string< x b)) a)))
         (t
          (string< a b))))
 
 (defun taskpaper-string<= (a b)
-  "Return non-nil if first arg string is less than or equal to second.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string is less than or equal to first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string<= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string<= x b)) a)))
         (t
          (or (string< a b)
              (string= a b)))))
 
 (defun taskpaper-string> (a b)
-  "Return non-nil if first arg string is greater than second.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string is greater than first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string> x b)) a)))
         (t
          (and (not (string< a b))
               (not (string= a b))))))
 
 (defun taskpaper-string>= (a b)
-  "Return non-nil if first arg string is greater than or equal to second.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string is greater than or equal to first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string>= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string>= x b)) a)))
         (t
          (not (string< a b)))))
 
 (defun taskpaper-string<> (a b)
   "Return non-nil if two arg string are not equal.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string<> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string<> x b)) a)))
         (t
          (not (string= a b)))))
 
 (defun taskpaper-string-match-p (a b)
-  "Return non-nil if first arg string matches second arg regexp.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string matches first arg regexp.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-match-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string-match-p x b)) a)))
         (t
          (let ((case-fold-search nil))
            (string-match-p b a)))))
 
 (defun taskpaper-string-contain-p (a b)
-  "Return non-nil if first arg string contains second.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string contains first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-contain-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string-contain-p x b)) a)))
         (t
          (let ((case-fold-search nil))
            (setq b (regexp-quote b))
            (string-match-p b a)))))
 
 (defun taskpaper-string-prefix-p (a b)
-  "Return non-nil if second arg string is a prefix of first.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string is a prefix of first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-prefix-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string-prefix-p x b)) a)))
         (t
          (string-prefix-p b a))))
 
 (defun taskpaper-string-suffix-p (a b)
-  "Return non-nil if second arg string is a suffix of first.
-Case is significant. When second arg is a list, return non-nil if
-any of its members matches."
+  "Return non-nil if first arg string is a suffix of first.
+Case is significant. When first arg is a list, return non-nil if
+any of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-suffix-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-string-suffix-p x b)) a)))
         (t
          (string-suffix-p b a))))
 
 (defun taskpaper-istring= (a b)
   "Return non-nil if two strings have identical contents.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring= x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (string= a b))))
 
 (defun taskpaper-istring< (a b)
-  "Return non-nil if first arg string is less than second.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string is less than first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring< a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring< x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (string< a b))))
 
 (defun taskpaper-istring<= (a b)
-  "Return non-nil if first arg string is less than or equal to second.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string is less than or equal to first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring<= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring<= x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (or (string= a b) (string< a b)))))
 
 (defun taskpaper-istring> (a b)
-  "Return non-nil if first arg string is greater than second.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string is greater than first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring> x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (and (not (string= a b))
               (not (string< a b))))))
 
 (defun taskpaper-istring>= (a b)
-  "Return non-nil if first arg string is greater than or equal to second.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string is greater than or equal to first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring>= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring>= x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (not (string< a b)))))
 
 (defun taskpaper-istring<> (a b)
   "Return non-nil if two arg string are not equal.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring<> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring<> x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (not (string= a b)))))
 
 (defun taskpaper-istring-match-p (a b)
-  "Return non-nil if first arg string matches second arg regexp.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string matches first arg regexp.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-match-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring-match-p x b)) a)))
         (t
          (let ((case-fold-search nil))
            (setq a (downcase a) b (downcase b))
            (string-match-p b a)))))
 
 (defun taskpaper-istring-contain-p (a b)
-  "Return non-nil if first arg string contains second.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string contains first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-contain-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring-contain-p x b)) a)))
         (t
          (let ((case-fold-search nil))
            (setq a (downcase a) b (downcase b))
@@ -3219,115 +3219,115 @@ of its members matches."
            (string-match-p b a)))))
 
 (defun taskpaper-istring-prefix-p (a b)
-  "Return non-nil if second arg string is a prefix of first.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string is a prefix of first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-prefix-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring-prefix-p x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (string-prefix-p b a))))
 
 (defun taskpaper-istring-suffix-p (a b)
-  "Return non-nil if second arg string is a suffix of first.
-Case is ignored. When second arg is a list, return non-nil if any
-of its members matches."
+  "Return non-nil if first arg string is a suffix of first.
+Case is ignored. When first arg is a list, return non-nil if any
+of its elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-suffix-p a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-istring-suffix-p x b)) a)))
         (t
          (setq a (downcase a) b (downcase b))
          (string-suffix-p b a))))
 
 (defun taskpaper-time= (a b)
   "Return non-nil if two arg time strings are equal.
-Time string are converted to a float number of seconds before
+Time string are converted to a float number of firsts before
 numeric comparison. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch. When second arg is a list, return non-nil if any of its
-members matches."
+treated as the float number of firsts since the beginning of the
+epoch. When first arg is a list, return non-nil if any of its
+elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-time= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-time= x b)) a)))
         (t
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (= a b)))))
 
 (defun taskpaper-time< (a b)
-  "Return non-nil if first arg time string is less than second.
-Time string are converted to a float number of seconds before
+  "Return non-nil if first arg time string is less than first.
+Time string are converted to a float number of firsts before
 numeric comparison. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch. When second arg is a list, return non-nil if any of its
-members matches."
+treated as the float number of firsts since the beginning of the
+epoch. When first arg is a list, return non-nil if any of its
+elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-time< a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-time< x b)) a)))
         (t
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (< a b)))))
 
 (defun taskpaper-time<= (a b)
-  "Return non-nil if first arg time string is less than or equal to second.
-Time string are converted to a float number of seconds before
+  "Return non-nil if first arg time string is less than or equal to first.
+Time string are converted to a float number of firsts before
 numeric comparison. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch. When second arg is a list, return non-nil if any of its
-members matches."
+treated as the float number of firsts since the beginning of the
+epoch. When first arg is a list, return non-nil if any of its
+elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-time<= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-time<= x b)) a)))
         (t
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (<= a b)))))
 
 (defun taskpaper-time> (a b)
-  "Return non-nil if first arg time string is greater than second.
-Time string are converted to a float number of seconds before
+  "Return non-nil if first arg time string is greater than first.
+Time string are converted to a float number of firsts before
 numeric comparison. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch. When second arg is a list, return non-nil if any of its
-members matches."
+treated as the float number of firsts since the beginning of the
+epoch. When first arg is a list, return non-nil if any of its
+elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-time> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-time> x b)) a)))
         (t
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (> a b)))))
 
 (defun taskpaper-time>= (a b)
-  "Return non-nil if first arg time string is greater than or equal to second.
-Time string are converted to a float number of seconds before
+  "Return non-nil if first arg time string is greater than or equal to first.
+Time string are converted to a float number of firsts before
 numeric comparison. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch. When second arg is a list, return non-nil if any of its
-members matches."
+treated as the float number of firsts since the beginning of the
+epoch. When first arg is a list, return non-nil if any of its
+elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-time>= a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-time>= x b)) a)))
         (t
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (>= a b)))))
 
 (defun taskpaper-time<> (a b)
   "Return non-nil if two arg time strings are not equal.
-Time string are converted to a float number of seconds before
+Time string are converted to a float number of firsts before
 numeric comparison. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch. When second arg is a list, return non-nil if any of its
-members matches."
+treated as the float number of firsts since the beginning of the
+epoch. When first arg is a list, return non-nil if any of its
+elements matches."
   (cond ((not (and a b))
          nil)
-        ((listp b)
-         (delq nil (mapcar (lambda (x) (taskpaper-time<> a x)) b)))
+        ((listp a)
+         (delq nil (mapcar (lambda (x) (taskpaper-time<> x b)) a)))
         (t
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (taskpaper-num<> a b)))))
