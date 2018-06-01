@@ -1,10 +1,15 @@
 
 
+# v0.8
+
+ - Extended outline mapping API
+ - Added list modifier to query syntax for predicates
+
+
 # v0.7
 
  - Improved incremental search responsiveness on long documents
  - Unified naming of outline mapping functions
- - Extended outline mapping API
 
 
 # v0.6

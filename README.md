@@ -465,24 +465,36 @@ Predicates start with the attribute, whose value or existence you want to test. 
 Relations determine the test that the predicate performs:
 
  - `=`: True if the attribute and search term are equal
- - `!=`: True if the attribute and search term are not equal
  - `<`: True if the attribute is less than the search term
  - `>`: True if the attribute is greater than the search term
  - `<=`: True if the attribute is less than or equal to the search term
  - `>=`: True if the attribute is greater than or equal to the search term
+ - `!=`: True if the attribute and search term are not equal
+ - `~=`: True if the attribute matches the search term
  - `contains`: True if the attribute contains the search term
  - `beginswith`: True if the attribute begins with the search term
  - `endswith`: True if the attribute ends with the search term
- - `matches`: True if the attribute matches the search term converted to a regular expression
+ - `matches`: True if the attribute matches the search term (same as `~=`)
 
 The default type of comparison is case-insensitive string comparison. You can change this behavior by providing a modifier after the relation. The available modifiers are:
 
  - `i`: Case insensitive string compare (the default)
  - `s`: Case sensitive string compare
- - `n`: Numeric compare. Both sides of the compare are converted to numbers before comparing.
- - `d`: Date compare. Both sides of the compare are converted to dates before comparing.
+ - `n`: Numeric compare
+ - `d`: Date compare
+ - `l`: List compare (can be combined with other modifiers)
 
 Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's presence will be tested.
+
+In case of numeric compare `[n]` both sides of the compare are converted to numbers before comparing. This means `01` will equal to `1`, which is not true when doing the default string compare.
+
+In case of date compare `[d]` both sides of the compare are converted to time values before comparing. The date & time format is described in the [Date and Time Formats](#date-and-time-formats) reference section.
+
+With the list modifier `[l]` present both sides are converted to lists (comma separated) before comparing. Other modifiers can precede the list modifier making the search more specific.
+
+In case of string compare `matches` will return matches if the left side matches the right side converted to a [regular expression][emacs-regexp]. In case of list compare `matches` will return matches if the left side is a subset of the right side. For instance the search predicate `@value matches[nl] 10,20,22` will match an item, which has the tag `@value(10,22)`.
+
+In case of string compare `contains` will return matches if the right side is a substring of the left side. In case of list compare `contains` will return matches if the right side is a subset of the left side. For instance the search predicate `@value contains[nl] 10,20` will match an item, which has the tag `@value(2,10,18,20,22)`.
 
 Here are some examples for predicates:
 
@@ -494,6 +506,7 @@ Here are some examples for predicates:
  - `@text endswith ?`
  - `@text matches "v[.0-9]"`
  - `@text contains[s] new logo`
+ - `@value contains[nl] 10,20`
  - `@text contains "this is not what I want"`
  - `@text contains "\"Winter\" by A. Vivaldi"`
 
@@ -504,8 +517,6 @@ You don't need to enter the entire predicate pattern every time you search. Pred
  - `contains Inbox`
  - `@text contains Inbox`
  - `@text contains[i] Inbox`
-
-__Note:__ When using `matches` relation please keep in mind that TaskPaper v3 app searches use [JavaScript dialect][js-regexp] for regular expressions while TaskPaper mode accepts [Emacs dialect][emacs-regexp].
 
 
 ### Boolean Expressions
@@ -778,8 +789,6 @@ You should have received a copy of the GNU General Public License along with thi
 [markdown-wiki]: https://en.wikipedia.org/wiki/Markdown
 
 [emacs-regexp]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html
-
-[js-regexp]: https://www.w3schools.com/jsref/jsref_obj_regexp.asp
 
 [emacs-highlight-indent-guides]: https://github.com/DarthFennec/highlight-indent-guides
 

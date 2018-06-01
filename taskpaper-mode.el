@@ -48,7 +48,7 @@
 
 ;;;; Variables
 
-(defconst taskpaper-mode-version "0.7"
+(defconst taskpaper-mode-version "0.8"
   "TaskPaper mode version number.")
 
 (defvar taskpaper-mode-map (make-keymap)
@@ -2000,9 +2000,8 @@ non-nil also check higher levels of the hierarchy."
 (defun taskpaper-item-get-attribute (name &optional inherit)
   "Get value of attribute NAME for item at point.
 Return the value as a string or nil if the attribute does not
-exist or has no value. If the item has multiple attributes with
-the same name, the first one will be evaluated. If INHERIT is
-non-nil also check higher levels of the hierarchy."
+exist or has no value. If INHERIT is non-nil also check higher
+levels of the hierarchy."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (cdr (assoc name (taskpaper-item-get-attributes inherit))))
@@ -2015,7 +2014,7 @@ hierarchy."
     (user-error "Invalid attribute name: %s" name))
   (assoc name (taskpaper-item-get-attributes inherit)))
 
-(defun taskpaper-item-remove-attribute (name &optional value)
+(defun taskpaper-item-remove-attribute (name)
   "Remove all non-special attributes NAME from item at point.
 With optional argument VALUE, match only attributes with that
 value."
@@ -2023,31 +2022,22 @@ value."
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be removed: %s" name))
-  (when value (setq value (taskpaper-tag-value-escape value)))
   (beginning-of-line 1)
   (save-match-data
     (while (re-search-forward
             taskpaper-tag-regexp (line-end-position) t)
-      (when (taskpaper-in-tag-p (match-beginning 1))
-        (cond
-         ((and value
-               (equal (match-string 2) name)
-               (equal (match-string 3) value))
-          (delete-region (match-beginning 0) (match-end 0)))
-         ((and (not value)
-               (equal (match-string 2) name))
-          (delete-region (match-beginning 0) (match-end 0))))))))
+      (when (and (taskpaper-in-tag-p (match-beginning 1))
+                 (equal (match-string 2) name))
+        (delete-region (match-beginning 0) (match-end 0))))))
 
-(defun taskpaper-item-set-attribute (name &optional value add)
+(defun taskpaper-item-set-attribute (name &optional value)
   "Set non-special attribute NAME for item at point.
-Any existing attribute NAME will be removed unless ADD is
-non-nil. With optional argument VALUE, set attribute to that
-value."
+With optional argument VALUE, set attribute to that value."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be set: %s" name))
-  (unless add (taskpaper-item-remove-attribute name))
+  (taskpaper-item-remove-attribute name)
   (when value (setq value (taskpaper-tag-value-escape value)))
   (end-of-line 1)
   (delete-horizontal-space) (unless (bolp) (insert " "))
@@ -2079,29 +2069,30 @@ instead of item at point."
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-has-attribute name)))
 
-(defun taskpaper-string-remove-attribute (str name &optional value)
+(defun taskpaper-string-remove-attribute (str name)
   "Remove all non-special attributes NAME from item string STR.
 Like `taskpaper-item-remove-attribute' but uses argument string
 instead of item at point. Return new string."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
-    (taskpaper-item-remove-attribute name value)
+    (taskpaper-item-remove-attribute name)
     (buffer-string)))
 
-(defun taskpaper-string-set-attribute (str name &optional value add)
+(defun taskpaper-string-set-attribute (str name &optional value)
   "Set non-special attribute NAME for item string STR.
 Like `taskpaper-item-set-attribute' but uses argument string
 instead of item at point. Return new string."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
-    (taskpaper-item-set-attribute name value add)
+    (taskpaper-item-set-attribute name value)
     (buffer-string)))
 
 (defun taskpaper-attribute-value-to-list (value)
   "Convert attribute value VALUE to a list.
 Treat the value string as a comma-separated list of values and
 return the values as a list of strings."
-  (when (stringp value) (split-string value ", *" nil)))
+  (when (stringp value)
+    (save-match-data (split-string value ", *" nil))))
 
 ;;;; Date and time
 
@@ -2200,7 +2191,8 @@ past one. Return unchanged any year larger than 99."
   "Convert relative date specifier to increment."
   (cond ((equal spec "this")  0)
         ((equal spec "next")  1)
-        ((equal spec "last") -1)))
+        ((equal spec "last") -1)
+        (t (error "Invalid relative date specifier: %s" spec))))
 
 (defun taskpaper-time-parse-iso-date (nowdecode time-str)
   "Parse ISO 8601 date representation."
@@ -2408,8 +2400,8 @@ past one. Return unchanged any year larger than 99."
             minute (string-to-number (match-string 2 time-str))
             second 0
             time-str (replace-match "" t t time-str))))
-    (and (equal ?a ampm) (= hour 12) (setq hour 0))
-    (and (equal ?p ampm) (< hour 12) (setq hour (+ hour 12)))
+    (when (and (equal ?a ampm) (= hour 12)) (setq hour 0))
+    (when (and (equal ?p ampm) (< hour 12)) (setq hour (+ hour 12)))
     (setq taskpaper-time-was-given t)
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
@@ -2545,8 +2537,7 @@ is nil, return 0."
   (cond ((numberp s) s)
         ((stringp s)
          (condition-case nil
-             (taskpaper-time-string-to-seconds s)
-           (error 0.)))
+             (taskpaper-time-string-to-seconds s) (error 0.)))
         (t 0.)))
 
 ;;;; Interaction with calendar
@@ -2880,7 +2871,7 @@ buffer instead."
               ((eq taskpaper-complete-save-date 'time) "%Y-%m-%d %H:%M")
               (t nil)))
         (type (taskpaper-item-get-attribute "type")))
-    (when (member type (list "task" "project"))
+    (when (member type '("task" "project"))
       (if (taskpaper-item-has-attribute "done")
           (taskpaper-item-remove-attribute "done")
         ;; Run blocker hook
@@ -2899,438 +2890,665 @@ buffer instead."
         ;; Run hook
         (run-hooks 'taskpaper-after-completion-hook)))))
 
-;;;; Relation functions
+;;;; Relational functions
 
 (defun taskpaper-num= (a b)
-  "Return non-nil if two arg numbers are equal.
-String args are converted to numbers before test. When first arg
-is a list, return non-nil if any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-num= x b)) a)))
-        (t
-         (setq a (cond ((numberp a) a)
-                       ((stringp a) (string-to-number a))
-                       (t 0.))
-               b (cond ((numberp b) b)
-                       ((stringp b) (string-to-number b))
-                       (t 0.)))
-         (= a b))))
+  "Return t if two arg numbers are equal.
+Strings are converted to numbers before comparing."
+  (cond ((and a b)
+         (setq a (string-to-number a) b (string-to-number b))
+         (= a b))
+        (t nil)))
 
 (defun taskpaper-num< (a b)
-  "Return non-nil if first arg number is less than first.
-String args are converted to numbers before test. When first arg
-is a list, return non-nil if any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-num< x b)) a)))
-        (t
-         (setq a (cond ((numberp a) a)
-                       ((stringp a) (string-to-number a))
-                       (t 0.))
-               b (cond ((numberp b) b)
-                       ((stringp b) (string-to-number b))
-                       (t 0.)))
-         (< a b))))
+  "Return t if first arg number is less than second.
+Strings are converted to numbers before comparing."
+  (cond ((and a b)
+         (setq a (string-to-number a) b (string-to-number b))
+         (< a b))
+        (t nil)))
 
 (defun taskpaper-num<= (a b)
-  "Return non-nil if first arg number is less than or equal to first.
-String args are converted to numbers before test. When first arg
-is a list, return non-nil if any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-num<= x b)) a)))
-        (t
-         (setq a (cond ((numberp a) a)
-                       ((stringp a) (string-to-number a))
-                       (t 0.))
-               b (cond ((numberp b) b)
-                       ((stringp b) (string-to-number b))
-                       (t 0.)))
-         (<= a b))))
+  "Return t if first arg number is less than or equal to second.
+Strings are converted to numbers before comparing."
+  (cond ((and a b)
+         (setq a (string-to-number a) b (string-to-number b))
+         (<= a b))
+        (t nil)))
 
 (defun taskpaper-num> (a b)
-  "Return non-nil if first arg number is greater than first.
-String args are converted to numbers before test. When first arg
-is a list, return non-nil if any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-num> x b)) a)))
-        (t
-         (setq a (cond ((numberp a) a)
-                       ((stringp a) (string-to-number a))
-                       (t 0.))
-               b (cond ((numberp b) b)
-                       ((stringp b) (string-to-number b))
-                       (t 0.)))
-         (> a b))))
+  "Return t if first arg number is greater than second.
+Strings are converted to numbers before comparing."
+  (cond ((and a b)
+         (setq a (string-to-number a) b (string-to-number b))
+         (> a b))
+        (t nil)))
 
 (defun taskpaper-num>= (a b)
-  "Return non-nil if first arg number is greater than or equal to first.
-String args are converted to numbers before test. When first arg
-is a list, return non-nil if any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-num>= x b)) a)))
-        (t
-         (setq a (cond ((numberp a) a)
-                       ((stringp a) (string-to-number a))
-                       (t 0.))
-               b (cond ((numberp b) b)
-                       ((stringp b) (string-to-number b))
-                       (t 0.)))
-         (>= a b))))
+  "Return t if first arg number is greater than or equal to second.
+Strings are converted to numbers before comparing."
+  (cond ((and a b)
+         (setq a (string-to-number a) b (string-to-number b))
+         (>= a b))
+        (t nil)))
 
 (defun taskpaper-num<> (a b)
-  "Return non-nil if two arg numbers are not equal.
-String args are converted to numbers before test. When first arg
-is a list, return non-nil if any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-num<> x b)) a)))
-        (t
-         (setq a (cond ((numberp a) a)
-                       ((stringp a) (string-to-number a))
-                       (t 0.))
-               b (cond ((numberp b) b)
-                       ((stringp b) (string-to-number b))
-                       (t 0.)))
-         (not (= a b)))))
+  "Return t if two arg numbers are not equal.
+Strings are converted to numbers before comparing."
+  (cond ((and a b)
+         (setq a (string-to-number a) b (string-to-number b))
+         (not (= a b)))
+        (t nil)))
 
 (defun taskpaper-string= (a b)
-  "Return non-nil if two arg strings have identical contents.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string= x b)) a)))
-        (t
-         (string= a b))))
+  "Return t if two arg strings are equal.
+Case is significant."
+  (cond ((and a b) (string= a b)) (t nil)))
 
 (defun taskpaper-string< (a b)
-  "Return non-nil if first arg string is less than first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string< x b)) a)))
-        (t
-         (string< a b))))
+  "Return t if first arg string is less than second.
+Case is significant."
+  (cond ((and a b) (string< a b)) (t nil)))
 
 (defun taskpaper-string<= (a b)
-  "Return non-nil if first arg string is less than or equal to first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string<= x b)) a)))
-        (t
-         (or (string< a b)
-             (string= a b)))))
+  "Return t if first arg string is less than or equal to second.
+Case is significant."
+  (cond ((and a b) (or (string< a b) (string= a b)))
+        (t nil)))
 
 (defun taskpaper-string> (a b)
-  "Return non-nil if first arg string is greater than first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string> x b)) a)))
-        (t
-         (and (not (string< a b))
-              (not (string= a b))))))
+  "Return t if first arg string is greater than second.
+Case is significant."
+  (cond ((and a b) (and (not (string< a b)) (not (string= a b))))
+        (t nil)))
 
 (defun taskpaper-string>= (a b)
-  "Return non-nil if first arg string is greater than or equal to first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string>= x b)) a)))
-        (t
-         (not (string< a b)))))
+  "Return t if first arg string is greater than or equal to second.
+Case is significant."
+  (cond ((and a b) (not (string< a b))) (t nil)))
 
 (defun taskpaper-string<> (a b)
-  "Return non-nil if two arg string are not equal.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string<> x b)) a)))
-        (t
-         (not (string= a b)))))
+  "Return t if two arg string are not equal.
+Case is significant."
+  (cond ((and a b) (not (string= a b))) (t nil)))
 
 (defun taskpaper-string-match-p (a b)
-  "Return non-nil if first arg string matches first arg regexp.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-match-p x b)) a)))
-        (t
-         (let ((case-fold-search nil))
-           (string-match-p b a)))))
+  "Return t if first arg string matches second arg regexp.
+Case is significant."
+  (cond ((and a b)
+         (let ((case-fold-search nil)) (string-match-p b a)))
+        (t nil)))
 
 (defun taskpaper-string-contain-p (a b)
-  "Return non-nil if first arg string contains first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-contain-p x b)) a)))
-        (t
+  "Return t if first arg string contains second.
+Case is significant."
+  (cond ((and a b)
          (let ((case-fold-search nil))
-           (setq b (regexp-quote b))
-           (string-match-p b a)))))
+           (setq b (regexp-quote b)) (string-match-p b a)))
+        (t nil)))
 
 (defun taskpaper-string-prefix-p (a b)
-  "Return non-nil if first arg string is a prefix of first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-prefix-p x b)) a)))
-        (t
-         (string-prefix-p b a))))
+  "Return t if second arg string is a prefix of first.
+Case is significant."
+  (cond ((and a b) (string-prefix-p b a)) (t nil)))
 
 (defun taskpaper-string-suffix-p (a b)
-  "Return non-nil if first arg string is a suffix of first.
-Case is significant. When first arg is a list, return non-nil if
-any of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-string-suffix-p x b)) a)))
-        (t
-         (string-suffix-p b a))))
+  "Return t if second arg string is a suffix of first.
+Case is significant."
+  (cond ((and a b) (string-suffix-p b a)) (t nil)))
 
 (defun taskpaper-istring= (a b)
-  "Return non-nil if two strings have identical contents.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring= x b)) a)))
-        (t
-         (setq a (downcase a) b (downcase b))
-         (string= a b))))
+  "Return t if two strings are equal.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (downcase a) b (downcase b)) (string= a b))
+        (t nil)))
 
 (defun taskpaper-istring< (a b)
-  "Return non-nil if first arg string is less than first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring< x b)) a)))
-        (t
-         (setq a (downcase a) b (downcase b))
-         (string< a b))))
+  "Return t if first arg string is less than second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (downcase a) b (downcase b)) (string< a b))
+        (t nil)))
 
 (defun taskpaper-istring<= (a b)
-  "Return non-nil if first arg string is less than or equal to first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring<= x b)) a)))
-        (t
+  "Return t if first arg string is less than or equal to second.
+Case is ignored."
+  (cond ((and a b)
          (setq a (downcase a) b (downcase b))
-         (or (string= a b) (string< a b)))))
+         (or (string< a b) (string= a b)))
+        (t nil)))
 
 (defun taskpaper-istring> (a b)
-  "Return non-nil if first arg string is greater than first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring> x b)) a)))
-        (t
+  "Return t if first arg string is greater than second.
+Case is ignored."
+  (cond ((and a b)
          (setq a (downcase a) b (downcase b))
-         (and (not (string= a b))
-              (not (string< a b))))))
+         (and (not (string< a b)) (not (string= a b))))
+        (t nil)))
 
 (defun taskpaper-istring>= (a b)
-  "Return non-nil if first arg string is greater than or equal to first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring>= x b)) a)))
-        (t
-         (setq a (downcase a) b (downcase b))
-         (not (string< a b)))))
+  "Return t if first arg string is greater than or equal to second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (downcase a) b (downcase b)) (not (string< a b)))
+        (t nil)))
 
 (defun taskpaper-istring<> (a b)
-  "Return non-nil if two arg string are not equal.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring<> x b)) a)))
-        (t
-         (setq a (downcase a) b (downcase b))
-         (not (string= a b)))))
+  "Return t if two arg string are not equal.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (downcase a) b (downcase b)) (not (string= a b)))
+        (t nil)))
 
 (defun taskpaper-istring-match-p (a b)
-  "Return non-nil if first arg string matches first arg regexp.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-match-p x b)) a)))
-        (t
+  "Return t if first arg string matches second arg regexp.
+Case is ignored."
+  (cond ((and a b)
          (let ((case-fold-search nil))
-           (setq a (downcase a) b (downcase b))
-           (string-match-p b a)))))
+           (setq a (downcase a) b (downcase b)) (string-match-p b a)))
+        (t nil)))
 
 (defun taskpaper-istring-contain-p (a b)
-  "Return non-nil if first arg string contains first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-contain-p x b)) a)))
-        (t
+  "Return t if first arg string contains second.
+Case is ignored."
+  (cond ((and a b)
          (let ((case-fold-search nil))
            (setq a (downcase a) b (downcase b))
-           (setq b (regexp-quote b))
-           (string-match-p b a)))))
+           (setq b (regexp-quote b)) (string-match-p b a)))
+        (t nil)))
 
 (defun taskpaper-istring-prefix-p (a b)
-  "Return non-nil if first arg string is a prefix of first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-prefix-p x b)) a)))
-        (t
-         (setq a (downcase a) b (downcase b))
-         (string-prefix-p b a))))
+  "Return t if second arg string is a prefix of first.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (downcase a) b (downcase b)) (string-prefix-p b a))
+        (t nil)))
 
 (defun taskpaper-istring-suffix-p (a b)
-  "Return non-nil if first arg string is a suffix of first.
-Case is ignored. When first arg is a list, return non-nil if any
-of its elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-istring-suffix-p x b)) a)))
-        (t
-         (setq a (downcase a) b (downcase b))
-         (string-suffix-p b a))))
+  "Return t if second arg string is a suffix of first.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (downcase a) b (downcase b)) (string-suffix-p b a))
+        (t nil)))
 
 (defun taskpaper-time= (a b)
-  "Return non-nil if two arg time strings are equal.
-Time string are converted to a float number of firsts before
-numeric comparison. If any argument is a float number, it will be
-treated as the float number of firsts since the beginning of the
-epoch. When first arg is a list, return non-nil if any of its
-elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-time= x b)) a)))
-        (t
+  "Return t if two arg time strings are equal.
+Time string are converted to a float number of seconds before
+numeric comparing. If any argument is a float number, it will be
+treated as the float number of seconds since the beginning of the
+epoch."
+  (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
-         (and (> a 0) (> b 0) (= a b)))))
+         (and (> a 0) (> b 0) (= a b)))
+        (t nil)))
 
 (defun taskpaper-time< (a b)
-  "Return non-nil if first arg time string is less than first.
-Time string are converted to a float number of firsts before
-numeric comparison. If any argument is a float number, it will be
-treated as the float number of firsts since the beginning of the
-epoch. When first arg is a list, return non-nil if any of its
-elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-time< x b)) a)))
-        (t
+  "Return t if first arg time string is less than second.
+Time string are converted to a float number of seconds before
+numeric comparing. If any argument is a float number, it will be
+treated as the float number of seconds since the beginning of the
+epoch."
+  (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
-         (and (> a 0) (> b 0) (< a b)))))
+         (and (> a 0) (> b 0) (< a b)))
+        (t nil)))
 
 (defun taskpaper-time<= (a b)
-  "Return non-nil if first arg time string is less than or equal to first.
-Time string are converted to a float number of firsts before
-numeric comparison. If any argument is a float number, it will be
-treated as the float number of firsts since the beginning of the
-epoch. When first arg is a list, return non-nil if any of its
-elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-time<= x b)) a)))
-        (t
+  "Return t if first arg time string is less than or equal to second.
+Time string are converted to a float number of seconds before
+numeric comparing. If any argument is a float number, it will be
+treated as the float number of seconds since the beginning of the
+epoch."
+  (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
-         (and (> a 0) (> b 0) (<= a b)))))
+         (and (> a 0) (> b 0) (<= a b)))
+        (t nil)))
 
 (defun taskpaper-time> (a b)
-  "Return non-nil if first arg time string is greater than first.
-Time string are converted to a float number of firsts before
-numeric comparison. If any argument is a float number, it will be
-treated as the float number of firsts since the beginning of the
-epoch. When first arg is a list, return non-nil if any of its
-elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-time> x b)) a)))
-        (t
+  "Return t if first arg time string is greater than second.
+Time string are converted to a float number of seconds before
+numeric comparing. If any argument is a float number, it will be
+treated as the float number of seconds since the beginning of the
+epoch."
+  (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
-         (and (> a 0) (> b 0) (> a b)))))
+         (and (> a 0) (> b 0) (> a b)))
+        (t nil)))
 
 (defun taskpaper-time>= (a b)
-  "Return non-nil if first arg time string is greater than or equal to first.
-Time string are converted to a float number of firsts before
-numeric comparison. If any argument is a float number, it will be
-treated as the float number of firsts since the beginning of the
-epoch. When first arg is a list, return non-nil if any of its
-elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-time>= x b)) a)))
-        (t
+  "Return t if first arg time string is greater than or equal to second.
+Time string are converted to a float number of seconds before
+numeric comparing. If any argument is a float number, it will be
+treated as the float number of seconds since the beginning of the
+epoch."
+  (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
-         (and (> a 0) (> b 0) (>= a b)))))
+         (and (> a 0) (> b 0) (>= a b)))
+        (t nil)))
 
 (defun taskpaper-time<> (a b)
-  "Return non-nil if two arg time strings are not equal.
-Time string are converted to a float number of firsts before
-numeric comparison. If any argument is a float number, it will be
-treated as the float number of firsts since the beginning of the
-epoch. When first arg is a list, return non-nil if any of its
-elements matches."
-  (cond ((not (and a b))
-         nil)
-        ((listp a)
-         (delq nil (mapcar (lambda (x) (taskpaper-time<> x b)) a)))
-        (t
+  "Return t if two arg time strings are not equal.
+Time string are converted to a float number of seconds before
+numeric comparing. If any argument is a float number, it will be
+treated as the float number of seconds since the beginning of the
+epoch."
+  (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
-         (and (> a 0) (> b 0) (taskpaper-num<> a b)))))
+         (and (> a 0) (> b 0) (not (= a b))))
+        (t nil)))
+
+(defun taskpaper-cslist-num= (a b)
+  "Return t if two arg cslists are equal.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (= (length a) (length b)) (every 'taskpaper-num= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-num< (a b)
+  "Return t if first arg cslist is less than second.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (< (length a) (length b)) (every 'taskpaper-num< a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-num<= (a b)
+  "Return t if first arg cslist is less than of equal to second.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (<= (length a) (length b)) (every 'taskpaper-num<= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-num> (a b)
+  "Return t if first arg cslist is greater than second.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (> (length a) (length b)) (every 'taskpaper-num< a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-num>= (a b)
+  "Return t if first arg cslist is greater than or equal to second.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (>= (length a) (length b)) (every 'taskpaper-num>= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-num<> (a b)
+  "Return t if two arg cslists are not equal.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (not (= (length a) (length b)))
+             (not (every 'taskpaper-num= a b))))
+        (t nil)))
+
+(defun taskpaper-cslist-num-match-p (a b)
+  "Return t if first arg cslist is subset of second.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'string-to-number a)
+               b (mapcar 'string-to-number b))
+         (cl-subsetp a b :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-num-contain-p (a b)
+  "Return t if second arg cslist is subset of first.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'string-to-number a)
+               b (mapcar 'string-to-number b))
+         (cl-subsetp b a :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-num-head-p (a b)
+  "Return t if second arg cslist is head of first.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'string-to-number a)
+               b (mapcar 'string-to-number b))
+         (let (temp1 temp2)
+           (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
+           (and temp1 temp2 (equal temp1 temp2))))
+        (t nil)))
+
+(defun taskpaper-cslist-num-tail-p (a b)
+  "Return t if second arg cslist is tail of first.
+Each list element is converted to number before numeric
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'string-to-number a)
+               b (mapcar 'string-to-number b))
+         (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
+         (equal a b))
+        (t nil)))
+
+(defun taskpaper-cslist-string= (a b)
+  "Return t if two arg cslists are equal.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (= (length a) (length b)) (every 'taskpaper-string= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-string< (a b)
+  "Return t if first arg cslist is less than second.
+ Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (< (length a) (length b)) (every 'taskpaper-string< a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-string<= (a b)
+  "Return t if first arg cslist is less than or equal to second.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (<= (length a) (length b)) (every 'taskpaper-string<= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-string> (a b)
+  "Return t if first arg cslist is greater than second.
+ Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (> (length a) (length b)) (every 'taskpaper-string> a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-string>= (a b)
+  "Return t if first arg cslist is greater than or equal to second.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (>= (length a) (length b)) (every 'taskpaper-string>= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-string<> (a b)
+  "Return t if two arg cslists are not equal.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (not (= (length a) (length b)))
+             (not (every 'taskpaper-string= a b))))
+        (t nil)))
+
+(defun taskpaper-cslist-string-match-p (a b)
+  "Return t if first arg cslist is subset of second.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (cl-subsetp a b :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-string-contain-p (a b)
+  "Return t if second arg cslist is subset of first.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (cl-subsetp b a :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-string-head-p (a b)
+  "Return t if second arg cslist is head of first.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (let (temp1 temp2)
+           (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
+           (and temp1 temp2 (equal temp1 temp2))))
+        (t nil)))
+
+(defun taskpaper-cslist-string-tail-p (a b)
+  "Return t if second arg cslist is tail of first.
+Case is significant."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
+         (equal a b))
+        (t nil)))
+
+(defun taskpaper-cslist-istring= (a b)
+  "Return t if two arg cslists are equal.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (= (length a) (length b)) (every 'taskpaper-istring= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-istring< (a b)
+  "Return t if first arg cslist is less than second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (< (length a) (length b)) (every 'taskpaper-istring< a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-istring<= (a b)
+  "Return t if first arg cslist is less than or equal to second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (<= (length a) (length b)) (every 'taskpaper-istring<= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-istring> (a b)
+  "Return t if first arg cslist is greater than second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (> (length a) (length b)) (every 'taskpaper-istring> a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-istring>= (a b)
+  "Return t if first arg cslist is greater than or equal to second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (>= (length a) (length b)) (every 'taskpaper-istring>= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-istring<> (a b)
+  "Return t if two arg cslists are not equal.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (not (= (length a) (length b)))
+             (not (every 'taskpaper-istring= a b))))
+        (t nil)))
+
+(defun taskpaper-cslist-istring-match-p (a b)
+  "Return t if first arg cslist is subset of second.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+         (cl-subsetp a b :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-istring-contain-p (a b)
+  "Return t if second arg cslist is subset of first.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+         (cl-subsetp b a :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-istring-head-p (a b)
+  "Return t if second arg cslist is head of first.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+         (let (temp1 temp2)
+           (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
+           (and temp1 temp2 (equal temp1 temp2))))
+        (t nil)))
+
+(defun taskpaper-cslist-istring-tail-p (a b)
+  "Return t if second arg cslist is tail of first.
+Case is ignored."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+         (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
+         (equal a b))
+        (t nil)))
+
+(defun taskpaper-cslist-time= (a b)
+  "Return t if two arg cslists are equal.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (= (length a) (length b)) (every 'taskpaper-time= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-time< (a b)
+  "Return t if first arg cslist is less than second.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (< (length a) (length b)) (every 'taskpaper-time< a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-time<= (a b)
+  "Return t if first arg cslist is less than or equal to second.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (<= (length a) (length b)) (every 'taskpaper-time<= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-time> (a b)
+  "Return t if first arg cslist is greater than second.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (> (length a) (length b)) (every 'taskpaper-time> a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-time>= (a b)
+  "Return t if first arg cslist is greater than or equal to second.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (and (>= (length a) (length b)) (every 'taskpaper-time>= a b)))
+        (t nil)))
+
+(defun taskpaper-cslist-time<> (a b)
+  "Return t if two arg cslists are not equal.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (or (not (= (length a) (length b)))
+             (not (every 'taskpaper-time= a b))))
+        (t nil)))
+
+(defun taskpaper-cslist-time-match-p (a b)
+  "Return t if first arg cslist is subset of second.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+         (cl-subsetp a b :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-time-contain-p (a b)
+  "Return t if second arg cslist is subset of first.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+         (cl-subsetp b a :test 'equal))
+        (t nil)))
+
+(defun taskpaper-cslist-time-head-p (a b)
+  "Return t if second arg cslist is tail of first.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+         (let (temp1 temp2)
+           (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
+           (and temp1 temp2 (equal temp1 temp2))))
+        (t nil)))
+
+(defun taskpaper-cslist-time-tail-p (a b)
+  "Return t if second arg cslist is tail of first.
+Each list element is converted to time value before time
+comparing."
+  (cond ((and a b)
+         (setq a (taskpaper-attribute-value-to-list a)
+               b (taskpaper-attribute-value-to-list b))
+         (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+         (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
+         (equal a b))
+        (t nil)))
 
 ;;;; Sorting
 
@@ -3943,12 +4161,12 @@ Return the number of matches."
   "Regular expression for attribute.")
 
 (defconst taskpaper-query-operator-regexp
-  "\\([<>!]=\\|[<>=]\\)"
-  "Regular expression for non-word relation operator.")
+  "\\([<>~!]=\\|[<>=]\\)"
+  "Regular expression for non-word relational operator.")
 
 (defconst taskpaper-query-modifier-regexp
-  "\\(\\[[isnd]\\]\\)"
-  "Regular expression for relation modifier.")
+  "\\(\\[\\(?:[isnd]l?\\|l\\)\\]\\)"
+  "Regular expression for relational modifier.")
 
 (defconst taskpaper-query-quoted-string-regexp
   "\\(\"\\(?:\\\\\"\\|[^\"]\\)*\"\\)"
@@ -3963,7 +4181,7 @@ Return the number of matches."
   "Regular expression for closing parenthesis.")
 
 (defconst taskpaper-query-word-regexp
-  "\\([^][@<>=!()\" \t\n\r]+\\)"
+  "\\([^][@<>=~!()\" \t\n\r]+\\)"
   "Regular expression for word.")
 
 (defconst taskpaper-query-whitespace-regexp
@@ -3976,7 +4194,7 @@ Return the number of matches."
   "Valid query word operators.")
 
 (defconst taskpaper-query-non-word-operator
-  '("=" "<" ">" "<=" ">=" "!=")
+  '("=" "<" ">" "<=" ">=" "!=" "~=")
   "Valid query non-word operators.")
 
 (defconst taskpaper-query-word-shortcut
@@ -3984,12 +4202,12 @@ Return the number of matches."
   "Valid query type shortcuts.")
 
 (defconst taskpaper-query-relation-operator
-  '("=" "<" ">" "<=" ">=" "!="
+  '("=" "<" ">" "<=" ">=" "!=" "~="
     "contains" "beginswith" "endswith" "matches")
-  "Valid query relation operators.")
+  "Valid query relational operators.")
 
 (defconst taskpaper-query-relation-modifier
-  '("[i]" "[s]" "[n]" "[d]")
+  '("[i]" "[s]" "[n]" "[d]" "[l]" "[il]" "[sl]" "[nl]" "[dl]")
   "Valid query relation modifiers.")
 
 (defconst taskpaper-query-boolean-not
@@ -4018,11 +4236,11 @@ Return the number of matches."
     (string-match-p re str)))
 
 (defun taskpaper-query-relation-operator-p (str)
-  "Return non-nil if STR is a valid relation operator."
+  "Return non-nil if STR is a valid relational operator."
   (member str taskpaper-query-relation-operator))
 
 (defun taskpaper-query-relation-modifier-p (str)
-  "Return non-nil if STR is a valid relation modifier."
+  "Return non-nil if STR is a valid relational modifier."
   (member str taskpaper-query-relation-modifier))
 
 (defun taskpaper-query-lparen-p (str)
@@ -4071,8 +4289,8 @@ characters repsesenting different types ot tokens."
                 (when st (push st tokens) (setq st nil))
                 (push val tokens))
             (error "Error while reading attribute")))
-         ((member (string-to-char str) '(?< ?> ?= ?!))
-          ;; Read non-word relation operator
+         ((member (string-to-char str) '(?< ?> ?= ?! ?~))
+          ;; Read non-word relational operator
           (if (string-match
                (concat "\\`" taskpaper-query-operator-regexp) str)
               (progn
@@ -4080,9 +4298,9 @@ characters repsesenting different types ot tokens."
                 (setq str (replace-match "" nil nil str))
                 (when st (push st tokens) (setq st nil))
                 (push val tokens))
-            (error "Error while reading relation operator")))
+            (error "Error while reading relational operator")))
          ((eq (string-to-char str) ?\[)
-          ;; Read relation modifier
+          ;; Read relational modifier
           (if (string-match
                (concat "\\`" taskpaper-query-modifier-regexp) str)
               (progn
@@ -4090,7 +4308,7 @@ characters repsesenting different types ot tokens."
                 (setq str (replace-match "" nil nil str))
                 (when st (push st tokens) (setq st nil))
                 (push val tokens))
-            (error "Error while reading relation modifier")))
+            (error "Error while reading relational modifier")))
          ((eq (string-to-char str) ?\()
           ;; Read opening parenthesis
           (if (string-match
@@ -4161,66 +4379,111 @@ characters repsesenting different types ot tokens."
              (push token expanded))))
     (nreverse expanded)))
 
-(defun taskpaper-query-op-to-func (op mod)
-  "Convert operator OP and modifier MOD into function."
-  (setq op
-        (cond
-         ((equal op "<" )
-          '(taskpaper-time<
-            taskpaper-num<
-            taskpaper-string<
-            taskpaper-istring<))
-         ((equal op ">" )
-          '(taskpaper-time>
-            taskpaper-num>
-            taskpaper-string>
-            taskpaper-istring>))
-         ((equal op "=" )
-          '(taskpaper-time=
-            taskpaper-num=
-            taskpaper-string=
-            taskpaper-istring=))
-         ((equal op "<=")
-          '(taskpaper-time<=
-            taskpaper-num<=
-            taskpaper-string<=
-            taskpaper-istring<=))
-         ((equal op ">=")
-          '(taskpaper-time>=
-            taskpaper-num>=
-            taskpaper-string>=
-            taskpaper-istring>=))
-         ((equal op "!=")
-          '(taskpaper-time<>
-            taskpaper<>
-            taskpaper-string<>
-            taskpaper-istring<>))
-         ((equal op "contains")
-          '(taskpaper-istring-contain-p
-            taskpaper-istring-contain-p
-            taskpaper-string-contain-p
-            taskpaper-istring-contain-p))
-         ((equal op "beginswith")
-          '(taskpaper-istring-prefix-p
-            taskpaper-istring-prefix-p
-            taskpaper-string-prefix-p
-            taskpaper-istring-prefix-p))
-         ((equal op "endswith")
-          '(taskpaper-istring-suffix-p
-            taskpaper-istring-suffix-p
-            taskpaper-string-suffix-p
-            taskpaper-istring-suffix-p))
-         ((equal op "matches")
-          '(taskpaper-istring-match-p
-            taskpaper-istring-match-p
-            taskpaper-string-match-p
-            taskpaper-istring-match-p))
-         (t (error "Invalid relation operator: %s" op))))
-  (cond ((equal mod "d") (nth 0 op))
-        ((equal mod "n") (nth 1 op))
-        ((equal mod "s") (nth 2 op))
-        ((equal mod "i") (nth 3 op))
-        (t (error "Invalid relaton modifier: %s" mod))))
+(defun taskpaper-query-relop-to-func (op &optional mod)
+  "Convert relational operator OP and modifier MOD into function."
+  (cond ((equal op "=")
+         (cond ((equal "i"  mod) 'taskpaper-istring=)
+               ((equal "s"  mod) 'taskpaper-string=)
+               ((equal "n"  mod) 'taskpaper-num=)
+               ((equal "d"  mod) 'taskpaper-time=)
+               ((equal "l"  mod) 'taskpaper-cslist-istring=)
+               ((equal "il" mod) 'taskpaper-cslist-istring=)
+               ((equal "sl" mod) 'taskpaper-cslist-string=)
+               ((equal "nl" mod) 'taskpaper-cslist-num=)
+               ((equal "dl" mod) 'taskpaper-cslist-time=)
+               (t                'taskpaper-istring=)))
+        ((equal op "<")
+         (cond ((equal "i"  mod) 'taskpaper-istring<)
+               ((equal "s"  mod) 'taskpaper-string<)
+               ((equal "n"  mod) 'taskpaper-num<)
+               ((equal "d"  mod) 'taskpaper-time<)
+               ((equal "l"  mod) 'taskpaper-cslist-istring<)
+               ((equal "il" mod) 'taskpaper-cslist-istring<)
+               ((equal "sl" mod) 'taskpaper-cslist-string<)
+               ((equal "nl" mod) 'taskpaper-cslist-num<)
+               ((equal "dl" mod) 'taskpaper-cslist-time<)
+               (t                'taskpaper-istring<)))
+        ((equal op "<=")
+         (cond ((equal "i"  mod) 'taskpaper-istring<=)
+               ((equal "s"  mod) 'taskpaper-string<=)
+               ((equal "n"  mod) 'taskpaper-num<=)
+               ((equal "d"  mod) 'taskpaper-time<=)
+               ((equal "l"  mod) 'taskpaper-cslist-istring<=)
+               ((equal "il" mod) 'taskpaper-cslist-istring<=)
+               ((equal "sl" mod) 'taskpaper-cslist-string<=)
+               ((equal "nl" mod) 'taskpaper-cslist-num<=)
+               ((equal "dl" mod) 'taskpaper-cslist-time<=)
+               (t                'taskpaper-istring<=)))
+        ((equal op ">")
+         (cond ((equal "i"  mod) 'taskpaper-istring>)
+               ((equal "s"  mod) 'taskpaper-string>)
+               ((equal "n"  mod) 'taskpaper-num>)
+               ((equal "d"  mod) 'taskpaper-time>)
+               ((equal "l"  mod) 'taskpaper-cslist-istring>)
+               ((equal "il" mod) 'taskpaper-cslist-istring>)
+               ((equal "sl" mod) 'taskpaper-cslist-string>)
+               ((equal "nl" mod) 'taskpaper-cslist-num>)
+               ((equal "dl" mod) 'taskpaper-cslist-time>)
+               (t                'taskpaper-istring>)))
+        ((equal op ">=")
+         (cond ((equal "i"  mod) 'taskpaper-istring>=)
+               ((equal "s"  mod) 'taskpaper-string>=)
+               ((equal "n"  mod) 'taskpaper-num>=)
+               ((equal "d"  mod) 'taskpaper-time>=)
+               ((equal "l"  mod) 'taskpaper-cslist-istring>=)
+               ((equal "il" mod) 'taskpaper-cslist-istring>=)
+               ((equal "sl" mod) 'taskpaper-cslist-string>=)
+               ((equal "nl" mod) 'taskpaper-cslist-num>=)
+               ((equal "dl" mod) 'taskpaper-cslist-time>=)
+               (t                'taskpaper-istring>=)))
+        ((equal op "!=")
+         (cond ((equal "i"  mod) 'taskpaper-istring<>)
+               ((equal "s"  mod) 'taskpaper-string<>)
+               ((equal "n"  mod) 'taskpaper-num<>)
+               ((equal "d"  mod) 'taskpaper-time<>)
+               ((equal "l"  mod) 'taskpaper-cslist-istring<>)
+               ((equal "il" mod) 'taskpaper-cslist-istring<>)
+               ((equal "sl" mod) 'taskpaper-cslist-string<>)
+               ((equal "nl" mod) 'taskpaper-cslist-num<>)
+               ((equal "dl" mod) 'taskpaper-cslist-time<>)
+               (t                'taskpaper-istring<>)))
+        ((equal op "contains")
+         (cond ((equal "i"  mod) 'taskpaper-istring-contain-p)
+               ((equal "s"  mod) 'taskpaper-string-contain-p)
+               ((equal "l"  mod) 'taskpaper-cslist-istring-contain-p)
+               ((equal "il" mod) 'taskpaper-cslist-istring-contain-p)
+               ((equal "sl" mod) 'taskpaper-cslist-string-contain-p)
+               ((equal "nl" mod) 'taskpaper-cslist-num-contain-p)
+               ((equal "dl" mod) 'taskpaper-cslist-time-contain-p)
+               (t                'taskpaper-istring-contain-p)))
+        ((equal op "beginswith")
+         (cond ((equal "i"  mod) 'taskpaper-istring-prefix-p)
+               ((equal "s"  mod) 'taskpaper-string-prefix-p)
+               ((equal "l"  mod) 'taskpaper-cslist-istring-head-p)
+               ((equal "il" mod) 'taskpaper-cslist-istring-head-p)
+               ((equal "sl" mod) 'taskpaper-cslist-string-head-p)
+               ((equal "nl" mod) 'taskpaper-cslist-num-head-p)
+               ((equal "dl" mod) 'taskpaper-cslist-time-head-p)
+               (t                'taskpaper-istring-prefix-p)))
+        ((equal op "endswith")
+         (cond ((equal "i"  mod) 'taskpaper-istring-suffix-p)
+               ((equal "s"  mod) 'taskpaper-string-suffix-p)
+               ((equal "l"  mod) 'taskpaper-cslist-istring-tail-p)
+               ((equal "il" mod) 'taskpaper-cslist-istring-tail-p)
+               ((equal "sl" mod) 'taskpaper-cslist-string-tail-p)
+               ((equal "nl" mod) 'taskpaper-cslist-num-tail-p)
+               ((equal "dl" mod) 'taskpaper-cslist-time-tail-p)
+               (t                'taskpaper-istring-suffix-p)))
+        ((member op '("matches" "~="))
+         (cond ((equal "i" mod)  'taskpaper-istring-match-p)
+               ((equal "s" mod)  'taskpaper-string-match-p)
+               ((equal "l"  mod) 'taskpaper-cslist-istring-match-p)
+               ((equal "il" mod) 'taskpaper-cslist-istring-match-p)
+               ((equal "sl" mod) 'taskpaper-cslist-string-match-p)
+               ((equal "nl" mod) 'taskpaper-cslist-num-match-p)
+               ((equal "dl" mod) 'taskpaper-cslist-time-match-p)
+               (t                'taskpaper-istring-match-p)))
+        (t (error "Invalid relational operator: %s" op))))
 
 (defun taskpaper-query-bool-to-func (bool)
   "Convert Boolean operator to function."
@@ -4253,15 +4516,17 @@ matcher and the rest of the token list."
     ;; Provide default values
     (setq attr (or attr "text") op (or op "contains") mod (or mod "i"))
     ;; Convert operator to function
-    (setq op (taskpaper-query-op-to-func op mod))
+    (setq op (taskpaper-query-relop-to-func op mod))
     ;; Unescape double quotes in search term
     (when val (setq val (taskpaper-unescape-double-quotes val)))
     ;; Convert time string to time to speed up matching
-    (and (equal mod "d") val (setq val (taskpaper-2ft val)))
+    (when (and val (member "d" mod) (setq val (taskpaper-2ft val))))
     ;; Build Lisp form
     (cond
-     ((not val) (setq form `(taskpaper-item-has-attribute ,attr t)))
-     (t (setq form `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
+     ((not val)
+      (setq form `(taskpaper-item-has-attribute ,attr t)))
+     (t
+      (setq form `(,op (taskpaper-item-get-attribute ,attr t) ,val))))
     ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
 

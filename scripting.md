@@ -110,6 +110,49 @@ Some handy functions for checking attribute values.
  - `taskpaper-time>=`
  - `taskpaper-time<>`
 
+Following functions interpret attribute values as comma-separated lists.
+
+ - `taskpaper-cslist-num=`
+ - `taskpaper-cslist-num<`
+ - `taskpaper-cslist-num<=`
+ - `taskpaper-cslist-num>`
+ - `taskpaper-cslist-num>=`
+ - `taskpaper-cslist-num<>`
+ - `taskpaper-cslist-num-match-p`
+ - `taskpaper-cslist-num-contain-p`
+ - `taskpaper-cslist-num-prefix-p`
+ - `taskpaper-cslist-num-suffix-p`
+ - `taskpaper-cslist-string=`
+ - `taskpaper-cslist-string<`
+ - `taskpaper-cslist-string<=`
+ - `taskpaper-cslist-string>`
+ - `taskpaper-cslist-string>=`
+ - `taskpaper-cslist-string<>`
+ - `taskpaper-cslist-string-match-p`
+ - `taskpaper-cslist-string-contain-p`
+ - `taskpaper-cslist-string-prefix-p`
+ - `taskpaper-cslist-string-suffix-p`
+ - `taskpaper-cslist-istring=`
+ - `taskpaper-cslist-istring<`
+ - `taskpaper-cslist-istring<=`
+ - `taskpaper-cslist-istring>`
+ - `taskpaper-cslist-istring>=`
+ - `taskpaper-cslist-istring<>`
+ - `taskpaper-cslist-istring-match-p`
+ - `taskpaper-cslist-istring-contain-p`
+ - `taskpaper-cslist-istring-prefix-p`
+ - `taskpaper-cslist-istring-suffix-p`
+ - `taskpaper-cslist-time=`
+ - `taskpaper-cslist-time<`
+ - `taskpaper-cslist-time<=`
+ - `taskpaper-cslist-time>`
+ - `taskpaper-cslist-time>=`
+ - `taskpaper-cslist-time<>`
+ - `taskpaper-cslist-time-match-p`
+ - `taskpaper-cslist-time-contain-p`
+ - `taskpaper-cslist-time-prefix-p`
+ - `taskpaper-cslist-time-suffix-p`
+
 
 ### Formatting of Items
 
