@@ -2837,7 +2837,7 @@ buffer instead."
 (defun taskpaper-item-set-tag-fast-select ()
   "Set the tag for the item at point using fast tag selection."
   (interactive)
-  (let ((re (format "\\`\\(%s\\)\\(?:(\\(%s\\))\\)?\\'"
+  (let ((re (format "\\`@?\\(%s\\)\\(?:(\\(%s\\))\\)?\\'"
                     taskpaper-tag-name-regexp
                     taskpaper-tag-value-regexp))
         (tag (taskpaper-fast-tag-selection))
@@ -2845,6 +2845,7 @@ buffer instead."
     (unless (string-match re tag) (error "Invalid tag specifier: %s" tag))
     (setq name  (match-string-no-properties 1 tag)
           value (match-string-no-properties 2 tag)
+          name  (string-remove-prefix "@" name)
           value (taskpaper-tag-value-unescape value))
     ;; Expand tag value
     (when (and value (string-prefix-p "%%" value))
