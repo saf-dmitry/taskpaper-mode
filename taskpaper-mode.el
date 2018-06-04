@@ -1772,13 +1772,12 @@ end.")
    (format "%s[ \t]*$" taskpaper-consecutive-tags-regexp) "" item))
 
 (defun taskpaper-item-type ()
-  "Return type of item at point as string.
-Type can be \"project\", \"task\", \"note\", or \"blank\"."
+  "Return type of item at point or nil."
   (let ((item (buffer-substring-no-properties
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-remove-indentation item))
     (setq item (taskpaper-remove-trailing-tags item))
-    (cond ((string-match-p "^[ \t]*$" item) "blank")
+    (cond ((string-match-p "^[ \t]*$" item) nil)
           ((string-match-p "^[-+*] " item) "task")
           ((string-match-p ":$" item) "project")
           (t "note"))))
@@ -1791,14 +1790,14 @@ Type can be \"project\", \"task\", \"note\", or \"blank\"."
 
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
-  ;; Remove trailing whitespaces
   (setq item (replace-regexp-in-string "[ \t]+$" "" item))
   (save-match-data
     (cond ((string-match "^\\([ \t]*\\)[-+*] +\\([^\n]*\\)$" item)
            (concat (match-string-no-properties 1 item)
                    (match-string-no-properties 2 item)))
-          ((string-match (format "^\\([ \t]*\\)\\([^\n]*\\):\\(%s\\)?$"
-                                 taskpaper-consecutive-tags-regexp) item)
+          ((string-match (format
+                          "^\\([ \t]*\\)\\([^\n]*\\):\\(%s\\)?$"
+                          taskpaper-consecutive-tags-regexp) item)
            (concat (match-string-no-properties 1 item)
                    (match-string-no-properties 2 item)
                    (match-string-no-properties 3 item)))
@@ -1806,9 +1805,10 @@ Type can be \"project\", \"task\", \"note\", or \"blank\"."
 
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
-Valid values are 'project', 'task', or 'note'."
-  (let* ((beg (line-beginning-position)) (end (line-end-position))
-         (item (buffer-substring-no-properties beg end)))
+Valid types are 'project', 'task', or 'note'."
+  (let* ((begin (line-beginning-position))
+         (end (line-end-position))
+         (item (buffer-substring-no-properties begin end)))
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
       (cond
@@ -1818,14 +1818,15 @@ Valid values are 'project', 'task', or 'note'."
                     (match-string-no-properties 1 item) "- "
                     (match-string-no-properties 2 item))))
        ((eq type 'project)
-        (string-match (format "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
-                              taskpaper-consecutive-tags-regexp) item)
+        (string-match (format
+                       "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
+                       taskpaper-consecutive-tags-regexp) item)
         (setq item (concat
                     (match-string-no-properties 1 item) ":"
                     (match-string-no-properties 2 item))))
        ((eq type 'note) item)
-       (t (error "Invalid item type"))))
-    (delete-region beg end) (insert item)))
+       (t (error "Invalid item type: %s" type))))
+    (delete-region begin end) (insert item)))
 
 (defun taskpaper-item-format-as-project ()
   "Format item at point as project."
