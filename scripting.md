@@ -49,6 +49,7 @@ The mapping routines can call any arbitrary function.
 General functions for extending sorting and filtering functionality.
 
  - `taskpaper-query-matcher`
+ - `taskpaper-query-item-match-p`
  - `taskpaper-match-sparse-tree`
  - `taskpaper-sort-items-generic`
  - `taskpaper-sort-alpha-get-sorting-key`

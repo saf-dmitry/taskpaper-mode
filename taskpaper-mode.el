@@ -4652,6 +4652,10 @@ if the item matches the selection string STR."
     ;; Parse token list and construct matcher
     (if tokens (taskpaper-query-parse tokens) nil)))
 
+(defun taskpaper-query-item-match-p (query)
+  "Return non-nil if item at point matches query string QUERY."
+  (eval (taskpaper-query-matcher query)))
+
 (defun taskpaper-query-fontify-query ()
   "Fontify query string in minibuffer."
   (save-excursion
