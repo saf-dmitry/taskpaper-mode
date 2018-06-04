@@ -64,7 +64,6 @@ Functions for working with attributes.
  - `taskpaper-item-has-attribute`
  - `taskpaper-item-set-attribute`
  - `taskpaper-item-remove-attribute`
- - `taskpaper-item-get-outline-path`
  - `taskpaper-string-get-attributes`
  - `taskpaper-string-get-attribute`
  - `taskpaper-string-has-attribute`

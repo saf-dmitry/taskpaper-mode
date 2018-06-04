@@ -492,9 +492,9 @@ In case of date compare `[d]` both sides of the compare are converted to time va
 
 With the list modifier `[l]` present both sides are converted to lists (comma separated) before comparing. Other modifiers can precede the list modifier making the search more specific.
 
-In case of string compare `matches` will return matches if the left side matches the right side converted to a [regular expression][emacs-regexp]. In case of list compare `matches` will return matches if the left side is a subset of the right side. For instance the search predicate `@value matches[nl] 10,20,22` will match an item, which has the tag `@value(10,22)`.
-
 In case of string compare `contains` will return matches if the right side is a substring of the left side. In case of list compare `contains` will return matches if the right side is a subset of the left side. For instance the search predicate `@value contains[nl] 10,20` will match an item, which has the tag `@value(2,10,18,20,22)`.
+
+In case of string compare `matches` will return matches if the left side matches the right side converted to a [regular expression][emacs-regexp]. In case of list compare `matches` will return matches if the left side is a subset of the right side. For instance the search predicate `@value matches[nl] 10,20,22` will match an item, which has the tag `@value(10,22)`.
 
 Here are some examples for predicates:
 

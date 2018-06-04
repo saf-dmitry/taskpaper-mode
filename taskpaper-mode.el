@@ -4520,7 +4520,7 @@ matcher and the rest of the token list."
     ;; Unescape double quotes in search term
     (when val (setq val (taskpaper-unescape-double-quotes val)))
     ;; Convert time string to time to speed up matching
-    (when (and val (member "d" mod) (setq val (taskpaper-2ft val))))
+    (when (and val (equal "d" mod) (setq val (taskpaper-2ft val))))
     ;; Build Lisp form
     (cond
      ((not val)
