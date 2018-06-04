@@ -3176,7 +3176,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (> (length a) (length b)) (every 'taskpaper-num< a b)))
+         (or (> (length a) (length b)) (every 'taskpaper-num> a b)))
         (t nil)))
 
 (defun taskpaper-cslist-num>= (a b)
