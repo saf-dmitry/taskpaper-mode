@@ -3146,7 +3146,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (= (length a) (length b)) (every 'taskpaper-num= a b)))
+         (and (= (length a) (length b)) (cl-every 'taskpaper-num= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-num< (a b)
@@ -3156,7 +3156,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (< (length a) (length b)) (every 'taskpaper-num< a b)))
+         (or (< (length a) (length b)) (cl-every 'taskpaper-num< a b)))
         (t nil)))
 
 (defun taskpaper-cslist-num<= (a b)
@@ -3166,7 +3166,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (<= (length a) (length b)) (every 'taskpaper-num<= a b)))
+         (and (<= (length a) (length b)) (cl-every 'taskpaper-num<= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-num> (a b)
@@ -3176,7 +3176,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (> (length a) (length b)) (every 'taskpaper-num> a b)))
+         (or (> (length a) (length b)) (cl-every 'taskpaper-num> a b)))
         (t nil)))
 
 (defun taskpaper-cslist-num>= (a b)
@@ -3186,7 +3186,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (>= (length a) (length b)) (every 'taskpaper-num>= a b)))
+         (and (>= (length a) (length b)) (cl-every 'taskpaper-num>= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-num<> (a b)
@@ -3197,7 +3197,7 @@ comparing."
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
          (or (not (= (length a) (length b)))
-             (not (every 'taskpaper-num= a b))))
+             (not (cl-every 'taskpaper-num= a b))))
         (t nil)))
 
 (defun taskpaper-cslist-num-match-p (a b)
@@ -3257,7 +3257,7 @@ Case is significant."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (= (length a) (length b)) (every 'taskpaper-string= a b)))
+         (and (= (length a) (length b)) (cl-every 'taskpaper-string= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-string< (a b)
@@ -3266,7 +3266,7 @@ Case is significant."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (< (length a) (length b)) (every 'taskpaper-string< a b)))
+         (or (< (length a) (length b)) (cl-every 'taskpaper-string< a b)))
         (t nil)))
 
 (defun taskpaper-cslist-string<= (a b)
@@ -3275,7 +3275,7 @@ Case is significant."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (<= (length a) (length b)) (every 'taskpaper-string<= a b)))
+         (and (<= (length a) (length b)) (cl-every 'taskpaper-string<= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-string> (a b)
@@ -3284,7 +3284,7 @@ Case is significant."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (> (length a) (length b)) (every 'taskpaper-string> a b)))
+         (or (> (length a) (length b)) (cl-every 'taskpaper-string> a b)))
         (t nil)))
 
 (defun taskpaper-cslist-string>= (a b)
@@ -3293,7 +3293,7 @@ Case is significant."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (>= (length a) (length b)) (every 'taskpaper-string>= a b)))
+         (and (>= (length a) (length b)) (cl-every 'taskpaper-string>= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-string<> (a b)
@@ -3303,7 +3303,7 @@ Case is significant."
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
          (or (not (= (length a) (length b)))
-             (not (every 'taskpaper-string= a b))))
+             (not (cl-every 'taskpaper-string= a b))))
         (t nil)))
 
 (defun taskpaper-cslist-string-match-p (a b)
@@ -3351,7 +3351,7 @@ Case is ignored."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (= (length a) (length b)) (every 'taskpaper-istring= a b)))
+         (and (= (length a) (length b)) (cl-every 'taskpaper-istring= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-istring< (a b)
@@ -3360,7 +3360,7 @@ Case is ignored."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (< (length a) (length b)) (every 'taskpaper-istring< a b)))
+         (or (< (length a) (length b)) (cl-every 'taskpaper-istring< a b)))
         (t nil)))
 
 (defun taskpaper-cslist-istring<= (a b)
@@ -3369,7 +3369,7 @@ Case is ignored."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (<= (length a) (length b)) (every 'taskpaper-istring<= a b)))
+         (and (<= (length a) (length b)) (cl-every 'taskpaper-istring<= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-istring> (a b)
@@ -3378,7 +3378,7 @@ Case is ignored."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (> (length a) (length b)) (every 'taskpaper-istring> a b)))
+         (or (> (length a) (length b)) (cl-every 'taskpaper-istring> a b)))
         (t nil)))
 
 (defun taskpaper-cslist-istring>= (a b)
@@ -3387,7 +3387,7 @@ Case is ignored."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (>= (length a) (length b)) (every 'taskpaper-istring>= a b)))
+         (and (>= (length a) (length b)) (cl-every 'taskpaper-istring>= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-istring<> (a b)
@@ -3397,7 +3397,7 @@ Case is ignored."
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
          (or (not (= (length a) (length b)))
-             (not (every 'taskpaper-istring= a b))))
+             (not (cl-every 'taskpaper-istring= a b))))
         (t nil)))
 
 (defun taskpaper-cslist-istring-match-p (a b)
@@ -3450,7 +3450,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (= (length a) (length b)) (every 'taskpaper-time= a b)))
+         (and (= (length a) (length b)) (cl-every 'taskpaper-time= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-time< (a b)
@@ -3460,7 +3460,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (< (length a) (length b)) (every 'taskpaper-time< a b)))
+         (or (< (length a) (length b)) (cl-every 'taskpaper-time< a b)))
         (t nil)))
 
 (defun taskpaper-cslist-time<= (a b)
@@ -3470,7 +3470,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (<= (length a) (length b)) (every 'taskpaper-time<= a b)))
+         (and (<= (length a) (length b)) (cl-every 'taskpaper-time<= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-time> (a b)
@@ -3480,7 +3480,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (or (> (length a) (length b)) (every 'taskpaper-time> a b)))
+         (or (> (length a) (length b)) (cl-every 'taskpaper-time> a b)))
         (t nil)))
 
 (defun taskpaper-cslist-time>= (a b)
@@ -3490,7 +3490,7 @@ comparing."
   (cond ((and a b)
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
-         (and (>= (length a) (length b)) (every 'taskpaper-time>= a b)))
+         (and (>= (length a) (length b)) (cl-every 'taskpaper-time>= a b)))
         (t nil)))
 
 (defun taskpaper-cslist-time<> (a b)
@@ -3501,7 +3501,7 @@ comparing."
          (setq a (taskpaper-attribute-value-to-list a)
                b (taskpaper-attribute-value-to-list b))
          (or (not (= (length a) (length b)))
-             (not (every 'taskpaper-time= a b))))
+             (not (cl-every 'taskpaper-time= a b))))
         (t nil)))
 
 (defun taskpaper-cslist-time-match-p (a b)
@@ -4157,6 +4157,10 @@ Return the number of matches."
 
 ;;;; Querying
 
+(defconst taskpaper-query-whitespace-regexp
+  "\\`[ \t\n\r]*"
+  "Regular expression for whitespace.")
+
 (defconst taskpaper-query-attribute-regexp
   (format "\\(@%s+\\)" taskpaper-tag-name-char-regexp)
   "Regular expression for attribute.")
@@ -4173,21 +4177,9 @@ Return the number of matches."
   "\\(\"\\(?:\\\\\"\\|[^\"]\\)*\"\\)"
   "Regular expression for double-quoted string.")
 
-(defconst taskpaper-query-lparen-regexp
-  "\\((\\)"
-  "Regular expression for opening parenthesis.")
-
-(defconst taskpaper-query-rparen-regexp
-  "\\()\\)"
-  "Regular expression for closing parenthesis.")
-
 (defconst taskpaper-query-word-regexp
   "\\([^][@<>=~!()\" \t\n\r]+\\)"
   "Regular expression for word.")
-
-(defconst taskpaper-query-whitespace-regexp
-  "\\`[ \t\n\r]*"
-  "Regular expression for whitespace.")
 
 (defconst taskpaper-query-word-operator
   '("and" "or" "not"
@@ -4219,55 +4211,70 @@ Return the number of matches."
   '("and" "or")
   "Valid Boolean binary operators.")
 
+(defconst taskpaper-query-lparen-regexp
+  "\\((\\)"
+  "Regular expression for opening parenthesis.")
+
+(defconst taskpaper-query-rparen-regexp
+  "\\()\\)"
+  "Regular expression for closing parenthesis.")
+
 (defconst taskpaper-query-lparen-rparen
   '("(" ")")
   "Opening and closing parentheses.")
 
-(defun taskpaper-query-word-operator-p (str)
-  "Return non-nil if STR is a valid word operator."
-  (member str taskpaper-query-word-operator))
-
-(defun taskpaper-query-type-shortcut-p (str)
-  "Return non-nil if STR is a valid type shortcut."
-  (member str taskpaper-query-word-shortcut))
-
-(defun taskpaper-query-attribute-p (str)
-  "Return non-nil if STR is a valid attribute."
+(defun taskpaper-query-attribute-p (token)
+  "Return non-nil if TOKEN is a valid attribute."
   (let ((re (format "\\`%s\\'" taskpaper-query-attribute-regexp)))
-    (string-match-p re str)))
+    (and (stringp token) (string-match-p re token))))
 
-(defun taskpaper-query-relation-operator-p (str)
-  "Return non-nil if STR is a valid relational operator."
-  (member str taskpaper-query-relation-operator))
+(defun taskpaper-query-relation-operator-p (token)
+  "Return non-nil if TOKEN is a valid relational operator."
+  (and (stringp token)
+       (member token taskpaper-query-relation-operator)))
 
-(defun taskpaper-query-relation-modifier-p (str)
-  "Return non-nil if STR is a valid relational modifier."
-  (member str taskpaper-query-relation-modifier))
+(defun taskpaper-query-relation-modifier-p (token)
+  "Return non-nil if TOKEN is a valid relational modifier."
+  (and (stringp token)
+       (member token taskpaper-query-relation-modifier)))
 
-(defun taskpaper-query-lparen-p (str)
-  "Return non-nil if STR is the opening parenthesis."
-  (equal str "("))
+(defun taskpaper-query-word-operator-p (token)
+  "Return non-nil if TOKEN is a valid word operator."
+  (and (stringp token)
+       (member token taskpaper-query-word-operator)))
 
-(defun taskpaper-query-rparen-p (str)
-  "Return non-nil if STR is the closing parenthesis."
-  (equal str ")"))
+(defun taskpaper-query-boolean-not-p (token)
+  "Return non-nil if TOKEN is a valid Boolean NOT operator."
+  (and (stringp token)
+       (member token taskpaper-query-boolean-not)))
 
-(defun taskpaper-query-boolean-not-p (str)
-  "Return non-nil if STR is a valid Boolean NOT operator."
-  (member str taskpaper-query-boolean-not))
+(defun taskpaper-query-boolean-binary-p (token)
+  "Return non-nil if TOKEN is a valid Boolean binary operator."
+  (and (stringp token)
+       (member token taskpaper-query-boolean-binary)))
 
-(defun taskpaper-query-boolean-binary-p (str)
-  "Return non-nil if STR is a valid Boolean binary operator."
-  (member str taskpaper-query-boolean-binary))
+(defun taskpaper-query-lparen-p (token)
+  "Return non-nil if TOKEN is the opening parenthesis."
+  (and (stringp token) (equal token "(")))
 
-(defun taskpaper-query-search-term-p (str)
-  "Return non-nil if STR is a valid search term."
-  (and (not (taskpaper-query-word-operator-p str))
-       (not (taskpaper-query-attribute-p str))
-       (not (taskpaper-query-relation-operator-p str))
-       (not (taskpaper-query-relation-modifier-p str))
-       (not (taskpaper-query-lparen-p str))
-       (not (taskpaper-query-rparen-p str))))
+(defun taskpaper-query-rparen-p (token)
+  "Return non-nil if TOKEN is the closing parenthesis."
+  (and (stringp token) (equal token ")")))
+
+(defun taskpaper-query-type-shortcut-p (token)
+  "Return non-nil if TOKEN is a valid type shortcut."
+  (and (stringp token)
+       (member token taskpaper-query-word-shortcut)))
+
+(defun taskpaper-query-search-term-p (token)
+  "Return non-nil if TOKEN is a valid search term."
+  (and (stringp token)
+       (not (taskpaper-query-word-operator-p token))
+       (not (taskpaper-query-attribute-p token))
+       (not (taskpaper-query-relation-operator-p token))
+       (not (taskpaper-query-relation-modifier-p token))
+       (not (taskpaper-query-lparen-p token))
+       (not (taskpaper-query-rparen-p token))))
 
 (defun taskpaper-query-read-tokenize (str)
   "Read query string STR into tokens.
@@ -4488,7 +4495,7 @@ characters repsesenting different types ot tokens."
 
 (defun taskpaper-query-bool-to-func (bool)
   "Convert Boolean operator to function."
-  (cond ((equal bool "or")  'or)
+  (cond ((equal bool  "or") 'or)
         ((equal bool "and") 'and)
         ((equal bool "not") 'not)
         (t (error "Invalid Boolean operator: %s" bool))))
@@ -4499,21 +4506,17 @@ Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list."
   (let (attr op mod val form)
     ;; Get predicate arguments
-    (let ((token (nth 0 tokens)))
-      (when (and token (taskpaper-query-attribute-p token))
-        (setq attr (substring token 1)) (pop tokens)))
-    (let ((token (nth 0 tokens)))
-      (when (and token (taskpaper-query-relation-operator-p token))
-        (setq op token) (pop tokens)))
-    (let ((token (nth 0 tokens)))
-      (when (and token (taskpaper-query-relation-modifier-p token))
-        (setq mod (substring token 1 -1)) (pop tokens)))
-    (let ((token (nth 0 tokens)))
-      (when (and token (taskpaper-query-search-term-p token))
-        (setq val (if (eq (string-to-char token) ?\")
-                      (substring token 1 -1)
-                    token))
-        (pop tokens)))
+    (when (taskpaper-query-attribute-p (nth 0 tokens))
+      (setq attr (substring (nth 0 tokens) 1)) (pop tokens))
+    (when (taskpaper-query-relation-operator-p (nth 0 tokens))
+      (setq op (nth 0 tokens)) (pop tokens))
+    (when (taskpaper-query-relation-modifier-p (nth 0 tokens))
+      (setq mod (substring (nth 0 tokens) 1 -1)) (pop tokens))
+    (when (taskpaper-query-search-term-p (nth 0 tokens))
+      (setq val (if (eq (string-to-char (nth 0 tokens)) ?\")
+                    (substring (nth 0 tokens) 1 -1)
+                  (nth 0 tokens)))
+      (pop tokens))
     ;; Provide default values
     (setq attr (or attr "text") op (or op "contains") mod (or mod "i"))
     ;; Convert operator to function
@@ -4537,16 +4540,16 @@ Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list."
   (let (temp bool right form)
     ;; Get operator
-    (let ((token (nth 0 tokens)))
-      (when (and token (taskpaper-query-boolean-not-p token))
-        (setq bool token) (pop tokens)))
+    (when (taskpaper-query-boolean-not-p (nth 0 tokens))
+      (setq bool (nth 0 tokens)) (pop tokens))
     ;; Get the right side
-    (cond
-     ((taskpaper-query-lparen-p (nth 0 tokens))
-      (setq temp (taskpaper-query-parse-parentheses tokens)))
-     (t
-      (setq temp (taskpaper-query-parse-predicate tokens))))
-    (setq right (car temp) tokens (cdr temp))
+    (when tokens
+      (cond
+       ((taskpaper-query-lparen-p (nth 0 tokens))
+        (setq temp (taskpaper-query-parse-parentheses tokens)))
+       (t
+        (setq temp (taskpaper-query-parse-predicate tokens))))
+      (setq right (car temp) tokens (cdr temp)))
     ;; Convert operator to function
     (when bool (setq bool (taskpaper-query-bool-to-func bool)))
     ;; Build Lisp form
@@ -4568,9 +4571,8 @@ Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list. PREC is the current
 precedence for Boolean operators. LEFT is a Lisp form
 representing the left side of the Boolean expression. This
-function implements the top-down operator-precedence recursive
-parsing algorithm known as Pratt's algorithm. See also variable
-`taskpaper-query-precedence-boolean'."
+function implements the top-down recursive parsing algorithm
+known as Pratt's algorithm."
   (let (temp bool cprec right form)
     ;; Get the left side
     (when (and tokens (not left))
@@ -4581,16 +4583,14 @@ parsing algorithm known as Pratt's algorithm. See also variable
         (setq temp (taskpaper-query-parse-boolean-unary tokens))))
       (setq left (car temp) tokens (cdr temp)))
     ;; Get operator
-    (let ((token (nth 0 tokens)))
-      (when (taskpaper-query-boolean-binary-p token)
-        (setq bool token) (pop tokens)))
+    (when (taskpaper-query-boolean-binary-p (nth 0 tokens))
+      (setq bool (nth 0 tokens)) (pop tokens))
     ;; Get the right side
     (when (and tokens bool left)
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
         (setq temp (taskpaper-query-parse-parentheses tokens)))
        (t
-        ;; Get the current precedence
         (setq cprec (cdr (assoc bool taskpaper-query-precedence-boolean)))
         (setq temp (if (> cprec prec)
                        (taskpaper-query-parse-boolean-binary tokens cprec)
@@ -4600,7 +4600,7 @@ parsing algorithm known as Pratt's algorithm. See also variable
     (when bool (setq bool (taskpaper-query-bool-to-func bool)))
     ;; Build Lisp form
     (cond
-     ((and bool left right) (setq form `(,bool ,left ,right)))
+     ((and left bool right) (setq form `(,bool ,left ,right)))
      ((and left (not bool)) (setq form left))
      (t (error "Invalid Boolean binary expression")))
     ;; Return Lisp form and list of remaining tokens
