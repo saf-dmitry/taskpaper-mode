@@ -1919,7 +1919,7 @@ VALUE is the attribute value, as strings."
         (while (re-search-forward
                 taskpaper-tag-regexp (line-end-position) t)
           (when (taskpaper-in-tag-p (match-beginning 1))
-            (setq name (match-string-no-properties 2)
+            (setq name  (match-string-no-properties 2)
                   value (match-string-no-properties 3)
                   value (taskpaper-tag-value-unescape value))
             (unless (member name taskpaper-special-attributes)
@@ -4576,7 +4576,7 @@ matcher and the rest of the token list."
     ;; Get operator
     (when (taskpaper-query-boolean-not-p (nth 0 tokens))
       (setq bool (nth 0 tokens)) (pop tokens))
-    ;; Get the right side
+    ;; Get right side
     (when tokens
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
@@ -4603,7 +4603,7 @@ representing the left side of the Boolean expression. This
 function implements the top-down recursive parsing algorithm
 known as Pratt's algorithm."
   (let (temp bool cprec right form)
-    ;; Get the left side
+    ;; Get left side
     (when (and tokens (not left))
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
@@ -4614,7 +4614,7 @@ known as Pratt's algorithm."
     ;; Get operator
     (when (taskpaper-query-boolean-binary-p (nth 0 tokens))
       (setq bool (nth 0 tokens)) (pop tokens))
-    ;; Get the right side
+    ;; Get right side
     (when (and tokens bool left)
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
