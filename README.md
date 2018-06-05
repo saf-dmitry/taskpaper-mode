@@ -450,7 +450,7 @@ __Note:__ Though the query language syntax described here represents a valid sub
 
 Every item in the outline has its own set of attributes. Explicit attributes are associated with assigned tags and have the same names, e.g., the tag `@priority(1)` added to an item will be translated to an attribute named "priority" whose value is "1". And vice versa, setting an explicit attribute programmatically will change the corresponding tag. TaskPaper mode also includes some implicit (built-in) read-only attributes, which are not associated with tags and set in other way:
 
- - `type`: Item's type (project, task, note, or blank)
+ - `type`: Item's type (project, task, or note)
  - `text`: Item's full line of text sans indentation
 
 
