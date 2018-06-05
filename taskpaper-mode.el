@@ -1471,11 +1471,10 @@ When SELF is non-nil, also map the current item."
   (let ((level (save-match-data (funcall outline-level))))
     (save-excursion
       (when self (funcall func))
-      (while
-          (and (progn
-                 (taskpaper-outline-next-item-safe)
-                 (> (save-match-data (funcall outline-level)) level))
-               (not (eobp)))
+      (while (and (progn
+                    (taskpaper-outline-next-item-safe)
+                    (> (save-match-data (funcall outline-level)) level))
+                  (not (eobp)))
         (funcall func)))))
 
 (defun taskpaper-outline-map-ancestors (func &optional self)
@@ -4251,28 +4250,23 @@ Return the number of matches."
 
 (defun taskpaper-query-relation-operator-p (token)
   "Return non-nil if TOKEN is a valid relational operator."
-  (and (stringp token)
-       (member token taskpaper-query-relation-operator)))
+  (and (stringp token) (member token taskpaper-query-relation-operator)))
 
 (defun taskpaper-query-relation-modifier-p (token)
   "Return non-nil if TOKEN is a valid relational modifier."
-  (and (stringp token)
-       (member token taskpaper-query-relation-modifier)))
+  (and (stringp token) (member token taskpaper-query-relation-modifier)))
 
 (defun taskpaper-query-word-operator-p (token)
   "Return non-nil if TOKEN is a valid word operator."
-  (and (stringp token)
-       (member token taskpaper-query-word-operator)))
+  (and (stringp token) (member token taskpaper-query-word-operator)))
 
 (defun taskpaper-query-boolean-not-p (token)
   "Return non-nil if TOKEN is a valid Boolean NOT operator."
-  (and (stringp token)
-       (member token taskpaper-query-boolean-not)))
+  (and (stringp token) (member token taskpaper-query-boolean-not)))
 
 (defun taskpaper-query-boolean-binary-p (token)
   "Return non-nil if TOKEN is a valid Boolean binary operator."
-  (and (stringp token)
-       (member token taskpaper-query-boolean-binary)))
+  (and (stringp token) (member token taskpaper-query-boolean-binary)))
 
 (defun taskpaper-query-lparen-p (token)
   "Return non-nil if TOKEN is the opening parenthesis."
@@ -4284,8 +4278,7 @@ Return the number of matches."
 
 (defun taskpaper-query-type-shortcut-p (token)
   "Return non-nil if TOKEN is a valid type shortcut."
-  (and (stringp token)
-       (member token taskpaper-query-word-shortcut)))
+  (and (stringp token) (member token taskpaper-query-word-shortcut)))
 
 (defun taskpaper-query-search-term-p (token)
   "Return non-nil if TOKEN is a valid search term."
@@ -4521,6 +4514,11 @@ characters repsesenting different types ot tokens."
         ((equal bool "not") 'not)
         (t (error "Invalid Boolean operator: %s" bool))))
 
+(defconst taskpaper-query-precedence-boolean
+  '(("and" . 0) ("or" . 1))
+  "Order of precedence for binary Boolean operators.
+Operators with lower precedence bind more strongly.")
+
 (defun taskpaper-query-parse-predicate (tokens)
   "Parse next predicate expression in token list TOKENS.
 Return a cons of the constructed Lisp form implementing the
@@ -4580,11 +4578,6 @@ matcher and the rest of the token list."
      (t (error "Invalid Boolean unary expression")))
     ;; Return Lisp form and list of remaining tokens
     (cons form tokens)))
-
-(defconst taskpaper-query-precedence-boolean
-  '(("and" . 0) ("or" . 1))
-  "Order of precedence for binary Boolean operators.
-Operators with lower precedence bind more strongly.")
 
 (defun taskpaper-query-parse-boolean-binary (tokens prec &optional left)
   "Parse next binary Boolean expression in token list TOKENS.
@@ -4875,8 +4868,8 @@ string. PROMPT can overwrite the default prompt."
 
 (defun taskpaper-query-tag-at-point ()
   "Query buffer for tag at point.
-If point is on the tag name, match only the tag name, otherwise
-match the tag-value combination."
+When point is on the tag name, query only for the tag name,
+otherwise query for the name-value combination."
   (interactive)
   (if (and (taskpaper-in-tag-p)
            (taskpaper-in-regexp taskpaper-tag-regexp))
