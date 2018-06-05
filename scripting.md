@@ -23,11 +23,7 @@ The mapping routines can call any arbitrary function.
 
  - `taskpaper-outline-map-tree`
  - `taskpaper-outline-map-region`
- - `taskpaper-outline-map-ancestors`
  - `taskpaper-outline-map-descendants`
- - `taskpaper-outline-map-children`
- - `taskpaper-outline-map-following-siblings`
- - `taskpaper-outline-map-preceeding-siblings`
  - `taskpaper-outline-up-level-safe`
  - `taskpaper-outline-next-item`
  - `taskpaper-outline-next-item-safe`
