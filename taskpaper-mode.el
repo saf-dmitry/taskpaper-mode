@@ -1465,17 +1465,19 @@ This version will not throw an error."
     (error nil)))
 
 (defun taskpaper-outline-map-children (func &optional self)
-  "Call FUNC for every child of the current item.
+  "Call FUNC for every direct child of the current item.
 When SELF is non-nil, also map the current item."
   (outline-back-to-heading t)
   (let ((level (save-match-data (funcall outline-level))))
     (save-excursion
       (when self (funcall func))
-      (while (and (progn
-                    (taskpaper-outline-next-item-safe)
-                    (> (save-match-data (funcall outline-level)) level))
-                  (not (eobp)))
-        (funcall func)))))
+      (when (and (progn
+                   (taskpaper-outline-next-item-safe)
+                   (> (save-match-data (funcall outline-level)) level))
+                 (not (eobp)))
+        (funcall func)
+        (while (taskpaper-outline-forward-same-level-safe)
+          (funcal func))))))
 
 (defun taskpaper-outline-map-ancestors (func &optional self)
   "Call FUNC for every ancestor of the current item.
