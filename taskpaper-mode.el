@@ -1477,7 +1477,7 @@ When SELF is non-nil, also map the current item."
                  (not (eobp)))
         (funcall func)
         (while (taskpaper-outline-forward-same-level-safe)
-          (funcal func))))))
+          (funcall func))))))
 
 (defun taskpaper-outline-map-descendants (func &optional self)
   "Call FUNC for every descendant of the current item.
@@ -1518,7 +1518,7 @@ When SELF is non-nil, also map the current item."
 
 (defun taskpaper-outline-map-tree (func)
   "Call FUNC for every item of the current subtree."
-  (taskpaper-outline-map-children func t))
+  (taskpaper-outline-map-descendants func t))
 
 (defun taskpaper-outline-map-region (func begin end)
   "Call FUNC for every item between BEGIN and END."
