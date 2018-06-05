@@ -1486,11 +1486,10 @@ When SELF is non-nil, also map the current item."
   (save-excursion
     (setq end (copy-marker end)) (goto-char begin)
     (when (outline-on-heading-p t) (funcall func))
-    (while
-        (and (progn
-               (taskpaper-outline-next-item-safe)
-               (< (point) end))
-             (not (eobp)))
+    (while (and (progn
+                  (taskpaper-outline-next-item-safe)
+                  (< (point) end))
+                (not (eobp)))
       (funcall func))))
 
 (defun taskpaper-outline-normalize-indentation ()
@@ -1835,8 +1834,8 @@ This function does not set or modify the match data."
 
 (defun taskpaper-tag-name-p (name)
   "Return non-nil when NAME is a valid tag name."
-  (when (stringp name)
-    (string-match-p (format "\\`%s\\'" taskpaper-tag-name-regexp) name)))
+  (let ((re (format "\\`%s\\'" taskpaper-tag-name-regexp)))
+    (and (stringp name) (string-match-p re name))))
 
 (defun taskpaper-tag-value-escape (value)
   "Escape special characters in tag VALUE."
@@ -3170,8 +3169,8 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'string-to-number a)
-          b (mapcar 'string-to-number b))
+    (setq a (mapcar #'string-to-number a)
+          b (mapcar #'string-to-number b))
     (cl-subsetp a b :test 'equal))
    (t nil)))
 
@@ -3183,8 +3182,8 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'string-to-number a)
-          b (mapcar 'string-to-number b))
+    (setq a (mapcar #'string-to-number a)
+          b (mapcar #'string-to-number b))
     (cl-subsetp b a :test 'equal))
    (t nil)))
 
@@ -3196,8 +3195,8 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'string-to-number a)
-          b (mapcar 'string-to-number b))
+    (setq a (mapcar #'string-to-number a)
+          b (mapcar #'string-to-number b))
     (let (temp1 temp2)
       (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
       (and temp1 temp2 (equal temp1 temp2))))
@@ -3211,8 +3210,8 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'string-to-number a)
-          b (mapcar 'string-to-number b))
+    (setq a (mapcar #'string-to-number a)
+          b (mapcar #'string-to-number b))
     (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
     (equal a b))
    (t nil)))
@@ -3389,7 +3388,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+    (setq a (mapcar #'downcase a) b (mapcar #'downcase b))
     (cl-subsetp a b :test 'equal))
    (t nil)))
 
@@ -3400,7 +3399,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+    (setq a (mapcar #'downcase a) b (mapcar #'downcase b))
     (cl-subsetp b a :test 'equal))
    (t nil)))
 
@@ -3411,7 +3410,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+    (setq a (mapcar #'downcase a) b (mapcar #'downcase b))
     (let (temp1 temp2)
       (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
       (and temp1 temp2 (equal temp1 temp2))))
@@ -3424,7 +3423,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'downcase a) b (mapcar 'downcase b))
+    (setq a (mapcar #'downcase a) b (mapcar #'downcase b))
     (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
     (equal a b))
    (t nil)))
@@ -3504,7 +3503,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+    (setq a (mapcar #'taskpaper-2ft a) b (mapcar #'taskpaper-2ft b))
     (cl-subsetp a b :test 'equal))
    (t nil)))
 
@@ -3516,7 +3515,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+    (setq a (mapcar #'taskpaper-2ft a) b (mapcar #'taskpaper-2ft b))
     (cl-subsetp b a :test 'equal))
    (t nil)))
 
@@ -3528,7 +3527,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+    (setq a (mapcar #'taskpaper-2ft a) b (mapcar #'taskpaper-2ft b))
     (let (temp1 temp2)
       (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
       (and temp1 temp2 (equal temp1 temp2))))
@@ -3542,7 +3541,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (setq a (mapcar 'taskpaper-2ft a) b (mapcar 'taskpaper-2ft b))
+    (setq a (mapcar #'taskpaper-2ft a) b (mapcar #'taskpaper-2ft b))
     (while (and (consp a) (not (equal a b))) (setq a (cdr a)))
     (equal a b))
    (t nil)))
