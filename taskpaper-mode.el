@@ -1464,20 +1464,13 @@ This version will not throw an error."
       (progn (outline-previous-heading) (not (bobp)))
     (error nil)))
 
-(defun taskpaper-outline-map-children (func &optional self)
-  "Call FUNC for every direct child of the current item.
+(defun taskpaper-outline-map-ancestors (func &optional self)
+  "Call FUNC for every ancestor of the current item.
 When SELF is non-nil, also map the current item."
   (outline-back-to-heading t)
-  (let ((level (save-match-data (funcall outline-level))))
-    (save-excursion
-      (when self (funcall func))
-      (when (and (progn
-                   (taskpaper-outline-next-item-safe)
-                   (> (save-match-data (funcall outline-level)) level))
-                 (not (eobp)))
-        (funcall func)
-        (while (taskpaper-outline-forward-same-level-safe)
-          (funcall func))))))
+  (save-excursion
+    (when self (funcall func))
+    (while (taskpaper-outline-up-level-safe) (funcall func))))
 
 (defun taskpaper-outline-map-descendants (func &optional self)
   "Call FUNC for every descendant of the current item.
@@ -1492,13 +1485,20 @@ When SELF is non-nil, also map the current item."
                   (not (eobp)))
         (funcall func)))))
 
-(defun taskpaper-outline-map-ancestors (func &optional self)
-  "Call FUNC for every ancestor of the current item.
+(defun taskpaper-outline-map-children (func &optional self)
+  "Call FUNC for every direct child of the current item.
 When SELF is non-nil, also map the current item."
   (outline-back-to-heading t)
-  (save-excursion
-    (when self (funcall func))
-    (while (taskpaper-outline-up-level-safe) (funcall func))))
+  (let ((level (save-match-data (funcall outline-level))))
+    (save-excursion
+      (when self (funcall func))
+      (when (and (progn
+                   (taskpaper-outline-next-item-safe)
+                   (> (save-match-data (funcall outline-level)) level))
+                 (not (eobp)))
+        (funcall func)
+        (while (taskpaper-outline-forward-same-level-safe)
+          (funcall func))))))
 
 (defun taskpaper-outline-map-following-siblings (func &optional self)
   "Call FUNC for every following sibling of the current item.
