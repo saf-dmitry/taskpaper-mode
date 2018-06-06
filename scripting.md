@@ -33,6 +33,8 @@ The mapping routines can call any arbitrary function.
  - `taskpaper-outline-forward-same-level-safe`
  - `taskpaper-outline-backward-same-level`
  - `taskpaper-outline-backward-same-level-safe`
+ - `taskpaper-outline-end-of-item`
+ - `taskpaper-outline-end-of-subtree`
 
 
 ### Item Path

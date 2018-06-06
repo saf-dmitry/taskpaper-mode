@@ -443,7 +443,7 @@ By default, incremental query results are not updated immediately every time you
 
 The query language syntax is described below.
 
-__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries relying on tag inheritance instead. This behavior may change in future updates.
+__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries evaluating tag inheritance instead.
 
 
 ### Tags and Attributes

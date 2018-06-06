@@ -348,6 +348,42 @@ delimiters for strong and emphasis markup similar to Markdown."
   :group 'taskpaper
   :type 'hook)
 
+;;;; Compatibility code for older Emacsen
+
+(unless (fboundp 'string-prefix-p)
+  (defun string-prefix-p (prefix string &optional ignore-case)
+    "Return non-nil if PREFIX is a prefix of STRING.
+If IGNORE-CASE is non-nil, the comparison is done without paying
+attention to case differences."
+    (let ((prefix-length (length prefix)))
+      (if (> prefix-length (length string)) nil
+        (eq t (compare-strings prefix 0 prefix-length string 0
+                               prefix-length ignore-case))))))
+
+(unless (fboundp 'string-suffix-p)
+  (defun string-suffix-p (suffix string &optional ignore-case)
+    "Return non-nil if SUFFIX is a suffix of STRING.
+If IGNORE-CASE is non-nil, the comparison is done without paying
+attention to case differences."
+    (let ((start-pos (- (length string) (length suffix))))
+      (and (>= start-pos 0)
+           (eq t (compare-strings suffix nil nil string
+                                  start-pos nil ignore-case))))))
+
+(unless (fboundp 'string-remove-prefix)
+  (defun string-remove-prefix (prefix string)
+    "Remove PREFIX from STRING if present."
+    (if (string-prefix-p prefix string)
+        (substring string (length prefix))
+      string)))
+
+(unless (fboundp 'string-remove-suffix)
+  (defun string-remove-suffix (suffix string)
+    "Remove SUFFIX from STRING if present."
+    (if (string-suffix-p suffix string)
+        (substring string 0 (- (length string) (length suffix)))
+      string)))
+
 ;;;; Generally useful functions
 
 (defun taskpaper-mode-version ()
@@ -360,44 +396,6 @@ delimiters for strong and emphasis markup similar to Markdown."
   (interactive)
   (browse-url
    "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"))
-
-;; Compatibility for Emacs before v24.4
-(unless (fboundp 'string-prefix-p)
-  (defun string-prefix-p (prefix string &optional ignore-case)
-    "Return non-nil if PREFIX is a prefix of STRING.
-If IGNORE-CASE is non-nil, the comparison is done without paying
-attention to case differences."
-    (let ((prefix-length (length prefix)))
-      (if (> prefix-length (length string)) nil
-        (eq t (compare-strings prefix 0 prefix-length string 0
-                               prefix-length ignore-case))))))
-
-;; Compatibility for Emacs before v24.4
-(unless (fboundp 'string-suffix-p)
-  (defun string-suffix-p (suffix string  &optional ignore-case)
-    "Return non-nil if SUFFIX is a suffix of STRING.
-If IGNORE-CASE is non-nil, the comparison is done without paying
-attention to case differences."
-    (let ((start-pos (- (length string) (length suffix))))
-      (and (>= start-pos 0)
-           (eq t (compare-strings suffix nil nil string
-                                  start-pos nil ignore-case))))))
-
-;; Compatibility for Emacs before v24.4
-(unless (fboundp 'string-remove-prefix)
-  (defun string-remove-prefix (prefix string)
-    "Remove PREFIX from STRING if present."
-    (if (string-prefix-p prefix string)
-        (substring string (length prefix))
-      string)))
-
-;; Compatibility for Emacs before v24.4
-(unless (fboundp 'string-remove-suffix)
-  (defun string-remove-suffix (suffix string)
-    "Remove SUFFIX from STRING if present."
-    (if (string-suffix-p suffix string)
-        (substring string 0 (- (length string) (length suffix)))
-      string)))
 
 (defun taskpaper-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE.
@@ -1396,6 +1394,12 @@ image link is a plain link to file matching return value from
 
 ;;;; Outline API and navigation
 
+(defalias 'taskpaper-outline-end-of-item 'outline-end-of-heading
+  "Move to the end of the current item.")
+
+(defalias 'taskpaper-outline-end-of-subtree 'outline-end-of-subtree
+  "Move to the end of the current subtree.")
+
 (defalias 'taskpaper-outline-up-level 'outline-up-heading
   "Move to the visible parent item.
 With argument, move up ARG levels. If INVISIBLE-OK is non-nil,
@@ -1492,6 +1496,15 @@ When SELF is non-nil, also map the current item."
                 (not (eobp)))
       (funcall func))))
 
+(defun taskpaper-item-has-children-p ()
+  "Return non-nil if item at point has children."
+  (let (eoi eos)
+    (save-excursion
+      (outline-back-to-heading t)
+      (taskpaper-outline-end-of-item) (setq eoi (point))
+      (taskpaper-outline-end-of-subtree) (setq eos (point)))
+    (not (= eos eoi))))
+
 (defun taskpaper-outline-normalize-indentation ()
   "Normalize outline indentation.
 The variable `tab-width' controls the amount of spaces per
@@ -1502,17 +1515,6 @@ indentation level."
     (while (re-search-forward "^[ \t]+" nil t)
       (let ((indent (floor (string-width (match-string 0)) tab-width)))
         (replace-match (make-string indent ?\t))))))
-
-;;;; Item path API
-
-(defun taskpaper-item-has-children-p ()
-  "Return non-nil if item at point has children."
-  (let (eoh eos)
-    (save-excursion
-      (outline-back-to-heading t)
-      (outline-end-of-heading) (setq eoh (point))
-      (outline-end-of-subtree) (setq eos (point)))
-    (not (= eos eoh))))
 
 ;;;; Folding
 
@@ -1544,7 +1546,7 @@ indentation level."
       (while (taskpaper-outline-up-level-safe)
         (outline-flag-region
          (max (point-min) (1- (point)))
-         (save-excursion (outline-end-of-heading) (point))
+         (save-excursion (taskpaper-outline-end-of-item) (point))
          nil)))))
 
 (defun taskpaper-outline-hide-other ()
@@ -1577,53 +1579,50 @@ buffer. When point is on an item, rotate the current subtree."
   (interactive "P")
   (cond
    (arg
-    (progn
-      (goto-char (point-min))
-      (taskpaper-cycle nil)))
+    (progn (goto-char (point-min)) (taskpaper-cycle)))
    (t
     (cond
      ((bobp)
-      ;; Global cycling
-      (cond
-       ((and (eq last-command this-command)
-             (eq taskpaper-cycle-global-status 2))
-        ;; Move from overview to all
-        (taskpaper-outline-show-all)
-        (taskpaper-unlogged-message "SHOW ALL")
-        (setq taskpaper-cycle-global-status 1))
-       (t
-        ;; Default to overview
-        (taskpaper-outline-hide-sublevels 1)
-        (taskpaper-unlogged-message "OVERVIEW")
-        (setq taskpaper-cycle-global-status 2))))
+      ;; Perform global cycling
+      (cond ((and (eq last-command this-command)
+                  (eq taskpaper-cycle-global-status 2))
+             ;; Show everything
+             (taskpaper-outline-show-all)
+             (taskpaper-unlogged-message "SHOW ALL")
+             (setq taskpaper-cycle-global-status 1))
+            (t
+             ;; Show overview (default)
+             (taskpaper-outline-hide-sublevels 1)
+             (taskpaper-unlogged-message "OVERVIEW")
+             (setq taskpaper-cycle-global-status 2))))
      ((save-excursion
         (beginning-of-line 1) (looking-at outline-regexp))
-      ;; Local cycling
+      ;; Cycle current subtree
       (outline-back-to-heading)
-      (let ((goal-column 0) eoh eol eos)
+      (let ((goal-column 0) eoi eol eos)
         ;; Determine boundaries
         (save-excursion
           (outline-back-to-heading)
-          (save-excursion (taskpaper-next-line) (setq eol (point)))
-          (outline-end-of-heading) (setq eoh (point))
-          (outline-end-of-subtree) (setq eos (point)))
-        (cond
-         ((= eos eoh)
-          ;; Leaf item
-          (taskpaper-unlogged-message "LEAF ITEM"))
-         ((>= eol eos)
-          ;; Entire subtree is hidden in one line
-          (taskpaper-outline-show-children)
-          (taskpaper-unlogged-message "CHILDREN")
-          (setq this-command 'taskpaper-cycle-children))
-         ((eq last-command 'taskpaper-cycle-children)
-          ;; Show everything
-          (taskpaper-outline-show-subtree)
-          (taskpaper-unlogged-message "SUBTREE"))
-         (t
-          ;; Hide the subtree (default action)
-          (taskpaper-outline-hide-subtree)
-          (taskpaper-unlogged-message "FOLDED")))))
+          (save-excursion
+            (taskpaper-next-line) (setq eol (point)))
+          (taskpaper-outline-end-of-item) (setq eoi (point))
+          (taskpaper-outline-end-of-subtree) (setq eos (point)))
+        (cond ((= eoi eos)
+               ;; Leaf item
+               (taskpaper-unlogged-message "LEAF ITEM"))
+              ((>= eol eos)
+               ;; Show direct children
+               (taskpaper-outline-show-children)
+               (taskpaper-unlogged-message "CHILDREN")
+               (setq this-command 'taskpaper-cycle-children))
+              ((eq last-command 'taskpaper-cycle-children)
+               ;; Show the entire subtree
+               (taskpaper-outline-show-subtree)
+               (taskpaper-unlogged-message "SUBTREE"))
+              (t
+               ;; Hide the subtree (default)
+               (taskpaper-outline-hide-subtree)
+               (taskpaper-unlogged-message "FOLDED")))))
      (t
       ;; Not at an item
       (outline-back-to-heading))))))
@@ -1643,7 +1642,7 @@ buffer. When point is on an item, rotate the current subtree."
     (save-excursion
       (save-match-data
         (outline-back-to-heading) (setq begin (point))
-        (outline-end-of-subtree) (setq end (point))
+        (taskpaper-outline-end-of-subtree) (setq end (point))
         (narrow-to-region begin end)))))
 
 (defalias 'taskpaper-mark-subtree 'outline-mark-subtree
@@ -1665,14 +1664,16 @@ end.")
               (when (outline-on-heading-p)
                 (outline-back-to-heading)
                 (setq start (point)
-                      end (progn (outline-end-of-heading) (point)))
+                      end (progn
+                            (taskpaper-outline-end-of-item) (point)))
                 (with-current-buffer temp-buffer
                   (insert-buffer-substring buffer start end)
                   (insert "\n")))
               (while (outline-next-heading)
                 (unless (outline-invisible-p)
                   (setq start (point)
-                        end (progn (outline-end-of-heading) (point)))
+                        end (progn
+                              (taskpaper-outline-end-of-item) (point)))
                   (with-current-buffer temp-buffer
                     (insert-buffer-substring buffer start end)
                     (insert "\n"))))))
@@ -1994,7 +1995,7 @@ With optional argument VALUE, set attribute to that value."
     (user-error "Special attribute cannot be set: %s" name))
   (taskpaper-item-remove-attribute name)
   (when value (setq value (taskpaper-tag-value-escape value)))
-  (end-of-line 1)
+  (taskpaper-outline-end-of-item)
   (delete-horizontal-space) (unless (bolp) (insert " "))
   (if value
       (insert (format "@%s(%s)" name value))
@@ -3552,25 +3553,24 @@ comparing."
   (getkey-func compare-func &optional with-case reverse)
   "Sort items on a certain level.
 When point is at the beginning of the buffer, sort the top-level
-items. Else, the children of the item at point are sorted.
+items. Else, the children of the current item are sorted.
 
 The GETKEY-FUNC specifies a function to be called with point at
 the beginning of the item. It must return either a string or a
 number that should serve as the sorting key for that item. The
 COMPARE-FUNC specifies a function to compare the sorting keys; it
 is called with two arguments, the sorting keys, and should return
-non-nil if the first key should sort before the second key.
+non-nil if the first key should sort before the second.
 
 Comparing items ignores case by default. However, with an
 optional argument WITH-CASE, the sorting considers case as well.
 The optional argument REVERSE will reverse the sort order.
 
 When sorting is done, call `taskpaper-after-sorting-items-hook'."
-  (if (buffer-narrowed-p)
-      (widen))
+  (when (buffer-narrowed-p) (widen))
   (let ((case-func (if with-case 'identity 'downcase))
         begin end)
-    ;; Set sorting boundaries
+    ;; Set boundaries
     (cond
      ((bobp)
       ;; Sort top-level items
@@ -3580,30 +3580,28 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
       (unless (bolp) (end-of-line 1) (newline))
       (setq end (point-max))
       (goto-char begin)
-      (outline-show-all)
+      (taskpaper-outline-show-all)
       (or (outline-on-heading-p)
-          (outline-next-heading)))
+          (taskpaper-outline-next-item)))
      (t
-      ;; Sort children of the item at point
+      ;; Sort children of the current item
       (setq begin (point))
-      (outline-end-of-subtree)
+      (taskpaper-outline-end-of-subtree)
       (if (eq (char-after) ?\n) (forward-char 1)
         ;; Add newline, if nessessary
         (unless (bolp) (end-of-line 1) (newline)))
       (setq end (point))
       (goto-char begin)
-      (outline-show-subtree)
-      (outline-next-heading)))
-    ;; Check sorting boundaries
+      (taskpaper-outline-show-subtree)
+      (taskpaper-outline-next-item)))
+    ;; Check boundaries
     (when (>= begin end)
-      (goto-char begin)
-      (user-error "Nothing to sort"))
+      (goto-char begin) (user-error "Nothing to sort"))
     ;; Sort items
     (message "Sorting items...")
     (save-restriction
       (narrow-to-region begin end)
-      (let ((case-fold-search nil) tmp)
-        ;; Call `sort-subr' function
+      (let ((case-fold-search nil) temp)
         (sort-subr
          ;; REVERSE arg
          reverse
@@ -3616,14 +3614,15 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
          (lambda nil
            (save-match-data
              (condition-case nil
-                 (outline-forward-same-level 1)
+                 (taskpaper-outline-forward-same-level 1)
                (error (goto-char (point-max))))))
          ;; STARTKEYFUN arg
          (lambda nil
            (progn
-             (setq tmp (funcall getkey-func))
-             (if (stringp tmp) (setq tmp (funcall case-func tmp)))
-             tmp))
+             (setq temp (funcall getkey-func))
+             (when (stringp temp)
+               (setq temp (funcall case-func temp)))
+             temp))
          ;; ENDKEYFUN arg
          nil
          ;; PREDICATE arg
@@ -3633,7 +3632,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
 
 (defun taskpaper-sort-remove-markup (s)
   "Remove inline markup from string S.
-This version removes characters with invisibility property
+This function removes characters with invisibility property
 `taskpaper-markup'."
   (let (b)
     (while (setq b (text-property-any
@@ -3654,12 +3653,13 @@ markup and return sorting key as string."
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-sort-remove-markup item)
           item (taskpaper-remove-indentation item)
-          item (taskpaper-remove-type-formatting item))))
+          item (taskpaper-remove-type-formatting item))
+    item))
 
 (defun taskpaper-sort-by-type-get-sorting-key ()
   "Return sorting key of item at point for sorting by type."
   (let ((type (taskpaper-item-get-attribute "type"))
-        (precedence '(("project" . 3)("task" . 2)("note" . 1))))
+        (precedence '(("project" . 3) ("task" . 2) ("note" . 1))))
     (cdr (assoc type precedence))))
 
 (defun taskpaper-sort-alpha (&optional reverse)
@@ -3790,7 +3790,7 @@ subtree."
         ;; Mark the current subtree
         (outline-back-to-heading)
         (setq begin (point))
-        (outline-end-of-subtree)
+        (taskpaper-outline-end-of-subtree)
         (if (eq (char-after) ?\n) (forward-char 1)
           ;; Add newline, if nessessary
           (unless (bolp) (end-of-line 1) (newline)))
@@ -3808,7 +3808,7 @@ If CUT is non-nil, actually cut the subtree."
       (save-match-data
         ;; Mark the current subtree
         (outline-back-to-heading) (setq begin (point))
-        (outline-end-of-subtree)
+        (taskpaper-outline-end-of-subtree)
         (if (eq (char-after) ?\n) (forward-char 1)
           ;; Add newline, if nessessary
           (unless (bolp) (end-of-line 1) (newline)))
@@ -3908,7 +3908,8 @@ obtained in a different way."
     ;; Check the target position
     (if (and (not arg) pos
              (>= pos (point))
-             (< pos (save-excursion (outline-end-of-subtree) (point))))
+             (< pos (save-excursion
+                      (taskpaper-outline-end-of-subtree) (point))))
         (error "Cannot refile to item inside the current subtree"))
     ;; Copy the subtree
     (taskpaper-copy-subtree)
@@ -3916,7 +3917,8 @@ obtained in a different way."
     (save-excursion
       (widen) (goto-char pos) (outline-back-to-heading t)
       (setq level (save-match-data (funcall outline-level)))
-      (unless taskpaper-reverse-note-order (outline-end-of-subtree))
+      (unless taskpaper-reverse-note-order
+        (taskpaper-outline-end-of-subtree))
       (taskpaper-paste-subtree (1+ level)))
     ;; Cut the subtree from the original location
     (when (not arg) (taskpaper-cut-subtree))
@@ -4024,7 +4026,8 @@ last subitem."
         ;; File the subtree under the archive heading
         (outline-back-to-heading)
         (setq level (save-match-data (funcall outline-level)))
-        (unless taskpaper-reverse-note-order (outline-end-of-subtree))
+        (unless taskpaper-reverse-note-order
+          (taskpaper-outline-end-of-subtree))
         (taskpaper-paste-subtree (1+ level)))
        (t
         ;; No archive heading specified, go to EOB
@@ -4098,7 +4101,8 @@ item."
         ;; File the entry under the target location
         (outline-back-to-heading)
         (setq level (save-match-data (funcall outline-level)))
-        (unless taskpaper-reverse-note-order (outline-end-of-subtree))
+        (unless taskpaper-reverse-note-order
+          (taskpaper-outline-end-of-subtree))
         (taskpaper-paste-subtree (1+ level) text))
        (t
         ;; No location specified, go to EOB
@@ -4664,14 +4668,14 @@ if the item matches the selection string STR."
               nil t)
         (put-text-property (match-beginning 0) (match-end 0)
                            'face 'taskpaper-query-secondary-text))
-      ;; Fontify attribute names
+      ;; Fontify attributes
       (goto-char (point-min))
       (while (re-search-forward
               (format "@%s" taskpaper-tag-name-regexp)
               nil t)
         (put-text-property (match-beginning 0) (match-end 0)
                            'face 'default))
-      ;; Fontify double-quoted strings
+      ;; Finally fontify double-quoted strings
       (goto-char (point-min))
       (while (re-search-forward
               taskpaper-query-quoted-string-regexp nil t)
@@ -5107,9 +5111,9 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
       :active (outline-on-heading-p)]
      "--"
      ["Sort Children Alphabetically" taskpaper-sort-alpha
-      :active (outline-on-heading-p)]
+      :active (or (bobp) (outline-on-heading-p))]
      ["Sort Children by Type" taskpaper-sort-by-type
-      :active (outline-on-heading-p)]
+      :active (or (bobp) (outline-on-heading-p))]
      "--"
      ["Refile Subtree..." taskpaper-refile-subtree
       :active (outline-on-heading-p)]
