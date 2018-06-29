@@ -4757,7 +4757,7 @@ prompt."
   (when (and (minibufferp (current-buffer))
              (minibuffer-selected-window))
     (let* ((str (minibuffer-contents-no-properties))
-           (matcher (taskpaper-query-matcher str)))
+           (matcher (ignore-errors (taskpaper-query-matcher str))))
       (with-selected-window (minibuffer-selected-window)
         (if matcher
             (condition-case nil
