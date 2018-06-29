@@ -4857,11 +4857,11 @@ otherwise query for the name-value combination."
         (cond ((and name
                     (>= (point) (match-beginning 2))
                     (<= (point) (match-end 2)))
-               (setq query (concat "@" name)))
+               (setq query (format "@%s" name)))
               ((and name value)
                (setq value (taskpaper-tag-value-unescape value))
-               (setq query (concat "@" name " = \"" value "\"")))
-              (t (setq query (concat "@" name))))
+               (setq query (format "@%s = \"%s\"" name value)))
+              (t (setq query (format "@%s" name))))
         (taskpaper-query query))
     (user-error "No tag at point")))
 
