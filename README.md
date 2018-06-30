@@ -462,7 +462,7 @@ Search predicates describe what you are looking for. The full predicate pattern 
 
     @<attribute> <relation> [<modifier>] <search term>
 
-Predicates start with the attribute, whose value or existence you want to test. Attribute represents tag with the same name or one of the implicit attributes and search term will be compared with the tag value. Pressing `TAB` offers completion on attribute names at point in both static and incremental query modes.
+Predicates start with the attribute, whose value or existence you want to test. Attribute represents tag with the same name or one of the implicit attributes and search term will be compared with the tag value. Pressing `TAB` offers completion on attribute names at point in both static and incremental query modes. Attribute names are always treated as case sensitive.
 
 Relations determine the test that the predicate performs:
 
@@ -486,7 +486,7 @@ The default type of comparison is case-insensitive string comparison. You can ch
 - `d`: Date compare
 - `l`: List compare (can be combined with other modifiers)
 
-Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's presence will be tested. Attribute names are always treated as case sensitive.
+Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's presence will be tested.
 
 In case of numeric compare `[n]` both sides of the compare are converted to numbers before comparing. This means `01` will equal to `1`, which is not true when doing the default string compare.
 
