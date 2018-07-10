@@ -4151,7 +4151,8 @@ Return the number of matches."
               'taskpaper-occur-remove-highlights
               nil 'local)
     (when (called-interactively-p 'any)
-      (message "%d match(es)" cnt))
+      (message "%d %s"
+               cnt (if (eq cnt 1) "match" "matches")))
     cnt))
 
 ;;;; Querying

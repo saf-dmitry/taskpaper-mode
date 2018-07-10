@@ -384,7 +384,7 @@ TaskPaper mode also has experimental support for inline [Markdown][markdown-wiki
 - `[File](file:///home/username/filename.txt)`
 - `[Email](mailto:username@example.net)`
 
-This descriptive syntax is useful for long links which can interrupt the reading. If markup hiding is enabled (see [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
+This descriptive syntax is useful for long links which can interrupt reading. If markup hiding is enabled (see [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
 
 Links inside projects and tasks are supported although not encouraged.
 
