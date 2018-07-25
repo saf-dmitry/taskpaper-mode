@@ -531,6 +531,16 @@ PROP-VAL."
        (fboundp 'flyspell-delete-region-overlays)
        (flyspell-delete-region-overlays begin end)))
 
+(defun taskpaper-remap (map &rest commands)
+  "In keymap MAP, remap the functions given in COMMANDS.
+COMMANDS is a list of alternating OLDDEF NEWDEF command names."
+  (let (olddef newdef)
+    (while commands
+      (setq olddef (pop commands) newdef (pop commands))
+      (if (fboundp 'command-remapping)
+          (define-key map (vector 'remap olddef) newdef)
+        (substitute-key-definition olddef newdef map global-map)))))
+
 ;;;; Re-usable regexps
 
 (defconst taskpaper-tag-name-char-regexp
@@ -4914,6 +4924,22 @@ otherwise query for the name-value combination."
   (interactive)
   (when (outline-on-heading-p)
     (call-interactively #'taskpaper-outline-promote)))
+
+(defvar taskpaper-mode-transpose-word-syntax-table
+  (let ((st (make-syntax-table text-mode-syntax-table)))
+    (modify-syntax-entry ?\* "w p" st)
+    (modify-syntax-entry ?\_ "w p" st)
+    st))
+
+(defun taskpaper-transpose-words ()
+  "Transpose words in TaskPaper buffer."
+  (interactive)
+  (let ((st (if taskpaper-use-inline-emphasis
+                taskpaper-mode-transpose-word-syntax-table
+              taskpaper-mode-syntax-table)))
+    (with-syntax-table st (call-interactively #'transpose-words))))
+
+(taskpaper-remap taskpaper-mode-map #'transpose-words #'taskpaper-transpose-words)
 
 ;;;; Major mode definition
 
