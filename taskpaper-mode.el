@@ -2735,7 +2735,7 @@ buffer instead."
     (setq completion (try-completion pattern attrs))
     (cond
      ((eq completion t)
-      ;; Completion done
+      ;; Sole completion
       (message "Sole completion"))
      ((null completion)
       ;; No completion found
@@ -4151,8 +4151,7 @@ Return the number of matches."
               'taskpaper-occur-remove-highlights
               nil 'local)
     (when (called-interactively-p 'any)
-      (message "%d %s"
-               cnt (if (eq cnt 1) "match" "matches")))
+      (message "%d %s" cnt (if (= cnt 1) "match" "matches")))
     cnt))
 
 ;;;; Querying
