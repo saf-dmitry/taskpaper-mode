@@ -3787,7 +3787,7 @@ subtree."
   (let* ((loc (taskpaper-goto-get-location "Goto: " t))
          (pos (nth 1 loc)))
     (widen) (goto-char pos) (back-to-indentation)
-    (save-excursion (taskpaper-outline-show-context))))
+    (taskpaper-outline-show-context)))
 
 ;;;; Copying, cutting, and pasting of trees
 
@@ -4909,6 +4909,15 @@ otherwise query for the name-value combination."
      (defadvice bookmark-jump (after taskpaper-make-visible activate)
        "Make the position visible."
        (taskpaper-bookmark-jump-unhide))))
+
+;;;; Imenu support
+
+(eval-after-load "imenu"
+  '(progn
+     (add-hook 'imenu-after-jump-hook
+               (lambda ()
+                 (when (derived-mode-p 'taskpaper-mode)
+                   (taskpaper-outline-show-context))))))
 
 ;;;; Miscellaneous
 
