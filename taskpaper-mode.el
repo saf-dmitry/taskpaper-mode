@@ -1691,6 +1691,10 @@ end.")
 
 ;;;; Promotion and demotion
 
+(defun taskpaper-fix-position-after-promote ()
+  "Fix cursor position after promoting or demoting."
+  (back-to-indentation))
+
 (defun taskpaper-outline-promote ()
   "Promote the current (possibly invisible) item."
   (interactive)
@@ -1712,12 +1716,14 @@ end.")
 (defun taskpaper-outline-promote-subtree ()
   "Promote the current (possibly invisible) subtree."
   (interactive)
-  (taskpaper-outline-map-tree 'taskpaper-outline-promote))
+  (taskpaper-outline-map-tree 'taskpaper-outline-promote)
+  (taskpaper-fix-position-after-promote))
 
 (defun taskpaper-outline-demote-subtree ()
   "Demote the current (possibly invisible) subtree."
   (interactive)
-  (taskpaper-outline-map-tree 'taskpaper-outline-demote))
+  (taskpaper-outline-map-tree 'taskpaper-outline-demote)
+  (taskpaper-fix-position-after-promote))
 
 ;;;; Vertical tree movement
 
@@ -3557,7 +3563,7 @@ comparing."
     (equal a b))
    (t nil)))
 
-;;;; Sorting
+;;;; Outline sorting
 
 (defun taskpaper-sort-items-generic
   (getkey-func compare-func &optional with-case reverse)
