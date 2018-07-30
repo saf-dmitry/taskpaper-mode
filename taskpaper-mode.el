@@ -45,6 +45,7 @@
 (require 'calendar)
 (require 'parse-time)
 (require 'cal-iso)
+(require 'overlay)
 
 ;;;; Variables
 
@@ -4140,6 +4141,7 @@ item."
   "Highlight from BEGIN to END."
   (let ((overlay (make-overlay begin end)))
     (overlay-put overlay 'face 'secondary-selection)
+    (overlay-put overlay 'taskpaper-type 'taskpaper-occur)
     (push overlay taskpaper-occur-highlights)))
 
 (defun taskpaper-occur-remove-highlights (&optional _begin _end)
@@ -4169,6 +4171,27 @@ Return the number of matches."
     (when (called-interactively-p 'any)
       (message "%d %s" cnt (if (= cnt 1) "match" "matches")))
     cnt))
+
+(defun taskpaper-occur-next-match (&optional n _reset)
+  "Function for `next-error-function' to find sparse tree matches.
+N is the number of matches to move, when negative move backwards.
+This function always goes back to the starting point when no
+match is found."
+  (let* ((limit (if (< n 0) (point-min) (point-max)))
+         (search-func (if (< n 0)
+                          'previous-single-char-property-change
+                        'next-single-char-property-change))
+         (n (abs n)) (pos (point)) p1)
+    (catch 'exit
+      (while (setq p1 (funcall search-func (point) 'taskpaper-type))
+        (when (equal p1 limit)
+          (goto-char pos) (user-error "No more matches"))
+        (when (equal (get-char-property p1 'taskpaper-type) 'taskpaper-occur)
+          (setq n (1- n))
+          (when (= n 0)
+            (goto-char p1) (throw 'exit (point))))
+        (goto-char p1))
+      (goto-char p1) (user-error "No more matches"))))
 
 ;;;; Querying
 
@@ -5000,6 +5023,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (taskpaper-set-local 'indent-line-function 'indent-to-left-margin)
   ;; Syntax table settings
   (set-syntax-table taskpaper-mode-syntax-table)
+  ;; Next error for sparse trees
+  (setq-local next-error-function 'taskpaper-occur-next-match)
   ;; Imenu settings
   (setq imenu-generic-expression (list (list nil taskpaper-project-regexp 1)))
   ;; Isearch settings

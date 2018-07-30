@@ -424,7 +424,7 @@ To meet more complex needs you can define your own sorting functions as describe
 
 Filtering hides items that don't match the search creating a sparse tree, so that the entire document is folded as much as possible, but the selected information is made visible along with the outline hierarchy above it to provide minimal context.
 
-The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted; the highlights disappear when the buffer is changed by an editing command, or by pressing `C-c C-c`.
+The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted. You can move to the next/previous match in the buffer using the commands `M-g n` (`next-error`) and `M-g p` (`previous-error`). The highlights disappear when the buffer is changed by an editing command, or after pressing `C-c C-c`.
 
 The command `C-c C-t` (`taskpaper-query-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the associated tag's value, filtering will be performed based on that tag and value. Alternatively, you can select the tag by clicking on it with `mouse-1`.
 
