@@ -542,6 +542,10 @@ COMMANDS is a list of alternating OLDDEF NEWDEF command names."
           (define-key map (vector 'remap olddef) newdef)
         (substitute-key-definition olddef newdef map global-map)))))
 
+(defun taskpaper-add-tag-prefix (tags)
+  "Add tag/attribute prefix to each element in TAGS."
+  (mapcar #'(lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) tags))
+
 ;;;; Re-usable regexps
 
 (defconst taskpaper-tag-name-char-regexp
@@ -2725,7 +2729,7 @@ If optional POS is inside a tag, ignore the tag."
               (unless (and pos
                            (<= (match-beginning 0) pos)
                            (>= (match-end 0) pos))
-                (push (format "@%s" tag) tags)))))))
+                (push tag tags)))))))
     (taskpaper-sort (taskpaper-uniquify tags))))
 
 (defun taskpaper-complete-tag-at-point (&optional attrs)
@@ -2734,7 +2738,8 @@ Complete tag name or query attribute using completions from
 ATTRS. If ATTRS is not given, use tag names from the current
 buffer instead."
   (interactive "*")
-  (setq attrs (or attrs (taskpaper-get-buffer-tags (point))))
+  (setq attrs (or attrs (taskpaper-add-tag-prefix
+                         (taskpaper-get-buffer-tags (point)))))
   (let* ((completion-ignore-case nil)
          (re (format "@%s*" taskpaper-tag-name-char-regexp))
          (pattern (if (taskpaper-in-regexp re)
@@ -4756,9 +4761,9 @@ returns non-nil if the item matches."
 Validate input and provide tab completion for attributes in
 minibuffer. Return query string. PROMPT can overwrite the default
 prompt."
-  (let ((attrs (append (taskpaper-get-buffer-tags)
-                       (mapcar #'(lambda (x) (concat "@" x))
-                               taskpaper-special-attributes)))
+  (let ((attrs (taskpaper-add-tag-prefix
+                (append (taskpaper-get-buffer-tags)
+                        taskpaper-special-attributes)))
         (map (make-sparse-keymap))
         (prompt (or prompt "Query: ")) str)
     (set-keymap-parent map minibuffer-local-map)
@@ -4814,9 +4819,9 @@ string. PROMPT can overwrite the default prompt."
   (interactive)
   (let ((map (make-sparse-keymap))
         (prompt (or prompt "I-query: "))
-        (attrs (append (taskpaper-get-buffer-tags)
-                       (mapcar #'(lambda (x) (concat "@" x))
-                               taskpaper-special-attributes)))
+        (attrs (taskpaper-add-tag-prefix
+                (append (taskpaper-get-buffer-tags)
+                        taskpaper-special-attributes)))
         (win (get-buffer-window (current-buffer))) str)
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
