@@ -2712,8 +2712,8 @@ time converted to an internal time."
 ;;;; Tags
 
 (defun taskpaper-get-buffer-tags (&optional pos)
-  "Get a list of all tag names in the current buffer.
-If optional POS is inside a tag, ignore the tag. "
+  "Get a list of all tag names in the current buffer, for completion.
+If optional POS is inside a tag, ignore the tag."
   (let (tag tags)
     (save-excursion
       (save-restriction
@@ -2725,7 +2725,7 @@ If optional POS is inside a tag, ignore the tag. "
               (unless (and pos
                            (<= (match-beginning 0) pos)
                            (>= (match-end 0) pos))
-                (push tag tags)))))))
+                (push (format "@%s" tag) tags)))))))
     (taskpaper-sort (taskpaper-uniquify tags))))
 
 (defun taskpaper-complete-tag-at-point (&optional attrs)
@@ -2735,13 +2735,12 @@ ATTRS. If ATTRS is not given, use tag names from the current
 buffer instead."
   (interactive "*")
   (setq attrs (or attrs (taskpaper-get-buffer-tags (point))))
-  (let ((completion-ignore-case nil)
-        (re (format "@%s*" taskpaper-tag-name-char-regexp))
-        (pattern
-         (if (taskpaper-in-regexp taskpaper-tag-name-regexp)
-             (match-string-no-properties 0) ""))
-        (completion-buffer-name "*Completions*")
-        (end (point)) completion)
+  (let* ((completion-ignore-case nil)
+         (re (format "@%s*" taskpaper-tag-name-char-regexp))
+         (pattern (if (taskpaper-in-regexp re)
+                      (match-string-no-properties 0) ""))
+         (completion-buffer-name "*Completions*")
+         (end (point)) completion)
     ;; Close completion window, if any
     (let ((window (get-buffer-window completion-buffer-name)))
       (when window (delete-window window)))
@@ -4758,7 +4757,8 @@ Validate input and provide tab completion for attributes in
 minibuffer. Return query string. PROMPT can overwrite the default
 prompt."
   (let ((attrs (append (taskpaper-get-buffer-tags)
-                       taskpaper-special-attributes))
+                       (mapcar #'(lambda (x) (concat "@" x))
+                               taskpaper-special-attributes)))
         (map (make-sparse-keymap))
         (prompt (or prompt "Query: ")) str)
     (set-keymap-parent map minibuffer-local-map)
@@ -4815,7 +4815,8 @@ string. PROMPT can overwrite the default prompt."
   (let ((map (make-sparse-keymap))
         (prompt (or prompt "I-query: "))
         (attrs (append (taskpaper-get-buffer-tags)
-                       taskpaper-special-attributes))
+                       (mapcar #'(lambda (x) (concat "@" x))
+                               taskpaper-special-attributes)))
         (win (get-buffer-window (current-buffer))) str)
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
@@ -4853,7 +4854,7 @@ string. PROMPT can overwrite the default prompt."
       (erase-buffer)
       (toggle-truncate-lines 1)
       (setq show-trailing-whitespace nil)
-      (let* ((table taskpaper-custom-queries) tbl c e desc qs)
+      (let ((table taskpaper-custom-queries) tbl c e desc qs)
         ;; Insert selection dialog
         (insert "\n")
         (setq tbl table)
