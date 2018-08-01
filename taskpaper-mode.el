@@ -542,9 +542,15 @@ COMMANDS is a list of alternating OLDDEF NEWDEF command names."
           (define-key map (vector 'remap olddef) newdef)
         (substitute-key-definition olddef newdef map global-map)))))
 
-(defun taskpaper-add-tag-prefix (tags)
-  "Add tag/attribute prefix to each element in TAGS."
-  (mapcar #'(lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) tags))
+(defun taskpaper-add-tag-prefix (name)
+  "Add tag/attribute prefix to NAME.
+NAME should be a string or a list of strings."
+  (cond
+   ((stringp name)
+    (if (string-prefix-p "@" name) name (concat "@" name)))
+   ((and (listp name) (cl-every 'stringp name))
+    (mapcar #'(lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) name))
+   (t (error "Argument should be a string or a list of strings."))))
 
 ;;;; Re-usable regexps
 
@@ -2801,7 +2807,8 @@ buffer instead."
               (insert
                (propertize (char-to-string c)
                            'face 'taskpaper-fast-select-key)
-               " " tg (make-string (- fwidth 2 (length tg)) ?\ )))
+               " " (taskpaper-add-tag-prefix tg)
+               (make-string (- fwidth 2 (length tg)) ?\ )))
           (when (= (setq cnt (1+ cnt)) ncol)
             (insert "\n") (setq cnt 0)))
         (insert "\n\n") (goto-char (point-min)) (fit-window-to-buffer)
