@@ -543,13 +543,23 @@ COMMANDS is a list of alternating OLDDEF NEWDEF command names."
         (substitute-key-definition olddef newdef map global-map)))))
 
 (defun taskpaper-add-tag-prefix (name)
-  "Add tag/attribute prefix to NAME.
+  "Add tag prefix to NAME.
 NAME should be a string or a list of strings."
   (cond
    ((stringp name)
     (if (string-prefix-p "@" name) name (concat "@" name)))
    ((and (listp name) (cl-every 'stringp name))
     (mapcar #'(lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) name))
+   (t (error "Argument should be a string or a list of strings."))))
+
+(defun taskpaper-remove-tag-prefix (name)
+  "Remove tag prefix from NAME.
+NAME should be a string or a list of strings."
+  (cond
+   ((stringp name)
+    (string-remove-prefix "@" name))
+   ((and (listp name) (cl-every 'stringp name))
+    (mapcar #'(lambda (x) (string-remove-prefix "@" x)) name))
    (t (error "Argument should be a string or a list of strings."))))
 
 ;;;; Re-usable regexps
@@ -2829,7 +2839,7 @@ buffer instead."
     (unless (string-match re tag) (error "Invalid tag specifier: %s" tag))
     (setq name  (match-string-no-properties 1 tag)
           value (match-string-no-properties 2 tag)
-          name  (string-remove-prefix "@" name)
+          name  (taskpaper-remove-tag-prefix name)
           value (taskpaper-tag-value-unescape value))
     ;; Expand tag value
     (when (and value (string-prefix-p "%%" value))
