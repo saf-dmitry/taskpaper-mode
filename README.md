@@ -209,6 +209,8 @@ In addition to the hierarchical ways of organizing your actions, you can also as
 
 The value text inside can have whitespaces, but no newlines. If you need to include parentheses in the tag value, precede them with a backslash.
 
+If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure the user option `taskpaper-tags-exclude-from-inheritance`.
+
 After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
 In addition to the in-buffer completion TaskPaper mode also implements another tag selection method called _fast tag selection_. This allows you to select your commonly used tags with just a single key press. For this to work you should assign unique, case-sensitive, letters to most of your commonly used tags. You can do this by configuring the user option `taskpaper-tag-alist` in your init file:
@@ -221,11 +223,9 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
             ("priority(2)" . ?2)
             ("priority(3)" . ?3)))
 
-Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys. Tag specifiers can have value in parentheses.
+Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys.
 
-If the tag value begins with `%%` the following time string will be expanded into an absolute date in [ISO 8601][iso8601-wiki] format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
-
-If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure the user option `taskpaper-tags-exclude-from-inheritance`.
+Tag specifiers can have value in parentheses. If the tag value begins with `%%` the following time string will be expanded into an absolute date in [ISO 8601][iso8601-wiki] format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
 
 The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
 
@@ -424,7 +424,7 @@ To meet more complex needs you can define your own sorting functions as describe
 
 Filtering hides items that don't match the search creating a sparse tree, so that the entire document is folded as much as possible, but the selected information is made visible along with the outline hierarchy above it to provide minimal context.
 
-The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted. You can move to the next/previous match in the buffer using the commands `M-g n` (`next-error`) and `M-g p` (`previous-error`). The highlights disappear when the buffer is changed by an editing command, or after pressing `C-c C-c`.
+The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted. You can jump to the next/previous match in the buffer using the commands `M-g n` (`next-error`) and `M-g p` (`previous-error`). The highlights disappear when the buffer is changed by an editing command, or after pressing `C-c C-c`.
 
 The command `C-c C-t` (`taskpaper-query-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the associated tag's value, filtering will be performed based on that tag and value. Alternatively, you can select the tag by clicking on it with `mouse-1`.
 
