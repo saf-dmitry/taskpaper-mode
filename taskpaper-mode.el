@@ -4909,21 +4909,26 @@ string. PROMPT can overwrite the default prompt."
 
 (defun taskpaper-query-tag-at-point ()
   "Query buffer for tag at point.
-When point is on the tag name, query only for the tag name,
-otherwise query for the name-value combination."
+When point is on the \"@search\" tag, execute query stored in the
+tag value. For other tags when point is on the tag name, query
+for the tag name, otherwise query for the name-value
+combination."
   (interactive)
   (if (and (taskpaper-in-tag-p)
            (taskpaper-in-regexp taskpaper-tag-regexp))
-      (let ((name  (match-string-no-properties 2))
-            (value (match-string-no-properties 3)) query)
-        (cond ((and name
-                    (>= (point) (match-beginning 2))
-                    (<= (point) (match-end 2)))
-               (setq query (format "@%s" name)))
-              ((and name value)
-               (setq value (taskpaper-tag-value-unescape value))
-               (setq query (format "@%s = \"%s\"" name value)))
-              (t (setq query (format "@%s" name))))
+      (let* ((name  (match-string-no-properties 2))
+             (value (match-string-no-properties 3))
+             (value (taskpaper-tag-value-unescape value))
+             (query (cond
+                     ((and (equal name "search") value)
+                      value)
+                     ((and name
+                           (>= (point) (match-beginning 2))
+                           (<= (point) (match-end 2)))
+                      (format "@%s" name))
+                     ((and name value)
+                      (format "@%s = \"%s\"" name value))
+                     (t (format "@%s" name)))))
         (taskpaper-query query))
     (user-error "No tag at point")))
 

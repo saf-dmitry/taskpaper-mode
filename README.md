@@ -426,8 +426,6 @@ Filtering hides items that don't match the search creating a sparse tree, so tha
 
 The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted. You can jump to the next/previous match in the buffer using the commands `M-g n` (`next-error`) and `M-g p` (`previous-error`). The highlights disappear when the buffer is changed by an editing command, or after pressing `C-c C-c`.
 
-The command `C-c C-t` (`taskpaper-query-tag-at-point`) will instantly show a filtered view of the items that contain the tag under cursor, shown in the context of higher level nodes. If the cursor is on the associated tag's value, filtering will be performed based on that tag and value. Alternatively, you can select the tag by clicking on it with `mouse-1`.
-
 The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all levels (also bound to `ESC ESC`).
 
 
@@ -442,6 +440,8 @@ If your query has a formatting error the query string highlights red in the mini
 By default, incremental query results are not updated immediately every time you press a key. Instead, the query is evaluated after a certain period of idle time (one tenth of a second, by default). If you would like to change this behavior, customize the user option `taskpaper-iquery-delay`. For example, when working on long documents over a slow network connections increasing the delay may give you a better search "responsiveness". To disable the delay entirely set the `taskpaper-iquery-delay` value to zero:
 
     (setq taskpaper-iquery-delay 0)
+
+If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it executes query stored in the tag value. For other tags when cursor is on the tag name, it queries for the tag name, otherwise queries for the name and value.
 
 The query language syntax is described below.
 
