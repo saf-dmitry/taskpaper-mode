@@ -398,12 +398,12 @@ attention to case differences."
   (browse-url
    "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"))
 
-(defun taskpaper-overlay-display (ovl text &optional face evap)
-  "Make overlay OVL display TEXT with face FACE.
-EVAP non-nil means, set the 'evaporate' property to t."
-  (overlay-put ovl 'display text)
-  (when face (overlay-put ovl 'face face))
-  (when evap (overlay-put ovl 'evaporate t)))
+(defun taskpaper-overlay-display (overlay text &optional face evap)
+  "Make OVERLAY display TEXT with face FACE.
+When EVAP is non-nil, set the 'evaporate' property to t."
+  (overlay-put overlay 'display text)
+  (when face (overlay-put overlay 'face face))
+  (when evap (overlay-put overlay 'evaporate t)))
 
 (defun taskpaper-new-marker (&optional pos)
   "Return a new marker at POS.
