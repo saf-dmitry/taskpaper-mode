@@ -4794,6 +4794,8 @@ prompt."
       (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
     (define-key map (kbd "C-c C-c")
       (lambda () (interactive) (delete-minibuffer-contents)))
+    (define-key map (kbd "ESC ESC")
+      (lambda () (interactive) (abort-recursive-edit)))
     (let ((minibuffer-local-map (copy-keymap map))
           (minibuffer-message-timeout 0.5))
       (unwind-protect
@@ -4851,6 +4853,8 @@ string. PROMPT can overwrite the default prompt."
       (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
     (define-key map (kbd "C-c C-c")
       (lambda () (interactive) (delete-minibuffer-contents)))
+    (define-key map (kbd "ESC ESC")
+      (lambda () (interactive) (abort-recursive-edit)))
     (let ((minibuffer-local-map (copy-keymap map))
           (minibuffer-message-timeout 0.5))
       (unwind-protect
