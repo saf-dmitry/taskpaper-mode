@@ -5350,15 +5350,18 @@ this option will be ignored."
 (defvar taskpaper-agenda-follow-mode
   taskpaper-agenda-start-with-follow-mode)
 
-(defun taskpaper-agenda-get-file-buffer (file)
-  "Get an agenda buffer visiting FILE.
-If the buffer needs to be created, add it to the list of buffers
-which might be released later."
-  (let ((buf (taskpaper-find-base-buffer-visiting file)))
-    (if buf buf
-      (setq buf (find-file-noselect file))
-      (when buf (push buf taskpaper-agenda-new-buffers))
-      buf)))
+(defun taskpaper-agenda-buffer-p ()
+  "Return non-nil if current buffer is an agenda buffer."
+  (and (derived-mode-p 'taskpaper-agenda-mode)
+       (equal (buffer-name) taskpaper-agenda-buffer-name)))
+
+(defun taskpaper-agenda-buffer-error ()
+  "Throw an error when not in agenda buffer."
+  (error "Not in TaskPaper Agenda buffer"))
+
+(defun taskpaper-agenda-error ()
+  "Throw an error when a command is not allowed in the agenda."
+  (user-error "Command not allowed in this line"))
 
 (defun taskpaper-agenda-set-mode-name ()
   "Set mode name to indicate all mode settings."
@@ -5366,10 +5369,6 @@ which might be released later."
         (list "TP-Agenda"
               (if taskpaper-agenda-follow-mode " Follow" "")
               (force-mode-line-update))))
-
-(defun taskpaper-agenda-error ()
-  "Throw an error when a command is not allowed in the agenda."
-  (user-error "Command not allowed in this line"))
 
 (defun taskpaper-agenda-files ()
   "Get the list of agenda files."
@@ -5404,8 +5403,18 @@ buffer."
                  (mapcar #'file-truename
                          (taskpaper-agenda-files))))))
 
+(defun taskpaper-agenda-get-file-buffer (file)
+  "Get an agenda buffer visiting FILE.
+If the buffer needs to be created, add it to the list of buffers
+which might be released later."
+  (let ((buf (taskpaper-find-base-buffer-visiting file)))
+    (if buf buf
+      (setq buf (find-file-noselect file))
+      (when buf (push buf taskpaper-agenda-new-buffers))
+      buf)))
+
 (defun taskpaper-agenda-collect-items (matcher)
-  "Return list of items matching MATCHER.
+  "Return list of items from agenda files matching MATCHER.
 Cycle through agenda files and collect items matching MATCHER.
 MATCHER is a Lisp form to be evaluated at an item; returning a
 non-nil value qualifies the item for inclusion. Return list of
@@ -5444,9 +5453,7 @@ item originated."
 
 (defun taskpaper-agenda-insert-items (matcher)
   "Insert items matching MATCHER."
-  (unless (and (derived-mode-p 'taskpaper-agenda-mode)
-               (equal (buffer-name) taskpaper-agenda-buffer-name))
-    (error "Not in TaskPaper Agenda buffer"))
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((inhibit-read-only t)
         (items (taskpaper-agenda-collect-items matcher)))
     (erase-buffer)
@@ -5459,6 +5466,7 @@ item originated."
 (defun taskpaper-agenda-redo ()
   "Re-buid the current agenda buffer."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (message "Re-building agenda buffer...")
   (let ((matcher taskpaper-agenda-matcher-form))
     (when matcher (taskpaper-agenda-insert-items matcher)))
@@ -5468,6 +5476,7 @@ item originated."
 (defun taskpaper-agenda-goto ()
   "Go to the item at point."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let* ((marker
           (or (taskpaper-get-at-bol 'taskpaper-marker)
               (taskpaper-agenda-error)))
@@ -5480,6 +5489,7 @@ item originated."
 (defun taskpaper-agenda-switch-to ()
   "Go to the item at points and delete other windows."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let* ((marker
           (or (taskpaper-get-at-bol 'taskpaper-marker)
               (taskpaper-agenda-error)))
@@ -5494,12 +5504,14 @@ item originated."
 (defun taskpaper-agenda-show ()
   "Display the TaskPaper file which contains the item at point."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((win (selected-window)))
     (taskpaper-agenda-goto) (select-window win)))
 
 (defun taskpaper-agenda-show-recenter ()
   "Display to the item at point and recenter."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((win (selected-window)))
     (taskpaper-agenda-goto)
     (recenter) (select-window win)))
@@ -5513,6 +5525,7 @@ item originated."
 (defun taskpaper-agenda-follow-mode ()
   "Toggle follow mode in an agenda buffer."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (unless taskpaper-agenda-follow-mode
     (setq taskpaper-agenda-pre-follow-window-conf
           (current-window-configuration)))
@@ -5531,6 +5544,7 @@ item originated."
 Display the TaskPaper file which contains the item at point if
 follow mode is active."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'next-line)
   (taskpaper-agenda-do-context-action))
 
@@ -5539,12 +5553,14 @@ follow mode is active."
 Display the TaskPaper file which contains the item at point if
 follow mode is active."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'previous-line)
   (taskpaper-agenda-do-context-action))
 
 (defun taskpaper-agenda-quit ()
   "Quit the agenda and kill the agenda buffer."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((buf (current-buffer)))
     ;; Restore window configuration
     (cond
@@ -5567,6 +5583,7 @@ Like `taskpaper-agenda-quit', but kill any buffers that were
 created by the agenda. TaskPaper buffers visited directly by the
 user will not be touched."
   (interactive)
+  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (taskpaper-release-buffers taskpaper-agenda-new-buffers)
   (taskpaper-agenda-quit))
 
@@ -5654,8 +5671,8 @@ ABUF is the buffer for the agenda window."
 (provide 'taskpaper-mode)
 
 ;; Local Variables:
-;; indent-tabs-mode: nil
 ;; coding: utf-8
+;; indent-tabs-mode: nil
 ;; End:
 
 ;;; taskpaper-mode.el ends here
