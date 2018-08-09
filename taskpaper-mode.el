@@ -4929,7 +4929,8 @@ combination."
                      ((and name value)
                       (format "@%s = \"%s\"" name value))
                      (t (format "@%s" name)))))
-        (taskpaper-query query))
+        (if taskpaper-iquery-default
+            (taskpaper-iquery query) (taskpaper-query query)))
     (user-error "No tag at point")))
 
 ;;;; Ispell and Flyspell support
