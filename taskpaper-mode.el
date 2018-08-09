@@ -5452,7 +5452,8 @@ item originated."
     (if sfunc (sort list sfunc) list)))
 
 (defun taskpaper-agenda-insert-items (matcher)
-  "Insert items matching MATCHER."
+  "Insert items matching MATCHER in agenda buffer.
+Return number of items."
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((inhibit-read-only t)
         (items (taskpaper-agenda-collect-items matcher)))
@@ -5460,18 +5461,20 @@ item originated."
     (goto-char (point-min))
     (when items
       (setq items (taskpaper-agenda-sort-init items))
-      (dolist (item items) (insert (format "%s\n" item))))
-    (goto-char (point-min))))
+      (dolist (item items) (insert (format "%s\n" item)))
+      (goto-char (point-min)))
+    (or (length items) 0)))
 
 (defun taskpaper-agenda-redo ()
   "Re-buid the current agenda buffer."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
-  (message "Re-building agenda buffer...")
-  (let ((matcher taskpaper-agenda-matcher-form))
-    (when matcher (taskpaper-agenda-insert-items matcher)))
-  (goto-char (point-min))
-  (message "Re-building agenda buffer...done"))
+  (when taskpaper-agenda-matcher-form
+    (let ((cnt))
+      (message "Re-building agenda buffer...")
+      (setq cnt (taskpaper-agenda-insert-items taskpaper-agenda-matcher-form))
+      (message "Re-building agenda buffer...done")
+      (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items"))))))
 
 (defun taskpaper-agenda-goto ()
   "Go to the item at point."
@@ -5638,17 +5641,19 @@ ABUF is the buffer for the agenda window."
 
 (defun taskpaper-agenda-build (matcher)
   "Build agenda buffer using MATCHER."
-  (message "Building agenda...")
-  (taskpaper-agenda-prepare-window
-   (get-buffer-create taskpaper-agenda-buffer-name))
-  (taskpaper-mode)
-  (setq major-mode 'taskpaper-agenda-mode)
-  (taskpaper-agenda-set-mode-name)
-  (use-local-map taskpaper-agenda-mode-map)
-  (taskpaper-agenda-insert-items matcher)
-  (setq buffer-read-only t)
-  (setq taskpaper-agenda-matcher-form matcher)
-  (message "Building agenda...done"))
+  (let ((cnt))
+    (message "Building agenda...")
+    (taskpaper-agenda-prepare-window
+     (get-buffer-create taskpaper-agenda-buffer-name))
+    (taskpaper-mode)
+    (setq major-mode 'taskpaper-agenda-mode)
+    (taskpaper-agenda-set-mode-name)
+    (use-local-map taskpaper-agenda-mode-map)
+    (setq cnt (taskpaper-agenda-insert-items matcher))
+    (setq buffer-read-only t)
+    (setq taskpaper-agenda-matcher-form matcher)
+    (message "Building agenda...done")
+    (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items")))))
 
 ;;;###autoload
 (defun taskpaper-agenda-search ()
