@@ -5457,13 +5457,12 @@ Return number of items."
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((inhibit-read-only t)
         (items (taskpaper-agenda-collect-items matcher)))
-    (erase-buffer)
-    (goto-char (point-min))
+    (erase-buffer) (goto-char (point-min))
     (when items
       (setq items (taskpaper-agenda-sort-init items))
-      (dolist (item items) (insert (format "%s\n" item)))
-      (goto-char (point-min)))
-    (or (length items) 0)))
+      (save-excursion
+        (dolist (item items) (insert (format "%s\n" item)))))
+    (length items)))
 
 (defun taskpaper-agenda-redo ()
   "Re-buid the current agenda buffer."
