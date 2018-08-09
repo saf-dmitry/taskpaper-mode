@@ -1377,7 +1377,7 @@ Add inline image overlays to local image links in the buffer. An
 image link is a plain link to file matching return value from
 `image-file-name-regexp'."
   (interactive)
-  (unless (display-graphic-p) (error "Images cannot be displayed"))
+  (unless (display-images-p) (error "Images cannot be displayed"))
   (taskpaper-remove-inline-images)
   (when (fboundp 'clear-image-cache) (clear-image-cache))
   (save-excursion
@@ -1406,10 +1406,10 @@ image link is a plain link to file matching return value from
                           (create-image path)))
             ;; Display image
             (when image
-              (let ((ov (make-overlay begin end)))
-                (overlay-put ov 'display image)
-                (overlay-put ov 'face 'default)
-                (push ov taskpaper-inline-image-overlays)))))))))
+              (let ((overlay (make-overlay begin end)))
+                (overlay-put overlay 'display image)
+                (overlay-put overlay 'face 'default)
+                (push overlay taskpaper-inline-image-overlays)))))))))
 
 (defun taskpaper-toggle-inline-images ()
   "Toggle displaying of inline images in the buffer."
