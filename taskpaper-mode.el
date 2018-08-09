@@ -463,6 +463,12 @@ is used by default. Only the current line is checked."
   "Display a message without logging."
   (let ((message-log-max nil)) (apply 'message args)))
 
+(defun taskpaper-escape-double-quotes (str)
+  "Escape double quotation marks in STR."
+  (when (stringp str)
+    (setq str (replace-regexp-in-string "\"" "\\\\\"" str)))
+  str)
+
 (defun taskpaper-unescape-double-quotes (str)
   "Unescape double quotation marks in STR."
   (when (stringp str)
@@ -4927,6 +4933,7 @@ combination."
                            (<= (point) (match-end 2)))
                       (format "@%s" name))
                      ((and name value)
+                      (setq value (taskpaper-escape-double-quotes value))
                       (format "@%s = \"%s\"" name value))
                      (t (format "@%s" name)))))
         (if taskpaper-iquery-default
