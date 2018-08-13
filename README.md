@@ -229,6 +229,11 @@ Tag specifiers can have value in parentheses. If the tag value begins with `%%` 
 
 The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
 
+Following tags have special meaning in TaskPaper mode:
+
+- `@done`: To-do items can be marked as completed by applying the `@done` tag to them (See [Completing Actions](#completing-actions) section).
+- `@search`: The `@search` tags are used to store search queries on per-document basis (See [Searching](#searching) section).
+
 
 ## Completing Actions
 
