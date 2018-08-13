@@ -1110,11 +1110,13 @@ LINK should be an unescaped raw link. Recognized types are
     (if (save-excursion
           (save-match-data
             (taskpaper-item-has-attribute "done")))
-        (when taskpaper-bullet-done
+        (when (and taskpaper-bullet-done
+                   (char-displayable-p taskpaper-bullet-done))
           (put-text-property
            (match-beginning 2) (match-end 2)
            'display (char-to-string taskpaper-bullet-done)))
-      (when taskpaper-bullet
+      (when (and taskpaper-bullet
+                 (char-displayable-p taskpaper-bullet))
         (put-text-property
          (match-beginning 2) (match-end 2)
          'display (char-to-string taskpaper-bullet))))
