@@ -2745,7 +2745,7 @@ time converted to an internal time."
 ;;;; Tags
 
 (defun taskpaper-get-buffer-tags (&optional pos)
-  "Get a list of all tag names in the current buffer, for completion.
+  "Return a list of buffer tag names for completion.
 If optional POS is inside a tag, ignore the tag."
   (let (tag tags)
     (save-excursion
