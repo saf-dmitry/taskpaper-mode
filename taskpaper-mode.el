@@ -463,6 +463,12 @@ is used by default. Only the current line is checked."
   "Display a message without logging."
   (let ((message-log-max nil)) (apply 'message args)))
 
+(defun taskpaper-truncate-string (string length)
+  "Truncate STRING to LENGTH characters, with ellipses."
+  (if (<= (length string) length)
+      string
+    (concat (substring string 0 (max (- length 3) 0)) "...")))
+
 (defun taskpaper-escape-double-quotes (str)
   "Escape double quotation marks in STR."
   (when (stringp str)
@@ -2506,6 +2512,7 @@ otherwise use current time."
          ((string-match taskpaper-time-non-whitespace-regexp time-str)
           (setq time-str (replace-match "" t t time-str))))))
     ;; Get rid of out-of-range values
+    ;; TODO: Account for daylight saving?
     (decode-time (apply 'encode-time timedecode))))
 
 (defun taskpaper-expand-time-string (time-str &optional timedecode with-time)

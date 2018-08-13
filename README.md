@@ -441,7 +441,7 @@ By default, incremental query results are not updated immediately every time you
 
     (setq taskpaper-iquery-delay 0)
 
-If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the query stored in the tag value. For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and value.
+If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the query stored in the tag value. For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
 
 The query language syntax is described below.
 
