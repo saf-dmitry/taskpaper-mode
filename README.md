@@ -571,7 +571,7 @@ By default, querying uses non-incremental mode. If you want to use incremental m
 
 ### Startup View
 
-You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all leaf notes (notes, which may content other notes, but no task or project items) to be folded at startup by adding following to your init file:
+You can configure certain queries to be executed automatically when visiting a TaskPaper file. E.g., you can ask for all leaf notes (notes, which may contain other notes, but no task or project items) to be folded at startup by adding following to your init file:
 
     (add-hook 'taskpaper-mode-hook
               '(lambda () (taskpaper-query "not @type = note")))
