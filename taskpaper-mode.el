@@ -463,12 +463,6 @@ is used by default. Only the current line is checked."
   "Display a message without logging."
   (let ((message-log-max nil)) (apply 'message args)))
 
-(defun taskpaper-truncate-string (string length)
-  "Truncate STRING to LENGTH characters, with ellipses."
-  (if (<= (length string) length)
-      string
-    (concat (substring string 0 (max (- length 3) 0)) "...")))
-
 (defun taskpaper-escape-double-quotes (str)
   "Escape double quotation marks in STR."
   (when (stringp str)
@@ -2805,7 +2799,8 @@ buffer instead."
        (get-buffer-window completion-buffer-name) 'soft)))))
 
 (defun taskpaper-fast-tag-selection ()
-  "Fast tag selection with single keys."
+  "Provide fast selection interface for tags.
+Return selected tag specifier."
   (unless taskpaper-tag-alist (error "No predefined tags"))
   (save-excursion
     (save-window-excursion
@@ -2813,19 +2808,18 @@ buffer instead."
        (get-buffer-create "*TaskPaper tags*"))
       (erase-buffer)
       (setq show-trailing-whitespace nil)
-      (let* ((table taskpaper-tag-alist)
-             (maxlen
+      (let* ((maxlen
               (apply
                'max (mapcar
                      (lambda (x)
                        (if (stringp (car x)) (string-width (car x)) 0))
-                     table)))
+                     taskpaper-tag-alist)))
              (fwidth (+ maxlen 4))
              (ncol (/ (window-width) fwidth))
-             cnt tbl c e tg)
+             cnt tbl e c tg)
         ;; Insert selection dialog
         (insert "\n")
-        (setq tbl table cnt 0)
+        (setq tbl taskpaper-tag-alist cnt 0)
         (while (setq e (pop tbl))
           (setq tg (car e) c (cdr e))
           (if (and c tg)
@@ -2834,12 +2828,11 @@ buffer instead."
                            'face 'taskpaper-fast-select-key)
                " " (taskpaper-add-tag-prefix tg)
                (make-string (- fwidth 2 (length tg)) ?\ )))
-          (when (= (setq cnt (1+ cnt)) ncol)
-            (insert "\n") (setq cnt 0)))
+          (when (= (setq cnt (1+ cnt)) ncol) (insert "\n") (setq cnt 0)))
         (insert "\n\n") (goto-char (point-min)) (fit-window-to-buffer)
-        ;; Select tag
+        ;; Select tag specifier
         (setq c (read-char-exclusive "Press key for tag:"))
-        (if (setq e (rassoc c table) tg (car e))
+        (if (setq e (rassoc c taskpaper-tag-alist) tg (car e))
             (prog1 tg (kill-buffer))
           (kill-buffer) (setq quit-flag t))))))
 
@@ -4885,44 +4878,40 @@ string. PROMPT can overwrite the default prompt."
         ;; Clear attribute cache
         (taskpaper-attribute-cache-clear)))))
 
-(defun taskpaper-query-selection ()
-  "Fast selection for queries with single keys."
-  (unless taskpaper-custom-queries (error "No predefined queries"))
+(defun taskpaper-query-fast-selection ()
+  "Provide fast selection interface for custom queries.
+Return selected query string."
+  (unless taskpaper-custom-queries (error "No custom queries"))
   (save-excursion
     (save-window-excursion
       (switch-to-buffer-other-window
-       (get-buffer-create "*TaskPaper queries*"))
+       (get-buffer-create "*TaskPaper custom queries*"))
       (erase-buffer)
       (toggle-truncate-lines 1)
       (setq show-trailing-whitespace nil)
-      (let ((table taskpaper-custom-queries) tbl c e desc qs)
+      (let ((tbl taskpaper-custom-queries) e c desc qs)
         ;; Insert selection dialog
         (insert "\n")
-        (setq tbl table)
         (while (setq e (pop tbl))
-          (cond
-           ((and (stringp (nth 0 e)) (eq (nth 0 e) ""))
-            (insert "\n"))
-           ((and (stringp (nth 0 e)) (not (eq (nth 0 e) "")))
-            (insert (format "\n%s\n\n" (nth 0 e))))
-           (t (setq c (nth 0 e) desc (nth 1 e) qs (nth 2 e))
-              (when (and c desc qs)
-                (insert (format
-                         "%s %-20s %s\n"
-                         (propertize (char-to-string c)
-                                     'face 'taskpaper-fast-select-key)
-                         (concat desc "  ") qs))))))
+          (if (stringp (nth 0 e))
+              (insert (format "\n%s\n\n" (nth 0 e)))
+            (setq c (nth 0 e) desc (nth 1 e) qs (nth 2 e))
+            (when (and c desc qs)
+              (insert (format "%s %s\n"
+                              (propertize (char-to-string c)
+                                          'face 'taskpaper-fast-select-key)
+                              desc)))))
         (insert "\n") (goto-char (point-min)) (fit-window-to-buffer)
         ;; Select query
         (setq c (read-char-exclusive "Press key for query:"))
-        (if (setq e (assoc c table) qs (nth 2 e))
+        (if (setq e (assoc c taskpaper-custom-queries) qs (nth 2 e))
             (prog1 qs (kill-buffer))
           (kill-buffer) (setq quit-flag t))))))
 
 (defun taskpaper-query-fast-select ()
-  "Query buffer using fast query selection."
+  "Query buffer using fast selection interface."
   (interactive)
-  (let ((query (taskpaper-query-selection)))
+  (let ((query (taskpaper-query-fast-selection)))
     (if taskpaper-iquery-default
         (taskpaper-iquery query) (taskpaper-query query))))
 
@@ -5264,7 +5253,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
     ("Search"
      ["Start Incremental Search..." taskpaper-iquery]
      ["Start Non-incremental Search..." taskpaper-query]
-     ["Select Search Query..." taskpaper-query-fast-select]
+     ["Select Custom Search Query..." taskpaper-query-fast-select]
      "--"
      ["Filter by Regexp..." taskpaper-occur]
      ["Remove Highlights" taskpaper-occur-remove-highlights
@@ -5679,8 +5668,7 @@ ABUF is the buffer for the agenda window."
 (defun taskpaper-agenda-select ()
   "Promts for query selection and build agenda."
   (interactive)
-  (let ((matcher (taskpaper-query-matcher
-                  (taskpaper-query-selection))))
+  (let ((matcher (taskpaper-query-matcher (taskpaper-query-fast-selection))))
     (taskpaper-agenda-build matcher)))
 
 ;;;; Provide `taskpaper-mode'
