@@ -2,9 +2,9 @@
 
 # v0.8
 
-- Changed default key bindings for query selection
 - Extended outline mapping API
 - Added list modifier to query syntax for predicates
+- Changed default key bindings for query selection
 
 
 # v0.7

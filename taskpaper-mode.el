@@ -2805,7 +2805,7 @@ Return selected tag specifier."
   (save-excursion
     (save-window-excursion
       (switch-to-buffer-other-window
-       (get-buffer-create "*TaskPaper tags*"))
+       (get-buffer-create "*TaskPaper custom tags*"))
       (erase-buffer)
       (setq show-trailing-whitespace nil)
       (let* ((maxlen
