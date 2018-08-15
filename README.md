@@ -231,8 +231,8 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 
 Following tags have special meaning in TaskPaper mode:
 
-- `@done`: To-do items can be marked as completed by applying the `@done` tag to them (See [Completing Actions](#completing-actions) section).
-- `@search`: The `@search` tags are used to store search queries on per-document basis (See [Searching](#searching) section).
+- `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see [Completing Actions](#completing-actions) section).
+- `@search`: The `@search` tags are used to store search queries on per-document basis (see [Storing Queries](#storing-queries) section).
 
 
 ## Completing Actions
@@ -446,7 +446,7 @@ By default, incremental query results are not updated immediately every time you
 
     (setq taskpaper-iquery-delay 0)
 
-If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the embedded query stored in the tag value. For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
+If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the embedded query stored in the tag value (see [Storing Queries](#storing-queries) section). For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
 
 The query language syntax is described below.
 
