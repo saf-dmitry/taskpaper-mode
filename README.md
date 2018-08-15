@@ -232,7 +232,7 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 Following tags have special meaning in TaskPaper mode:
 
 - `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see [Completing Actions](#completing-actions) section).
-- `@search`: The `@search` tags are used to store search queries on per-document basis (see [Storing Queries](#storing-queries) section).
+- `@search`: The `@search` tags are used to store search queries on per-document basis (see [Searching](#searching) section).
 
 
 ## Completing Actions
@@ -566,7 +566,7 @@ Fast selection interface allows you to save your commonly used search queries an
 
 The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first element is a string, it will be used as block title to visually group queries. Pressing `C-c !` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
-By default, querying uses non-incremental mode. If you want to use incremental mode for saved queries, configure user option `taskpaper-iquery-default`.
+By default, querying uses non-incremental mode. If you want to use incremental mode for saved queries, configure the user option `taskpaper-iquery-default`.
 
 
 ### Startup View
