@@ -564,7 +564,7 @@ Fast selection interface allows you to save your commonly used search queries an
           '((?w "Waiting"  "@waiting and not @done")
             (?d "Due Soon" "@due <=[d] +14d and not @done")))
 
-The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first element is a string, it will be used as block title to visually group queries. Pressing `C-c ?` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
+The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first element is a string, it will be used as block title to visually group queries. Pressing `C-c !` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
 By default, querying uses non-incremental mode. If you want to use incremental mode for saved queries, configure user option `taskpaper-iquery-default`.
 

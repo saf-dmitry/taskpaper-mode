@@ -5128,7 +5128,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c .") 'taskpaper-read-date-insert-timestamp)
 (define-key taskpaper-mode-map (kbd "C-c @") 'taskpaper-item-set-tag-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c /") 'taskpaper-occur)
-(define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-fast-select)
+(define-key taskpaper-mode-map (kbd "C-c !") 'taskpaper-query-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c :") 'taskpaper-item-display-outline-path)
 
 (define-key taskpaper-mode-map (kbd "C-c C-a") 'taskpaper-outline-show-all)
