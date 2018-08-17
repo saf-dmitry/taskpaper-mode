@@ -450,7 +450,7 @@ If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-ta
 
 The query language syntax is described below.
 
-__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app, the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries evaluating tag inheritance instead.
+__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app (with minor exceptions), the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries evaluating tag inheritance instead.
 
 
 ### Tags and Attributes
