@@ -4878,6 +4878,40 @@ string. PROMPT can overwrite the default prompt."
         ;; Clear attribute cache
         (taskpaper-attribute-cache-clear)))))
 
+(defun taskpaper-get-buffer-queries ()
+  "Return a list of embedded buffer queries for selection."
+  (let (desc query queries)
+    (save-excursion
+      (save-restriction
+        (widen) (goto-char (point-min))
+        (save-match-data
+          (while (re-search-forward "@search" nil t)
+            (when (taskpaper-in-tag-p (match-beginning 1))
+              ;; Get query
+              (setq query (taskpaper-item-get-attribute "search"))
+              (when (and query (not (equal query "")))
+                ;; Format description
+                (setq desc (taskpaper-item-get-attribute "text")
+                      desc (taskpaper-remove-trailing-tags
+                            (taskpaper-remove-type-formatting desc)))
+                ;; Add entry to the list
+                (when (and desc (not (equal desc "")))
+                  (push (list desc query) queries))))))))
+    (nreverse queries)))
+
+(defun taskpaper-query-read-select ()
+  "Query buffer using predefined queries."
+  (interactive)
+  (let ((queries (append (taskpaper-get-buffer-queries)
+                         (delq nil (mapcar #'cdr taskpaper-custom-queries))))
+        desc query)
+    (unless queries (error "No predefined queries"))
+    (let ((partial-completion-mode nil) (completion-ignore-case t))
+      (setq desc (completing-read "Select query: " queries nil t)))
+    (setq query (cdr (assoc desc queries)))
+    (if taskpaper-iquery-default
+        (taskpaper-iquery query) (taskpaper-query query))))
+
 (defun taskpaper-query-fast-selection ()
   "Provide fast selection interface for custom queries.
 Return selected query string."
@@ -5117,6 +5151,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c .") 'taskpaper-read-date-insert-timestamp)
 (define-key taskpaper-mode-map (kbd "C-c @") 'taskpaper-item-set-tag-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c /") 'taskpaper-occur)
+(define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-read-select)
 (define-key taskpaper-mode-map (kbd "C-c !") 'taskpaper-query-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c :") 'taskpaper-item-display-outline-path)
 
@@ -5253,6 +5288,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
     ("Search"
      ["Start Incremental Search..." taskpaper-iquery]
      ["Start Non-incremental Search..." taskpaper-query]
+     ["Select Search Query..." taskpaper-query-read-select]
      ["Select Custom Search Query..." taskpaper-query-fast-select]
      "--"
      ["Filter by Regexp..." taskpaper-occur]

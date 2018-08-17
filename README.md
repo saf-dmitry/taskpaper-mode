@@ -157,7 +157,7 @@ The following commands jump to other items in the buffer.
 
 - `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
-The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select the outline path in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
+The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select an outline path in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
 To assist navigation in long documents the command `C-c :` (`taskpaper-item-display-outline-path`) shows the current outline path in the echo area.
 
@@ -232,7 +232,7 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 Following tags have special meaning in TaskPaper mode:
 
 - `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see [Completing Actions](#completing-actions) section).
-- `@search`: The `@search` tags are used to store search queries on per-document basis (see [Searching](#searching) section).
+- `@search`: The `@search` tags are used to store search queries on per-document basis (see [Storing Queries](#storing-queries) section).
 
 
 ## Completing Actions
@@ -446,7 +446,7 @@ By default, incremental query results are not updated immediately every time you
 
     (setq taskpaper-iquery-delay 0)
 
-If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the embedded query stored in the tag value. For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
+If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the embedded query stored in the tag value (see [Storing Queries](#storing-queries) section). For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
 
 The query language syntax is described below.
 
@@ -558,15 +558,23 @@ These are the shortcut forms and what they expand to:
 
 ### Storing Queries
 
+You can embed search queries in a TaskPaper document using `@search` tags. This is a handy way to manage search queries on per-document basis. Note that the parenthesis escaping rule must be followed:
+
+    Searches:
+        Next action @search(@next and not @done)
+        Active tasks @search(task and not \(@done or @hold\))
+
+The command `C-c ?` (`taskpaper-query-read-select`) lets the user select a query offering standard minibuffer completion. Query description will be derived from the item's text. If the user option `taskpaper-custom-queries` is set (see below), its entries will be added to the possible selections. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select a query in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections.
+
 Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g., numbers) to your saved queries. You can do this by configuring the user option `taskpaper-custom-queries` in your init file:
 
     (setq taskpaper-custom-queries
           '((?w "Waiting"  "@waiting and not @done")
             (?d "Due Soon" "@due <=[d] +14d and not @done")))
 
-The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first element is a string, it will be used as block title to visually group queries. Pressing `C-c !` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
+The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first parameter is a string, it will be used as block title to visually group queries. Pressing `C-c !` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
-By default, querying uses non-incremental mode. If you want to use incremental mode for saved queries, configure the user option `taskpaper-iquery-default`.
+By default, predefined (embedded and custom) queries will be evaluated in non-incremental querying mode. If you want to use incremental mode for predefined queries, configure the user option `taskpaper-iquery-default`.
 
 
 ### Startup View
