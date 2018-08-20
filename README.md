@@ -116,7 +116,7 @@ In TaskPaper mode each line makes a new item.
 
 - `M-RET`: Create a new task with the same level as the item under cursor (`taskpaper-new-task-same-level`).
 
-The following commands reformat the current item.
+The following commands change the type of the current item.
 
 - `C-c C-f p`: Format item under cursor as project (`taskpaper-item-format-as-project`).
 
@@ -142,7 +142,9 @@ When point is in an item, rotate current subtree among the three states:
 
 When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the user option `taskpaper-startup-folded`.
 
-The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items also shown to provide global context. The command `C-c C-a` (`taskpaper-outline-show-all`) unfolds all items at all levels (also bound to `ESC ESC`).
+The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items also shown to provide global context.
+
+The command `C-c C-a` (`taskpaper-outline-show-all`) switches to Show All state unfolding all items at all levels (also bound to `ESC ESC`).
 
 
 ## Outline Navigation
@@ -231,9 +233,9 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 
 Following tags have special meaning in TaskPaper mode:
 
-- `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see [Completing Actions](#completing-actions) section).
-- `@search`: The `@search` tags are used to store search queries on per-document basis (see [Storing Queries](#storing-queries) section).
-- `@project`: The `@project` tags are used to store project hierarchy of archived items (see [Archiving](#archiving) section).
+- `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see the [Completing Actions](#completing-actions) section).
+- `@search`: The `@search` tags are used to store search queries on per-document basis (see the [Storing Queries](#storing-queries) section).
+- `@project`: The `@project` tags are used to store project hierarchy of archived items (see the [Archiving](#archiving) section).
 
 
 ## Completing Actions
@@ -274,7 +276,7 @@ Parallel to the minibuffer prompt the current interpretation of your input is tr
 
 ## Date and Time Formats
 
-Dates and times are an essential part of any task management system. You can store dates and times in tag values and perform date search `[d]` on them (see [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
+Dates and times are an essential part of any task management system. You can store dates and times in tag values and perform date search `[d]` on them (see the [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Do weekly review @due(Friday 12:30)
     - Attend meeting @due(2017-08-11 8am)
@@ -354,7 +356,7 @@ The time string is evaluated from left to right.
 
 ### Recurring Actions
 
-When you need tasks that repeat themselves on a regular basis, you can set a recurring due date. Use relative dates in your tag values, and then do a date based search (see [Searching](#searching) section). Here are a few examples of recurring tasks:
+When you need tasks that repeat themselves on a regular basis, you can set a recurring due date. Use relative dates in your tag values, and then do a date based search (see the [Searching](#searching) section). Here are a few examples of recurring tasks:
 
     - Due everyday @due(today)
     - Due on each Tuesday @due(Tue)
@@ -362,7 +364,7 @@ When you need tasks that repeat themselves on a regular basis, you can set a rec
     - Due on the 1st of each month @due(this month)
     - Due on the 15th of each month @due(this month +15d)
 
-It doesn't cover all cases, but may work for you. For more flexible recurrence setup see the corresponding scripting example in [Scripting Guide][tp-mode-scripting-guide].
+It doesn't cover all cases, but may work for you. For more flexible recurrence setup see the corresponding scripting example in the [Scripting Guide][tp-mode-scripting-guide].
 
 Note: Recurring appointments like any other event that takes place at a specific time would do best in your calendar because you cannot act on them until that moment.
 
@@ -390,7 +392,7 @@ TaskPaper mode also has experimental support for inline [Markdown][markdown-wiki
 - `[File](file:///home/username/filename.txt)`
 - `[Email](mailto:username@example.net)`
 
-This descriptive syntax is useful for long links which can interrupt reading. If markup hiding is enabled (see [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
+This descriptive syntax is useful for long links which can interrupt reading. If markup hiding is enabled (see the [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
 
 Links inside projects and tasks are supported although not encouraged.
 
@@ -423,7 +425,7 @@ The following commands sort same-level items. When point is at the beginning of 
 
 When sorting is done, the hook `taskpaper-after-sorting-items-hook` is run. When children are sorted, hook functions are called with point on the parent item.
 
-To meet more complex needs you can define your own sorting functions as described in [Scripting Guide][tp-mode-scripting-guide].
+To meet more complex needs you can define your own sorting functions as described in the [Scripting Guide][tp-mode-scripting-guide].
 
 
 ## Filtering
@@ -447,7 +449,7 @@ By default, incremental query results are not updated immediately every time you
 
     (setq taskpaper-iquery-delay 0)
 
-If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the embedded query stored in the tag value (see [Storing Queries](#storing-queries) section). For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
+If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-tag-at-point`) queries the buffer based on that tag. When cursor is on the `@search` tag, it evaluates the embedded query stored in the tag value (see the [Storing Queries](#storing-queries) section). For other tags when cursor is on the tag name, it queries for the tag name, otherwise for the name and associated value.
 
 The query language syntax is described below.
 
