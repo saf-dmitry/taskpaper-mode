@@ -1675,7 +1675,7 @@ buffer. When point is on an item, rotate the current subtree."
 (defun taskpaper-set-startup-visibility ()
   "Set startup visibility."
   (if taskpaper-startup-folded
-      (taskpaper-outline-hide-sublevels 1)
+      (taskpaper-outline-overview)
     (taskpaper-outline-show-all)))
 
 ;;;; Miscellaneous outline functions
