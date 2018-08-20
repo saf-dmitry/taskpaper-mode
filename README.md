@@ -233,6 +233,7 @@ Following tags have special meaning in TaskPaper mode:
 
 - `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see [Completing Actions](#completing-actions) section).
 - `@search`: The `@search` tags are used to store search queries on per-document basis (see [Storing Queries](#storing-queries) section).
+- `@project`: The `@project` tags are used to store project hierarchy of archived items (see [Archiving](#archiving) section).
 
 
 ## Completing Actions
