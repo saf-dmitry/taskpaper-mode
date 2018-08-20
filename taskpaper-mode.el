@@ -1598,6 +1598,11 @@ Essentially a slightly modified version of `outline-hide-other'."
   (save-excursion (taskpaper-outline-show-children))
   (recenter-top-bottom))
 
+(defun taskpaper-outline-overview ()
+  "Show only top-level items."
+  (interactive)
+  (taskpaper-outline-hide-sublevels 1))
+
 (defun taskpaper-next-line ()
   "Forward line, but move over invisible line ends.
 Essentially a much simplified version of `next-line'."
@@ -5156,6 +5161,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c :") 'taskpaper-item-display-outline-path)
 
 (define-key taskpaper-mode-map (kbd "C-c C-a") 'taskpaper-outline-show-all)
+(define-key taskpaper-mode-map (kbd "C-c C-z") 'taskpaper-outline-overview)
 (define-key taskpaper-mode-map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
 (define-key taskpaper-mode-map (kbd "C-c C-d") 'taskpaper-item-toggle-done)
 (define-key taskpaper-mode-map (kbd "C-c C-j") 'taskpaper-goto)
@@ -5209,6 +5215,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Cycle Visibility (Global)" (taskpaper-cycle t)]
      ["Hide Other" taskpaper-outline-hide-other
       :active (outline-on-heading-p)]
+     ["Overview" taskpaper-outline-overview]
      ["Show All" taskpaper-outline-show-all])
     ("Navigation"
      ["Up Level" taskpaper-outline-up-level
