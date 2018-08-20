@@ -1601,6 +1601,7 @@ Essentially a slightly modified version of `outline-hide-other'."
 (defun taskpaper-outline-overview ()
   "Show only top-level items."
   (interactive)
+  (goto-char (point-min))
   (taskpaper-outline-hide-sublevels 1))
 
 (defun taskpaper-next-line ()
