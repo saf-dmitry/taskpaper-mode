@@ -127,7 +127,7 @@ The following commands change the type of the current item.
 
 ## Folding
 
-The command `C-TAB` (`taskpaper-cycle`) changes the visibility of items in the buffer cycling through the most important states. The action of the command depends on the current cursor location.
+The main folding command `C-TAB` (`taskpaper-cycle`) changes the visibility of items in the buffer cycling through the most important states. The action of the command depends on the current cursor location.
 
 When point is at the beginning of the buffer, rotate the entire buffer among the two states:
 
@@ -144,7 +144,7 @@ When Emacs first visits a TaskPaper file, the global state is set to Show All, i
 
 The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items also shown to provide global context.
 
-The command `C-c c-z` (`taskpaper-outline-overview`) switches to Overview state showing only top-level items.
+The command `C-c C-z` (`taskpaper-outline-overview`) switches to Overview state showing only top-level items.
 
 The command `C-c C-a` (`taskpaper-outline-show-all`) switches to Show All state unfolding all items at all levels (also bound to `ESC ESC`).
 
@@ -384,7 +384,7 @@ TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are s
 - `file:/username@host:filename.txt`
 - `/username@host:filename.txt`
 
-Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g., `./my\ file.txt`. File links to non-existing local files are highlighted using different face.
+Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g., `./my\ file.txt`. By default, file links to non-existing local files highlight red.
 
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a plain file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
