@@ -110,7 +110,7 @@ Files with the `.taskpaper` extension use TaskPaper mode by default. If you want
 ## Formatting Items
 
 
-In TaskPaper mode each line makes a new item.
+In TaskPaper mode each line makes a new item. The following commands auto-format you items as you type.
 
 - `RET`: Create a new item with the same level as the one under cursor (`taskpaper-new-item-same-level`).
 
@@ -127,6 +127,8 @@ The following commands change the type of the current item.
 
 ## Folding
 
+You can expand and collapse parts of the outline to control the level of detail that you see.
+
 The main folding command `C-TAB` (`taskpaper-cycle`) changes the visibility of items in the buffer cycling through the most important states. The action of the command depends on the current cursor location.
 
 When point is at the beginning of the buffer, rotate the entire buffer among the two states:
@@ -142,7 +144,7 @@ When point is in an item, rotate current subtree among the three states:
 
 When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the user option `taskpaper-startup-folded`.
 
-The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items also shown to provide global context.
+The command `C-c *` (`taskpaper-outline-hide-other`) lets you focus on the current item under cursor. It hides everything except the current item with its ancestors and direct children. Other top-level items are shown to give an overview of the general document structure.
 
 The command `C-c C-z` (`taskpaper-outline-overview`) switches to Overview state showing only top-level items.
 
@@ -168,7 +170,7 @@ To assist navigation in long documents the command `C-c :` (`taskpaper-item-disp
 
 ## Structure Editing
 
-Structure editing commands let you easily rearrange the order and hierarchy of items in the outline.
+Outlines allow a document to be organized in a hierarchical structure. The structure editing commands let you easily rearrange the order and hierarchy of items in the outline.
 
 Four main commands are provided for structure editing. The commands work on the current subtree (the current item plus all its children) and are assigned to the four arrow keys pressed with a modifier (META by default) in the following way.
 
@@ -205,7 +207,9 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later search for) items. To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
+In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later search for) items.
+
+To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
 
 - `@today`
 - `@priority(1)`
@@ -373,7 +377,7 @@ Note: Recurring appointments like any other event that takes place at a specific
 
 ## Hyperlinks and Inline Images
 
-TaskPaper mode auto-creates hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
+TaskPaper mode auto-creates clickable hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
 
 - `http://www.example.org/index.html`
 - `mailto:username@example.net`
@@ -441,7 +445,7 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all lev
 
 ## Searching
 
-You can create a sparse tree based on specific combinations of items' assigned tags and attributes. This is a great tool that lets you focus on the right things at the right time.
+You can create a sparse tree based on specific combinations of items' assigned tags and attributes. This is a great tool that lets you focus on the right things at the right time. For example, it allows you to get a filtered view of specific items grouped by same context or see which tasks should be done soon and which are overdue.
 
 TaskPaper mode has a special mode for incremental querying. The I-query mode is entered by pressing `C-c C-i` (`taskpaper-iquery`). Query results are updated instantly as you type, creating a sparse tree with all matches. The command `C-c C-q` (`taskpaper-query`) is a non-incremental querying command, which requires you to type the entire query string before searching begins. This form of static, one-time querying (as opposed to incremental, on-the-fly querying) may be preferable in some situations, such as over slow network connections or on unusually large and deeply nested outlines, which may affect search responsiveness. You can limit your searches to a certain subtree or region by narrowing the buffer with `C-c #` (`taskpaper-narrow-to-subtree`) or `C-x n n` (`narrow-to-region`) respectively.
 
@@ -592,7 +596,7 @@ You can configure certain queries to be executed automatically when visiting a T
 
 ## Refiling
 
-When reorganizing your outline, you may want to refile or to copy some of the items into a different subtree. Cutting, finding the right location, and then pasting the item can be a cumbersome task, especially for large outlines with many sublevels. The following special commands can be used to simplify this process:
+When reorganizing your outline, you may want to refile or to copy some of the items into a different subtree. Cutting, finding the right location, and then pasting the item can be a cumbersome task, especially for large outlines with many sublevels. In addition to other structure editing commands (see the [Structure Editing](#structure-editing) section) the following special commands can be used to simplify this process:
 
 - `C-c C-w`: Move the subtree under cursor to different (possibly invisible) location (`taskpaper-refile-subtree`).
 
@@ -605,7 +609,7 @@ The subtree is filed below the target item as a subitem. Depending on `taskpaper
 
 ## Archiving
 
-When a project represented by a subtree is finished, you may want to move the tree out of the way.
+When a project represented by a subtree is finished, you may want to remove the tree from the main outline by moving it to a dedicated archive location. This will keep your working outline clean and give you better visibility of all the remaining uncompleted actions. The archived items are out of the way, but accessible if you ever need to reference back to them.
 
 The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the user option `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order` setting, it will be either the first or last subitem. When the user option `taskpaper-archive-save-context` is non-nil, a `@project` tag with project hierarchy is added to the archived item.
 
