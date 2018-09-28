@@ -110,7 +110,7 @@ Files with the `.taskpaper` extension use TaskPaper mode by default. If you want
 ## Formatting Items
 
 
-In TaskPaper mode each line makes a new item. The following commands auto-format you items as you type.
+In TaskPaper mode each line makes a new item. The following commands auto-format and indent you items as you type.
 
 - `RET`: Create a new item with the same level as the one under cursor (`taskpaper-new-item-same-level`).
 
@@ -241,12 +241,12 @@ Following tags have special meaning in TaskPaper mode:
 
 - `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see the [Completing Actions](#completing-actions) section).
 - `@search`: The `@search` tags are used to store search queries on per-document basis (see the [Storing Queries](#storing-queries) section).
-- `@project`: The `@project` tags are used to store project hierarchy of archived items (see the [Archiving](#archiving) section).
+- `@project`: The `@project` tags are used to store original project hierarchy of archived items (see the [Archiving](#archiving) section).
 
 
 ## Completing Actions
 
-Item is marked as completed by applying the `@done` tag. The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively, you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. See the documentation string of `taskpaper-complete-save-date` for possible options. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`. When the item is marked as completed, the hook `taskpaper-after-completion-hook` is run.
+Actionable items can be marked as completed by applying the `@done` tag. The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively, you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. See the documentation string of `taskpaper-complete-save-date` for possible options. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`. When the item is marked as completed, the hook `taskpaper-after-completion-hook` is run.
 
 By default, items tagged with `@done` are visually crossed out. You can change the way completed items are displayed by customizing `taskpaper-done-item-face` or disable the additional fontification of these items completely by configuring the user option `taskpaper-fontify-done-items`.
 
@@ -263,7 +263,7 @@ The Emacs calendar created by Edward M. Reingold displays a three-month calendar
 
 - `C-c .`: Prompt for a date and insert a corresponding time stamp (`taskpaper-read-date-insert-timestamp`).
 
-The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the current date. If point is on a tag with value, interprets the value as date and goes to this date instead. With a `C-u` prefix, always goes to the current date.
+The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the current date. If point is on a tag with value, the command interprets it as date and goes to this date instead. With a `C-u` prefix, the command always goes to the current date.
 
 The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the date & time to insert at point. You can enter a date using date & time syntax described below. The current interpretation of your input will be displayed live in the minibuffer, right next to your input. If you find this distracting, turn the display off with the user option `taskpaper-read-date-display-live`.
 
@@ -459,7 +459,7 @@ If the point is on a tag the command `C-c C-t` or `mouse-1` (`taskpaper-query-ta
 
 The query language syntax is described below.
 
-__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app (with minor exceptions), the search behavior is slightly different. TaskPaper mode does not support item path syntax and set operations in search queries evaluating tag inheritance instead.
+__Note:__ Though the query language syntax described here represents a valid subset of search syntax implemented in TaskPaper v3 app (with some minor exceptions), the search behavior is slightly different. TaskPaper mode does not support the item path syntax and set operations in search queries evaluating tag inheritance instead.
 
 
 ### Tags and Attributes
@@ -579,7 +579,8 @@ Fast selection interface allows you to save your commonly used search queries an
 
     (setq taskpaper-custom-queries
           '((?w "Waiting"  "@waiting and not @done")
-            (?d "Due Soon" "@due <=[d] +14d and not @done")))
+            (?d "Due Soon" "@due <=[d] +14d and not @done")
+            (?o "Overdue"  "@due <[d] today and not @done")))
 
 The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first parameter is a string, it will be used as block title to visually group queries. Pressing `C-c !` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
