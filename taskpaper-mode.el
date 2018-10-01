@@ -1795,7 +1795,7 @@ end.")
 (defun taskpaper-remove-trailing-tags (item)
   "Remove trailing tags from ITEM."
   (replace-regexp-in-string
-   (format "%s[ \t]*$" taskpaper-consecutive-tags-regexp) "" item))
+   (format "%s$" taskpaper-consecutive-tags-regexp) "" item))
 
 (defun taskpaper-item-type ()
   "Return type of item at point or nil."
