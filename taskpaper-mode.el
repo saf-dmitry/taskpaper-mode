@@ -4902,7 +4902,7 @@ string. PROMPT can overwrite the default prompt."
                             (taskpaper-remove-type-formatting desc)))
                 ;; Add entry to the list
                 (when (and desc (not (equal desc "")))
-                  (push (list desc query) queries))))))))
+                  (push (cons desc query) queries))))))))
     (nreverse queries)))
 
 (defun taskpaper-query-read-select ()
