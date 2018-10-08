@@ -3779,10 +3779,9 @@ When SELF is non-nil, the path also includes the current item."
 
 (defun taskpaper-goto-get-targets (&optional excluded-entries)
   "Produce a table with possible outline targets.
-Return a list of (OLPATH POS) elements where OLPATH is the
+Return a list of (OLPATH . POS) elements where OLPATH is the
 formatted outline path as string and POS is the corresponding
-buffer position. Single entries in OLPATH should be separated
-with a slash. EXCLUDED-ENTRIES is a list of OLPATH elements,
+buffer position. EXCLUDED-ENTRIES is a list of OLPATH elements,
 which will be excluded from the results."
   (let ((re (concat "^" outline-regexp)) target targets)
     (save-excursion
@@ -3793,17 +3792,16 @@ which will be excluded from the results."
           (setq target (taskpaper-format-outline-path
                         (taskpaper-item-get-outline-path t)))
           (unless (or (not target) (member target excluded-entries))
-            (push (list target (point-at-bol)) targets)))))
+            (push (cons target (point-at-bol)) targets)))))
     (message "Get targets...done")
     (nreverse targets)))
 
 (defun taskpaper-goto-get-location (&optional prompt no-exclude)
   "Prompt the user for a location, using PROMPT.
-Return a list (OLPATH POS) where OLPATH is the formatted outline
-path as string and POS is the corresponding buffer position.
-Single entries in OLPATH should be separated with a slash. When
-NO-EXCLUDE is set, do not exclude entries in the current
-subtree."
+Return a cons cell (OLPATH . POS) where OLPATH is the formatted
+outline path as string and POS is the corresponding buffer
+position. When NO-EXCLUDE is set, do not exclude entries in the
+current subtree."
   (let ((prompt (or prompt "Path: "))
         excluded-entries targets target)
     (when (and (outline-on-heading-p) (not no-exclude))
@@ -3827,7 +3825,7 @@ subtree."
   "Go to a selected location."
   (interactive)
   (let* ((loc (taskpaper-goto-get-location "Goto: " t))
-         (pos (nth 1 loc)))
+         (pos (cdr loc)))
     (widen) (goto-char pos) (back-to-indentation)
     (taskpaper-outline-show-context)))
 
