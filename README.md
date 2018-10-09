@@ -28,7 +28,7 @@ The file format is fairly simple:
 
 - A tag consists of an at symbol (`@`) preceded by a space and followed by a tag name. Tags can optionally have a value in parentheses after the tag name.
 
-Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. Empty lines are ignored when calculating ownership.
+Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. The nesting level can go as deep as you need it to be. Empty lines are ignored when calculating ownership.
 
 The system doesn't force any particular system on you; it provides basic list making elements for you to use as you see fit. See the [TaskPaper User's Guide][taskpaper-guide] for more details.
 
@@ -207,17 +207,19 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later search for) items.
+In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later query for) items. You can add tags for start and due dates, priorities, people, locations, effort estimates, and more.
 
 To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
 
 - `@today`
+- `@effort(0.5)`
 - `@priority(1)`
+- `@due(2018-08-19)`
 - `@status(in press)`
 
 The value text inside can have whitespaces, but no newlines. If you need to include parentheses in the tag value, precede them with a backslash.
 
-If an item has a certain tag, all subitems will inherit the tag as well. To limit tag inheritance to specific tags, configure the user option `taskpaper-tags-exclude-from-inheritance`.
+If an item has a certain tag, all its subitems will inherit that tag. To limit tag inheritance to specific tags, configure the user option `taskpaper-tags-exclude-from-inheritance`.
 
 After `@` symbol `M-TAB` offers in-buffer completion on tag names. The list of tags is created dynamically from all tags used in the current buffer. If your desktop intercepts the key binding `M-TAB` to switch windows, use `C-M-i` or `ESC TAB` as an alternative or customize your environment.
 
@@ -610,7 +612,7 @@ The subtree is filed below the target item as a subitem. Depending on `taskpaper
 
 ## Archiving
 
-When a project represented by a subtree is finished, you may want to remove the tree from the main outline by moving it to a dedicated archive location. This will keep your working outline clean and give you better visibility of all the remaining uncompleted actions. The archived items are out of the way, but accessible if you ever need to reference back to them.
+When a project represented by a subtree is finished, you may want to remove the tree from the main outline by moving it to a dedicated archive location. This will keep your working outline clean and give you better visibility of all the remaining uncompleted actions. The archived items are out of the way, but accessible if you ever need to refer back to them.
 
 The command `C-c C-x a` (`taskpaper-archive-subtree`) archives the subtree starting at the cursor position to the location given by `taskpaper-archive-location`. The default archive location is a file in the same directory as the current file, with the name derived by appending `_archive.taskpaper` to the current file name without extension. You can also choose what item to file archived items under. For details see the documentation string of the user option `taskpaper-archive-location`. The subtree is filed below the target item as a subitem. Depending on `taskpaper-reverse-note-order` setting, it will be either the first or last subitem. When the user option `taskpaper-archive-save-context` is non-nil, a `@project` tag with project hierarchy is added to the archived item.
 

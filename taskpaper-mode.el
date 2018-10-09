@@ -3822,7 +3822,7 @@ current subtree."
       (assoc target targets))))
 
 (defun taskpaper-goto ()
-  "Go to a selected location."
+  "Prompt the user for a location and go to it."
   (interactive)
   (let* ((loc (taskpaper-goto-get-location "Goto: " t))
          (pos (cdr loc)))
@@ -3832,7 +3832,8 @@ current subtree."
 ;;;; Copying, cutting, and pasting of trees
 
 (defun taskpaper-clone-subtree ()
-  "Duplicate the current subtree."
+  "Duplicate the current subtree.
+Paste a copy of the current subtree as its next sibling."
   (interactive)
   (let (begin end)
     (save-excursion
