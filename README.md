@@ -6,12 +6,12 @@ TaskPaper mode is an Emacs major mode for working with files in TaskPaper format
 
 TaskPaper format knows about four things: _projects_, _tasks_, _notes_, and _tags_. Items can be indented (using literal tabs) under other items to create outline structure, which defines parent-child hierarchical relationship:
 
-    Project meeting:
+    Project meeting: @sintef
         - Select and invite participants @next
         - Prepare and distribute meeting agenda
         - Book conference room @due(2018-06-20)
             Room M-2612
-        - Print handouts for attendees @done(2018-05-11)
+        - Print handouts @due(2018-05-12) @done(2018-05-11)
         - Review meeting notes @waiting
 
 The file format is fairly simple:
@@ -28,7 +28,7 @@ The file format is fairly simple:
 
 - A tag consists of an at symbol (`@`) preceded by a space and followed by a tag name. Tags can optionally have a value in parentheses after the tag name.
 
-Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. The nesting level can go as deep as you need it to be. Empty lines are ignored when calculating ownership.
+Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. The nesting can go as deep as you need it to be. Empty lines are ignored when calculating ownership.
 
 The system doesn't force any particular system on you; it provides basic list making elements for you to use as you see fit. See the [TaskPaper User's Guide][taskpaper-guide] for more details.
 
