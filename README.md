@@ -643,7 +643,7 @@ Two user options control how the agenda buffer is displayed and whether the wind
 
 Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
-In the example below items will be sorted according to their due dates. The sorting is done by date & time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
+In the example below items will be sorted according to their due dates form earliest to latest. The sorting is done by date & time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
     (setq taskpaper-agenda-sorting-predicate
           '(lambda (a b)
@@ -651,7 +651,7 @@ In the example below items will be sorted according to their due dates. The sort
                     b (or (taskpaper-string-get-attribute b "due") "2100-12-12"))
               (taskpaper-time< a b)))
 
-Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to multiple criteria. In the following example agenda items will be sorted by priority and within the same priority by due date from earliest to latest:
+Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to multiple criteria. In the following example agenda items will be sorted by priority from highest to lowest (1 means the highest) and within the same priority by due date from earliest to latest:
 
     (setq taskpaper-agenda-sorting-predicate
           '(lambda (a b)
@@ -659,8 +659,7 @@ Items with equal sort keys maintain their relative order before and after the so
                    (p2 (or (taskpaper-string-get-attribute b "priority") "99"))
                    (d1 (or (taskpaper-string-get-attribute a "due") "2100-12-12"))
                    (d2 (or (taskpaper-string-get-attribute b "due") "2100-12-12")))
-               (cond ((taskpaper-num= p1 p2) (taskpaper-time< d1 d2))
-                     (t (taskpaper-num< p1 p2))))))
+               (if (taskpaper-num= p1 p2) (taskpaper-time< d1 d2) (taskpaper-num< p1 p2)))))
 
 
 ### Motion and Display Commands
