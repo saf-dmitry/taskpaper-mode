@@ -647,18 +647,25 @@ In the example below items will be sorted according to their due dates. The sort
 
     (setq taskpaper-agenda-sorting-predicate
           '(lambda (a b)
-              (setq a (or (taskpaper-string-get-attribute a "due")
-                          "2100-12-12")
-                    b (or (taskpaper-string-get-attribute b "due")
-                          "2100-12-12"))
+              (setq a (or (taskpaper-string-get-attribute a "due") "2100-12-12")
+                    b (or (taskpaper-string-get-attribute b "due") "2100-12-12"))
               (taskpaper-time< a b)))
 
-Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to different criteria.
+Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to multiple criteria. In the following example agenda items will be sorted by priority and within the same priority by due date from earliest to latest:
+
+    (setq taskpaper-agenda-sorting-predicate
+          '(lambda (a b)
+             (let ((p1 (or (taskpaper-string-get-attribute a "priority") "99"))
+                   (p2 (or (taskpaper-string-get-attribute b "priority") "99"))
+                   (d1 (or (taskpaper-string-get-attribute a "due") "2100-12-12"))
+                   (d2 (or (taskpaper-string-get-attribute b "due") "2100-12-12")))
+               (cond ((taskpaper-num= p1 p2) (taskpaper-time< d1 d2))
+                     (t (taskpaper-num< p1 p2))))))
 
 
 ### Motion and Display Commands
 
-Items in the agenda buffer are linked back to the TaskPaper file where they originate. You are not allowed to edit the agenda buffer itself, but commands are provided to show and jump to the original item location.
+Items in the agenda buffer are displayed as a flat list and linked back to the TaskPaper file where they originate. You are not allowed to edit the agenda buffer itself, but commands are provided to show and jump to the original item location.
 
 - `n` or `DOWN`: Move to the next line (`taskpaper-agenda-next-line`).
 
