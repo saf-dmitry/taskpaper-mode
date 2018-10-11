@@ -408,6 +408,8 @@ If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-li
 
 The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting the user option `taskpaper-max-image-size`. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.
 
+Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via e.g. [Dropbox][dropbox], put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
+
 
 ## Inline Formatting
 
@@ -816,6 +818,8 @@ You should have received a copy of the GNU General Public License along with thi
 [emacs-imenu]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html
 
 [iso8601-wiki]: https://en.wikipedia.org/wiki/ISO_8601
+
+[dropbox]: https://www.dropbox.com/
 
 [markdown-wiki]: https://en.wikipedia.org/wiki/Markdown
 
