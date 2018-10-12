@@ -3682,7 +3682,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (run-hooks 'taskpaper-after-sorting-items-hook)
   (message "Sorting items...done"))
 
-(defun taskpaper-sort-remove-markup (s)
+(defun taskpaper-string-remove-markup (s)
   "Remove inline markup from string S.
 This function removes characters with invisibility property
 `taskpaper-markup'."
@@ -3703,7 +3703,7 @@ Remove indentation, type formatting and inline markup and return
 sorting key as string."
   (let ((item (buffer-substring
                (line-beginning-position) (line-end-position))))
-    (setq item (taskpaper-sort-remove-markup item)
+    (setq item (taskpaper-string-remove-markup item)
           item (taskpaper-remove-indentation item)
           item (taskpaper-remove-type-formatting item))
     item))
