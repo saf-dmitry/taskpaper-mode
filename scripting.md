@@ -53,6 +53,8 @@ General functions for extending sorting and filtering functionality.
 - `taskpaper-sort-items-generic`
 - `taskpaper-item-sorting-key-alpha`
 - `taskpaper-item-sorting-key-type`
+- `taskpaper-string-sorting-key-alpha`
+- `taskpaper-string-sorting-key-type`
 
 
 ### Accessing and Setting Attributes

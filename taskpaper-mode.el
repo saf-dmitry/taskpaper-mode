@@ -532,6 +532,21 @@ PROP-VAL."
   (cl-some (lambda (val) (text-property-any begin end prop val))
            prop-val))
 
+(defun taskpaper-remove-markup (s)
+  "Remove inline markup from string S.
+This function removes characters with invisibility property
+`taskpaper-markup'."
+  (let (b)
+    (while (setq b (text-property-any
+                    0 (length s)
+                    'invisible 'taskpaper-markup s))
+      (setq s (concat
+               (substring s 0 b)
+               (substring s (or (next-single-property-change
+                                 b 'invisible s)
+                                (length s)))))))
+  s)
+
 (defun taskpaper-remove-flyspell-overlays-in (begin end)
   "Remove Flyspell overlays in region between BEGIN and END."
   (and (bound-and-true-p flyspell-mode)
@@ -3682,28 +3697,13 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (run-hooks 'taskpaper-after-sorting-items-hook)
   (message "Sorting items...done"))
 
-(defun taskpaper-string-remove-markup (s)
-  "Remove inline markup from string S.
-This function removes characters with invisibility property
-`taskpaper-markup'."
-  (let (b)
-    (while (setq b (text-property-any
-                    0 (length s)
-                    'invisible 'taskpaper-markup s))
-      (setq s (concat
-               (substring s 0 b)
-               (substring s (or (next-single-property-change
-                                 b 'invisible s)
-                                (length s)))))))
-  s)
-
 (defun taskpaper-item-sorting-key-alpha ()
   "Return sorting key of item at point for alphabetical sorting.
 Remove indentation, type formatting and inline markup and return
 sorting key as string."
   (let ((item (buffer-substring
                (line-beginning-position) (line-end-position))))
-    (setq item (taskpaper-string-remove-markup item)
+    (setq item (taskpaper-remove-markup item)
           item (taskpaper-remove-indentation item)
           item (taskpaper-remove-type-formatting item))
     item))
@@ -3713,6 +3713,26 @@ sorting key as string."
   (let ((type (taskpaper-item-get-attribute "type"))
         (prec '(("project" . 3) ("task" . 2) ("note" . 1))))
     (cdr (assoc type prec))))
+
+(defun taskpaper-string-sorting-key-alpha (str)
+  "Return sorting key of item string STR for alphabetical sorting.
+Like `taskpaper-item-sorting-key-alpha' but uses argument string
+instead of item at point."
+  (with-temp-buffer
+    (erase-buffer) (insert str)
+    (delay-mode-hooks (taskpaper-mode))
+    (font-lock-default-function 'taskpaper-mode)
+    (font-lock-default-fontify-region (point-min) (point-max) nil)
+    (goto-char (point-min))
+    (taskpaper-item-sorting-key-alpha)))
+
+(defun taskpaper-string-sorting-key-type (str)
+  "Return sorting key of item string STR for sorting by type.
+Like `taskpaper-item-sorting-key-type' but uses argument string
+instead of item at point."
+  (with-temp-buffer
+    (erase-buffer) (insert str) (goto-char (point-min))
+    (taskpaper-item-sorting-key-type)))
 
 (defun taskpaper-sort-alpha (&optional reverse)
   "Sort items on a certain level alphabetically.
