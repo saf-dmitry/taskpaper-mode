@@ -5483,8 +5483,8 @@ which might be released later."
 Cycle through agenda files and collect items matching MATCHER.
 MATCHER is a Lisp form to be evaluated at an item; returning a
 non-nil value qualifies the item for inclusion. Return list of
-items linked back to the corresponding buffer position where the
-item originated."
+items flatten and linked back to the corresponding buffer
+position where the item originated."
   (let ((files (taskpaper-agenda-files))
         file buffer marker item items)
     ;; Cycle through agenda files

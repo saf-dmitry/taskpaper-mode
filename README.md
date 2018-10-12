@@ -207,7 +207,7 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later query for) items. You can add tags for start and due dates, priorities, people, locations, effort estimates, and more.
+In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later query for) items. You can add tags for start and due dates, priorities, people, locations, estimated effort, and more.
 
 To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma separated values) in parentheses after the tag name:
 
@@ -641,7 +641,7 @@ Two user options control how the agenda buffer is displayed and whether the wind
 
 ### Sorting Agenda Items
 
-Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
+Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two string arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
 In the example below items will be sorted according to their due dates form earliest to latest. The sorting is done by date & time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
@@ -651,7 +651,7 @@ In the example below items will be sorted according to their due dates form earl
                     b (or (taskpaper-string-get-attribute b "due") "2100-12-12"))
               (taskpaper-time< a b)))
 
-Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to multiple criteria. In the following example agenda items will be sorted by priority from highest to lowest (1 means the highest) and within the same priority by due date from earliest to latest:
+Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to multiple criteria. In the following example agenda items will be sorted numerically by priority from highest to lowest (where "1" means the highest) and within the same priority by due date from earliest to latest:
 
     (setq taskpaper-agenda-sorting-predicate
           '(lambda (a b)

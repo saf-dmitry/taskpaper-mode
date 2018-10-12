@@ -265,8 +265,7 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
       (taskpaper-outline-map-region
        '(lambda nil
           (when (taskpaper-time<=
-                 (taskpaper-item-get-attribute "done")
-                 "-14d")
+                 (taskpaper-item-get-attribute "done") "-14d")
             (taskpaper-archive-subtree)
             (taskpaper-outline-previous-item-safe)))
        (point-min) (point-max)))
