@@ -3697,10 +3697,10 @@ This function removes characters with invisibility property
                                 (length s)))))))
   s)
 
-(defun taskpaper-sort-alpha-get-sorting-key ()
+(defun taskpaper-item-sorting-key-alpha ()
   "Return sorting key of item at point for alphabetical sorting.
-This version will remove indentation, type formatting and inline
-markup and return sorting key as string."
+Remove indentation, type formatting and inline markup and return
+sorting key as string."
   (let ((item (buffer-substring
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-sort-remove-markup item)
@@ -3708,18 +3708,18 @@ markup and return sorting key as string."
           item (taskpaper-remove-type-formatting item))
     item))
 
-(defun taskpaper-sort-by-type-get-sorting-key ()
+(defun taskpaper-item-sorting-key-type ()
   "Return sorting key of item at point for sorting by type."
   (let ((type (taskpaper-item-get-attribute "type"))
-        (precedence '(("project" . 3) ("task" . 2) ("note" . 1))))
-    (cdr (assoc type precedence))))
+        (prec '(("project" . 3) ("task" . 2) ("note" . 1))))
+    (cdr (assoc type prec))))
 
 (defun taskpaper-sort-alpha (&optional reverse)
   "Sort items on a certain level alphabetically.
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil (taskpaper-sort-alpha-get-sorting-key))
+   '(lambda nil (taskpaper-item-sorting-key-alpha))
    'taskpaper-string< nil reverse))
 
 (defun taskpaper-sort-by-type (&optional reverse)
@@ -3729,7 +3729,7 @@ before tasks. The optional argument REVERSE will reverse the sort
 order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil (taskpaper-sort-by-type-get-sorting-key))
+   '(lambda nil (taskpaper-item-sorting-key-type))
    '> nil reverse))
 
 ;;;; Outline path

@@ -51,8 +51,8 @@ General functions for extending sorting and filtering functionality.
 - `taskpaper-query-item-match-p`
 - `taskpaper-match-sparse-tree`
 - `taskpaper-sort-items-generic`
-- `taskpaper-sort-alpha-get-sorting-key`
-- `taskpaper-sort-by-type-get-sorting-key`
+- `taskpaper-item-sorting-key-alpha`
+- `taskpaper-item-sorting-key-type`
 
 
 ### Accessing and Setting Attributes

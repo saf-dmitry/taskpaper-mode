@@ -661,6 +661,8 @@ Items with equal sort keys maintain their relative order before and after the so
                    (d2 (or (taskpaper-string-get-attribute b "due") "2100-12-12")))
                (if (taskpaper-num= p1 p2) (taskpaper-time< d1 d2) (taskpaper-num< p1 p2)))))
 
+See the [Scripting Guide][tp-mode-scripting-guide] for the list of API functions, which can be used for attribute evaluation.
+
 
 ### Motion and Display Commands
 
