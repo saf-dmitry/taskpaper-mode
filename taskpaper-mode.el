@@ -5245,6 +5245,9 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Backward Same Level" taskpaper-outline-backward-same-level
       :active (outline-on-heading-p)]
      "--"
+     ["Display Outline Path" taskpaper-item-display-outline-path
+      :active (outline-on-heading-p)]
+     "--"
      ["Go To..." taskpaper-goto])
     ("Structure Editing"
      ["Promote Item" taskpaper-outline-promote
