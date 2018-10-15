@@ -5294,7 +5294,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      "--"
      ["Copy Visible Items" taskpaper-outline-copy-visible
       :active (region-active-p)])
-    ("Tag"
+    ("Tags"
      ["Complete Tag" taskpaper-complete-tag-at-point
       :active (taskpaper-in-regexp (format "@%s*" taskpaper-tag-name-char-regexp))]
      ["Select Tag..." taskpaper-item-set-tag-fast-select]
