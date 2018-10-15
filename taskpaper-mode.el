@@ -3791,9 +3791,10 @@ the default is \"/\"."
 PREFIX is a prefix to be included in the displayed output.
 When SELF is non-nil, the path also includes the current item."
   (interactive)
-  (let ((output (taskpaper-format-outline-path
-                 (taskpaper-item-get-outline-path self) prefix)))
-    (taskpaper-unlogged-message "%s" output)))
+  (when (outline-on-heading-p)
+    (let ((output (taskpaper-format-outline-path
+                   (taskpaper-item-get-outline-path self) prefix)))
+      (taskpaper-unlogged-message "%s" output))))
 
 ;;;; Goto interface
 
