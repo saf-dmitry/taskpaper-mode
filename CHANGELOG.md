@@ -1,5 +1,12 @@
 
 
+# Development Version
+
+- Added navigation between sparse tree matches
+- Added selection interface for embedded and custom queries
+- Extended sorting API
+
+
 # v0.8
 
 - Extended outline mapping API
@@ -68,7 +75,7 @@
 
 # v0.1
 
-- Added base syntax highlighting
+- Added basic syntax highlighting
 - Added folding and structure editing commands
-- Added command for completing tasks
+- Added command for completing items
 
