@@ -744,7 +744,7 @@ Although no configuration is necessary there are a few things that can be custom
 
 ## Syntax Highlighting
 
-You may specify special faces for specific tags using the user option `taskpaper-tag-faces`. For example:
+You may assign special faces to specific tags using the user option `taskpaper-tag-faces`. For example:
 
     (setq taskpaper-tag-faces
           '(("start" . "green")
