@@ -627,7 +627,7 @@ For querying a collection of TaskPaper files, TaskPaper mode includes a powerful
 
 The information to be shown is normally collected from all agenda files, the files listed in the user option `taskpaper-agenda-files`:
 
-    (setq taskpaper-agenda-files '("~/tasks/"))
+    (setq taskpaper-agenda-files '("~/gtd.taskpaper" "~/projects/"))
 
 If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize the user option `taskpaper-agenda-file-regexp` to change this behavior. If the user option `taskpaper-agenda-skip-unavailable-files` is non-nil, agenda mode will silently skip unavailable agenda files without issuing an error.
 
