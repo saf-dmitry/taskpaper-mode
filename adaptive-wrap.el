@@ -1,10 +1,10 @@
 ;;; adaptive-wrap.el --- Smart line-wrapping with wrap-prefix
 
-;; Copyright (C) 2011-2013, 2017  Free Software Foundation, Inc.
+;; Copyright (C) 2011-2018  Free Software Foundation, Inc.
 
 ;; Author: Stephen Berman <stephen.berman@gmx.net>
 ;;         Stefan Monnier <monnier@iro.umontreal.ca>
-;; Version: 0.5.1
+;; Version: 0.6
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -104,26 +104,63 @@ that prefix would act as a paragraph-separator."
                      (make-string (string-width first-line-prefix) ?\ ))))
               result))))))
 
-(defun adaptive-wrap-fill-context-prefix (begin end)
-  "Compute a fill prefix from the text between BEGIN and END.
-Like `fill-context-prefix-mod', but with length adjusted by
-`adaptive-wrap-extra-indent'."
-  (let* ((fcp (or (adaptive-wrap-fill-context-prefix-mod begin end) ""))
-         (fcp-len (string-width fcp)))
-    (if (or (<= 0 adaptive-wrap-extra-indent)
-            (<  0 (+ adaptive-wrap-extra-indent fcp-len)))
-        (make-string (+ fcp-len adaptive-wrap-extra-indent) ?\s)
-      "")))
+(defun adaptive-wrap-fill-context-prefix (beg end)
+  "Like `fill-context-prefix', but with length adjusted by `adaptive-wrap-extra-indent'."
+  ;; Note: fill-context-prefix may return nil; See:
+  ;; http://article.gmane.org/gmane.emacs.devel/156285
+  (let* ((fcp (or (adaptive-wrap-fill-context-prefix-mod beg end) ""))
+         (fcp-len (string-width fcp))
+         (fill-char (if (< 0 fcp-len)
+                        (string-to-char (substring fcp -1))
+                      ?\ )))
+    (cond
+     ((= 0 adaptive-wrap-extra-indent)
+      fcp)
+     ((< 0 adaptive-wrap-extra-indent)
+      (concat fcp
+              (make-string adaptive-wrap-extra-indent fill-char)))
+     ((< 0 (+ adaptive-wrap-extra-indent fcp-len))
+      (substring fcp
+                 0
+                 (+ adaptive-wrap-extra-indent fcp-len)))
+     (t
+      ""))))
 
-(defun adaptive-wrap-prefix-function (begin end)
+(defun adaptive-wrap-prefix-function (beg end)
   "Indent the region between BEG and END with adaptive filling."
-  (goto-char begin)
+  ;; Any change at the beginning of a line might change its wrap prefix, which
+  ;; affects the whole line.  So we need to "round-up" `end' to the nearest end
+  ;; of line.  We do the same with `beg' although it's probably not needed.
+  (goto-char end)
+  (unless (bolp) (forward-line 1))
+  (setq end (point))
+  (goto-char beg)
+  (forward-line 0)
+  (setq beg (point))
   (while (< (point) end)
-    (let ((lbp (line-beginning-position)))
-      (put-text-property (point)
-                         (progn (search-forward "\n" end 'move) (point))
-                         'wrap-prefix
-                         (adaptive-wrap-fill-context-prefix lbp (point))))))
+    (let ((lbp (point)))
+      (put-text-property
+       (point) (progn (search-forward "\n" end 'move) (point))
+       'wrap-prefix
+       (let ((pfx (adaptive-wrap-fill-context-prefix
+		   lbp (point))))
+	 ;; Remove any `wrap-prefix' property that
+	 ;; might have been added earlier.
+	 ;; Otherwise, we end up with a string
+	 ;; containing a `wrap-prefix' string
+	 ;; containing a `wrap-prefix' string ...
+	 (remove-text-properties
+	  0 (length pfx) '(wrap-prefix) pfx)
+         (let ((dp (get-text-property 0 'display pfx)))
+           (when (and dp (eq dp (get-text-property (1- lbp) 'display)))
+             ;; There's a `display' property which covers not just the
+             ;; prefix but also the previous newline.  So it's not just making
+             ;; the prefix more pretty and could interfere or even defeat our
+             ;; efforts (e.g. it comes from `visual-fill-mode').
+             (remove-text-properties
+	      0 (length pfx) '(display) pfx)))
+	 pfx))))
+  `(jit-lock-bounds ,beg . ,end))
 
 ;;;###autoload
 (define-minor-mode adaptive-wrap-prefix-mode
@@ -132,9 +169,11 @@ Like `fill-context-prefix-mod', but with length adjusted by
   :group 'visual-line
   (if adaptive-wrap-prefix-mode
       (progn
-        ;; HACK ATTACK!  We need to run after font-lock, but jit-lock-register
-        ;; doesn't accept an `append' argument, so we add ourselves beforehand,
-        ;; to make sure we're at the end of the hook (bug#15155).
+        ;; HACK ATTACK!  We want to run after font-lock (so our
+        ;; wrap-prefix includes the faces applied by font-lock), but
+        ;; jit-lock-register doesn't accept an `append' argument, so
+        ;; we add ourselves beforehand, to make sure we're at the end
+        ;; of the hook (bug#15155).
         (add-hook 'jit-lock-functions
                   #'adaptive-wrap-prefix-function 'append t)
         (jit-lock-register #'adaptive-wrap-prefix-function))
@@ -152,7 +191,78 @@ Like `fill-context-prefix-mod', but with length adjusted by
 	      :button (:toggle . (bound-and-true-p adaptive-wrap-prefix-mode)))
   word-wrap)
 
+;;;; ChangeLog:
+
+;; 2018-10-15  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* adaptive-wrap/adaptive-wrap.el: Fix interaction with visual-fill
+;; 
+;; 	(adaptive-wrap-prefix-function): Remove problematic 'display' properties 
+;; 	as well.
+;; 
+;; 2018-03-12  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* adaptive-wrap/adaptive-wrap.el: Fix use without font-lock
+;; 
+;; 	(adaptive-wrap-prefix-function): Work on whole lines. Fix a kind of
+;; 	memory leak.
+;; 
+;; 2017-05-04  Noam Postavsky  <npostavs@users.sourceforge.net>
+;; 
+;; 	Mark adaptive-wrap-extra-indent as safe if integerp (Bug#23816)
+;; 
+;; 	* packages/adaptive-wrap/adaptive-wrap.el: Bump version, copyright.
+;; 	(adaptive-wrap-extra-indent): Mark as safe if integerp.
+;; 
+;; 2013-08-24  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* adaptive-wrap.el (adaptive-wrap-mode): Move after font-lock
+;; 	(bug#15155).
+;; 
+;; 2013-07-31  Stephen Berman  <stephen.berman@gmx.net>
+;; 
+;; 	* adaptive-wrap.el: Fix bug#14974 by using define-key-after instead of
+;; 	easy-menu-add-item.
+;; 	(adaptive-wrap-unload-function): Remove.
+;; 
+;; 2013-07-29  Stephen Berman  <stephen.berman@gmx.net>
+;; 
+;; 	* adaptive-wrap.el: Require easymenu (bug#14974).
+;; 
+;; 2013-07-19  Rüdiger Sonderfeld  <ruediger@c-plusplus.de>
+;; 
+;; 	* adaptive-wrap.el (menu-bar-options-menu): Add checkbox for Adaptive
+;; 	Wrap to the Line Wrapping submenu.
+;; 	(adaptive-wrap-unload-function): New function.
+;; 
+;; 2013-02-01  Stephen Berman  <stephen.berman@gmx.net>
+;; 
+;; 	Fix error during redisplay: (wrong-type-argument stringp nil)
+;; 
+;; 2012-12-05  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* adaptive-wrap.el (adaptive-wrap-extra-indent): Fix buffer-localness. 
+;; 	Reported by Jonathan Kotta <jpkotta@gmail.com>.
+;; 
+;; 2012-10-30  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Clean up copyright notices.
+;; 
+;; 2012-05-21  Jonathan Kotta  <jpkotta@gmail.com>
+;; 
+;; 	Add adaptive-wrap-extra-indent.
+;; 	* adaptive-wrap/adaptive-wrap.el (adaptive-wrap-extra-indent): New var.
+;; 	(adaptive-wrap-fill-context-prefix): New function.
+;; 	(adaptive-wrap-prefix-function): Use it.
+;; 	(adaptive-wrap-prefix-mode): Add to visual-line custom group.
+;; 
+;; 2012-01-05  Chong Yidong  <cyd@gnu.org>
+;; 
+;; 	Rename adaptive-wrap-prefix to adaptive-wrap.
+;; 
+;; 	The old name overflowed the column in list-packages.
+;; 
+
+
 (provide 'adaptive-wrap)
-
 ;;; adaptive-wrap.el ends here
-
