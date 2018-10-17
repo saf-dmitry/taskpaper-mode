@@ -5,6 +5,7 @@
 - Added navigation between sparse tree matches
 - Added selection interface for embedded and custom queries
 - Extended sorting API
+- Removed obsolete local fork of adaptive-wrap
 
 
 # v0.8

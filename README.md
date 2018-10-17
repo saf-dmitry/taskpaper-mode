@@ -764,7 +764,7 @@ You can hide inline markup elements like emphasis delimiters by configuring the 
 
 ## Cleaner Outline View
 
-The `adaptive-wrap.el` sets the `wrap-prefix` correctly for indenting and wrapping of long-line items. The version included in this repository provides the `adaptive-wrap-prefix-mode` minor mode, which sets the `wrap-prefix` property on the fly so that single-long-line paragraphs get word-wrapped in a way similar to what you'd get with `M-q` using `adaptive-fill-mode`, but without actually changing the buffer's text. The present version supports tabs, works on one-line paragraphs, and can be used in modes other than TaskPaper mode. In can be activated globally by putting `adaptive-wrap-mode.el` on the load path and adding to your init file
+The [adaptive-wrap][emacs-adaptive-wrap] package is helpful for correct wrapping of indented long-line items. The package provides the `adaptive-wrap-prefix-mode` minor mode which sets the `wrap-prefix` property on the fly so that single-long-line paragraphs get word-wrapped in a way similar to what you'd get with `M-q` using `adaptive-fill-mode`, but without actually changing the buffer's text. Since v0.7 it supports single-line paragraphs and can be used in TaskPaper mode as well. The package can be activated globally by putting `adaptive-wrap-mode.el` on the load path and adding to your init file
 
     (require 'adaptive-wrap)
     (add-hook 'visual-line-mode-hook
@@ -774,7 +774,7 @@ The `adaptive-wrap.el` sets the `wrap-prefix` correctly for indenting and wrappi
 
 ## Indentation Guides
 
-If you want to display indentation guides in TaskPaper mode windows I recommend the [highlight-indent-guides.el][emacs-highlight-indent-guides] package. To enable it automatically when entering TaskPaper mode, you can use the `taskpaper-mode-hook`:
+If you want to display indentation guides in TaskPaper mode windows I recommend the [highlight-indent-guides][emacs-highlight-indent-guides] package. To enable it automatically when entering TaskPaper mode, you can use the `taskpaper-mode-hook`:
 
     (add-hook 'taskpaper-mode-hook
               '(lambda () (highlignt-indent-guides-mode 1)))
@@ -790,7 +790,7 @@ I would also thank the following people, from whose work TaskPaper mode has bene
 
 - Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining [Org mode][emacs-orgmode] for Emacs, from which ideas and implementation I borrowed liberally;
 
-- Stephen Berman and Stefan Monnier for writing the original version of [adaptive-wrap.el][emacs-adaptive-wrap].
+- Stephen Berman and Stefan Monnier for creating and maintaining [adaptive-wrap][emacs-adaptive-wrap].
 
 
 # Bugs
@@ -833,11 +833,11 @@ You should have received a copy of the GNU General Public License along with thi
 
 [emacs-regexp]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html
 
+[emacs-adaptive-wrap]: https://elpa.gnu.org/packages/adaptive-wrap.html
+
 [emacs-highlight-indent-guides]: https://github.com/DarthFennec/highlight-indent-guides
 
 [emacs-orgmode]: http://orgmode.org/
-
-[emacs-adaptive-wrap]: https://elpa.gnu.org/packages/adaptive-wrap.html
 
 [birch-outline]: https://github.com/jessegrosjean/birch-outline
 
