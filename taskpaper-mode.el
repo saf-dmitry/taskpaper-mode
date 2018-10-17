@@ -3792,9 +3792,13 @@ PREFIX is a prefix to be included in the displayed output.
 When SELF is non-nil, the path also includes the current item."
   (interactive)
   (when (outline-on-heading-p)
-    (let ((output (taskpaper-format-outline-path
-                   (taskpaper-item-get-outline-path self) prefix)))
-      (taskpaper-unlogged-message "%s" output))))
+    (let (olpathf)
+      (save-excursion
+        (save-restriction
+          (widen)
+          (setq olpathf (taskpaper-format-outline-path
+                         (taskpaper-item-get-outline-path self) prefix))))
+      (taskpaper-unlogged-message "%s" olpathf))))
 
 ;;;; Goto interface
 
