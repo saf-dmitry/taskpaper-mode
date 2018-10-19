@@ -364,7 +364,7 @@ The time string is evaluated from left to right.
 
 ### Recurring Actions
 
-When you need tasks that repeat themselves on a regular basis, you can set a recurring due date. Use relative dates in your tag values, and then do a date based search (see the [Searching](#searching) section). Here are a few examples of recurring tasks:
+When you need tasks that repeat themselves on a regular basis, you can set a recurring due date. Use relative dates in your tag values, and then do a date-based search (see the [Searching](#searching) section). Here are a few examples of recurring tasks:
 
     - Due everyday @due(today)
     - Due on each Tuesday @due(Tue)
