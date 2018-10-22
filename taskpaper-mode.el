@@ -1812,15 +1812,14 @@ end.")
 
 (defun taskpaper-remove-inline-markup (item)
   "Remove inline markup from ITEM."
-  (let (result)
-    (with-temp-buffer
-      (erase-buffer) (insert item)
-      (delay-mode-hooks (taskpaper-mode))
-      (font-lock-default-function 'taskpaper-mode)
-      (font-lock-default-fontify-region (point-min) (point-max) nil)
-      (setq result (taskpaper-remove-markup-chars (buffer-string))))
-    (set-text-properties 0 (length result) nil result)
-    result))
+  (with-temp-buffer
+    (erase-buffer) (insert item)
+    (delay-mode-hooks (taskpaper-mode))
+    (font-lock-default-function 'taskpaper-mode)
+    (font-lock-default-fontify-region (point-min) (point-max) nil)
+    (setq item (taskpaper-remove-markup-chars (buffer-string))))
+  (set-text-properties 0 (length item) nil item)
+  item)
 
 (defun taskpaper-item-type ()
   "Return type of item at point or nil."
