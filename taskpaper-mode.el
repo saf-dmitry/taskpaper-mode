@@ -532,10 +532,8 @@ PROP-VAL."
   (cl-some (lambda (val) (text-property-any begin end prop val))
            prop-val))
 
-(defun taskpaper-remove-markup (s)
-  "Remove inline markup from string S.
-This function removes characters with invisibility property
-`taskpaper-markup'."
+(defun taskpaper-remove-markup-chars (s)
+  "Remove markup characters from propertized string S."
   (let (b)
     (while (setq b (text-property-any
                     0 (length s)
@@ -1811,6 +1809,18 @@ end.")
   "Remove trailing tags from ITEM."
   (replace-regexp-in-string
    (format "%s$" taskpaper-consecutive-tags-regexp) "" item))
+
+(defun taskpaper-remove-inline-markup (item)
+  "Remove inline markup from ITEM."
+  (let (result)
+    (with-temp-buffer
+      (erase-buffer) (insert item)
+      (delay-mode-hooks (taskpaper-mode))
+      (font-lock-default-function 'taskpaper-mode)
+      (font-lock-default-fontify-region (point-min) (point-max) nil)
+      (setq result (taskpaper-remove-markup-chars (buffer-string))))
+    (set-text-properties 0 (length result) nil result)
+    result))
 
 (defun taskpaper-item-type ()
   "Return type of item at point or nil."
@@ -3703,7 +3713,7 @@ Remove indentation, type formatting and inline markup and return
 sorting key as string."
   (let ((item (buffer-substring
                (line-beginning-position) (line-end-position))))
-    (setq item (taskpaper-remove-markup item)
+    (setq item (taskpaper-remove-markup-chars item)
           item (taskpaper-remove-indentation item)
           item (taskpaper-remove-type-formatting item))
     item))
@@ -4926,7 +4936,8 @@ string. PROMPT can overwrite the default prompt."
                 ;; Format description
                 (setq desc (taskpaper-item-get-attribute "text")
                       desc (taskpaper-remove-trailing-tags
-                            (taskpaper-remove-type-formatting desc)))
+                            (taskpaper-remove-type-formatting
+                             (taskpaper-remove-inline-markup desc))))
                 ;; Add entry to the list
                 (when (and desc (not (equal desc "")))
                   (push (cons desc query) queries))))))))
