@@ -882,9 +882,7 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-font-lock-tags (limit)
   "Fontify tags from point to LIMIT."
   (when (re-search-forward taskpaper-tag-regexp limit t)
-    (if (taskpaper-range-property-any
-         (match-beginning 1) (match-end 1)
-         'taskpaper-syntax '(markup plain-link))
+    (if (not (taskpaper-in-tag-p))
         ;; Move forward and recursively search again
         (progn
           (goto-char (min (1+ (match-beginning 1)) limit))
@@ -899,7 +897,7 @@ If TAG is a number, get the corresponding match group."
              'face (taskpaper-get-tag-face 2)
              'mouse-face 'highlight
              'keymap taskpaper-mouse-map-tag
-             'help-echo "Filter on Tag"))
+             'help-echo "Query for Tag"))
       (taskpaper-rear-nonsticky-at (match-end 1)))
     t))
 
@@ -1181,7 +1179,8 @@ is essential."
          deactivate-mark buffer-file-name buffer-file-truename)
     (remove-text-properties
      begin end
-     '(display t mouse-face t keymap t invisible t taskpaper-syntax t))))
+     '(display t mouse-face t keymap t
+       help-echo t invisible t taskpaper-syntax t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
