@@ -511,18 +511,15 @@ nil. For performance reasons remote files are not checked."
   (string-match-p (image-file-name-regexp) file))
 
 (defconst taskpaper-markup-properties
-  '(face taskpaper-markup taskpaper-syntax markup
-         invisible taskpaper-markup)
+  '(face taskpaper-markup taskpaper-syntax markup invisible taskpaper-markup)
   "Properties to apply to inline markup.")
-
-(defconst taskpaper-nonsticky-properties
-  '(face mouse-face keymap help-echo display invisible intangible))
 
 (defsubst taskpaper-rear-nonsticky-at (pos)
   "Add nonsticky text properties at POS."
   (add-text-properties
    (1- pos) pos
-   (list 'rear-nonsticky taskpaper-nonsticky-properties)))
+   (list 'rear-nonsticky
+         '(face mouse-face keymap help-echo display invisible intangible))))
 
 (defun taskpaper-range-property-any (begin end prop prop-val)
   "Check property PROP from BEGIN to END.
@@ -934,13 +931,11 @@ LINK should be an unescaped raw link. Recognized types are
   (when (re-search-forward taskpaper-markdown-link-regexp limit t)
     (taskpaper-remove-flyspell-overlays-in
      (match-beginning 1) (match-end 1))
-    (put-text-property
-     (match-beginning 1) (match-end 1)
-     'taskpaper-syntax 'markdown-link)
     (let ((link (match-string-no-properties 6)))
       (add-text-properties
        (match-beginning 3) (match-end 3)
-       (list 'face (taskpaper-get-link-face link)
+       (list 'taskpaper-syntax 'markdown-link
+             'face (taskpaper-get-link-face link)
              'mouse-face 'highlight
              'keymap taskpaper-mouse-map-link
              'help-echo (concat "Link: " link))))
