@@ -5539,8 +5539,7 @@ Return number of items."
     (erase-buffer) (goto-char (point-min))
     (when items
       (setq items (taskpaper-agenda-sort-init items))
-      (save-excursion
-        (dolist (item items) (insert (format "%s\n" item)))))
+      (save-excursion (dolist (item items) (insert item "\n"))))
     (length items)))
 
 (defun taskpaper-agenda-redo ()
