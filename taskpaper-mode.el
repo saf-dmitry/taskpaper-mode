@@ -2116,7 +2116,7 @@ instead of item at point. Return new string."
 Treat the value string as a comma-separated list of values and
 return the values as a list of strings."
   (when (stringp value)
-    (save-match-data (split-string value ", *" nil))))
+    (save-match-data (split-string value ",[[:space:]]*" nil))))
 
 ;;;; Date and time
 
@@ -2588,9 +2588,7 @@ current date."
               date (list (nth 4 time) (nth 3 time) (nth 5 time)))))
      (t (setq date nil)))
     (calendar)
-    (if (and date (not arg))
-        (calendar-goto-date date)
-      (calendar-goto-today))))
+    (if (and date (not arg)) (calendar-goto-date date) (calendar-goto-today))))
 
 (defun taskpaper-show-in-calendar ()
   "Show date at point in calendar.
@@ -5131,11 +5129,11 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (taskpaper-set-local 'indent-line-function 'indent-to-left-margin)
   ;; Syntax table settings
   (set-syntax-table taskpaper-mode-syntax-table)
-  ;; Next error for sparse trees
+  ;; Next error function for sparse trees
   (setq-local next-error-function 'taskpaper-occur-next-match)
   ;; Imenu settings
   (setq imenu-generic-expression (list (list nil taskpaper-project-regexp 1)))
-  ;; Isearch settings
+  ;; I-search settings
   (setq-local outline-isearch-open-invisible-function
               (lambda (&rest _) (taskpaper-outline-show-context)))
   ;; Miscellaneous settings
@@ -5377,7 +5375,7 @@ before the second one."
   :type 'symbol)
 
 (defcustom taskpaper-agenda-start-with-follow-mode nil
-  "The initial value of follow mode in a newly created agenda window."
+  "The initial value of Follow mode in a newly created agenda window."
   :group 'taskpaper
   :type 'boolean)
 
@@ -5597,13 +5595,13 @@ Return number of items."
     (recenter) (select-window win)))
 
 (defun taskpaper-agenda-do-context-action ()
-  "Show follow mode window."
+  "Show Follow mode window."
   (let ((m (taskpaper-get-at-bol 'taskpaper-marker)))
     (and (markerp m) (marker-buffer m)
          taskpaper-agenda-follow-mode (taskpaper-agenda-show))))
 
 (defun taskpaper-agenda-follow-mode ()
-  "Toggle follow mode in an agenda buffer."
+  "Toggle Follow mode in an agenda buffer."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (unless taskpaper-agenda-follow-mode
@@ -5622,7 +5620,7 @@ Return number of items."
 (defun taskpaper-agenda-next-line ()
   "Move cursor to the next line.
 Display the TaskPaper file which contains the item at point if
-follow mode is active."
+Follow mode is active."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'next-line)
@@ -5631,7 +5629,7 @@ follow mode is active."
 (defun taskpaper-agenda-previous-line ()
   "Move cursor to the previous line.
 Display the TaskPaper file which contains the item at point if
-follow mode is active."
+Follow mode is active."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'previous-line)
