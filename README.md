@@ -511,7 +511,7 @@ In case of numeric compare `[n]` both sides of the compare are converted to numb
 
 In case of date compare `[d]` both sides of the compare are converted to time values before comparing. The date & time format is described in the [Date and Time Formats](#date-and-time-formats) reference section.
 
-With the list modifier `[l]` present both sides are converted to lists (comma separated) before comparing. Other modifiers can precede the list modifier making the search more specific.
+With the list modifier `[l]` present both sides are converted to lists (comma-separated) before comparing. Other modifiers can precede the list modifier making the search more specific.
 
 In case of string compare `contains` will return matches if the right side is a substring of the left side. In case of list compare `contains` will return matches if the right side is a subset of the left side. For instance the search predicate `@value contains[nl] 10,20` will match an item, which has the tag `@value(2,10,18,20,22)`.
 
