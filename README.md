@@ -481,7 +481,7 @@ Search predicates describe what you are looking for. The full predicate pattern 
 
     @<attribute> <relation> [<modifier>] <search term>
 
-Predicates start with the attribute, whose value or existence you want to test. Attribute represents tag with the same name or one of the implicit attributes and search term will be compared with the tag value. Pressing `TAB` offers completion on attribute names at point in both static and incremental query modes. Attribute names are always treated as case sensitive.
+Predicates start with the attribute, whose value or existence you want to test. Attribute represents tag with the same name or one of the implicit attributes and search term will be compared with the tag value. Pressing `TAB` offers completion on attribute names at point in both static and incremental query modes. Attribute names are always treated as case-sensitive.
 
 Relations determine the test that the predicate performs:
 
@@ -499,8 +499,8 @@ Relations determine the test that the predicate performs:
 
 The default type of comparison is case-insensitive string comparison. You can change this behavior by providing a modifier after the relation. The available modifiers are:
 
-- `i`: Case insensitive string compare (the default)
-- `s`: Case sensitive string compare
+- `i`: Case-insensitive string compare (the default)
+- `s`: Case-sensitive string compare
 - `n`: Numeric compare
 - `d`: Date compare
 - `l`: List compare (can be combined with other modifiers)
