@@ -2,37 +2,32 @@
 
 # Development Version
 
-
-## Added
+Added:
 
 - Added navigation between sparse tree matches
 - Added selection interface for embedded and custom queries
 - Extended sorting API
 
-
-## Removed
+Removed:
 
 - Removed obsolete local fork of adaptive-wrap
 
 
 # v0.8
 
-
-## Added
+Added:
 
 - Added list modifier to query syntax for predicates
 - Extended outline mapping API
 
-
-## Changed
+Changed:
 
 - Changed default key bindings for query selection
 
 
 # v0.7
 
-
-## Changed
+Changed:
 
 - Improved incremental search responsiveness on long documents
 - Unified naming of outline mapping functions
@@ -40,14 +35,12 @@
 
 # v0.6
 
-
-## Added
+Added:
 
 - Added optional date & time expansion in tag selection dialog
 - Added command for displaying item's outline path
 
-
-## Changed
+Changed:
 
 - Improved date & time prompt tracks date input live in calendar
 - New date & time parser understands quarters and minutes and accepts multiple duration offsets
@@ -55,15 +48,13 @@
 
 # v0.5
 
-
-## Added
+Added:
 
 - Added support for inline formatting
 - Added experimental support for Markdown links
 - Added support for bookmarks
 
-
-## Changed
+Changed:
 
 - Improved syntax highlighting
 - Improved plain link handling
@@ -72,14 +63,12 @@
 
 # v0.4
 
-
-## Added
+Added:
 
 - Added TaskPaper menu
 - Added API for quick entry for items
 
-
-## Changed
+Changed:
 
 - Improved search query parsing and highlighting
 - Improved time parsing supports ISO week date representation
@@ -87,8 +76,7 @@
 
 # v0.3
 
-
-## Added
+Added:
 
 - Added search query support using predicates and Boolean queries
 - Added quick entry interface for search queries
@@ -97,8 +85,7 @@
 - Added support for inline images
 - Added startup visibility option
 
-
-## Changed
+Changed:
 
 - Improved syntax highlighting
 - Improved completion for tag names
@@ -107,8 +94,7 @@
 
 # v0.2
 
-
-## Added
+Added:
 
 - Added completion for tag names
 - Added quick entry interface for tags
@@ -120,16 +106,14 @@
 - Added time parsing and date & time prompt
 - Added support for links
 
-
-## Changed
+Changed:
 
 - Improved syntax highlighting
 
 
 # v0.1
 
-
-## Added
+Added:
 
 - Added basic syntax highlighting
 - Added folding and structure editing commands
