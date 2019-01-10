@@ -68,7 +68,7 @@ This document explains the installation, usage, and basic customization of TaskP
     - [Syntax Highlighting](#syntax-highlighting)
     - [Cleaner Outline View](#cleaner-outline-view)
     - [Indentation Guides](#indentation-guides)
-- [Acknowledgments](#acknowledgements)
+- [Acknowledgments](#acknowledgments)
 - [Bugs](#bugs)
 - [License](#license)
 
