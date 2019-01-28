@@ -49,7 +49,7 @@
 
 ;;;; Variables
 
-(defconst taskpaper-mode-version "0.8"
+(defconst taskpaper-mode-version "1.0"
   "TaskPaper mode version number.")
 
 (defvar taskpaper-mode-map (make-keymap)

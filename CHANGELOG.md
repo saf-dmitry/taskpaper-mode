@@ -2,6 +2,9 @@
 
 # Development Version
 
+
+# v1.0
+
 Added:
 
 - Added navigation between sparse tree matches
