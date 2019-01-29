@@ -3170,7 +3170,8 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (= (length a) (length b)) (cl-every 'taskpaper-num= a b)))
+    (and (= (length a) (length b))
+         (cl-every 'taskpaper-num= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-num< (a b)
@@ -3181,7 +3182,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (< (length a) (length b)) (cl-every 'taskpaper-num< a b)))
+    (cl-every 'taskpaper-num< a b))
    (t nil)))
 
 (defun taskpaper-cslist-num<= (a b)
@@ -3192,7 +3193,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (<= (length a) (length b)) (cl-every 'taskpaper-num<= a b)))
+    (cl-every 'taskpaper-num<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-num> (a b)
@@ -3203,7 +3204,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (> (length a) (length b)) (cl-every 'taskpaper-num> a b)))
+    (cl-every 'taskpaper-num> a b))
    (t nil)))
 
 (defun taskpaper-cslist-num>= (a b)
@@ -3214,7 +3215,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (>= (length a) (length b)) (cl-every 'taskpaper-num>= a b)))
+    (cl-every 'taskpaper-num>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-num<> (a b)
@@ -3291,7 +3292,8 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (= (length a) (length b)) (cl-every 'taskpaper-string= a b)))
+    (and (= (length a) (length b))
+         (cl-every 'taskpaper-string= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-string< (a b)
@@ -3301,7 +3303,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (< (length a) (length b)) (cl-every 'taskpaper-string< a b)))
+    (cl-every 'taskpaper-string< a b))
    (t nil)))
 
 (defun taskpaper-cslist-string<= (a b)
@@ -3311,7 +3313,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (<= (length a) (length b)) (cl-every 'taskpaper-string<= a b)))
+    (cl-every 'taskpaper-string<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-string> (a b)
@@ -3321,7 +3323,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (> (length a) (length b)) (cl-every 'taskpaper-string> a b)))
+    (cl-every 'taskpaper-string> a b))
    (t nil)))
 
 (defun taskpaper-cslist-string>= (a b)
@@ -3331,7 +3333,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (>= (length a) (length b)) (cl-every 'taskpaper-string>= a b)))
+    (cl-every 'taskpaper-string>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-string<> (a b)
@@ -3395,7 +3397,8 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (= (length a) (length b)) (cl-every 'taskpaper-istring= a b)))
+    (and (= (length a) (length b))
+         (cl-every 'taskpaper-istring= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-istring< (a b)
@@ -3405,7 +3408,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (< (length a) (length b)) (cl-every 'taskpaper-istring< a b)))
+    (cl-every 'taskpaper-istring< a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring<= (a b)
@@ -3415,7 +3418,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (<= (length a) (length b)) (cl-every 'taskpaper-istring<= a b)))
+    (cl-every 'taskpaper-istring<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring> (a b)
@@ -3425,7 +3428,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (> (length a) (length b)) (cl-every 'taskpaper-istring> a b)))
+    (cl-every 'taskpaper-istring> a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring>= (a b)
@@ -3435,7 +3438,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (>= (length a) (length b)) (cl-every 'taskpaper-istring>= a b)))
+    (cl-every 'taskpaper-istring>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring<> (a b)
@@ -3504,7 +3507,8 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (= (length a) (length b)) (cl-every 'taskpaper-time= a b)))
+    (and (= (length a) (length b))
+         (cl-every 'taskpaper-time= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-time< (a b)
@@ -3515,7 +3519,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (< (length a) (length b)) (cl-every 'taskpaper-time< a b)))
+    (cl-every 'taskpaper-time< a b))
    (t nil)))
 
 (defun taskpaper-cslist-time<= (a b)
@@ -3526,7 +3530,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (<= (length a) (length b)) (cl-every 'taskpaper-time<= a b)))
+    (cl-every 'taskpaper-time<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-time> (a b)
@@ -3537,7 +3541,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (or (> (length a) (length b)) (cl-every 'taskpaper-time> a b)))
+    (cl-every 'taskpaper-time> a b))
    (t nil)))
 
 (defun taskpaper-cslist-time>= (a b)
@@ -3548,7 +3552,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (and (>= (length a) (length b)) (cl-every 'taskpaper-time>= a b)))
+    (cl-every 'taskpaper-time>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-time<> (a b)
