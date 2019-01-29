@@ -2,6 +2,10 @@
 
 # Development Version
 
+Changed:
+
+- Fixed list compare in searches
+
 
 # v1.0
 
