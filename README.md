@@ -250,7 +250,7 @@ Following tags have special meaning in TaskPaper mode:
 
 Actionable items can be marked as completed by applying the `@done` tag. The command `C-c C-d` (`taskpaper-item-toggle-done`) toggles done state for item under cursor. Alternatively, you can toggle done state of the task by clicking on the task mark with `mouse-1` if the user option `taskpaper-pretty-marks` is non-nil. If the user option `taskpaper-complete-save-date` is non-nil, current date will be added to the `@done` tag. See the documentation string of `taskpaper-complete-save-date` for possible options. Additionally, you may specify a list of tags, which will be removed once the item is completed, using the user option `taskpaper-tags-to-remove-when-done`. When the item is marked as completed, the hook `taskpaper-after-completion-hook` is run.
 
-By default, items tagged with `@done` are visually crossed out. You can change the way completed items are displayed by customizing `taskpaper-done-item-face` or disable the additional fontification of these items completely by configuring the user option `taskpaper-fontify-done-items`.
+By default, items tagged with `@done` are visually crossed out. You can change the way completed items are displayed by customizing the `taskpaper-done-item` face or disable the additional fontification of these items completely by configuring the user option `taskpaper-fontify-done-items`.
 
 
 ## Calendar Integration
