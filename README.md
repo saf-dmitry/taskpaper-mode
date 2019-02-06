@@ -375,7 +375,7 @@ When you need tasks that repeat themselves on a regular basis, you can set a rec
 
 It doesn't cover all cases, but may work for you. For more flexible recurrence setup see the corresponding scripting example in the [Scripting Guide][tp-mode-scripting-guide].
 
-Note: Recurring appointments like any other event that takes place at a specific time would do best in your calendar because you cannot act on them until that moment.
+Please consider that recurring appointments like any other event that takes place at a specific time would do best in your calendar because you cannot act on them until that moment.
 
 
 ## Hyperlinks and Inline Images
@@ -787,18 +787,18 @@ For customizing the way guides are displayed, see the package options.
 
 # Acknowledgments
 
-Thanks to Jesse Grosjean for writing [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs, and for publishing TaskPaper's [open source model layer][birch-outline], which gave me some valuable implementation insights.
+Thanks to Jesse Grosjean for writing the [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs, and for publishing TaskPaper's [open source model layer][birch-outline], which gave me some valuable implementation insights.
 
 I would also thank the following people, from whose work TaskPaper mode has benefited greatly:
 
-- Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining [Org mode][emacs-orgmode] for Emacs, from which ideas and implementation I borrowed liberally;
+- Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining the [Org mode][emacs-orgmode] package for Emacs, from which ideas and implementation I borrowed liberally;
 
-- Stephen Berman and Stefan Monnier for creating and maintaining [adaptive-wrap][emacs-adaptive-wrap].
+- Stephen Berman and Stefan Monnier for creating and maintaining the [adaptive-wrap][emacs-adaptive-wrap] package.
 
 
 # Bugs
 
-TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs 24.3 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
+TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs v24.3 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
 
 
 # License
