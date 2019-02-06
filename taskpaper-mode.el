@@ -3984,7 +3984,7 @@ subtree. RFLOC can be a refile location in form (OLPATH POS)
 obtained in a different way."
   (interactive)
   (let* ((loc (or rfloc (taskpaper-goto-get-location nil arg)))
-         (path (nth 0 loc)) (pos (nth 1 loc)) level)
+         (path (car loc)) (pos (cdr loc)) level)
     ;; Check the target position
     (if (and (not arg) pos
              (>= pos (point))
