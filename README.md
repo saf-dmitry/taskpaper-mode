@@ -527,7 +527,7 @@ Here are some examples for predicates:
 - `@priority >[n] 3`
 - `@amount <[n] 1.2e3`
 - `@text endswith ?`
-- `@text matches "v[.0-9]"`
+- `@text matches " v[0-9]"`
 - `@text contains[s] new logo`
 - `@value contains[nl] 10,20`
 - `@text contains "this is not what I want"`
