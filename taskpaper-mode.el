@@ -1198,6 +1198,39 @@ is essential."
   (save-some-buffers
    t (lambda () (derived-mode-p 'taskpaper-mode))))
 
+(defun taskpaper-open-file-with-cmd (file cmd)
+  "Open the FILE using CMD.
+
+If CMD is a string, the command will be executed by a shell.
+A %s formatter will be replaced by the file path.
+
+If CMD is the symbol 'emacs, the file will be visited by the
+current Emacs process.
+
+If CMD is a Lisp function, the function will be called with the
+file path as a single argument."
+  (when (and (not (eq cmd 'emacs))
+             (not (file-exists-p file))
+             (not taskpaper-open-non-existing-files))
+    (user-error "No such file: %s" file))
+  (cond
+   ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
+    (while (string-match "\"%s\"\\|'%s'" cmd)
+      (setq cmd (replace-match "%s" t t cmd)))
+    (while (string-match "%s" cmd)
+      (setq cmd (replace-match
+                 (save-match-data
+                   (shell-quote-argument (convert-standard-filename file)))
+                 t t cmd)))
+    (save-window-excursion (start-process-shell-command cmd nil cmd))
+    (message "Running %s" cmd))
+   ((or (stringp cmd) (eq cmd 'emacs))
+    (find-file-other-window file))
+   ((functionp cmd)
+    (let ((file (convert-standard-filename file)))
+      (save-match-data (funcall cmd file))))
+   (t (error "Cannot interpret command: %s" cmd))))
+
 (defconst taskpaper-file-apps-defaults-gnu
   '((remote . emacs)
     (system . mailcap)
@@ -1277,34 +1310,8 @@ With optional argument IN-EMACS, visit the file in Emacs."
       (let* ((mime-type (mailcap-extension-to-mime (or ext "")))
              (command (mailcap-mime-info mime-type)))
         (if (stringp command) (setq cmd command) (setq cmd 'emacs)))))
-    ;; Check if file exists
-    (if (and (not (eq cmd 'emacs))
-             (not (file-exists-p file))
-             (not taskpaper-open-non-existing-files))
-        (user-error "No such file: %s" file))
-    ;; Open file
-    (cond
-     ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
-      ;; Open using external command
-      (while (string-match "\"%s\"\\|'%s'" cmd)
-        (setq cmd (replace-match "%s" t t cmd)))
-      (while (string-match "%s" cmd)
-        (setq cmd (replace-match
-                   (save-match-data
-                     (shell-quote-argument (convert-standard-filename file)))
-                   t t cmd)))
-      (save-window-excursion (start-process-shell-command cmd nil cmd))
-      (message "Running %s" cmd))
-     ((or (stringp cmd) (eq cmd 'emacs))
-      ;; Open in Emacs
-      (find-file-other-window file))
-     ((functionp cmd)
-      ;; Evaluate Lisp function
-      (let ((file (convert-standard-filename file)))
-        (save-match-data (funcall cmd file))))
-     (t
-      ;; Open in Emacs
-      (find-file-other-window file)))))
+    ;; Open the file
+    (taskpaper-open-file-with-cmd file cmd)))
 
 ;;;; Links
 
