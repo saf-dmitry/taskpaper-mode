@@ -1287,9 +1287,8 @@ With optional argument IN-EMACS, visit the file in Emacs."
          (dirp (file-directory-p file))
          (amap (assq 'auto-mode apps))
          (dfile (downcase file))
-         (ext (and
-               (string-match ".*?\\.\\([a-zA-Z0-9]+\\(\\.gz\\)?\\)$" dfile)
-               (match-string 1 dfile)))
+         (ext (and (string-match "\\.\\([[:alnum:]]+\\(\\.gz\\)?\\)\\'" dfile)
+                   (match-string 1 dfile)))
          cmd)
     ;; Set open command
     (cond
