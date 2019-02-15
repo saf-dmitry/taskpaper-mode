@@ -604,7 +604,7 @@ Group 1 matches the whole tag expression.
 Group 2 matches the tag name without tag indicator.
 Group 3 matches the optional tag value without enclosing parentheses.")
 
-(defconst taskpaper-consecutive-tags-regexp
+(defconst taskpaper-consec-tags-regexp
   (format "\\(?:%s\\)+" taskpaper-tag-regexp)
   "Regular expression for consecutive tags.")
 
@@ -709,7 +709,7 @@ Group 3 matches the task name.")
 (defconst taskpaper-project-regexp
   (format
    "^[ \t]*\\(\\([^\t\n][^\n]*\\)\\(:\\)\\(%s\\)?\\)$"
-   taskpaper-consecutive-tags-regexp)
+   taskpaper-consec-tags-regexp)
   "Regular expression for project.
 Group 1 matches the whole project expression.
 Group 2 matches the project name.
@@ -899,8 +899,8 @@ If TAG is a number, get the corresponding match group."
 
 (defun taskpaper-get-link-type (link)
   "Return link type as symbol.
-LINK should be an unescaped raw link. Recognized types are
-'email', 'uri-browser', 'file', and 'unknown'."
+LINK should be an unescaped raw link. Symbol names for recognized
+types are 'email, 'uri-browser, 'file, and 'unknown."
   (let* ((fmt "\\`%s\\'")
          (email-re (format fmt taskpaper-email-regexp))
          (uri-re   (format fmt taskpaper-uri-browser-regexp))
@@ -1807,7 +1807,7 @@ end.")
 (defun taskpaper-remove-trailing-tags (item)
   "Remove trailing tags from ITEM."
   (replace-regexp-in-string
-   (format "%s$" taskpaper-consecutive-tags-regexp) "" item))
+   (format "%s$" taskpaper-consec-tags-regexp) "" item))
 
 (defun taskpaper-remove-inline-markup (item)
   "Remove inline markup from ITEM."
@@ -1826,7 +1826,7 @@ end.")
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-remove-indentation item))
     (setq item (taskpaper-remove-trailing-tags item))
-    (cond ((string-match-p "^[ \t]*$" item) nil)
+    (cond ((string-match-p "^\\s-*$" item) nil)
           ((string-match-p "^[-+*] " item) "task")
           ((string-match-p ":$" item) "project")
           (t "note"))))
@@ -1839,43 +1839,53 @@ end.")
 
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
-  (setq item (replace-regexp-in-string "[ \t]+$" "" item))
-  (save-match-data
-    (cond ((string-match "^\\([ \t]*\\)[-+*] +\\([^\n]*\\)$" item)
-           (concat (match-string-no-properties 1 item)
-                   (match-string-no-properties 2 item)))
-          ((string-match (format
-                          "^\\([ \t]*\\)\\([^\n]*\\):\\(%s\\)?$"
-                          taskpaper-consecutive-tags-regexp) item)
-           (concat (match-string-no-properties 1 item)
-                   (match-string-no-properties 2 item)
-                   (match-string-no-properties 3 item)))
-          (t item))))
+  (let ((ind-re "^\\([ \t]+\\)")
+        (tag-re (format "\\(%s\\)$" taskpaper-consec-tags-regexp))
+        indent tags)
+    (setq item (replace-regexp-in-string "[ \t]+$" "" item))
+    (save-match-data
+      ;; Strip indent and trailing tags and save them
+      (when (string-match ind-re item)
+        (setq indent (match-string-no-properties 1 item)
+              item (replace-match "" t nil item)))
+      (when (string-match tag-re item)
+        (setq tags (match-string-no-properties 1 item)
+              item (replace-match "" t nil item)))
+      ;; Remove type formatting
+      (cond ((string-match "^[-+*] +" item)
+             (setq item (replace-match "" t nil item)))
+            ((string-match ":$" item)
+             (setq item (replace-match "" t nil item)))
+            (t item)))
+    ;; Add indent and trailing tags
+    (concat indent item tags)))
 
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
-Valid types are 'project', 'task', or 'note'."
+Valid symbol names for type are 'project', 'task', or 'note'."
   (let* ((begin (line-beginning-position))
          (end (line-end-position))
-         (item (buffer-substring-no-properties begin end)))
+         (item (buffer-substring-no-properties begin end))
+         (ind-re "^\\([ \t]+\\)")
+         (tag-re (format "\\(%s\\)$" taskpaper-consec-tags-regexp))
+         indent tags)
+    ;; Remove existing type formatting
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
-      (cond
-       ((eq type 'task)
-        (string-match "^\\([ \t]*\\)\\([^\n]*\\)$" item)
-        (setq item (concat
-                    (match-string-no-properties 1 item) "- "
-                    (match-string-no-properties 2 item))))
-       ((eq type 'project)
-        (string-match (format
-                       "^\\([^\n]*?\\)\\(%s\\)?[ \t]*$"
-                       taskpaper-consecutive-tags-regexp) item)
-        (setq item (concat
-                    (match-string-no-properties 1 item) ":"
-                    (match-string-no-properties 2 item))))
-       ((eq type 'note) item)
-       (t (error "Invalid item type: %s" type))))
-    (delete-region begin end) (insert item)))
+      ;; Strip indent and trailing tags and save them
+      (when (string-match ind-re item)
+        (setq indent (match-string-no-properties 1 item)
+              item (replace-match "" t nil item)))
+      (when (string-match tag-re item)
+        (setq tags (match-string-no-properties 1 item)
+              item (replace-match "" t nil item))))
+    ;; Add required type formatting
+    (cond ((eq type 'task) (setq item (concat "- " item)))
+          ((eq type 'project) (setq item (concat item ":")))
+          ((eq type 'note) item)
+          (t (error "Invalid item type: %s" type)))
+    ;; Add indent and trailing tags and replace item
+    (delete-region begin end) (insert indent item tags)))
 
 (defun taskpaper-item-format-as-project ()
   "Format item at point as project."
