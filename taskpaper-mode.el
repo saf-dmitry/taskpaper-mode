@@ -1,6 +1,6 @@
 ;;; taskpaper-mode.el --- Major mode for working with TaskPaper files
 
-;; Copyright 2016-2018 Dmitry Safronov
+;; Copyright 2016-2019 Dmitry Safronov
 
 ;; Author: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
@@ -2045,7 +2045,7 @@ hierarchy."
   (assoc name (taskpaper-item-get-attributes inherit)))
 
 (defun taskpaper-item-remove-attribute (name)
-  "Remove all non-special attributes NAME from item at point.
+  "Remove non-special attribute NAME from item at point.
 With optional argument VALUE, match only attributes with that
 value."
   (unless (taskpaper-tag-name-p name)
@@ -2100,7 +2100,7 @@ instead of item at point."
     (taskpaper-item-has-attribute name)))
 
 (defun taskpaper-string-remove-attribute (str name)
-  "Remove all non-special attributes NAME from item string STR.
+  "Remove non-special attribute NAME from item string STR.
 Like `taskpaper-item-remove-attribute' but uses argument string
 instead of item at point. Return new string."
   (with-temp-buffer
@@ -3932,11 +3932,11 @@ current kill."
 (defun taskpaper-paste-subtree (&optional level text remove)
   "Paste the current kill as a subtree, with modification of level.
 If point is on a (possibly invisible) item, paste as child of the
-current item. You can force a different level by using a numeric
-prefix argument. If optional TEXT is given, use this text instead
-of the current kill. Place point at the beginning of pasted
-subtree. When REMOVE is non-nil, remove the subtree from the kill
-ring."
+current item. You can force a different level by specifying LEVEL
+or using a numeric prefix argument. If optional TEXT is given,
+use this text instead of the current kill. Place point at the
+beginning of pasted subtree. When REMOVE is non-nil, remove the
+subtree from the kill ring."
   (interactive "P")
   (setq text (or text (and kill-ring (current-kill 0))))
   (unless text (user-error "Nothing to paste"))
@@ -3961,7 +3961,7 @@ ring."
     (unless (bolp) (end-of-line 1) (newline))
     (setq begin (point))
     (insert-before-markers text)
-    ;; Add newline, if nessessary
+    ;; Add newline to text, if nessessary
     (unless (string-match-p "\n\\'" text) (newline))
     (setq end (point))
     ;; Adjust outline level
@@ -3984,9 +3984,9 @@ ring."
 (defun taskpaper-refile-subtree (&optional arg rfloc)
   "Move the subtree at point to another (possibly invisible) location.
 The subtree is filed below the target location as a subitem.
-Depending on `taskpaper-reverse-note-order', it will be either
-the first or last subitem. If ARG is non-nil, just copy the
-subtree. RFLOC can be a refile location in form (OLPATH POS)
+Depending on the value of `taskpaper-reverse-note-order', it will
+be either the first or last subitem. If ARG is non-nil, just copy
+the subtree. RFLOC can be a refile location in form (OLPATH POS)
 obtained in a different way."
   (interactive)
   (let* ((loc (or rfloc (taskpaper-goto-get-location nil arg)))
@@ -3994,8 +3994,8 @@ obtained in a different way."
     ;; Check the target position
     (if (and (not arg) pos
              (>= pos (point))
-             (< pos (save-excursion
-                      (taskpaper-outline-end-of-subtree) (point))))
+             (<  pos (save-excursion
+                       (taskpaper-outline-end-of-subtree) (point))))
         (error "Cannot refile to item inside the current subtree"))
     ;; Copy the subtree
     (taskpaper-copy-subtree)
@@ -4064,7 +4064,7 @@ no parent projects."
 The archive can be a certain top-level heading in the current
 file, or in a different file. For details see the variable
 `taskpaper-archive-location'. The subtree is filed below the
-archive heading as a subitem. Depending on
+archive heading as a subitem. Depending on the value of
 `taskpaper-reverse-note-order', it will be either the first or
 last subitem."
   (interactive)
@@ -4153,10 +4153,10 @@ buffer, otherwise fall back to the current buffer.
 
 Prompt user for entry TEXT and add it as child of the top-level
 LOCATION item. The entry is filed below the target location as a
-subitem. Depending on `taskpaper-reverse-note-order', it will be
-either the first or last subitem. When the location is omitted,
-the item is simply filed at the end of the file, as top-level
-item."
+subitem. Depending on the value of
+`taskpaper-reverse-note-order', it will be either the first or
+last subitem. When the location is omitted, the item is simply
+filed at the end of the file, as top-level item."
   (interactive)
   (let ((text (or text (read-string "Entry: ")))
         (this-buffer (current-buffer)) buffer level)
