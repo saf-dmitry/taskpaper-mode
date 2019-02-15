@@ -1892,14 +1892,14 @@ Valid symbol names for type are 'project', 'task', or 'note'."
       (when (string-match tag-re item)
         (setq tags (match-string-no-properties 1 item)
               item (replace-match "" t nil item))))
+    ;; Sanitize
+    (setq item (taskpaper-trim-string item)
+          tags (taskpaper-trim-string tags))
     ;; Add type formatting as required
     (cond ((eq type 'task) (setq item (concat "- " item)))
           ((eq type 'project) (setq item (concat item ":")))
           ((eq type 'note) item)
           (t (error "Invalid item type: %s" type)))
-    ;; Sanitize
-    (setq item (taskpaper-trim-string item)
-          tags (taskpaper-trim-string tags))
     ;; Add separator space, if nessessary
     (and tags (not (equal item "")) (setq tags (concat " " tags)))
     ;; Add indent and trailing tags and replace item
