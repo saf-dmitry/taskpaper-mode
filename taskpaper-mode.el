@@ -459,6 +459,14 @@ is used by default. Only the current line is checked."
   "Non-destructively sort elements of LIST as strings."
   (let ((res (copy-sequence list))) (sort res 'string-lessp)))
 
+(defun taskpaper-trim-string (str)
+  "Trim leading and trailing whitespaces from STR."
+  (when (stringp str)
+    (save-match-data
+      (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
+        (setq str (replace-match "" t t str)))))
+  str)
+
 (defun taskpaper-unlogged-message (&rest args)
   "Display a message without logging."
   (let ((message-log-max nil)) (apply 'message args)))
@@ -1852,11 +1860,16 @@ end.")
         (setq tags (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
       ;; Remove type formatting
-      (cond ((string-match "^[-+*] +" item)
+      (cond ((string-match "^[-+*] " item)
              (setq item (replace-match "" t nil item)))
             ((string-match ":$" item)
              (setq item (replace-match "" t nil item)))
             (t item)))
+    ;; Sanitize
+    (setq item (taskpaper-trim-string item)
+          tags (taskpaper-trim-string tags))
+    ;; Add separator space, if nessessary
+    (and tags (not (equal item "")) (setq tags (concat " " tags)))
     ;; Add indent and trailing tags
     (concat indent item tags)))
 
@@ -1879,13 +1892,18 @@ Valid symbol names for type are 'project', 'task', or 'note'."
       (when (string-match tag-re item)
         (setq tags (match-string-no-properties 1 item)
               item (replace-match "" t nil item))))
-    ;; Add required type formatting
+    ;; Add type formatting as required
     (cond ((eq type 'task) (setq item (concat "- " item)))
           ((eq type 'project) (setq item (concat item ":")))
           ((eq type 'note) item)
           (t (error "Invalid item type: %s" type)))
+    ;; Sanitize
+    (setq item (taskpaper-trim-string item)
+          tags (taskpaper-trim-string tags))
+    ;; Add separator space, if nessessary
+    (and tags (not (equal item "")) (setq tags (concat " " tags)))
     ;; Add indent and trailing tags and replace item
-    (delete-region begin end) (insert indent item tags)))
+    (delete-region begin end) (insert (concat indent item tags))))
 
 (defun taskpaper-item-format-as-project ()
   "Format item at point as project."
