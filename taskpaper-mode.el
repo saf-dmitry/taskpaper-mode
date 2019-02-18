@@ -1810,12 +1810,17 @@ end.")
 
 (defun taskpaper-remove-indentation (item)
   "Remove indentation from ITEM."
-  (replace-regexp-in-string "^[ \t]+" "" item))
+  (save-match-data
+    (when (string-match "^[ \t]+" item)
+      (setq item (replace-match "" t nil item)))
+    item))
 
 (defun taskpaper-remove-trailing-tags (item)
   "Remove trailing tags from ITEM."
-  (replace-regexp-in-string
-   (format "%s$" taskpaper-consec-tags-regexp) "" item))
+  (save-match-data
+    (when (string-match (format "%s$" taskpaper-consec-tags-regexp) item)
+      (setq item (replace-match "" t nil item))))
+  item)
 
 (defun taskpaper-remove-inline-markup (item)
   "Remove inline markup from ITEM."
@@ -1848,12 +1853,10 @@ end.")
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
   (let ((ind-re "^\\([ \t]+\\)")
-        (tag-re (format "\\(%s\\)$" taskpaper-consec-tags-regexp))
+        (tag-re (format "\\(%s\\)[ \t]*$" taskpaper-consec-tags-regexp))
         (indent "") (tags ""))
-    ;; Remove trailing whitespaces
-    (setq item (replace-regexp-in-string "[ \t]+$" "" item))
     (save-match-data
-      ;; Strip indent and trailing tags and save them
+      ;; Strip indent and "trailing" tags and save them
       (when (string-match ind-re item)
         (setq indent (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
@@ -1882,12 +1885,12 @@ Valid symbol names for type are 'project, 'task, or 'note."
          (end (line-end-position))
          (item (buffer-substring-no-properties begin end))
          (ind-re "^\\([ \t]+\\)")
-         (tag-re (format "\\(%s\\)$" taskpaper-consec-tags-regexp))
+         (tag-re (format "\\(%s\\)[ \t]*$" taskpaper-consec-tags-regexp))
          (indent "") (tags ""))
     ;; Remove existing type formatting
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
-      ;; Strip indent and trailing tags and save them
+      ;; Strip indent and "trailing" tags and save them
       (when (string-match ind-re item)
         (setq indent (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
