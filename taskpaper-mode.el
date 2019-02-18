@@ -716,7 +716,7 @@ Group 3 matches the task name.")
 
 (defconst taskpaper-project-regexp
   (format
-   "^[ \t]*\\(\\([^\t\n][^\n]*\\)\\(:\\)\\(%s\\)?\\)$"
+   "^[ \t]*\\(\\([^\n]*\\)\\(:\\)\\(%s\\)?\\)$"
    taskpaper-consec-tags-regexp)
   "Regular expression for project.
 Group 1 matches the whole project expression.
