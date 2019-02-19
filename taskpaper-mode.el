@@ -5395,13 +5395,14 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
       :active (get-buffer "*Calendar*")]
      ["Insert Time Stamp..." taskpaper-read-date-insert-timestamp])
     ("Links & Images"
+     ["Next Link" taskpaper-next-link]
+     ["Previous Link" taskpaper-previous-link]
+     "--"
      ["Insert File Link..." taskpaper-insert-file-link-at-point]
+     "--"
      ["Show Inline Images" taskpaper-toggle-inline-images
       :style toggle
-      :selected taskpaper-inline-image-overlays]
-     "--"
-     ["Next Link" taskpaper-next-link]
-     ["Previous Link" taskpaper-previous-link])
+      :selected taskpaper-inline-image-overlays])
     ("Search"
      ["Start Incremental Search..." taskpaper-iquery
       :keys "C-c C-i"]
