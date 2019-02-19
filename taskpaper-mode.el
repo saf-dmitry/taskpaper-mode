@@ -849,14 +849,14 @@ Group 4 matches the closing delimiters.")
   "Face for malformed query string."
   :group 'taskpaper-faces)
 
-(defface taskpaper-fast-select-key
-  '((t :weight bold :inherit default))
-  "Face for key in fast selection dialogs."
-  :group 'taskpaper-faces)
-
 (defface taskpaper-query-secondary-text
   '((t :inherit shadow))
   "Face for secondary text in query string."
+  :group 'taskpaper-faces)
+
+(defface taskpaper-fast-select-key
+  '((t :weight bold :inherit default))
+  "Face for selection keys in fast selection dialogs."
   :group 'taskpaper-faces)
 
 ;;;; Font Lock
@@ -2006,6 +2006,8 @@ VALUE is the attribute value, as strings."
   attrs)
 
 ;;;; Attribute caching
+
+;; NOTE: Attribute cache should be build and clear atomically as a whole!
 
 (defvar taskpaper-attribute-cache (make-hash-table :size 10000)
   "Attribute cache.")
