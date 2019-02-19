@@ -5379,7 +5379,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
       :active (region-active-p)])
     ("Tags"
      ["Complete Tag" taskpaper-complete-tag-at-point
-      :active (taskpaper-in-regexp (format "@%s*" taskpaper-tag-name-char-regexp))]
+      :active (taskpaper-in-regexp (format "@%s*" taskpaper-tag-name-char-regexp))
+      :keys "<M-tab>"]
      ["Select Tag..." taskpaper-item-set-tag-fast-select]
      ["Remove Tag" taskpaper-remove-tag-at-point
       :active (taskpaper-in-regexp taskpaper-tag-regexp)]
@@ -5402,12 +5403,17 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Next Link" taskpaper-next-link]
      ["Previous Link" taskpaper-previous-link])
     ("Search"
-     ["Start Incremental Search..." taskpaper-iquery]
+     ["Start Incremental Search..." taskpaper-iquery
+      :keys "C-c C-i"]
      ["Start Non-incremental Search..." taskpaper-query]
      ["Select Search Query..." taskpaper-query-read-select]
      ["Select Custom Search Query..." taskpaper-query-fast-select]
      "--"
      ["Filter by Regexp..." taskpaper-occur]
+     ["Next Match" next-error
+      :active taskpaper-occur-highlights]
+     ["Previous Match" previous-error
+      :active taskpaper-occur-highlights]
      ["Remove Highlights" taskpaper-occur-remove-highlights
       :active taskpaper-occur-highlights])
     ("Agenda View"
