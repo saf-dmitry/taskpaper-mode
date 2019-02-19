@@ -9,6 +9,7 @@ Added:
 Changed:
 
 - Fixed list compare in searches
+- Fixed syntax highlighting for Markdown and plain URI links
 
 
 # v1.0

@@ -395,6 +395,8 @@ Absolute file links are starting with `/` or `~/`. Relative file links starting 
 
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a plain file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
+Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via e.g. [Dropbox][dropbox], put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
+
 TaskPaper mode also has experimental support for inline [Markdown][markdown-wiki] links in form `[Link description](destination)`:
 
 - `[URL](http://www.example.org/index.html)`
@@ -410,8 +412,6 @@ If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-li
 You can jump to the next/previous link in the buffer using the commands `C-c C-x C-n` (`taskpaper-next-link`) and `C-c C-x C-p` (`taskpaper-previous-link`). When reaching the buffer boundaries the search fails once, and then wraps around. Because the key bindings are probably too long you might want to bind this also to `M-n` and `M-p`.
 
 The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting the user option `taskpaper-max-image-size`. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.
-
-Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via e.g. [Dropbox][dropbox], put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
 
 
 ## Inline Formatting
