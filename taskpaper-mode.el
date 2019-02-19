@@ -1404,7 +1404,12 @@ If ARG is non-nil, move backward to the previous link."
     (when (taskpaper-in-regexp re)
       (goto-char (if arg (match-beginning 0) (match-end 0))))
     (if (funcall func re nil t)
-        (goto-char (if arg (match-end 0) (match-beginning 0)))
+        (if (not (taskpaper-range-property-any
+                  (match-beginning 0) (match-end 0)
+                  'taskpaper-syntax '(markdown-link plain-link)))
+            ;; Skip false links
+            (funcall 'taskpaper-next-link arg)
+          (goto-char (if arg (match-end 0) (match-beginning 0))))
       (goto-char pos) (setq taskpaper-link-search-failed t)
       (message "No further link found"))))
 
