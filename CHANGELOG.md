@@ -2,6 +2,10 @@
 
 # Development Version
 
+Added:
+
+- Added commands for link navigation
+
 Changed:
 
 - Fixed list compare in searches

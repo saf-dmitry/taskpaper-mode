@@ -1385,6 +1385,34 @@ directory. An absolute path can be forced with a
      (t (user-error "No link at point")))
     (taskpaper-open-link link)))
 
+(defvar taskpaper-link-search-failed nil)
+(defun taskpaper-next-link (&optional arg)
+  "Move forward to the next link.
+If ARG is non-nil, move backward to the previous link."
+  (interactive)
+  (when (and taskpaper-link-search-failed (eq this-command last-command))
+    (goto-char (if arg (point-max) (point-min)))
+    (message "Wrapping link search"))
+  (setq taskpaper-link-search-failed nil)
+  (let ((pos (point))
+        (func (if arg 're-search-backward 're-search-forward))
+        (re (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
+                    taskpaper-markdown-link-regexp
+                    taskpaper-email-regexp
+                    taskpaper-uri-browser-regexp
+                    taskpaper-file-path-regexp)))
+    (when (taskpaper-in-regexp re)
+      (goto-char (if arg (match-beginning 0) (match-end 0))))
+    (if (funcall func re nil t)
+        (goto-char (if arg (match-end 0) (match-beginning 0)))
+      (goto-char pos) (setq taskpaper-link-search-failed t)
+      (message "No further link found"))))
+
+(defun taskpaper-previous-link ()
+  "Move backward to the previous link."
+  (interactive)
+  (funcall 'taskpaper-next-link t))
+
 ;;;; Inline images
 
 (defvar taskpaper-inline-image-overlays nil
@@ -5262,6 +5290,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c C-x C-w") 'taskpaper-cut-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x M-w") 'taskpaper-copy-subtree)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-y") 'taskpaper-paste-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-n") 'taskpaper-next-link)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-p") 'taskpaper-previous-link)
 
 (define-key taskpaper-mode-map (kbd "C-c C-x C-m") 'taskpaper-toggle-markup-hiding)
 (define-key taskpaper-mode-map (kbd "C-c C-x C-v") 'taskpaper-toggle-inline-images)
@@ -5367,7 +5397,10 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Insert File Link..." taskpaper-insert-file-link-at-point]
      ["Show Inline Images" taskpaper-toggle-inline-images
       :style toggle
-      :selected taskpaper-inline-image-overlays])
+      :selected taskpaper-inline-image-overlays]
+     "--"
+     ["Next Link" taskpaper-next-link]
+     ["Previous Link" taskpaper-previous-link])
     ("Search"
      ["Start Incremental Search..." taskpaper-iquery]
      ["Start Non-incremental Search..." taskpaper-query]
