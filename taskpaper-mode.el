@@ -685,7 +685,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\((\\)"
    "\\("
    "\\(?:"
-   "\\\\."
+   "\\\\ "
    "\\|"
    "[^ \t\n()]"
    "\\|"
