@@ -676,6 +676,10 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\)")
   "Regular expression for file path.")
 
+(defconst taskpaper-file-link-regexp
+  (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
+  "Regular expression for plain file link.")
+
 (defconst taskpaper-markdown-link-regexp
   (concat
    "\\("
@@ -726,10 +730,6 @@ Group 4 matches optional trailing tags.")
   "^[ \t]*\\(.*\\S-.*\\)$"
   "Regular expression for note.
 Group 1 matches the whole note expression.")
-
-(defconst taskpaper-file-link-regexp
-  (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
-  "Regular expression for plain file link.")
 
 (defconst taskpaper-emphasis-prefix-regexp
   "\\(?:^\\|[^\n*_\\]\\)"
@@ -1386,30 +1386,26 @@ directory. An absolute path can be forced with a
     (taskpaper-open-link link)))
 
 (defvar taskpaper-link-search-failed nil)
-(defun taskpaper-next-link (&optional arg)
+(defun taskpaper-next-link (&optional back)
   "Move forward to the next link.
-If ARG is non-nil, move backward to the previous link."
+If BACK is non-nil, move backward to the previous link."
   (interactive)
   (when (and taskpaper-link-search-failed (eq this-command last-command))
-    (goto-char (if arg (point-max) (point-min)))
+    (goto-char (if back (point-max) (point-min)))
     (message "Wrapping link search"))
   (setq taskpaper-link-search-failed nil)
   (let ((pos (point))
-        (func (if arg 're-search-backward 're-search-forward))
+        (func (if back 're-search-backward 're-search-forward))
         (re (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
                     taskpaper-markdown-link-regexp
                     taskpaper-email-regexp
                     taskpaper-uri-browser-regexp
-                    taskpaper-file-path-regexp)))
+                    taskpaper-file-link-regexp)))
     (when (taskpaper-in-regexp re)
-      (goto-char (if arg (match-beginning 0) (match-end 0))))
-    (if (funcall func re nil t)
-        (if (not (taskpaper-range-property-any
-                  (match-beginning 0) (match-end 0)
-                  'taskpaper-syntax '(markdown-link plain-link)))
-            ;; Skip false links
-            (funcall 'taskpaper-next-link arg)
-          (goto-char (if arg (match-end 0) (match-beginning 0))))
+      (goto-char (if back (match-beginning 0) (match-end 0))))
+    (if (and (funcall func re nil t) (taskpaper-in-regexp re)) ;; Need to be greedy
+        (progn (goto-char (match-beginning 0))
+               (skip-chars-forward " \t"))
       (goto-char pos) (setq taskpaper-link-search-failed t)
       (message "No further link found"))))
 
