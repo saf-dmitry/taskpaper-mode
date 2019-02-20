@@ -1402,10 +1402,12 @@ If BACK is non-nil, move backward to the previous link."
                     taskpaper-uri-browser-regexp
                     taskpaper-file-link-regexp)))
     (when (taskpaper-in-regexp re)
+      ;; Don't stay stuck at link under cursor
       (goto-char (if back (match-beginning 0) (match-end 0))))
     (if (and (funcall func re nil t) (taskpaper-in-regexp re)) ;; Need to be greedy
-        (progn (goto-char (match-beginning 0))
-               (skip-chars-forward " \t"))
+        (progn
+          (goto-char (match-beginning 0)) (skip-syntax-forward "\s")
+          (when (outline-invisible-p) (taskpaper-outline-show-context)))
       (goto-char pos) (setq taskpaper-link-search-failed t)
       (message "No further link found"))))
 
