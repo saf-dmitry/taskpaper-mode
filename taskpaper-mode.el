@@ -604,7 +604,7 @@ NAME should be a string or a list of strings."
   "Regular expression for tag value.")
 
 (defconst taskpaper-tag-regexp
-  (format "\\(?:^\\|[ \t]+\\)\\(@\\(%s\\)\\(?:(\\(%s\\))\\)?\\)"
+  (format "\\(?:^\\|\\s-+\\)\\(@\\(%s\\)\\(?:(\\(%s\\))\\)?\\)"
           taskpaper-tag-name-regexp
           taskpaper-tag-value-regexp)
   "Regular expression for tag.
@@ -677,7 +677,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   "Regular expression for file path.")
 
 (defconst taskpaper-file-link-regexp
-  (concat "\\(?:^\\|[ \t]\\)" taskpaper-file-path-regexp)
+  (concat "\\(?:^\\|\\s-\\)" taskpaper-file-path-regexp)
   "Regular expression for plain file link.")
 
 (defconst taskpaper-markdown-link-regexp
@@ -1882,7 +1882,7 @@ end.")
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
   (let ((ind-re "^\\([ \t]+\\)")
-        (tag-re (format "\\(%s\\)[ \t]*$" taskpaper-consec-tags-regexp))
+        (tag-re (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
         (indent "") (tags ""))
     (save-match-data
       ;; Strip indent and "trailing" tags and save them
@@ -1914,7 +1914,7 @@ Valid symbol names for type are 'project, 'task, or 'note."
          (end (line-end-position))
          (item (buffer-substring-no-properties begin end))
          (ind-re "^\\([ \t]+\\)")
-         (tag-re (format "\\(%s\\)[ \t]*$" taskpaper-consec-tags-regexp))
+         (tag-re (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
          (indent "") (tags ""))
     ;; Remove existing type formatting
     (setq item (taskpaper-remove-type-formatting item))
