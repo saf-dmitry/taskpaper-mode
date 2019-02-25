@@ -707,6 +707,14 @@ Group 5 matches the opening parenthesis.
 Group 6 matches the link destination.
 Group 7 matches the closing parenthesis.")
 
+(defconst taskpaper-any-link-re
+  (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
+          taskpaper-email-regexp
+          taskpaper-uri-browser-regexp
+          taskpaper-file-link-regexp
+          taskpaper-markdown-link-regexp)
+  "Regular expression matching any link.")
+
 ;;;; Font Lock regexps
 
 (defconst taskpaper-task-regexp
@@ -1396,11 +1404,7 @@ If BACK is non-nil, move backward to the previous link."
   (setq taskpaper-link-search-failed nil)
   (let ((pos (point))
         (func (if back 're-search-backward 're-search-forward))
-        (re (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
-                    taskpaper-markdown-link-regexp
-                    taskpaper-email-regexp
-                    taskpaper-uri-browser-regexp
-                    taskpaper-file-link-regexp)))
+        (re taskpaper-any-link-re))
     (when (taskpaper-in-regexp re)
       ;; Don't stay stuck at link under cursor
       (goto-char (if back (match-beginning 0) (match-end 0))))
