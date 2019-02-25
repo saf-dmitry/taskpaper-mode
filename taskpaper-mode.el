@@ -1834,9 +1834,10 @@ end.")
 (defvar taskpaper-mark-ring-last-goto nil
   "Last position in the mark ring used to go back.")
 
+;; In case file is reloaded
+(setq taskpaper-mark-ring nil taskpaper-mark-ring-last-goto nil)
+
 ;; Fill and close the mark ring
-(setq taskpaper-mark-ring nil
-      taskpaper-mark-ring-last-goto nil) ;; In case file is reloaded
 (dotimes (_ taskpaper-mark-ring-length)
   (push (make-marker) taskpaper-mark-ring))
 (setcdr (nthcdr (1- taskpaper-mark-ring-length) taskpaper-mark-ring)
@@ -1867,6 +1868,7 @@ current file automatically push the old position onto the ring."
                               taskpaper-mark-ring)))
       (setq p taskpaper-mark-ring))
     (setq taskpaper-mark-ring-last-goto p) (setq m (car p))
+    (unless (marker-position m) (user-error "No saved position"))
     (pop-to-buffer-same-window (marker-buffer m)) (goto-char m)
     (when (outline-invisible-p) (taskpaper-outline-show-context))))
 
