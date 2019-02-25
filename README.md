@@ -165,7 +165,7 @@ The following commands jump to other items in the buffer.
 
 The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select an outline path in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
-The command `C-c %` (`taskpaper-mark-ring-push`) push the current position onto the TaskPaper mark ring, to be able to return easily. TaskPaper mode commands jumping to a different position in the current file automatically push the old position onto the ring.
+The command `C-c %` (`taskpaper-mark-ring-push`) push the current position onto the TaskPaper mark ring, to be able to return easily. TaskPaper mode commands like `C-c C-j` jumping to a different position in the current file automatically push the old position onto the ring.
 
 The command `C-c &` (`taskpaper-mark-ring-goto`) jumps back to a recorded position. Using this command several times in direct succession moves through a ring of previously recorded positions.
 
