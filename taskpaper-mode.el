@@ -283,6 +283,12 @@ variable is ignored."
   :group 'taskpaper
   :type 'boolean)
 
+(defcustom taskpaper-mark-ring-length 4
+  "Number of different positions to be recorded in the ring.
+Changing this requires a restart of Emacs to work correctly."
+  :group 'taskpaper
+  :type 'integer)
+
 (defcustom taskpaper-custom-queries nil
   "List of custom queries for fast selection.
 The value of this variable is a list, the first element is a
@@ -1820,6 +1826,49 @@ end.")
 
 (defalias 'taskpaper-outline-move-subtree-down 'outline-move-subtree-down
   "Move the current subtree down past ARG items of the same level.")
+
+;;; Mark ring navigation interface
+
+(defvar taskpaper-mark-ring nil
+  "Mark ring for positions before jumps in TaskPaper mode.")
+(defvar taskpaper-mark-ring-last-goto nil
+  "Last position in the mark ring used to go back.")
+
+;; Fill and close the mark ring
+(setq taskpaper-mark-ring nil
+      taskpaper-mark-ring-last-goto nil) ;; In case file is reloaded
+(dotimes (_ taskpaper-mark-ring-length)
+  (push (make-marker) taskpaper-mark-ring))
+(setcdr (nthcdr (1- taskpaper-mark-ring-length) taskpaper-mark-ring)
+        taskpaper-mark-ring)
+
+(defun taskpaper-mark-ring-push (&optional pos buffer)
+  "Push the current position or POS onto the mark ring."
+  (interactive)
+  (setq taskpaper-mark-ring
+        (nthcdr (1- taskpaper-mark-ring-length) taskpaper-mark-ring))
+  (move-marker (car taskpaper-mark-ring)
+               (or pos (point))
+               (or buffer (current-buffer)))
+  (message "%s" (substitute-command-keys
+                 "Position saved to mark ring, \
+go back with `\\[taskpaper-mark-ring-goto]'.")))
+
+(defun taskpaper-mark-ring-goto (&optional n)
+  "Jump to the previous position in the mark ring.
+With prefix argument N, jump back that many stored positions. When
+called several times in succession, walk through the entire ring.
+TaskPaper mode commands jumping to a different position in the
+current file automatically push the old position onto the ring."
+  (interactive "p")
+  (let (p m)
+    (if (eq last-command this-command)
+        (setq p (nthcdr n (or taskpaper-mark-ring-last-goto
+                              taskpaper-mark-ring)))
+      (setq p taskpaper-mark-ring))
+    (setq taskpaper-mark-ring-last-goto p) (setq m (car p))
+    (pop-to-buffer-same-window (marker-buffer m)) (goto-char m)
+    (when (outline-invisible-p) (taskpaper-outline-show-context))))
 
 ;;;; Item auto-formatting
 
@@ -3930,6 +3979,7 @@ current subtree."
   (interactive)
   (let* ((loc (taskpaper-goto-get-location "Goto: " t))
          (pos (cdr loc)))
+    (taskpaper-mark-ring-push)
     (widen) (goto-char pos) (back-to-indentation)
     (taskpaper-outline-show-context)))
 
@@ -5267,6 +5317,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-read-select)
 (define-key taskpaper-mode-map (kbd "C-c !") 'taskpaper-query-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c :") 'taskpaper-item-display-outline-path)
+(define-key taskpaper-mode-map (kbd "C-c %") 'taskpaper-mark-ring-push)
+(define-key taskpaper-mode-map (kbd "C-c &") 'taskpaper-mark-ring-goto)
 
 (define-key taskpaper-mode-map (kbd "C-c C-a") 'taskpaper-outline-show-all)
 (define-key taskpaper-mode-map (kbd "C-c C-z") 'taskpaper-outline-overview)

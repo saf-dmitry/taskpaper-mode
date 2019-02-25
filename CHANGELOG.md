@@ -5,6 +5,7 @@
 Added:
 
 - Added commands for link navigation
+- Added commands for mark ring navigation
 
 Changed:
 
