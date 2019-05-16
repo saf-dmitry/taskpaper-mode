@@ -2091,7 +2091,8 @@ VALUE is the attribute value, as strings."
 
 ;;;; Attribute caching
 
-;; NOTE: Attribute cache should be build and clear atomically as a whole!
+;; NOTE: Due to attribute inheritance mechanism
+;; attribute cache should be build and clear atomically as a whole!
 
 (defvar taskpaper-attribute-cache (make-hash-table :size 10000)
   "Attribute cache.")

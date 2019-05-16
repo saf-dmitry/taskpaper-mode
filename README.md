@@ -764,9 +764,17 @@ Note: While using a list with face properties as shown for `due` _should_ work, 
 
 Additionally, the faces used for syntax highlighting can be modified to your liking by issuing `M-x customize-group RET taskpaper-faces RET`.
 
-You can activate the task marks by setting the user option `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. Tasks can then be marked as done by clicking on the task mark with `mouse-1`. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` user options.
-
 You can hide inline markup elements like emphasis delimiters by configuring the user option `taskpaper-hide-markup`. The underlying buffer content remains unchanged, but the markup elements will be hidden. Markup hiding can be toggled using `C-c C-x C-m` (`taskpaper-toggle-markup-hiding`).
+
+
+## Task Marks
+
+You can activate the task marks by setting the user option `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` user options. For example, you can set it to an empty ballot box and ballot box with check mark character respectively:
+
+    (setq taskpaper-bullet ?\u2610)
+    (setq taskpaper-bullet-done ?\u2611)
+
+Tasks can then be marked as done by clicking on the task mark with `mouse-1`.
 
 
 ## Cleaner Outline View
