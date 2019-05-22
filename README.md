@@ -769,10 +769,10 @@ You can hide inline markup elements like emphasis delimiters by configuring the 
 
 ## Task Marks
 
-You can activate the task marks by setting the user option `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` user options. For example, you can set it to an empty ballot box and ballot box with check character respectively:
+You can activate the task marks by setting the user option `taskpaper-pretty-marks` to non-nil, which makes the task marks appear as UTF-8 characters. This does not change the underlying buffer content, but it overlays the UTF-8 character _for display purposes only_. The overlay characters for the task marks can be customized using the `taskpaper-bullet` and `taskpaper-bullet-done` user options. For example, you can set it to an empty ballot box and check mark character respectively:
 
-    (setq taskpaper-bullet ?\u2610)
-    (setq taskpaper-bullet-done ?\u2611)
+    (setq taskpaper-bullet ?\u25a2)
+    (setq taskpaper-bullet-done ?\u2713)
 
 Tasks can then be marked as done by clicking on the task mark with `mouse-1`.
 
