@@ -4973,7 +4973,7 @@ prompt."
             (add-hook 'after-change-functions
                       'taskpaper-read-query-propertize)
             ;; Read query string
-            (setq str (read-string prompt nil taskpaper-query-history)))
+            (setq str (read-string prompt nil taskpaper-query-history nil t)))
         ;; Remove hooks
         (remove-hook 'after-change-functions
                      'taskpaper-read-query-propertize))
@@ -5037,7 +5037,7 @@ string. PROMPT can overwrite the default prompt."
             (add-hook 'after-change-functions
                       'taskpaper-read-query-propertize 'append)
             ;; Read query string
-            (read-string prompt query taskpaper-query-history))
+            (read-string prompt query taskpaper-query-history nil t))
         ;; Remove hooks and cancel idle timer
         (remove-hook 'after-change-functions
                      'taskpaper-read-query-propertize)
