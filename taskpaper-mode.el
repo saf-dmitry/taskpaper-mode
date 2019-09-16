@@ -2578,6 +2578,7 @@ past one. Return unchanged any year larger than 99."
       (setq wday1 (cdr (assoc unit parse-time-weekdays))
             wday (nth 6 (decode-time (encode-time 0 0 0 day month year))))
       (and (= wday 0) (setq wday 7)) (and (= wday1 0) (setq wday1 7))
+      (and (>= wday1 wday) (> inc 0) (setq inc (1- inc)))
       (setq day (+ day (- wday1 wday) (* inc 7))))
      ((member unit '("min" "mins" "minute" "minutes"))
       (setq minute (+ minute inc) taskpaper-time-was-given t))
