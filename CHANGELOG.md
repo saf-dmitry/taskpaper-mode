@@ -11,6 +11,7 @@ Changed:
 
 - Fixed list compare in searches
 - Fixed syntax highlighting for Markdown and plain URI links
+- Improved weekday handling in duration offsets
 
 
 # v1.0
