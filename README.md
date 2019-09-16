@@ -373,7 +373,7 @@ When you need tasks that repeat themselves on a regular basis, you can set a rec
     - Due on at the Monday start of each week @due(this week)
     - Due on the 1st of each month @due(this month)
     - Due on the 15th of each month @due(this month +15d)
-    - Due on second Friday of each month @due(this month +2 Fri)
+    - Due on the second Friday of each month @due(this month +2 Fri)
     - Due on each Monday, Wednesday, and Friday @due(Mon,Wed,Fri)
 
 It doesn't cover all cases, but may work for you. For more flexible recurrence setup see the corresponding scripting example in the [Scripting Guide][tp-mode-scripting-guide].
