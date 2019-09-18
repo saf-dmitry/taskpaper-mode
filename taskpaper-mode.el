@@ -230,25 +230,6 @@ location."
   :group 'taskpaper
   :type 'boolean)
 
-(defcustom taskpaper-uri-schemes-browser
-  '("aaa://" "about:" "acap://" "apt:" "bzr://" "bzr+ssh://"
-    "attachment:/" "chrome://" "cid:" "content://" "crid://" "cvs://"
-    "data:" "dav:" "dict://" "doi:" "dns:" "dtn:" "feed:" "finger://"
-    "fish://" "ftp://" "geo:" "git://" "go:" "gopher://" "h323:"
-    "http://" "https://" "im:" "imap://" "info:" "ipp:" "irc://"
-    "irc6://" "ircs://" "iris.beep:" "jar:" "ldap://" "ldaps://"
-    "magnet:" "mid:" "mtqp://" "mupdate://" "news:" "nfs://"
-    "nntp://" "opaquelocktoken:" "pop://" "pres:" "resource://"
-    "rmi://" "rsync://" "rtsp://" "rtspu://" "service:" "sftp://"
-    "sip:" "sips:" "smb://" "sms:" "snmp://" "soap.beep://"
-    "soap.beeps://" "ssh://" "svn://" "svn+ssh://" "tag:" "tel:"
-    "telnet://" "tftp://" "tip://" "tn3270://" "udp://" "urn:"
-    "uuid:" "vemmi://" "webcal://" "xri://" "xmlrpc.beep://"
-    "xmlrpc.beeps://" "z39.50r://" "z39.50s://" "xmpp:")
-  "URI schemes for URI, which should be opened in WWW browser."
-  :group 'taskpaper
-  :type '(repeat (string :tag "URI scheme")))
-
 (defcustom taskpaper-file-apps
   '((directory . emacs)
     (remote . emacs)
@@ -611,6 +592,23 @@ NAME should be a string or a list of strings."
    (t (error "Argument should be a string or a list of strings."))))
 
 ;;;; Re-usable regexps
+
+(defconst taskpaper-uri-schemes-browser
+  '("aaa://" "about:" "acap://" "apt:" "bzr://" "bzr+ssh://"
+    "attachment:/" "chrome://" "cid:" "content://" "crid://" "cvs://"
+    "data:" "dav:" "dict://" "doi:" "dns:" "dtn:" "feed:" "finger://"
+    "fish://" "ftp://" "geo:" "git://" "go:" "gopher://" "h323:"
+    "http://" "https://" "im:" "imap://" "info:" "ipp:" "irc://"
+    "irc6://" "ircs://" "iris.beep:" "jar:" "ldap://" "ldaps://"
+    "magnet:" "mid:" "mtqp://" "mupdate://" "news:" "nfs://"
+    "nntp://" "opaquelocktoken:" "pop://" "pres:" "resource://"
+    "rmi://" "rsync://" "rtsp://" "rtspu://" "service:" "sftp://"
+    "sip:" "sips:" "smb://" "sms:" "snmp://" "soap.beep://"
+    "soap.beeps://" "ssh://" "svn://" "svn+ssh://" "tag:" "tel:"
+    "telnet://" "tftp://" "tip://" "tn3270://" "udp://" "urn:"
+    "uuid:" "vemmi://" "webcal://" "xri://" "xmlrpc.beep://"
+    "xmlrpc.beeps://" "z39.50r://" "z39.50s://" "xmpp:")
+  "URI schemes for URI, which should be opened in WWW browser.")
 
 (defconst taskpaper-tag-name-char-regexp
   (concat
