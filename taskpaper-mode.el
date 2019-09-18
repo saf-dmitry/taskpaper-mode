@@ -2304,8 +2304,7 @@ return the values as a list of strings."
 (defconst taskpaper-time-iso-week-date-regexp
   (concat
    "\\`\\([0-9]?[0-9]?[0-9][0-9]\\)-w\\([0-9]?[0-9]\\)"
-   "\\(?:-\\([0-9]\\)\\)?"
-   "\\( \\|\\'\\)")
+   "\\(?:-\\([0-9]\\)\\)?\\( \\|\\'\\)")
   "Regular expression for ISO 8601 week date.")
 
 (defconst taskpaper-time-iso-date-short-regexp
@@ -2553,8 +2552,8 @@ past one. Return unchanged any year larger than 99."
             minute (string-to-number (match-string 2 time-str))
             second 0
             time-str (replace-match "" t t time-str))))
-    (when (and (equal ?a ampm) (= hour 12)) (setq hour 0))
-    (when (and (equal ?p ampm) (< hour 12)) (setq hour (+ hour 12)))
+    (and (equal ?a ampm) (= hour 12) (setq hour 0))
+    (and (equal ?p ampm) (< hour 12) (setq hour (+ hour 12)))
     (setq taskpaper-time-was-given t)
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
@@ -2600,8 +2599,8 @@ past one. Return unchanged any year larger than 99."
 (defun taskpaper-parse-time-string (time-str &optional timedecode)
   "Parse the time string TIME-STR.
 Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ). When
-TIMEDECODE is given, calculate date and time based on this time,
-otherwise use current time."
+TIMEDECODE time value is given, calculate date and time based on
+this time, otherwise use current time."
   (let ((nowdecode (decode-time (current-time))) temp)
     (setq taskpaper-time-was-given nil
           time-str (downcase time-str)
@@ -2666,11 +2665,12 @@ otherwise use current time."
 
 (defun taskpaper-expand-time-string (time-str &optional timedecode with-time)
   "Parse and format time string.
-Return the formatted time string. When TIMEDECODE is given,
-calculate time based on this time, otherwise use current time. If
-the original time string specifies a time or if the optional
-argument WITH-TIME is non-nil, the formatted output contains the
-date and the time. Otherwise, only the date is included."
+Return the formatted time string. When TIMEDECODE time value is
+given, calculate time based on this time, otherwise use current
+time. If the original time string specifies a time or if the
+optional argument WITH-TIME is non-nil, the formatted output
+contains the date and the time. Otherwise, only the date is
+included."
   (let ((time (taskpaper-parse-time-string time-str timedecode))
         (fmt (if (or with-time taskpaper-time-was-given)
                  "%Y-%m-%d %H:%M" "%Y-%m-%d")))
@@ -2679,8 +2679,8 @@ date and the time. Otherwise, only the date is included."
 (defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
   "Convert a time string S to a float number of seconds.
 Return the float number of seconds since the beginning of the
-epoch. When TIMEDECODE is given, calculate time based on this
-time, otherwise use current time."
+epoch. When TIMEDECODE time value is given, calculate time based
+on this time, otherwise use current time."
   (float-time (apply 'encode-time
                      (taskpaper-parse-time-string time-str timedecode))))
 
