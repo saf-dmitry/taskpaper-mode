@@ -286,7 +286,7 @@ Parallel to the minibuffer prompt the current interpretation of your input is tr
 
 ## Date and Time Formats
 
-Dates and times are an essential part of any task management system. You can store dates and times in tag values and perform date search `[d]` on them (see the [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
+Dates and times are an essential part of any task management system. You can store dates and times in tag values and perform date search on them (see the [Searching](#searching) section) to remind yourself of e.g., upcoming deadlines or scheduled activities. These examples show the different formats that you can use when entering dates and times in the date & time prompt. The same formats can be used for date & time values in tags.
 
     - Do weekly review @due(Friday 12:30)
     - Attend meeting @due(2017-08-11 8am)
@@ -518,7 +518,7 @@ In case of numeric compare `[n]` both sides of the compare are converted to numb
 
 In case of date compare `[d]` both sides of the compare are converted to time values before comparing. The date & time format is described in the [Date and Time Formats](#date-and-time-formats) reference section.
 
-With the list modifier `[l]` present both sides are converted to lists (comma-separated) before comparing. Other modifiers can precede the list modifier making the search more specific.
+In case of list compare `[l]` both sides are converted to lists (comma-separated) before comparing. Other modifiers can precede the list modifier making the search more specific.
 
 In case of list compare using `=`, `<`, `>`, `<=`, `>=`, `!=`, both sides are compared element by element, from left to right.
 
@@ -540,7 +540,7 @@ Here are some examples for predicates:
 - `@text contains "this is not what I want"`
 - `@text contains "\"Winter\" by A. Vivaldi"`
 
-You don't need to enter the entire predicate pattern every time you search. Predicates use default values when part of the pattern is missing. Attribute defaults to `text` and relation defaults to `contains`. For example the following predicates are equal:
+You don't need to enter the entire predicate pattern every time you search. Predicates use default values when part of the pattern is missing. Attribute defaults to `text`, relation defaults to `contains`, and modifier defaults to `i`. For example the following predicates are equal:
 
 - `Inbox`
 - `@text Inbox`
