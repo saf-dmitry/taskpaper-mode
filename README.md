@@ -293,6 +293,8 @@ Dates and times are an essential part of any task management system. You can sto
 
 If the time string is unparseable, current time is returned.
 
+Note: Using of `@due` tag here for storing dates is merely convention. You can use any tag name which make sense to you, e.g. `@deadline`.
+
 
 ### Dates
 
