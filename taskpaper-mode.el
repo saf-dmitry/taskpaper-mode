@@ -1587,7 +1587,7 @@ When SELF is non-nil, also map the current item."
   "Call FUNC for every item between BEGIN and END."
   (save-excursion
     (setq end (copy-marker end)) (goto-char begin)
-    (when (outline-on-heading-p) (funcall func))
+    (when (outline-on-heading-p t) (funcall func))
     (while (and (progn
                   (taskpaper-outline-next-item-safe)
                   (< (point) end))
@@ -4065,7 +4065,7 @@ subtree from the kill ring."
   (let* ((old-level (if (string-match "^\\([\t]*[^\t\n]\\)" text)
                         (- (match-end 1) (match-beginning 1))
                       1))
-         (cur-level (if (outline-on-heading-p)
+         (cur-level (if (outline-on-heading-p t)
                         (save-match-data (funcall outline-level))
                       0))
          (force-level (when level (prefix-numeric-value level)))
