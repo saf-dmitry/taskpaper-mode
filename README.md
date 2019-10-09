@@ -109,8 +109,9 @@ Files with the `.taskpaper` extension use TaskPaper mode by default. If you want
 
 ## Formatting Items
 
+In TaskPaper mode each line makes a new item. When you hit `RET` TaskPaper mode will auto-indent your items. If you don't need it, simply hit `RET` again to remove the indentation. This can greatly speed up your writing.
 
-In TaskPaper mode each line makes a new item. The following commands auto-format and indent you items as you type.
+The following commands auto-format and indent you items as you type.
 
 - `RET`: Create a new item with the same level as the one under cursor (`taskpaper-new-item-same-level`).
 

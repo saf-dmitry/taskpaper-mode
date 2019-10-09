@@ -1877,13 +1877,13 @@ current file automatically push the old position onto the ring."
 (defun taskpaper-new-item-same-level ()
   "Insert new item at same level."
   (interactive)
-  (let (level indent)
-    (save-excursion
-      (setq level (if (outline-on-heading-p)
-                      (save-match-data (funcall outline-level))
-                    1)
-            indent (make-string (1- level) ?\t)))
-    (if (bolp) (newline) (newline) (insert indent))))
+  (cond
+   ((bolp) (newline))
+   ((outline-on-heading-p)
+    (let* ((level (save-excursion (save-match-data (funcall outline-level))))
+           (indent (make-string (1- level) ?\t)))
+      (newline) (insert indent)))
+   (t (delete-horizontal-space))))
 
 (defun taskpaper-new-task-same-level ()
   "Insert new task at same level."
