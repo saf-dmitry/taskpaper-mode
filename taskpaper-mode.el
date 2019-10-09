@@ -1587,7 +1587,7 @@ When SELF is non-nil, also map the current item."
   "Call FUNC for every item between BEGIN and END."
   (save-excursion
     (setq end (copy-marker end)) (goto-char begin)
-    (when (outline-on-heading-p t) (funcall func))
+    (when (outline-on-heading-p) (funcall func))
     (while (and (progn
                   (taskpaper-outline-next-item-safe)
                   (< (point) end))
@@ -1879,7 +1879,7 @@ current file automatically push the old position onto the ring."
   (interactive)
   (let (level indent)
     (save-excursion
-      (setq level (if (outline-on-heading-p t)
+      (setq level (if (outline-on-heading-p)
                       (save-match-data (funcall outline-level))
                     1)
             indent (make-string (1- level) ?\t)))
@@ -4065,7 +4065,7 @@ subtree from the kill ring."
   (let* ((old-level (if (string-match "^\\([\t]*[^\t\n]\\)" text)
                         (- (match-end 1) (match-beginning 1))
                       1))
-         (cur-level (if (outline-on-heading-p t)
+         (cur-level (if (outline-on-heading-p)
                         (save-match-data (funcall outline-level))
                       0))
          (force-level (when level (prefix-numeric-value level)))
