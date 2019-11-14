@@ -2131,22 +2131,23 @@ VALUE is the attribute value, as strings."
 Return read-only alist (NAME . VALUE) where NAME is the attribute
 name and VALUE is the attribute value, as strings. If INHERIT is
 non-nil also check higher levels of the hierarchy."
-  (let* ((key (point-at-bol))
-         (chattrs (taskpaper-attribute-cache-get key))
-         spattrs exattrs ihattrs attrs)
-    (if chattrs
-        (setq attrs chattrs)
-      (setq spattrs (taskpaper-item-get-special-attributes))
-      (setq exattrs (taskpaper-item-get-explicit-attributes))
-      (when (and (taskpaper-item-type) inherit)
-        (save-excursion
-          (while (taskpaper-outline-up-level-safe)
-            (setq ihattrs (append
-                           (taskpaper-remove-uninherited-attributes
-                            (taskpaper-item-get-explicit-attributes))
-                           ihattrs)))))
-      (setq attrs (append spattrs exattrs ihattrs)))
-    (taskpaper-uniquify attrs)))
+  (when (taskpaper-item-type)
+    (let* ((key (point-at-bol))
+           (chattrs (taskpaper-attribute-cache-get key))
+           spattrs exattrs ihattrs attrs)
+      (if chattrs
+          (setq attrs chattrs)
+        (setq spattrs (taskpaper-item-get-special-attributes))
+        (setq exattrs (taskpaper-item-get-explicit-attributes))
+        (when inherit
+          (save-excursion
+            (while (taskpaper-outline-up-level-safe)
+              (setq ihattrs (append
+                             (taskpaper-remove-uninherited-attributes
+                              (taskpaper-item-get-explicit-attributes))
+                             ihattrs)))))
+        (setq attrs (append spattrs exattrs ihattrs)))
+      (taskpaper-uniquify attrs))))
 
 (defun taskpaper-item-get-attribute (name &optional inherit)
   "Get value of attribute NAME for item at point.
