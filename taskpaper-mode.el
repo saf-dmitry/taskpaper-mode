@@ -1536,7 +1536,7 @@ tabs."
     (let ((level-up (1- (funcall outline-level))))
       (and (> level-up 0)
            (re-search-backward
-            (format "^[\t]\\{0,%d\\}[^\t\n]" (1- level-up)) nil t)))))
+            (format "^[\t]\\{0,%d\\}[^\t\f\n]" (1- level-up)) nil t)))))
 
 (defun taskpaper-outline-forward-same-level-safe ()
   "Move to the next (possibly invisible) sibling.
@@ -2138,7 +2138,7 @@ non-nil also check higher levels of the hierarchy."
         (setq attrs chattrs)
       (setq spattrs (taskpaper-item-get-special-attributes))
       (setq exattrs (taskpaper-item-get-explicit-attributes))
-      (when inherit
+      (when (and (taskpaper-item-type) inherit)
         (save-excursion
           (while (taskpaper-outline-up-level-safe)
             (setq ihattrs (append
@@ -3803,7 +3803,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
          reverse
          ;; NEXTRECFUN arg
          (lambda nil
-           (if (re-search-forward "^[\t]*[^\t\n]" nil t)
+           (if (re-search-forward "^[\t]*[^\t\f\n]" nil t)
                (goto-char (match-beginning 0))
              (goto-char (point-max))))
          ;; ENDRECFUN arg
@@ -4019,7 +4019,7 @@ If CUT is non-nil, actually cut the subtree."
           ;; Add newline, if nessessary
           (unless (bolp) (end-of-line 1) (newline)))
         (setq end (point))
-        ;; Cut/copy region into the kill ring
+        ;; Cut or copy region into the kill ring
         (if cut
             (kill-region begin end)
           (copy-region-as-kill begin end))))))
@@ -4038,13 +4038,13 @@ current kill."
   (save-match-data
     (let* ((kill (or txt (and kill-ring (current-kill 0)) ""))
            (start-level (and kill
-                             (string-match "\\`\\([\t]*[^\t\n]\\)" kill)
+                             (string-match "\\`\\([\t]*[^\t\f\n]\\)" kill)
                              (- (match-end 1) (match-beginning 1))))
            (start (1+ (or (match-beginning 1) -1))))
       (if (not start-level) nil
         (catch 'exit
           (while (setq start (string-match
-                              "^\\([\t]*[^\t\n]\\)" kill (1+ start)))
+                              "^\\([\t]*[^\t\f\n]\\)" kill (1+ start)))
             (when (< (- (match-end 1) (match-beginning 1)) start-level)
               (throw 'exit nil)))
           t)))))
@@ -4062,7 +4062,7 @@ subtree from the kill ring."
   (unless text (user-error "Nothing to paste"))
   (unless (taskpaper-kill-is-subtree-p text)
     (user-error "The text is not a (set of) tree(s)"))
-  (let* ((old-level (if (string-match "^\\([\t]*[^\t\n]\\)" text)
+  (let* ((old-level (if (string-match "^\\([\t]*[^\t\f\n]\\)" text)
                         (- (match-end 1) (match-beginning 1))
                       1))
          (cur-level (if (outline-on-heading-p t)
@@ -5241,7 +5241,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   ;; Outline settings
   ;; NOTE: Group 1 in `outline-regexp' is used by `replace-match'
   ;; in `taskpaper-promote' and `taskpaper-demote' functions.
-  (taskpaper-set-local 'outline-regexp "\\([\t]*\\)[^\t\n]")
+  (taskpaper-set-local 'outline-regexp "\\([\t]*\\)[^\t\f\n]")
   (taskpaper-set-local 'outline-heading-end-regexp "\n")
   (taskpaper-set-local 'outline-blank-line t)
   ;; Paragraph filling
