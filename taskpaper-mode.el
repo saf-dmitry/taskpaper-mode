@@ -2092,7 +2092,7 @@ VALUE is the attribute value, as strings."
 ;;;; Attribute caching
 
 ;; NOTE: Due to attribute inheritance mechanism
-;; attribute cache should be build and clear atomically as a whole!
+;; attribute cache should be build and clear atomically as a whole
 
 (defvar taskpaper-attribute-cache (make-hash-table :size 10000)
   "Attribute cache.")
@@ -2132,20 +2132,17 @@ Return read-only alist (NAME . VALUE) where NAME is the attribute
 name and VALUE is the attribute value, as strings. If INHERIT is
 non-nil also check higher levels of the hierarchy."
   (let* ((key (point-at-bol))
-         (chattrs (taskpaper-attribute-cache-get key))
-         spattrs exattrs ihattrs attrs)
-    (if chattrs
-        (setq attrs chattrs)
-      (setq spattrs (taskpaper-item-get-special-attributes))
-      (setq exattrs (taskpaper-item-get-explicit-attributes))
+         (attrs (taskpaper-attribute-cache-get key)))
+    (unless attrs
+      (setq attrs (append (taskpaper-item-get-special-attributes)
+                          (taskpaper-item-get-explicit-attributes)))
       (when (and inherit (outline-on-heading-p t))
         (save-excursion
           (while (taskpaper-outline-up-level-safe)
-            (setq ihattrs (append
-                           (taskpaper-remove-uninherited-attributes
-                            (taskpaper-item-get-explicit-attributes))
-                           ihattrs)))))
-      (setq attrs (append spattrs exattrs ihattrs)))
+            (setq attrs
+                  (append attrs
+                          (taskpaper-remove-uninherited-attributes
+                           (taskpaper-item-get-explicit-attributes))))))))
     (taskpaper-uniquify attrs)))
 
 (defun taskpaper-item-get-attribute (name &optional inherit)
