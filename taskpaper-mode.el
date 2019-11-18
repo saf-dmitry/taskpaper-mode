@@ -36,7 +36,7 @@
 
 ;;; Code:
 
-;;;; Loaded modules
+;;;; Features
 
 (require 'cl-lib)
 (require 'outline)
@@ -1940,7 +1940,7 @@ current file automatically push the old position onto the ring."
         (tag-re (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
         (indent "") (tags ""))
     (save-match-data
-      ;; Strip indent and "trailing" tags and save them
+      ;; Strip indent and trailing tags and save them
       (when (string-match ind-re item)
         (setq indent (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
@@ -1974,7 +1974,7 @@ Valid symbol names for type are 'project, 'task, or 'note."
     ;; Remove existing type formatting
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
-      ;; Strip indent and "trailing" tags and save them
+      ;; Strip indent and trailing tags and save them
       (when (string-match ind-re item)
         (setq indent (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
@@ -2081,11 +2081,11 @@ VALUE is the attribute value, as strings."
 
 (defun taskpaper-remove-uninherited-attributes (attrs)
   "Remove attributes excluded from inheritance from alist ATTRS."
-  (let ((exattrs taskpaper-tags-exclude-from-inheritance)
-        excluded)
-    (when exattrs
+  (when taskpaper-tags-exclude-from-inheritance
+    (let (excluded)
       (dolist (attr attrs)
-        (when (not (member (car attr) exattrs)) (push attr excluded)))
+        (when (not (member (car attr) taskpaper-tags-exclude-from-inheritance))
+          (push attr excluded)))
       (setq attrs (nreverse excluded))))
   attrs)
 
