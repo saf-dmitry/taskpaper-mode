@@ -3832,10 +3832,12 @@ sorting key as string."
     (setq item (taskpaper-remove-markup-chars item)
           item (taskpaper-remove-indentation item)
           item (taskpaper-remove-type-formatting item))
+    (set-text-properties 0 (length item) nil item)
     item))
 
 (defun taskpaper-item-sorting-key-type ()
-  "Return sorting key of item at point for sorting by type."
+  "Return sorting key of item at point for sorting by type.
+Get type of item at point and return sorting key as number."
   (let ((type (taskpaper-item-get-attribute "type"))
         (prec '(("project" . 3) ("task" . 2) ("note" . 1))))
     (cdr (assoc type prec))))
