@@ -1215,8 +1215,7 @@ is essential."
 (defun taskpaper-save-all-taskpaper-buffers ()
   "Save all TaskPaper mode buffers without user confirmation."
   (interactive)
-  (save-some-buffers
-   t (lambda () (derived-mode-p 'taskpaper-mode))))
+  (save-some-buffers t (lambda () (derived-mode-p 'taskpaper-mode))))
 
 (defun taskpaper-open-file-with-cmd (file cmd)
   "Open the FILE using CMD.
@@ -1307,7 +1306,7 @@ With optional argument IN-EMACS, visit the file in Emacs."
          (dirp (file-directory-p file))
          (amap (assq 'auto-mode apps))
          (dfile (downcase file))
-         (ext (and (string-match "\\.\\([[:alnum:]]+\\(\\.gz\\)?\\)\\'" dfile)
+         (ext (and (string-match "\\.\\([[:alnum:]]+\\(\\.gz\\|\\.bz2\\)?\\)\\'" dfile)
                    (match-string 1 dfile)))
          cmd)
     ;; Set open command
