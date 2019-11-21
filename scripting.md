@@ -243,6 +243,8 @@ The function described in the next example marks all items in the subtree under 
         (taskpaper-outline-map-tree
          `(lambda ()
             (unless (taskpaper-item-has-attribute "done")
+              (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
+                    taskpaper-tags-to-remove-when-done)
               (taskpaper-item-set-attribute "done" ,ts))))))
 
 The following more complex example utilizes `taskpaper-outline-map-region` outline mapping function and `taskpaper-archive-subtree` function to archive all completed items in the current buffer:
