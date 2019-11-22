@@ -3900,8 +3900,8 @@ path also includes the current item."
 
 (defun taskpaper-format-olpath-entry (entry)
   "Format the outline path entry ENTRY for display."
-  (setq entry (taskpaper-remove-type-formatting entry)
-        entry (taskpaper-remove-trailing-tags entry)
+  (setq entry (taskpaper-remove-trailing-tags
+               (taskpaper-remove-type-formatting entry))
         entry (replace-regexp-in-string "/" ":" entry))
   entry)
 
