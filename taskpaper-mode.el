@@ -391,6 +391,18 @@ attention to case differences."
         (substring string 0 (- (length string) (length suffix)))
       string)))
 
+(unless (fboundp 'string-collate-equalp)
+  (defun string-collate-equalp (s1 s2 &rest _)
+    "Returns t if S1 and S2 are equal with respect to collation rules.
+Case is significant."
+    (string= s1 s2)))
+
+(unless (fboundp 'string-collate-lessp)
+  (defun string-collate-lessp (s1 s2 &rest _)
+    "Return t if S1 is less than S2 in collation order.
+Case is significant."
+    (string< s1 s2)))
+
 ;;;; Generally useful functions
 
 (defun taskpaper-mode-version ()
@@ -3868,7 +3880,7 @@ The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
    '(lambda nil (taskpaper-item-sorting-key-alpha))
-   'taskpaper-string< nil reverse))
+   'string-collate-lessp nil reverse))
 
 (defun taskpaper-sort-by-type (&optional reverse)
   "Sort items on a certain level by type.
