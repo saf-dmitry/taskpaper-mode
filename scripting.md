@@ -273,6 +273,27 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
        (point-min) (point-max)))
 
 
+### To-Do Dependencies
+
+Usually, a parent action should not be marked as done until all sub-tasks are marked as done. Sometimes when pressing `C-c C-d` you may inadvertently complete items still containing open sub-tasks. Configuring the hook `taskpaper-blocker-hook` helps preventing this. The value of this hook may be nil, a function, or a list of functions. Functions in this hook should not modify the buffer. Each function gets as its single argument a buffer position at the beginning of item. If any of the functions in this hook returns nil, the completion is blocked.
+
+The following code adds `my-taskpaper-item-can-be-completed` function to the hook. The function will check the current item and return non-nil if all its actionable children, i.e. projects and tasks, are completed.
+
+    (defun my-taskpaper-item-can-be-completed (pos)
+      "Return non-nil if item at point can be marked as completed.
+    Check the current item and return non-nil if all its actionable
+    children are completed."
+      (goto-char pos)
+      (let ((complete-ok t))
+        (taskpaper-outline-map-descendants
+         '(lambda ()
+            (when (taskpaper-query-item-match-p "not note and not @done")
+              (setq complete-ok nil))))
+        complete-ok))
+
+    (add-hook 'taskpaper-blocker-hook 'my-taskpaper-item-can-be-completed)
+
+
 ### Sorting
 
 In addition to the existing sorting functions `taskpaper-sort-alpha` and `taskpaper-sort-by-type` you can define your own using the generic sorting function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in ascending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
