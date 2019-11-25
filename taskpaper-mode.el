@@ -1375,7 +1375,8 @@ directory. An absolute path can be forced with a
   (interactive "P")
   (let ((path (taskpaper-file-path-escape
                (taskpaper-file-path-complete arg))))
-    (unless (or (bolp) (eq (char-before) ?\ )) (insert " "))
+    ;; Add separator space, if nessessary
+    (unless (or (bolp) (eq (char-syntax (char-before)) 32)) (insert " "))
     (insert (concat "file:" path))))
 
 (defun taskpaper-open-link (link)
