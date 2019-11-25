@@ -279,10 +279,8 @@ Usually, a parent action should not be marked as done until all sub-tasks are ma
 
 The following code adds `my-taskpaper-item-can-be-completed` function to the hook. The function will check the current item and return non-nil if all its actionable children, i.e. projects and tasks, are completed.
 
-    (defun my-taskpaper-item-can-be-completed (pos)
-      "Return non-nil if item at point can be marked as completed.
-    Check the current item and return non-nil if all its actionable
-    children are completed."
+    (defun my-taskpaper-blocker-func-1 (pos)
+      "Return non-nil if item at point can be marked as completed."
       (goto-char pos)
       (let ((complete-ok t))
         (taskpaper-outline-map-descendants
@@ -291,7 +289,20 @@ The following code adds `my-taskpaper-item-can-be-completed` function to the hoo
               (setq complete-ok nil))))
         complete-ok))
 
-    (add-hook 'taskpaper-blocker-hook 'my-taskpaper-item-can-be-completed)
+    (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-1)
+
+Sometimes actions need to be completed in a predetermined order: The first task must be finished before you can move on to the next. In this case you can instruct another blocker function to check if all previous actionable siblings are completed:
+
+    (defun my-taskpaper-blocker-func-2 (pos)
+      "Return non-nil if item at point can be marked as completed."
+      (goto-char pos)
+      (let ((complete-ok t))
+        (while (taskpaper-outline-backward-same-level-safe)
+          (when (taskpaper-query-item-match-p "not note and not @done")
+            (setq complete-ok nil)))
+        complete-ok))
+
+    (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-2)
 
 
 ### Sorting
