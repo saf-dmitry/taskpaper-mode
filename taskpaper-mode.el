@@ -513,24 +513,13 @@ is used by default. Only the current line is checked."
     (setq path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
-(defun taskpaper-file-remote-p (file)
-  "Test whether FILE specifies a location on a remote system."
-  (cond
-   ((fboundp 'file-remote-p)
-    (file-remote-p file))
-   ((fboundp 'tramp-handle-file-remote-p)
-    (tramp-handle-file-remote-p file))
-   ((and (boundp 'ange-ftp-name-format)
-         (string-match (car ange-ftp-name-format) file))
-    t)))
-
 (defun taskpaper-file-missing-p (file)
   "Test if local FILE exists.
 Return non-nil if local FILE does not exist, otherwise return
 nil. For performance reasons remote files are not checked."
-  (if (and (not (taskpaper-file-remote-p file))
-           (not (file-exists-p file)))
-      t nil))
+  (if (and (not (file-remote-p file)) (not (file-exists-p file)))
+      t
+    nil))
 
 (defun taskpaper-file-image-p (file)
   "Return non-nil if FILE is an image file."
@@ -1314,7 +1303,7 @@ With optional argument IN-EMACS, visit the file in Emacs."
                    buffer-file-name
                  (substitute-in-file-name (expand-file-name path))))
          (apps (append taskpaper-file-apps (taskpaper-default-apps)))
-         (remp (and (assq 'remote apps) (taskpaper-file-remote-p file)))
+         (remp (and (assq 'remote apps) (file-remote-p file)))
          (dirp (file-directory-p file))
          (amap (assq 'auto-mode apps))
          (dfile (downcase file))
