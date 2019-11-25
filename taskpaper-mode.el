@@ -200,7 +200,7 @@ second part is a heading.
 
 When the filename is omitted, archiving happens in the same file.
 A %s formatter in the filename will be replaced by the current
-file name (without the directory part and file extension).
+file name without the directory part and file extension.
 
 The archived items will be filed as subtrees of the specified
 item. When the heading is omitted, the subtrees are simply filed
