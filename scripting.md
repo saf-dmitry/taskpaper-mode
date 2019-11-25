@@ -222,10 +222,7 @@ The following two functions are similar to `taskpaper-outline-promote-subtree` a
 The next example uses `taskpaper-outline-map-tree` outline mapping function and `taskpaper-item-remove-attribute` function to remove all occurrences of certain tag from all items in the subtree under cursor. The user will be prompted for tag name and tag value to remove. If no value is provided, tags with any value or no value at all will be considered.
 
     (defun my-taskpaper-outline-remove-tag ()
-      "Remove certain tag from all items in the current subtree.
-    Prompt for tag name and tag value and remove the tag. If tag
-    value is empty, tags with any value or no value will be
-    considered."
+      "Remove certain tag from all items in the current subtree."
       (interactive)
       (let ((name (read-string "Tag name: "))
             (value (read-string "Tag value: ")))
