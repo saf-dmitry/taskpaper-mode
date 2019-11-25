@@ -137,10 +137,11 @@ Possible values for this option are:
 
 (defcustom taskpaper-blocker-hook nil
   "Hook for functions that are allowed to block completion of item.
-Functions in this hook should not modify the buffer. Each
-function gets as its single argument a buffer position at the
-beginning of item. If any of the functions in this hook returns
-nil, the completion is blocked."
+The value of this hook may be nil, a function, or a list of
+functions. Functions in this hook should not modify the buffer.
+Each function gets as its single argument a buffer position at
+the beginning of item. If any of the functions in this hook
+returns nil, the completion is blocked."
   :group 'taskpaper
   :type 'hook)
 
