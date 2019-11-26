@@ -274,17 +274,17 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
 
 Usually, a parent action should not be marked as done until all sub-tasks are marked as done. Sometimes when pressing `C-c C-d` you may inadvertently complete items still containing open sub-tasks. Configuring the hook `taskpaper-blocker-hook` helps preventing this. The value of this hook may be nil, a function, or a list of functions. Functions in this hook should not modify the buffer. Each function gets as its single argument a buffer position at the beginning of item. If any of the functions in this hook returns nil, the completion is blocked.
 
-The following code adds `my-taskpaper-item-can-be-completed` function to the hook. The function will check the current item and return non-nil if all its actionable children, i.e. projects and tasks, are completed.
+The following code adds `my-taskpaper-blocker-func-1` function to the hook. The function will check the current item and return non-nil if all its actionable children, i.e. projects and tasks, are completed.
 
     (defun my-taskpaper-blocker-func-1 (pos)
       "Return non-nil if item at point can be marked as completed."
       (goto-char pos)
-      (let ((complete-ok t))
+      (catch 'exit
         (taskpaper-outline-map-descendants
          '(lambda ()
             (when (taskpaper-query-item-match-p "not note and not @done")
-              (setq complete-ok nil))))
-        complete-ok))
+              (throw 'exit nil))))
+        t))
 
     (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-1)
 
@@ -293,11 +293,11 @@ Sometimes actions need to be completed in a predetermined order: The first task 
     (defun my-taskpaper-blocker-func-2 (pos)
       "Return non-nil if item at point can be marked as completed."
       (goto-char pos)
-      (let ((complete-ok t))
+      (catch 'exit
         (while (taskpaper-outline-backward-same-level-safe)
           (when (taskpaper-query-item-match-p "not note and not @done")
-            (setq complete-ok nil)))
-        complete-ok))
+            (throw 'exit nil)))
+        t))
 
     (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-2)
 
