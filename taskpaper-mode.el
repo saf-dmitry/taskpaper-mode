@@ -1308,7 +1308,8 @@ With optional argument IN-EMACS, visit the file in Emacs."
          (dirp (file-directory-p file))
          (amap (assq 'auto-mode apps))
          (dfile (downcase file))
-         (ext (and (string-match "\\.\\([[:alnum:]]+\\(\\.gz\\|\\.bz2\\)?\\)\\'" dfile)
+         (ext (and (string-match
+                    "\\.\\([[:alnum:]]+\\(\\.gz\\|\\.bz2\\)?\\)\\'" dfile)
                    (match-string 1 dfile)))
          cmd)
     ;; Set open command
@@ -1885,10 +1886,9 @@ current file automatically push the old position onto the ring."
   (cond
    ((bolp) (newline))
    ((outline-on-heading-p)
-    (let* ((level (save-excursion (save-match-data (funcall outline-level))))
-           (indent (make-string (1- level) ?\t)))
-      (newline) (insert indent)))
-   (t (delete-horizontal-space))))
+    (let ((level (save-excursion (save-match-data (funcall outline-level)))))
+      (newline) (insert (make-string (1- level) ?\t))))
+   (t (beginning-of-line) (delete-horizontal-space))))
 
 (defun taskpaper-new-task-same-level ()
   "Insert new task at same level."
