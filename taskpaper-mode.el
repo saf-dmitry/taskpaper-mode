@@ -593,6 +593,25 @@ NAME should be a string or a list of strings."
     (mapcar #'(lambda (x) (string-remove-prefix "@" x)) name))
    (t (error "Argument should be a string or a list of strings."))))
 
+(defun taskpaper-kill-is-subtree-p (&optional text)
+  "Check if the current kill is a valid subtree.
+Return nil if the first item level is not the largest item level
+in the tree. So this will actually accept a set of subtrees as
+well. If optional TEXT string is given, check it instead of the
+current kill."
+  (save-match-data
+    (let* ((kill (or text (and kill-ring (current-kill 0)) ""))
+           (start-level (and (string-match "\\`\\([\t]*[^\t\f\n]\\)" kill)
+                             (- (match-end 1) (match-beginning 1))))
+           (start (1+ (or (match-beginning 1) -1))))
+      (if (not start-level) nil
+        (catch 'exit
+          (while (setq start (string-match
+                              "^\\([\t]*[^\t\f\n]\\)" kill (1+ start)))
+            (when (< (- (match-end 1) (match-beginning 1)) start-level)
+              (throw 'exit nil)))
+          t)))))
+
 ;;;; Re-usable regexps
 
 (defconst taskpaper-uri-schemes-browser
@@ -3990,25 +4009,6 @@ current subtree."
 
 ;;;; Copying, cutting, and pasting of trees
 
-(defun taskpaper-clone-subtree ()
-  "Duplicate the current subtree.
-Paste a copy of the current subtree as its next sibling."
-  (interactive)
-  (let (begin end)
-    (save-excursion
-      (save-match-data
-        ;; Mark the current subtree
-        (outline-back-to-heading)
-        (setq begin (point))
-        (taskpaper-outline-end-of-subtree)
-        (if (eq (char-after) ?\n) (forward-char 1)
-          ;; Add newline, if nessessary
-          (unless (bolp) (end-of-line 1) (newline)))
-        (setq end (point))
-        ;; Paste duplicate
-        (insert-before-markers
-         (buffer-substring begin end))))))
-
 (defun taskpaper-copy-subtree (&optional cut)
   "Copy the current subtree into the kill ring.
 If CUT is non-nil, actually cut the subtree."
@@ -4016,7 +4016,7 @@ If CUT is non-nil, actually cut the subtree."
   (let (begin end)
     (save-excursion
       (save-match-data
-        ;; Mark the current subtree
+        ;; Bound the current subtree
         (outline-back-to-heading) (setq begin (point))
         (taskpaper-outline-end-of-subtree)
         (if (eq (char-after) ?\n) (forward-char 1)
@@ -4032,26 +4032,6 @@ If CUT is non-nil, actually cut the subtree."
   "Cut the current subtree and put it into the kill ring."
   (interactive)
   (taskpaper-copy-subtree 'cut))
-
-(defun taskpaper-kill-is-subtree-p (&optional txt)
-  "Check if the current kill is a valid subtree.
-Return nil if the first item level is not the largest item level
-in the tree. So this will actually accept a set of subtrees as
-well. If optional TXT string is given, check it instead of the
-current kill."
-  (save-match-data
-    (let* ((kill (or txt (and kill-ring (current-kill 0)) ""))
-           (start-level (and kill
-                             (string-match "\\`\\([\t]*[^\t\f\n]\\)" kill)
-                             (- (match-end 1) (match-beginning 1))))
-           (start (1+ (or (match-beginning 1) -1))))
-      (if (not start-level) nil
-        (catch 'exit
-          (while (setq start (string-match
-                              "^\\([\t]*[^\t\f\n]\\)" kill (1+ start)))
-            (when (< (- (match-end 1) (match-beginning 1)) start-level)
-              (throw 'exit nil)))
-          t)))))
 
 (defun taskpaper-paste-subtree (&optional level text remove)
   "Paste the current kill as a subtree, with modification of level.
@@ -4085,7 +4065,7 @@ subtree from the kill ring."
     (unless (bolp) (end-of-line 1) (newline))
     (setq begin (point))
     (insert-before-markers text)
-    ;; Add newline to text, if nessessary
+    ;; Add newline, if nessessary
     (unless (string-match-p "\n\\'" text) (newline))
     (setq end (point))
     ;; Adjust outline level
@@ -4102,6 +4082,16 @@ subtree from the kill ring."
     (when (called-interactively-p 'any)
       (message "Clipboard pasted as level %d subtree." new-level)))
   (when remove (setq kill-ring (cdr kill-ring))))
+
+(defun taskpaper-clone-subtree ()
+  "Duplicate the current subtree.
+ Paste a copy of the current subtree as its next sibling."
+  (interactive)
+  (outline-back-to-heading)
+  (let ((level (save-match-data (funcall outline-level))))
+    (taskpaper-copy-subtree)
+    (taskpaper-outline-end-of-subtree)
+    (taskpaper-paste-subtree level nil t)))
 
 ;;;; Refiling
 
