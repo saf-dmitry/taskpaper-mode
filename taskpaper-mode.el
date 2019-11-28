@@ -394,13 +394,13 @@ attention to case differences."
 
 (unless (fboundp 'string-collate-equalp)
   (defun string-collate-equalp (s1 s2 &rest _)
-    "Returns t if S1 and S2 are equal with respect to collation rules.
+    "Returns t if two strings have identical contents.
 Case is significant."
     (string= s1 s2)))
 
 (unless (fboundp 'string-collate-lessp)
   (defun string-collate-lessp (s1 s2 &rest _)
-    "Return t if S1 is less than S2 in collation order.
+    "Return t if first arg string is less than second in lexicographic order.
 Case is significant."
     (string< s1 s2)))
 
@@ -461,10 +461,10 @@ is used by default. Only the current line is checked."
       (save-excursion
         (goto-char pos) (beginning-of-line 1)
         (while (re-search-forward regexp eol t)
-          (if (and (>= pos (match-beginning 0))
-                   (<= pos (match-end 0)))
-              (throw 'exit (cons (match-beginning 0)
-                                 (match-end 0)))))))))
+          (when (and (>= pos (match-beginning 0))
+                     (<= pos (match-end 0)))
+            (throw 'exit (cons (match-beginning 0)
+                               (match-end 0)))))))))
 
 (defsubst taskpaper-set-local (var value)
   "Make VAR local in the current buffer and set it to VALUE."
@@ -1425,6 +1425,8 @@ directory. An absolute path can be forced with a
     (taskpaper-open-link link)))
 
 (defvar taskpaper-link-search-failed nil)
+(make-variable-buffer-local 'taskpaper-link-search-failed)
+
 (defun taskpaper-next-link (&optional back)
   "Move forward to the next link.
 If BACK is non-nil, move backward to the previous link."
@@ -2052,7 +2054,7 @@ This function does not set or modify the match data."
 (defun taskpaper-tag-name-p (name)
   "Return non-nil when NAME is a valid tag name."
   (let ((re (format "\\`%s\\'" taskpaper-tag-name-regexp)))
-    (and (stringp name) (string-match-p re name))))
+    (when (stringp name) (string-match-p re name))))
 
 (defun taskpaper-tag-value-escape (value)
   "Escape special characters in tag VALUE."
@@ -2264,7 +2266,7 @@ instead of item at point. Return new string."
 Treat the value string as a comma-separated list of values and
 return the values as a list of strings."
   (when (stringp value)
-    (save-match-data (split-string value ",[[:space:]]*" nil))))
+    (save-match-data (split-string value ",\\s-*" nil))))
 
 ;;;; Date and time
 
@@ -2757,7 +2759,7 @@ string and show the corresponding date."
          (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
     (insert-before-markers (format-time-string "%Y-%m-%d" time))))
 
-;;;; Date prompt
+;;;; Date/time prompt
 
 (defvar taskpaper-calendar-selected-date nil
   "Temporary storage for date selected from calendar.
@@ -2989,12 +2991,12 @@ Return selected tag specifier."
         (setq tbl taskpaper-tag-alist cnt 0)
         (while (setq e (pop tbl))
           (setq tg (car e) c (cdr e))
-          (if (and c tg)
-              (insert
-               (propertize (char-to-string c)
-                           'face 'taskpaper-fast-select-key)
-               " " (taskpaper-add-tag-prefix tg)
-               (make-string (- fwidth 2 (length tg)) ?\ )))
+          (when (and c tg)
+            (insert
+             (propertize (char-to-string c)
+                         'face 'taskpaper-fast-select-key)
+             " " (taskpaper-add-tag-prefix tg)
+             (make-string (- fwidth 2 (length tg)) ?\ )))
           (when (= (setq cnt (1+ cnt)) ncol) (insert "\n") (setq cnt 0)))
         (insert "\n\n") (goto-char (point-min)) (fit-window-to-buffer)
         ;; Select tag specifier
@@ -4106,11 +4108,11 @@ obtained in a different way."
   (let* ((loc (or rfloc (taskpaper-goto-get-location nil arg)))
          (path (car loc)) (pos (cdr loc)) level)
     ;; Check the target position
-    (if (and (not arg) pos
-             (>= pos (point))
-             (<  pos (save-excursion
-                       (taskpaper-outline-end-of-subtree) (point))))
-        (error "Cannot refile to item inside the current subtree"))
+    (when (and (not arg) pos
+               (>= pos (point))
+               (<  pos (save-excursion
+                         (taskpaper-outline-end-of-subtree) (point))))
+      (error "Cannot refile to item inside the current subtree"))
     ;; Copy the subtree
     (taskpaper-copy-subtree)
     ;; Move to the target position and paste the subtree
@@ -5220,8 +5222,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (kill-all-local-variables)
   ;; Disable Outline mode menus
   (define-key taskpaper-mode-map [menu-bar headings] 'undefined)
-  (define-key taskpaper-mode-map [menu-bar hide] 'undefined)
-  (define-key taskpaper-mode-map [menu-bar show] 'undefined)
+  (define-key taskpaper-mode-map [menu-bar hide]     'undefined)
+  (define-key taskpaper-mode-map [menu-bar show]     'undefined)
   ;; General settings
   (setq major-mode 'taskpaper-mode)
   (setq mode-name "TaskPaper")
