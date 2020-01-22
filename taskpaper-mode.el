@@ -38,7 +38,6 @@
 
 ;;;; Features
 
-(require 'cl-lib)
 (require 'outline)
 (require 'font-lock)
 (require 'easymenu)
@@ -46,6 +45,8 @@
 (require 'parse-time)
 (require 'cal-iso)
 (require 'overlay)
+
+;; (require 'cl-lib)
 
 ;;;; Variables
 
@@ -633,10 +634,10 @@ current kill."
 
 (defconst taskpaper-tag-name-char-regexp
   (concat
-   "[-a-zA-Z0-9._\u00B7\u0300-\u036F\u203F-\u2040"
-   "\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D"
-   "\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF"
-   "\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]")
+   "[-a-za-z0-9._\u00b7\u0300-\u036f\u203f-\u2040"
+   "\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u02ff\u0370-\u037d"
+   "\u037f-\u1fff\u200c-\u200d\u2070-\u218f\u2c00-\u2fef"
+   "\u3001-\ud7ff\uf900-\ufdcf\ufdf0-\ufffd]")
   "Regular expression for tag name character.")
 
 (defconst taskpaper-tag-name-regexp
@@ -2962,8 +2963,7 @@ buffer instead."
       ;; List possible completions
       (when completion-auto-help
         (with-output-to-temp-buffer completion-buffer-name
-          (display-completion-list
-           (all-completions pattern attrs) pattern)))
+          (display-completion-list (all-completions pattern attrs))))
       (set-window-dedicated-p
        (get-buffer-window completion-buffer-name) 'soft)))))
 
