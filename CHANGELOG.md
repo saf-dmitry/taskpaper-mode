@@ -1,5 +1,4 @@
 
-
 # Development Version
 
 Added:
@@ -13,7 +12,6 @@ Changed:
 - Fixed syntax highlighting for Markdown and plain URI links
 - Improved weekday handling in duration offsets
 
-
 # v1.0
 
 Added:
@@ -26,7 +24,6 @@ Removed:
 
 - Removed obsolete local fork of adaptive-wrap
 
-
 # v0.8
 
 Added:
@@ -38,14 +35,12 @@ Changed:
 
 - Changed default key bindings for query selection
 
-
 # v0.7
 
 Changed:
 
 - Improved incremental search responsiveness on long documents
 - Unified naming of outline mapping functions
-
 
 # v0.6
 
@@ -58,7 +53,6 @@ Changed:
 
 - Improved date & time prompt tracks date input live in calendar
 - New date & time parser understands quarters and minutes and accepts multiple duration offsets
-
 
 # v0.5
 
@@ -74,7 +68,6 @@ Changed:
 - Improved plain link handling
 - All faces renamed to not ending in "-face"
 
-
 # v0.4
 
 Added:
@@ -86,7 +79,6 @@ Changed:
 
 - Improved search query parsing and highlighting
 - Improved time parsing supports ISO week date representation
-
 
 # v0.3
 
@@ -105,7 +97,6 @@ Changed:
 - Improved completion for tag names
 - Improved date & time prompt can optionally return internal time
 
-
 # v0.2
 
 Added:
@@ -123,7 +114,6 @@ Added:
 Changed:
 
 - Improved syntax highlighting
-
 
 # v0.1
 

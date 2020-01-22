@@ -1,9 +1,7 @@
 
-
 # Scripting Guide
 
 This document covers some areas where users can automate and extend the functionality of TaskPaper mode using predefined hooks and API functions.
-
 
 # Contents
 
@@ -11,11 +9,9 @@ This document covers some areas where users can automate and extend the function
 - [Hooks](#hooks)
 - [Scripting Examples](#scripting-examples)
 
-
 ## API Functions
 
 Following API functions can be used to automate and extend TaskPaper mode. For details see the documentation strings of these functions.
-
 
 ### Outline Mapping and Traversing
 
@@ -36,12 +32,10 @@ The mapping routines can call any arbitrary function.
 - `taskpaper-outline-end-of-item`
 - `taskpaper-outline-end-of-subtree`
 
-
 ### Item Path
 
 - `taskpaper-item-has-children-p`
 - `taskpaper-item-get-outline-path`
-
 
 ### Sorting and Filtering
 
@@ -55,7 +49,6 @@ General functions for extending sorting and filtering functionality.
 - `taskpaper-item-sorting-key-type`
 - `taskpaper-string-sorting-key-alpha`
 - `taskpaper-string-sorting-key-type`
-
 
 ### Accessing and Setting Attributes
 
@@ -72,7 +65,6 @@ Functions for working with attributes.
 - `taskpaper-string-set-attribute`
 - `taskpaper-string-remove-attribute`
 - `taskpaper-attribute-value-to-list`
-
 
 ### Relation Functions for Attribute Values
 
@@ -154,17 +146,14 @@ Following functions interpret attribute values as comma-separated lists.
 - `taskpaper-cslist-time-prefix-p`
 - `taskpaper-cslist-time-suffix-p`
 
-
 ### Formatting of Items
 
 - `taskpaper-item-format`
-
 
 ### Date and Time
 
 - `taskpaper-read-date`
 - `taskpaper-expand-time-string`
-
 
 ### Buffers and Files
 
@@ -175,11 +164,9 @@ Functions for working with TaskPaper files and buffers.
 - `taskpaper-save-all-taskpaper-buffers`
 - `taskpaper-outline-normalize-indentation`
 
-
 ### Quick Entry
 
 - `taskpaper-add-entry`
-
 
 ## Hooks
 
@@ -192,11 +179,9 @@ Hooks are options containing functions to be run before or after a function.
 - `taskpaper-after-sorting-items-hook`
 - `taskpaper-agenda-after-show-hook`
 
-
 ## Scripting Examples
 
 Following are some scripting examples, which utilize the API functions mentioned above.
-
 
 ### Mapping and Structure Editing
 
@@ -215,7 +200,6 @@ The following two functions are similar to `taskpaper-outline-promote-subtree` a
       (taskpaper-outline-map-region
        'taskpaper-outline-demote
        (region-beginning) (region-end)))
-
 
 ### Mapping and Attribute Setting
 
@@ -269,7 +253,6 @@ The function `taskpaper-outline-previous-item-safe` prevents the next entry to b
             (taskpaper-outline-previous-item-safe)))
        (point-min) (point-max)))
 
-
 ### To-Do Dependencies
 
 Usually, a parent action should not be marked as done until all sub-tasks are marked as done. Sometimes when pressing `C-c C-d` you may inadvertently complete items still containing open sub-tasks. Configuring the hook `taskpaper-blocker-hook` helps preventing this. The value of this hook may be nil, a function, or a list of functions. Functions in this hook should not modify the buffer. Each function gets as its single argument a buffer position at the beginning of item. If any of the functions in this hook returns nil, the completion is blocked.
@@ -301,7 +284,6 @@ Sometimes actions need to be completed in a predetermined order: The first task 
 
     (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-2)
 
-
 ### Sorting
 
 In addition to the existing sorting functions `taskpaper-sort-alpha` and `taskpaper-sort-by-type` you can define your own using the generic sorting function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in ascending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
@@ -332,7 +314,6 @@ The next function sorts items according to their due dates. The sorting is done 
 
 As further examples see the `taskpaper-sort-alpha` and `taskpaper-sort-by-type` function definitions.
 
-
 ### Repeating Actions
 
 You can specify the recurrence of repeating actions using a dedicated repeater tag. In the following example the time value of the `repeat` tag is the repeater specification:
@@ -359,7 +340,6 @@ The following function checks if the item at point has the repeater attribute `@
               (error "Invalid repeater specification: %s" rep)))
           (taskpaper-item-remove-attribute "done")
           (taskpaper-item-set-attribute "due" time-str))))
-
 
 ### Quick Entry
 
@@ -389,14 +369,12 @@ and place it somewhere in the path where executable programs are located. Now yo
 
 in the command line.
 
-
-### Syncronization
+### Synchronization
 
 Activating the auto-revert minor mode can be useful if you want to edit your TaskPaper files from another location and sync them e.g. via [Dropbox][dropbox] or add entries using quick entry script as described above, so whenever a file changes and is re-synced, the corresponding buffer is updated. You can automate the activation of this mode via `taskpaper-mode-hook`:
 
     (add-hook 'taskpaper-mode-hook
               (lambda () (auto-revert-mode 1)))
-
 
 [dropbox]: https://www.dropbox.com/
 
