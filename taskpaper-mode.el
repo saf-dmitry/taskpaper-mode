@@ -1,6 +1,6 @@
 ;;; taskpaper-mode.el --- Major mode for working with TaskPaper files
 
-;; Copyright 2016-2019 Dmitry Safronov
+;; Copyright 2016-2020 Dmitry Safronov
 
 ;; Author: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
