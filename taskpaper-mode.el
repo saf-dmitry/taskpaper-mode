@@ -45,8 +45,7 @@
 (require 'parse-time)
 (require 'cal-iso)
 (require 'overlay)
-
-;; (require 'cl-lib)
+(require 'cl-lib)
 
 ;;;; Variables
 
