@@ -1,3 +1,4 @@
+.DS_Store
 install.sh
 push.sh
 *.html
