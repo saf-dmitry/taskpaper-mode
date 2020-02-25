@@ -667,8 +667,6 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    (regexp-opt taskpaper-uri-schemes-browser)
    "\\|"
    "www[[:digit:]]\\{0,3\\}[.]"
-   "\\|"
-   "\\(?:[[:alnum:]][-[:alnum:]_]*[.]\\)+[[:alpha:]]\\{2,4\\}[/]"
    "\\)"
    "\\(?:"
    "[^[:space:]()<>]"
