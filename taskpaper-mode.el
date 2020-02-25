@@ -777,9 +777,9 @@ Group 1 matches the whole note expression.")
 (defconst taskpaper-emphasis-text-regexp
   (concat
    "\\(?:"
-   "\\(?:\\\\.\\|[^ \t\n*_\\]\\)"
+   "\\(?:\\\\.\\|[^[:space:]*_\\]\\)"
    "\\|"
-   "[^ \t\n*_][^\n]*?\\(?:\\\\.\\|[^ \t\n*_\\]\\)"
+   "[^[:space:]*_][^\n]*?\\(?:\\\\.\\|[^[:space:]*_\\]\\)"
    "\\)")
   "Regular expression for emphasis text.")
 
