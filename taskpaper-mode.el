@@ -689,8 +689,9 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (concat
    "\\("
    "\\(?:\\<mailto:\\)?"
-   "[-[:alnum:]_=.+%]+@"
-   "\\(?:[[:alnum:]][-[:alnum:]_]*[.]\\)+[[:alpha:]]\\{2,4\\}"
+   "[[:alnum:].!#$%&'*+/=?^_`{}|~-]+@"
+   "[[:alnum:]]\\(?:[[:alnum:]-]\\{0,61\\}[[:alnum:]]\\)?"
+   "\\(?:[.][[:alnum:]]\\(?:[[:alnum:]-]\\{0,61\\}[[:alnum:]]\\)?\\)*"
    "\\)")
   "Regular expression for email address.")
 
