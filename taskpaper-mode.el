@@ -698,7 +698,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\("
    "\\<file:\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\|"
-   "\\(?:[.]\\{1,2\\}\\|~\\|[a-zA-Z]:\\)?/\\(?:\\\\ \\|[^ \0\n]\\)*"
+   "\\(?:[.]\\{1,2\\}\\|~\\|[a-zA-Z]:\\)?[/]\\(?:\\\\ \\|[^ \0\n]\\)*"
    "\\)")
   "Regular expression for file path.")
 
