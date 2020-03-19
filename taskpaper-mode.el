@@ -687,7 +687,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (concat
    "\\("
    "\\(?:\\<mailto:\\)?"
-   "[[:alnum:].!#$%&'*+/=?^_`{}|~-]+@"
+   "[[:alnum:]!#$%&'*+./=?^_`{|}~-]+@"
    "[[:alnum:]]\\(?:[[:alnum:]-]\\{0,61\\}[[:alnum:]]\\)?"
    "\\(?:[.][[:alnum:]]\\(?:[[:alnum:]-]\\{0,61\\}[[:alnum:]]\\)?\\)*"
    "\\)")
