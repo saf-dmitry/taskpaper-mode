@@ -341,6 +341,22 @@ The following function checks if the item at point has the repeater attribute `@
           (taskpaper-item-remove-attribute "done")
           (taskpaper-item-set-attribute "due" time-str))))
 
+### Summary Reports
+
+Using mapping and querying functions you can generate your own custom summary reports and statistics. The following simple example creates a short summary for the current subtree and displays it in the echo area:
+
+    (defun my-taskpaper-summary ()
+      "Display summary report for the current subtree."
+      (interactive)
+      (let ((cnt-open 0) (cnt-hold 0))
+        (taskpaper-outline-map-tree
+         '(lambda ()
+            (when (taskpaper-query-item-match-p "task and not @done")
+              (setq cnt-open (1+ cnt-open)))
+            (when (taskpaper-query-item-match-p "task and not @done and @hold")
+              (setq cnt-hold (1+ cnt-hold)))))
+        (message "Open tasks: %d; tasks on hold: %d." cnt-open cnt-hold)))
+
 ### Quick Entry
 
 The API function `taskpaper-add-entry` can be used in Lisp programs to add entries inside Emacs or in shell scripts to add entries from the command line. On UNIX systems the following small shell script will add entries to the top-level project "Inbox" located in the file `~/gtd.taskpaper`. If the project doesn't exist, it will be created at the end of given file as top-level item. The entry text should be given as single argument (quoted or not) to the shell script. A tag `@added` with the current date will be appended to the entry.
