@@ -837,7 +837,7 @@ Group 4 matches the closing delimiters.")
   :group 'taskpaper-faces)
 
 (defface taskpaper-done-item
-  '((t :strike-through "red"))
+  `((t :strike-through ,(face-attribute 'shadow :foreground)))
   "Face for items marked as complete."
   :group 'taskpaper-faces)
 
