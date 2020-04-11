@@ -366,14 +366,14 @@ The API function `taskpaper-add-entry` can be used in Lisp programs to add entri
     emacs='/Applications/Emacs.app/Contents/MacOS/Emacs'
     file="$HOME/gtd.taskpaper"
     location='Inbox:'
-    time=$(date "+%Y-%m-%d")
+    time=$(date '+%Y-%m-%d')
     text="$@ @added($time)"
 
     $emacs \
         --batch --load '~/.emacs' \
         --eval "(taskpaper-add-entry \"$text\" \"$location\" \"$file\")" \
         -f save-buffer &> /dev/null \
-        && echo "Entry added."
+        && echo 'Entry added.'
 
 Save the script as i.e., `tp-add`, make it executable by typing in your terminal
 
