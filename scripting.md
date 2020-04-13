@@ -370,9 +370,9 @@ The API function `taskpaper-add-entry` can be used in Lisp programs to add entri
     text="$@ @added($time)"
 
     $emacs \
-        --batch --load '~/.emacs' \
+        --batch --load "$HOME/.emacs" \
         --eval "(taskpaper-add-entry \"$text\" \"$location\" \"$file\")" \
-        -f save-buffer &> /dev/null \
+        --funcall save-buffer --kill > /dev/null 2>&1 \
         && echo 'Entry added.'
 
 Save the script as i.e., `tp-add`, make it executable by typing in your terminal
