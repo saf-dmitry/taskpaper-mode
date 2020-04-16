@@ -322,7 +322,7 @@ You can specify the recurrence of repeating actions using a dedicated repeater t
 
 The intended interpretation is that the task is due on 2018-02-01 and repeats itself every (one) month starting from that time. Meaningful repeater values are duration offsets and combination thereof, which shift time into the future, i.e., `+5d`, `+2w`, `+2 Tue`, etc.
 
-The following function checks if the item at point has the repeater attribute `@repeat`, and if yes, shifts the time value of the `@due` attribute to the next possible future time as specified by the repeater value. If no due date is set or if the function is called with the `C-u` prefix argument, the time shift is calculated from the current time instead.
+The following function checks if the item at point has a repeater attribute `@repeat`, and if yes, shifts the time value of the `@due` attribute to the next possible future time as specified by the repeater value. If no due date is set or if the function is called with the `C-u` prefix argument, the time shift is calculated from the current time instead.
 
     (defun my-taskpaper-item-repeat-maybe (&optional from-now)
       "Re-schedule recurring item."
@@ -348,14 +348,14 @@ Using mapping and querying functions you can generate your own custom summary re
     (defun my-taskpaper-summary ()
       "Display summary report for the current subtree."
       (interactive)
-      (let ((cnt-open 0) (cnt-hold 0))
+      (let ((cnt-task-open 0) (cnt-task-hold 0))
         (taskpaper-outline-map-tree
          '(lambda ()
             (when (taskpaper-query-item-match-p "task and not @done")
-              (setq cnt-open (1+ cnt-open)))
+              (setq cnt-task-open (1+ cnt-task-open)))
             (when (taskpaper-query-item-match-p "task and not @done and @hold")
-              (setq cnt-hold (1+ cnt-hold)))))
-        (message "Open tasks: %d; tasks on hold: %d." cnt-open cnt-hold)))
+              (setq cnt-task-hold (1+ cnt-task-hold)))))
+        (message "Open tasks: %d; tasks on hold: %d." cnt-task-open cnt-task-hold)))
 
 ### Quick Entry
 
