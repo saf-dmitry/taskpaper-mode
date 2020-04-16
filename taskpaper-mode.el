@@ -977,7 +977,7 @@ types are 'email, 'uri-browser, 'file, and 'unknown."
              'face (taskpaper-get-link-face link)
              'mouse-face 'highlight
              'keymap taskpaper-mouse-map-link
-             'help-echo (concat "Link: " link))))
+             'help-echo (concat "Open " link))))
     (add-text-properties
      (match-beginning 2) (match-end 2) taskpaper-markup-properties)
     (add-text-properties
@@ -1006,7 +1006,7 @@ types are 'email, 'uri-browser, 'file, and 'unknown."
                'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo (concat "Link: " link))))
+               'help-echo (concat "Send email to " link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -1031,7 +1031,7 @@ types are 'email, 'uri-browser, 'file, and 'unknown."
                'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo (concat "Link: " link))))
+               'help-echo (concat "Open " link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
@@ -1056,7 +1056,7 @@ types are 'email, 'uri-browser, 'file, and 'unknown."
                'face (taskpaper-get-link-face link)
                'mouse-face 'highlight
                'keymap taskpaper-mouse-map-link
-               'help-echo (concat "Link: " link))))
+               'help-echo (concat "Open " link))))
       (taskpaper-rear-nonsticky-at (match-end 1))
       t)))
 
