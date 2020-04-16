@@ -933,7 +933,7 @@ If TAG is a number, get the corresponding match group."
              'face (taskpaper-get-tag-face 2)
              'mouse-face 'highlight
              'keymap taskpaper-mouse-map-tag
-             'help-echo "Query for Tag"))
+             'help-echo "Query for tag"))
       (taskpaper-rear-nonsticky-at (match-end 1)))
     t))
 
@@ -1163,7 +1163,7 @@ types are 'email, 'uri-browser, 'file, and 'unknown."
      (match-beginning 2) (match-end 2)
      (list 'mouse-face 'highlight
            'keymap taskpaper-mouse-map-mark
-           'help-echo "Toggle Done"))
+           'help-echo "Toggle done"))
     (taskpaper-rear-nonsticky-at (match-end 2))
     t))
 
