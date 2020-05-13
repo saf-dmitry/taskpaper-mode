@@ -506,6 +506,7 @@ Here are some examples for predicates:
 - `@today`
 - `@type = note`
 - `@due <=[d] +10d`
+- `@due <=[d] next week`
 - `@priority >[n] 3`
 - `@amount <[n] 1.2e3`
 - `@text endswith ?`
@@ -566,7 +567,8 @@ Fast selection interface allows you to save your commonly used search queries an
     (setq taskpaper-custom-queries
           '((?w "Waiting"  "@waiting and not @done")
             (?d "Due Soon" "@due <=[d] +14d and not @done")
-            (?o "Overdue"  "@due <[d] today and not @done")))
+            (?o "Overdue"  "@due <[d] today and not @done")
+            (?p "Pending"  "@start <=[d] today and @due >=[d] today and not @done")))
 
 The initial value in each item defines the key you have to press. The second parameter is a short description and the last one is the query string to be used for the matching. If the first parameter is a string, it will be used as block title to visually group queries. Pressing `C-c !` (`taskpaper-query-fast-select`) will then present you with a special interface, listing all predefined queries with corresponding selection keys.
 
