@@ -1362,7 +1362,7 @@ non-nil, force absolute path."
         (pwd  (file-name-as-directory (expand-file-name ".")))
         (pwd1 (file-name-as-directory
                (abbreviate-file-name (expand-file-name ".")))))
-    (when (equal file "") (user-error "File name cannot be empty"))
+    (when (equal file "") (user-error "File name must not be empty"))
     (cond
      (arg (abbreviate-file-name (expand-file-name file)))
      ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
@@ -4341,7 +4341,7 @@ filed at the end of the file, as top-level item."
 Return the number of matches."
   (interactive)
   (setq regexp (or regexp (read-regexp "Regexp: ")))
-  (when (equal regexp "") (user-error "Regexp cannot be empty"))
+  (when (equal regexp "") (user-error "Regexp must not be empty"))
   (taskpaper-occur-remove-highlights)
   (outline-flag-region (point-min) (point-max) t)
   (goto-char (point-min))
