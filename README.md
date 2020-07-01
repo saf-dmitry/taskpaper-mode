@@ -15,7 +15,7 @@ TaskPaper format knows about four things: _projects_, _tasks_, _notes_, and _tag
 
 The file format is fairly simple:
 
-- Files are expected to use the UTF-8 encoding and use `\n` to separate lines.
+- Files are expected to use the UTF-8 encoding and use a newline (`\n`) to separate lines.
 
 - Each line makes a new item: project, task, or note.
 
@@ -35,11 +35,13 @@ The system doesn't force any particular workflow on you; it provides basic list 
 
 ![](./images/screencast_02.gif)
 
-TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful agenda mode.
+TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline-aware filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful agenda mode.
 
-Documentation for TaskPaper mode is available below, but you can also use Emacs' help commands to access the built-in documentation. Documentation strings to each function are available via `C-h f` (`describe-function`), individual key bindings can be investigated with `C-h k` (`describe-key`), and a complete list of key bindings is available using `C-h m` (`describe-mode`).
+# About This Manual
 
-This document explains the installation, usage, and basic customization of TaskPaper mode package. For more advanced customization, hacking and scripting see the [Scripting Guide][tp-mode-scripting-guide].
+This manual explains installation, usage, and basic customization of TaskPaper mode package. For more advanced customization, hacking and scripting see the [Scripting Guide][tp-mode-scripting-guide].
+
+You can also use Emacs' help commands to access the usual built-in documentation. Documentation strings to each function are available via `C-h f` (`describe-function`), individual key bindings can be investigated with `C-h k` (`describe-key`), and a complete list of key bindings is available using `C-h m` (`describe-mode`).
 
 # Contents
 
