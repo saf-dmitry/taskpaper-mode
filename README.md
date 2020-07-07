@@ -46,6 +46,8 @@ You can also use Emacs' help commands to access the usual built-in documentation
 # Contents
 
 - [Installation and Activation](#installation-and-activation)
+    - [Using Package Manager](#using-package-manager)
+    - [Direct Download](#direct-download)
 - [Usage](#usage)
     - [Formatting Items](#formatting-items)
     - [Folding](#folding)
