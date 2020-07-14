@@ -29,7 +29,7 @@ The file format is fairly simple:
 
 Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. The nesting can go as deep as you need it to be. Empty lines are ignored when calculating ownership.
 
-The system doesn't force any particular workflow on you; it provides basic list making elements for you to use as you see fit. See the [TaskPaper User's Guide][taskpaper-guide] for more details.
+The system doesn't force any particular workflow on you; it provides basic list making elements for you to use as you see fit.
 
 ![](./images/screencast_01.gif)
 
@@ -39,7 +39,7 @@ TaskPaper mode is implemented on top of Outline mode. Visibility cycling and str
 
 # About This Manual
 
-This manual explains installation, usage, and basic customization of TaskPaper mode package. For more advanced customization, hacking and scripting see the [Scripting Guide][tp-mode-scripting-guide].
+This manual explains installation, usage, and basic customization of TaskPaper mode package. For more advanced customization, hacking and scripting see the [Scripting Guide][scripting-guide].
 
 You can also use Emacs' help commands to access the usual built-in documentation. Documentation strings to each function are available via `C-h f` (`describe-function`), individual key bindings can be investigated with `C-h k` (`describe-key`), and a complete list of key bindings is available using `C-h m` (`describe-mode`).
 
@@ -791,9 +791,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 [taskpaper]: https://www.taskpaper.com/
 
-[taskpaper-guide]: https://guide.taskpaper.com/getting-started/
-
-[tp-mode-scripting-guide]: ./scripting.md
+[scripting-guide]: ./scripting.md
 
 [melpa]: https://melpa.org
 
