@@ -364,7 +364,7 @@ When you need tasks that repeat themselves on a regular basis, you can set a rec
     - Due on the second Friday of each month @due(this month +2 Fri)
     - Due on each Monday, Wednesday, and Friday @due(Mon,Wed,Fri)
 
-It doesn't cover all cases, but may work for you. For more flexible recurrence setup see the corresponding scripting example in the [Scripting Guide][tp-mode-scripting-guide].
+It doesn't cover all cases, but may work for you. For more flexible recurrence setup see the corresponding scripting example in the [Scripting Guide][scripting-guide].
 
 Please consider that recurring appointments like any other event that takes place at a specific time would do best in your calendar because you cannot act on them until that moment.
 
@@ -426,7 +426,7 @@ The following commands sort same-level items. When point is at the beginning of 
 
 When sorting is done, the hook `taskpaper-after-sorting-items-hook` is run. When children are sorted, hook functions are called with point on the parent item.
 
-To meet more complex needs you can define your own sorting functions as described in the [Scripting Guide][tp-mode-scripting-guide].
+To meet more complex needs you can define your own sorting functions as described in the [Scripting Guide][scripting-guide].
 
 ## Filtering
 
@@ -644,7 +644,7 @@ Items with equal sort keys maintain their relative order before and after the so
                    (d2 (or (taskpaper-string-get-attribute b "due") "2100-12-12")))
                (if (taskpaper-num= p1 p2) (taskpaper-time< d1 d2) (taskpaper-num< p1 p2)))))
 
-See the [Scripting Guide][tp-mode-scripting-guide] for the list of API functions, which can be used for attribute evaluation.
+See the [Scripting Guide][scripting-guide] for the list of API functions, which can be used for attribute evaluation.
 
 ### Motion and Display Commands
 
