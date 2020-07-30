@@ -187,7 +187,7 @@ Additionally, the commands `TAB` (`taskpaper-outline-promote`) and `S-TAB` (`tas
 
 TaskPaper mode also provides following additional commands for working with subtrees (folded or not):
 
-- `C-c #`: Narrow buffer to the subtree under cursor (`taskpaper-narrow-to-subtree`).
+- `C-c #`: Narrow buffer to the subtree under cursor (`taskpaper-narrow-to-subtree`). The command `C-x n w` (`widen`) removes narrowing from current buffer.
 
 - `C-c C-m`: Mark the subtree under cursor (`taskpaper-mark-subtree`).
 
