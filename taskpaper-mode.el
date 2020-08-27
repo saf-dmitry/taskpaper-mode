@@ -323,7 +323,7 @@ overlays the UTF-8 character for display purposes only."
   :group 'taskpaper
   :type 'boolean)
 
-(defcustom taskpaper-bullet ?\u2014
+(defcustom taskpaper-bullet ?\u2013
   "Display character for task mark."
   :group 'taskpaper
   :type 'character)
