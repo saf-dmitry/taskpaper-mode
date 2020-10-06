@@ -203,7 +203,7 @@ TaskPaper mode also provides following additional commands for working with subt
 
 ## Tagging
 
-In addition to the hierarchical ways of organizing your actions, you can also assign any number of tags to each task, project, or note. Tags provide another way to organize (and later query for) items. You can add tags for start and due dates, priorities, people, locations, estimated effort, and more.
+In addition to the hierarchical ways of organizing your actions, tags provide another axis to categorize and assess items. You can assign any number of tags to each task, project, or note, adding information about due dates, priorities, people, locations, topics, estimated effort, and more.
 
 To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma-separated values) in parentheses after the tag name:
 
