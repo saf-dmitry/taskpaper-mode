@@ -372,7 +372,7 @@ Please consider that recurring appointments like any other event that takes plac
 
 TaskPaper mode auto-creates clickable hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
 
-- `http://www.example.org/index.html`
+- `http://www.example.net`
 - `mailto:username@example.net`
 - `file:filename.txt`
 - `./filename.txt`
@@ -389,7 +389,7 @@ Tip: If you want to sync your TaskPaper files with all linked images and other a
 
 TaskPaper mode also has experimental support for inline [Markdown][markdown-wiki] links in form `[Link description](destination)`:
 
-- `[URL](http://www.example.org/index.html)`
+- `[URL](http://www.example.net)`
 - `[File](file:///home/username/filename.txt)`
 - `[Email](mailto:username@example.net)`
 
