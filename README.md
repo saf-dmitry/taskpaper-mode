@@ -159,7 +159,7 @@ The following commands jump to other items in the buffer.
 
 - `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
-The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select an outline path in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
+The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select an outline path in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
 Commands like `C-c C-j` jumping to a different position in the current file automatically push the old position onto the mark ring, to be able to return easily. The command `C-c &` (`taskpaper-mark-ring-goto`) jumps back to a recorded position. Using this command several times in direct succession moves through a ring of previously recorded positions. You can also use the command `C-c %` (`taskpaper-mark-ring-push`) to manually push the current position onto the mark ring.
 
@@ -231,7 +231,7 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
 
 Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys.
 
-Tag specifiers can have value in parentheses. If the tag value begins with `%%` the following time string will be expanded into an absolute date in [ISO 8601][iso8601-wiki] format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
+Tag specifiers can have value in parentheses. If the tag value begins with `%%` the following time string will be expanded into an absolute date in ISO 8601 format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
 
 The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
 
@@ -284,7 +284,7 @@ Dates and times are an essential part of any task management system. You can sto
 
 If the time string is unparseable, current time is returned.
 
-Note: Using of `@due` tag here for storing dates is merely convention. You can use any tag name which make sense to you, e.g. `@deadline`.
+Note: Using of `@due` tag here for storing dates is merely convention. You can use any tag name which makes sense to you, e.g. `@deadline`.
 
 ### Dates
 
@@ -306,7 +306,7 @@ Dates resolve to midnight of the given date.
 - `tomorrow`
 - `yesterday`
 
-TaskPaper mode understands English month and weekday abbreviations. If you enter the name of a specific time period, the date will be at its beginning. So `June` without date means June first. Week refers to [ISO 8601][iso8601-wiki] standard week that starts on Monday, not Sunday.
+TaskPaper mode understands English month and weekday abbreviations. If you enter the name of a specific time period, the date will be at its beginning. So `June` without date means June first. Week refers to ISO 8601 standard week that starts on Monday, not Sunday.
 
 You can refer to relative dates using common words (`today`, `tomorrow`, `yesterday`, `last week`, etc.). Words `this`, `next`, and `last` have specific meanings: `this Friday` always means the Friday in this week, `next Friday` always means the Friday in the next week, and `last Friday` always means the Friday in the last week, regardless of what day today is. Other units work in the same way.
 
@@ -385,9 +385,9 @@ Absolute file links are starting with `/` or `~/`. Relative file links starting 
 
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a plain file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
-Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via e.g. [Dropbox][dropbox], put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
+Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via e.g. Dropbox, put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
 
-TaskPaper mode also has experimental support for inline [Markdown][markdown-wiki] links in form `[Link description](destination)`:
+TaskPaper mode also has experimental support for inline Markdown links in form `[Link description](destination)`:
 
 - `[URL](http://www.example.net)`
 - `[File](file:///home/username/filename.txt)`
@@ -405,7 +405,7 @@ The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline 
 
 ## Inline Formatting
 
-You can use [Markdown][markdown-wiki] syntax for inline emphasis in notes. Text enclosed by single asterisk (`*`) or underscore (`_`) characters is emphasized. Double `*` or `_` produces strong emphasis:
+You can use Markdown syntax for inline emphasis in notes. Text enclosed by single asterisk (`*`) or underscore (`_`) characters is emphasized. Double `*` or `_` produces strong emphasis:
 
     Emphasis with *asterisks* or _underscores_.
     Strong emphasis with **asterisks** or __underscores__.
@@ -432,7 +432,7 @@ To meet more complex needs you can define your own sorting functions as describe
 
 Filtering hides items that don't match the search creating a sparse tree, so that the entire document is folded as much as possible, but the selected information is made visible along with the outline hierarchy above it to provide minimal context.
 
-The command `C-c /` (`taskpaper-occur`) prompts for a [regexp][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted. You can jump to the next/previous match in the buffer using the commands `M-g n` (`next-error`) and `M-g p` (`previous-error`). The highlights disappear when the buffer is changed by an editing command, or after pressing `C-c C-c`.
+The command `C-c /` (`taskpaper-occur`) prompts for a [regular expression][emacs-regexp] and creates a sparse tree with all matches. Each match is also highlighted. You can jump to the next/previous match in the buffer using the commands `M-g n` (`next-error`) and `M-g p` (`previous-error`). The highlights disappear when the buffer is changed by an editing command, or after pressing `C-c C-c`.
 
 The command `C-c C-a` (`taskpaper-outline-show-all`) unfold all items at all levels (also bound to `ESC ESC`).
 
@@ -493,7 +493,7 @@ The default type of comparison is case-insensitive string comparison. You can ch
 
 Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's presence will be tested.
 
-In case of numeric compare `[n]` both sides of the compare are converted to numbers before comparing. This means `01` will equal to `1`, which is not true when doing the default string compare.
+In case of numeric compare `[n]` both sides of the compare are converted to numbers before comparing. This means "01" will equal to "1", which is not true when doing the default string compare.
 
 In case of date compare `[d]` both sides of the compare are converted to time values before comparing. The date & time format is described in the [Date and Time Formats](#date-and-time-formats) reference section.
 
@@ -564,7 +564,7 @@ You can embed search queries in a TaskPaper document using `@search` tags. This 
         Next action @search(@next and not @done)
         Active tasks @search(task and not \(@done or @hold\))
 
-The command `C-c ?` (`taskpaper-query-read-select`) lets the user select a query offering standard minibuffer completion. Query description will be derived from the item's text. If the user option `taskpaper-custom-queries` is set (see below), its entries will be added to the possible selections. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select a query in minibuffer using regexp or fuzzy matching and incremental narrowing of possible selections.
+The command `C-c ?` (`taskpaper-query-read-select`) lets the user select a query offering standard minibuffer completion. Query description will be derived from the item's text. If the user option `taskpaper-custom-queries` is set (see below), its entries will be added to the possible selections. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select a query in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections.
 
 Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g., numbers) to your saved queries. You can do this by configuring the user option `taskpaper-custom-queries` in your init file:
 
@@ -685,7 +685,7 @@ You can also querying the agenda view to further narrow your search. Following c
 
 - `t`: Show a filtered view of the items that contain the tag under cursor (`taskpaper-query-tag-at-point`).
 
-- `/`: Prompt for a regexp and show a filtered view with all matches highlighted (`taskpaper-occur`).
+- `/`: Prompt for a regular expression and show a filtered view with all matches highlighted (`taskpaper-occur`).
 
 - `C-c C-c`: Remove highlights (`taskpaper-occur-remove-highlights`).
 
@@ -775,7 +775,7 @@ I would also thank the following people, from whose work TaskPaper mode has bene
 
 # Bugs
 
-TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs v24.3 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
+TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs v24.3 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
 
 # License
 
@@ -800,12 +800,6 @@ You should have received a copy of the GNU General Public License along with thi
 [emacs-icicles]: https://www.emacswiki.org/emacs/Icicles
 
 [emacs-imenu]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html
-
-[iso8601-wiki]: https://en.wikipedia.org/wiki/ISO_8601
-
-[dropbox]: https://www.dropbox.com/
-
-[markdown-wiki]: https://en.wikipedia.org/wiki/Markdown
 
 [emacs-regexp]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html
 
