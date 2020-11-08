@@ -249,7 +249,7 @@ By default, items tagged with `@done` are visually crossed out. You can change t
 
 ## Calendar Integration
 
-The Emacs calendar created by Edward M. Reingold displays a three-month calendar with holidays from different countries and cultures. Following commands provide some integration with the calendar.
+The Emacs calendar displays a three-month calendar with holidays from different countries and cultures. Following commands provide some integration with the calendar.
 
 - `C-c SPC`: Display current date or date under cursor in calendar (`taskpaper-show-in-calendar`).
 
@@ -397,7 +397,7 @@ This descriptive syntax is useful for long links which can interrupt reading. If
 
 Links inside projects and tasks are supported although not encouraged.
 
-If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-link-at-point`) will launch a web browser for URL schemes matching the user option `taskpaper-uri-schemes-browser` (using `browse-url` command) or start composing a mail message (using `compose-mail-other-window`). Furthermore, it will visit text and remote files in file links with Emacs and select a suitable application for local non-text files. Classification of files is based on file extension only. For non-specified extensions the system command to open files, like `open` on MS Windows and macOS, or the command specified in the mailcaps on GNU/Linux will be used. For more details see the user options `taskpaper-file-apps` and `taskpaper-open-non-existing-files`.
+If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-link-at-point`) will launch a web browser (using `browse-url` command) or start composing a mail message (using `compose-mail-other-window`). Furthermore, it will visit local and remote text files in file links with Emacs and select a suitable application for local non-text files. Classification of files is based on file extension only. For non-specified extensions the system command to open files, like `open` on MS Windows and macOS, or the command specified in the mailcaps on GNU/Linux will be used. For more details see the user options `taskpaper-file-apps` and `taskpaper-open-non-existing-files`.
 
 You can jump to the next/previous link in the buffer using the commands `C-c C-x C-n` (`taskpaper-next-link`) and `C-c C-x C-p` (`taskpaper-previous-link`). When reaching the buffer boundaries the search fails once, and then wraps around. Because the key bindings are probably too long you might want to bind this also to `M-n` and `M-p`.
 
