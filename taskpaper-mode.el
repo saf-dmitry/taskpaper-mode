@@ -1275,9 +1275,9 @@ path as a single argument."
 
 (defconst taskpaper-file-apps-defaults-windowsnt
   (list '(remote . emacs)
-        (cons 'system (lambda (file _path)
+        (cons 'system (lambda (file)
                         (with-no-warnings (w32-shell-execute "open" file))))
-        (cons t (lambda (file _path)
+        (cons t (lambda (file)
                   (with-no-warnings (w32-shell-execute "open" file)))))
   "Default file applications on a Windows NT system.")
 
