@@ -1232,22 +1232,13 @@ is essential."
 
 ;;;; Files
 
-(defun taskpaper-save-all-taskpaper-buffers ()
-  "Save all TaskPaper mode buffers without user confirmation."
-  (interactive)
-  (save-some-buffers t (lambda () (derived-mode-p 'taskpaper-mode))))
-
 (defun taskpaper-open-file-with-cmd (file cmd)
   "Open the FILE using CMD.
-
-If CMD is a string, the command will be executed by a shell.
-A %s formatter will be replaced by the file path.
-
-If CMD is the symbol 'emacs, the file will be visited by the
-current Emacs process.
-
-If CMD is a Lisp function, the function will be called with the
-file path as a single argument."
+If CMD is a string, the command will be executed by a shell. A %s
+formatter will be replaced by the file path. If CMD is the symbol
+'emacs, the file will be visited by the current Emacs process. If
+CMD is a Lisp function, the function will be called with the file
+path as a single argument."
   (when (and (not (eq cmd 'emacs))
              (not (file-exists-p file))
              (not taskpaper-open-non-existing-files))
@@ -5208,6 +5199,11 @@ combination."
     (with-syntax-table st (call-interactively #'transpose-words))))
 
 (taskpaper-remap taskpaper-mode-map #'transpose-words #'taskpaper-transpose-words)
+
+(defun taskpaper-save-all-taskpaper-buffers ()
+  "Save all TaskPaper mode buffers without user confirmation."
+  (interactive)
+  (save-some-buffers t (lambda () (derived-mode-p 'taskpaper-mode))))
 
 ;;;; Major mode definition
 
