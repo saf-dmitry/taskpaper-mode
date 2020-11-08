@@ -614,23 +614,6 @@ current kill."
 
 ;;;; Re-usable regexps
 
-(defconst taskpaper-uri-schemes-browser
-  '("aaa://" "about:" "acap://" "apt:" "bzr://" "bzr+ssh://"
-    "attachment:/" "chrome://" "cid:" "content://" "crid://" "cvs://"
-    "data:" "dav:" "dict://" "doi:" "dns:" "dtn:" "feed:" "finger://"
-    "fish://" "ftp://" "geo:" "git://" "go:" "gopher://" "h323:"
-    "http://" "https://" "im:" "imap://" "info:" "ipp:" "irc://"
-    "irc6://" "ircs://" "iris.beep:" "jar:" "ldap://" "ldaps://"
-    "magnet:" "mid:" "mtqp://" "mupdate://" "news:" "nfs://"
-    "nntp://" "opaquelocktoken:" "pop://" "pres:" "resource://"
-    "rmi://" "rsync://" "rtsp://" "rtspu://" "service:" "sftp://"
-    "sip:" "sips:" "smb://" "sms:" "snmp://" "soap.beep://"
-    "soap.beeps://" "ssh://" "svn://" "svn+ssh://" "tag:" "tel:"
-    "telnet://" "tftp://" "tip://" "tn3270://" "udp://" "urn:"
-    "uuid:" "vemmi://" "webcal://" "xri://" "xmlrpc.beep://"
-    "xmlrpc.beeps://" "z39.50r://" "z39.50s://" "xmpp:")
-  "URI schemes for URI, which should be opened in WWW browser.")
-
 (defconst taskpaper-tag-name-char-regexp
   (concat
    "[-a-zA-Z0-9._\u00b7\u0300-\u036f\u203f-\u2040"
@@ -660,29 +643,6 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (format "\\(?:%s\\)+" taskpaper-tag-regexp)
   "Regular expression for consecutive tags.")
 
-(defconst taskpaper-uri-browser-regexp
-  (concat
-   "\\<\\("
-   "\\(?:"
-   (regexp-opt taskpaper-uri-schemes-browser)
-   "\\|"
-   "www[[:digit:]]\\{0,3\\}[.]"
-   "\\)"
-   "\\(?:"
-   "[^[:space:]()<>]"
-   "\\|"
-   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
-   "\\)+"
-   "\\(?:"
-   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
-   "\\|"
-   "[^[:space:][:punct:]]"
-   "\\|"
-   "[/]"
-   "\\)"
-   "\\)")
-  "Regular expression for browser URI.")
-
 (defconst taskpaper-email-regexp
   (concat
    "\\("
@@ -705,6 +665,29 @@ Group 3 matches the optional tag value without enclosing parentheses.")
 (defconst taskpaper-file-link-regexp
   (concat "\\(?:^\\|\\s-\\)" taskpaper-file-path-regexp)
   "Regular expression for plain file link.")
+
+(defconst taskpaper-uri-regexp
+  (concat
+   "\\<\\("
+   "\\(?:"
+   "[a-zA-Z][a-zA-Z0-9.+-]\\{1,31\\}[:]\\(?:[/]\\{1,3\\}\\|[[:alnum:]%]\\)"
+   "\\|"
+   "www[[:digit:]]\\{0,3\\}[.]"
+   "\\)"
+   "\\(?:"
+   "[^[:space:]()<>]"
+   "\\|"
+   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "\\)+"
+   "\\(?:"
+   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "\\|"
+   "[^[:space:][:punct:]]"
+   "\\|"
+   "[/]"
+   "\\)"
+   "\\)")
+  "Regular expression for general URI.")
 
 (defconst taskpaper-markdown-link-regexp
   (concat
@@ -733,10 +716,17 @@ Group 5 matches the opening parenthesis.
 Group 6 matches the link destination.
 Group 7 matches the closing parenthesis.")
 
-(defconst taskpaper-any-link-re
+(defconst taskpaper-plain-link-regexp
+  (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
+          taskpaper-email-regexp
+          taskpaper-uri-regexp
+          taskpaper-file-link-regexp)
+  "Regular expression matching any plain link.")
+
+(defconst taskpaper-any-link-regexp
   (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
           taskpaper-email-regexp
-          taskpaper-uri-browser-regexp
+          taskpaper-uri-regexp
           taskpaper-file-link-regexp
           taskpaper-markdown-link-regexp)
   "Regular expression matching any link.")
@@ -940,14 +930,14 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-get-link-type (link)
   "Return link type as symbol.
 LINK should be an unescaped raw link. Symbol names for recognized
-types are 'email, 'uri-browser, 'file, and 'unknown."
+types are 'email, 'file, 'uri, and 'unknown."
   (let* ((fmt "\\`%s\\'")
          (email-re (format fmt taskpaper-email-regexp))
-         (uri-re   (format fmt taskpaper-uri-browser-regexp))
-         (file-re  (format fmt taskpaper-file-path-regexp)))
+         (file-re  (format fmt taskpaper-file-path-regexp))
+         (uri-re   (format fmt taskpaper-uri-regexp)))
     (cond ((string-match-p email-re link) 'email)
-          ((string-match-p uri-re   link) 'uri-browser)
           ((string-match-p file-re  link) 'file)
+          ((string-match-p uri-re   link) 'uri)
           (t 'unknown))))
 
 (defun taskpaper-get-link-face (link)
@@ -1012,7 +1002,7 @@ types are 'email, 'uri-browser, 'file, and 'unknown."
 
 (defun taskpaper-font-lock-uri-links (limit)
   "Fontify plain URI links from point to LIMIT."
-  (when (re-search-forward taskpaper-uri-browser-regexp limit t)
+  (when (re-search-forward taskpaper-uri-regexp limit t)
     (if (taskpaper-range-property-any
          (match-beginning 1) (match-end 1)
          'taskpaper-syntax '(markup))
@@ -1230,36 +1220,7 @@ is essential."
       (message "Markup hiding disabled")))
   (when font-lock-mode (font-lock-fontify-buffer)))
 
-;;;; Files
-
-(defun taskpaper-open-file-with-cmd (file cmd)
-  "Open the FILE using CMD.
-If CMD is a string, the command will be executed by a shell. A %s
-formatter will be replaced by the file path. If CMD is the symbol
-'emacs, the file will be visited by the current Emacs process. If
-CMD is a Lisp function, the function will be called with the file
-path as a single argument."
-  (when (and (not (eq cmd 'emacs))
-             (not (file-exists-p file))
-             (not taskpaper-open-non-existing-files))
-    (user-error "No such file: %s" file))
-  (cond
-   ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
-    (while (string-match "\"%s\"\\|'%s'" cmd)
-      (setq cmd (replace-match "%s" t t cmd)))
-    (while (string-match "%s" cmd)
-      (setq cmd (replace-match
-                 (save-match-data
-                   (shell-quote-argument (convert-standard-filename file)))
-                 t t cmd)))
-    (save-window-excursion (start-process-shell-command cmd nil cmd))
-    (message "Running %s" cmd))
-   ((or (stringp cmd) (eq cmd 'emacs))
-    (find-file-other-window file))
-   ((functionp cmd)
-    (let ((file (convert-standard-filename file)))
-      (save-match-data (funcall cmd file))))
-   (t (error "Cannot interpret command: %s" cmd))))
+;;;; Files and URIs
 
 (defconst taskpaper-file-apps-defaults-gnu
   '((remote . emacs)
@@ -1303,6 +1264,35 @@ file should be visited in Emacs."
    (when add-auto-mode
      (mapcar (lambda (x) (cons (car x) 'emacs)) auto-mode-alist))))
 
+(defun taskpaper-open-file-with-cmd (file cmd)
+  "Open the FILE using CMD.
+If CMD is a string, the command will be executed by a shell. A %s
+formatter will be replaced by the file path. If CMD is the symbol
+'emacs, the file will be visited by the current Emacs process. If
+CMD is a Lisp function, the function will be called with the file
+path as a single argument."
+  (setq file (substitute-in-file-name (expand-file-name file)))
+  (when (and (not (eq cmd 'emacs))
+             (not (file-exists-p file))
+             (not taskpaper-open-non-existing-files))
+    (user-error "No such file: %s" file))
+  (cond
+   ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
+    (while (string-match "\"%s\"\\|'%s'" cmd)
+      (setq cmd (replace-match "%s" t t cmd)))
+    (while (string-match "%s" cmd)
+      (setq cmd (replace-match
+                 (save-match-data
+                   (shell-quote-argument (convert-standard-filename file)))
+                 t t cmd)))
+    (save-window-excursion (start-process-shell-command cmd nil cmd))
+    (message "Running %s" cmd))
+   ((eq cmd 'emacs)
+    (find-file-other-window file))
+   ((functionp cmd)
+    (save-match-data (funcall cmd (convert-standard-filename file))))
+   (t (error "Cannot interpret command: %s" cmd))))
+
 (declare-function mailcap-parse-mailcaps "mailcap" (&optional path force))
 (declare-function mailcap-extension-to-mime "mailcap" (extn))
 (declare-function mailcap-mime-info "mailcap" (string &optional request no-decode))
@@ -1343,6 +1333,29 @@ With optional argument IN-EMACS, visit the file in Emacs."
     ;; Open the file
     (taskpaper-open-file-with-cmd file cmd)))
 
+(defun taskpaper-default-open-cmd ()
+  "Return the default system command to open URIs.
+Command can be a string containing a %s formatter, which will be
+replaced by the URI or a Lisp function, which will be called with
+the URI as a single argument."
+  (cond ((eq system-type 'darwin) "open %s")
+        ((eq system-type 'windows-nt)
+         (lambda (uri) (with-no-warnings (w32-shell-execute "open" uri))))
+        (t "xdg-open %s")))
+
+(defun taskpaper-open-uri (uri)
+  "Open the URI using the default system command."
+  (let ((cmd (taskpaper-default-open-cmd)))
+    (cond
+     ((stringp cmd)
+      (while (string-match "%s" cmd)
+        (setq cmd (replace-match
+                   (save-match-data (shell-quote-argument uri)) t t cmd)))
+      (save-window-excursion (start-process-shell-command cmd nil cmd))
+      (message "Running %s" cmd))
+     ((functionp cmd)
+      (save-match-data (funcall cmd uri))))))
+
 ;;;; Links
 
 (defun taskpaper-file-path-complete (&optional arg)
@@ -1382,20 +1395,19 @@ directory. An absolute path can be forced with a
       (insert " "))))
 
 (defun taskpaper-open-link (link)
-  "Open link LINK."
+  "Open the LINK."
   (let ((type (taskpaper-get-link-type link)))
     (cond
      ((eq type 'email)
       (setq link (string-remove-prefix "mailto:" link))
       (compose-mail-other-window link))
-     ((eq type 'uri-browser)
-      (when (string-prefix-p "www" link)
-        (setq link (concat "http://" link)))
-      (browse-url link))
      ((eq type 'file)
       (setq link (taskpaper-file-path-unescape
                   (string-remove-prefix "file:" link)))
       (taskpaper-open-file link))
+     ((eq type 'uri)
+      (when (string-prefix-p "www" link) (setq link (concat "http://" link)))
+      (taskpaper-open-uri link))
      (t (find-file-other-window link)))))
 
 (defun taskpaper-open-link-at-point ()
@@ -1405,12 +1417,10 @@ directory. An absolute path can be forced with a
     (cond
      ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
       (setq link (match-string-no-properties 6)))
-     ((taskpaper-in-regexp taskpaper-email-regexp)
-      (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp taskpaper-uri-browser-regexp)
-      (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp taskpaper-file-path-regexp)
-      (setq link (match-string-no-properties 1)))
+     ;; We use `taskpaper-in-regexp' instead `thing-at-point-looking-at'
+     ;; because we need to be greedy here.
+     ((taskpaper-in-regexp taskpaper-plain-link-regexp)
+      (setq link (match-string-no-properties 0)))
      (t (user-error "No link at point")))
     (taskpaper-open-link link)))
 
@@ -1427,11 +1437,13 @@ If BACK is non-nil, move backward to the previous link."
   (setq taskpaper-link-search-failed nil)
   (let ((pos (point))
         (func (if back 're-search-backward 're-search-forward))
-        (re taskpaper-any-link-re))
+        (re taskpaper-any-link-regexp))
     (when (taskpaper-in-regexp re)
       ;; Don't stay stuck at link under cursor
       (goto-char (if back (match-beginning 0) (match-end 0))))
-    (if (and (funcall func re nil t) (taskpaper-in-regexp re)) ;; Need to be greedy
+    ;; We use `taskpaper-in-regexp' instead `thing-at-point-looking-at'
+    ;; because we need to be greedy here.
+    (if (and (funcall func re nil t) (taskpaper-in-regexp re))
         (progn
           (goto-char (match-beginning 0)) (skip-syntax-forward "\s")
           (when (outline-invisible-p) (taskpaper-outline-show-context)))
@@ -5130,14 +5142,14 @@ combination."
 (defun taskpaper-ispell-setup ()
   "Ispell setup for TaskPaper-mode."
   (add-to-list 'ispell-skip-region-alist (list taskpaper-tag-regexp))
-  (add-to-list 'ispell-skip-region-alist (list taskpaper-uri-browser-regexp))
+  (add-to-list 'ispell-skip-region-alist (list taskpaper-uri-regexp))
   (add-to-list 'ispell-skip-region-alist (list taskpaper-email-regexp))
   (add-to-list 'ispell-skip-region-alist (list taskpaper-file-path-regexp)))
 
 (defun taskpaper-mode-flyspell-verify ()
   "Function used for `flyspell-generic-check-word-predicate'."
   (and (not (taskpaper-in-regexp taskpaper-tag-regexp))
-       (not (taskpaper-in-regexp taskpaper-uri-browser-regexp))
+       (not (taskpaper-in-regexp taskpaper-uri-regexp))
        (not (taskpaper-in-regexp taskpaper-email-regexp))
        (not (taskpaper-in-regexp taskpaper-file-path-regexp))))
 (put 'taskpaper-mode 'flyspell-mode-predicate 'taskpaper-mode-flyspell-verify)
