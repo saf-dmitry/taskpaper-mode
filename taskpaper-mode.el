@@ -2048,7 +2048,7 @@ This function does not set or modify the match data."
              (not (taskpaper-in-regexp
                    taskpaper-markdown-link-regexp pos))
              (not (taskpaper-in-regexp
-                   taskpaper-file-path-regexp pos)))))))
+                   taskpaper-file-link-regexp pos)))))))
 
 (defun taskpaper-tag-name-p (name)
   "Return non-nil when NAME is a valid tag name."
