@@ -5,7 +5,7 @@ Added:
 
 - Added commands for link navigation
 - Added commands for mark ring navigation
-- Added opening links with any registered URI schemes and protocols
+- Added handling links with any registered URI scheme
 
 Changed:
 
