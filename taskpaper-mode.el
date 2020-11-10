@@ -716,13 +716,6 @@ Group 5 matches the opening parenthesis.
 Group 6 matches the link destination.
 Group 7 matches the closing parenthesis.")
 
-(defconst taskpaper-plain-link-regexp
-  (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
-          taskpaper-email-regexp
-          taskpaper-uri-regexp
-          taskpaper-file-link-regexp)
-  "Regular expression matching any plain link.")
-
 (defconst taskpaper-any-link-regexp
   (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
           taskpaper-uri-regexp
@@ -1417,8 +1410,12 @@ directory. An absolute path can be forced with a
     (cond
      ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
       (setq link (match-string-no-properties 6)))
-     ((taskpaper-in-regexp taskpaper-plain-link-regexp)
-      (setq link (match-string-no-properties 0)))
+     ((taskpaper-in-regexp taskpaper-uri-regexp)
+      (setq link (match-string-no-properties 1)))
+     ((taskpaper-in-regexp taskpaper-email-regexp)
+      (setq link (match-string-no-properties 1)))
+     ((taskpaper-in-regexp taskpaper-file-link-regexp)
+      (setq link (match-string-no-properties 1)))
      (t (user-error "No link at point")))
     (taskpaper-open-link link)))
 
