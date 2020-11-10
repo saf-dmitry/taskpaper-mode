@@ -725,8 +725,8 @@ Group 7 matches the closing parenthesis.")
 
 (defconst taskpaper-any-link-regexp
   (format "\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)\\|\\(%s\\)"
-          taskpaper-email-regexp
           taskpaper-uri-regexp
+          taskpaper-email-regexp
           taskpaper-file-link-regexp
           taskpaper-markdown-link-regexp)
   "Regular expression matching any link.")
@@ -932,12 +932,12 @@ If TAG is a number, get the corresponding match group."
 LINK should be an unescaped raw link. Symbol names for recognized
 types are 'email, 'file, 'uri, and 'unknown."
   (let* ((fmt "\\`%s\\'")
-         (email-re (format fmt taskpaper-email-regexp))
-         (file-re  (format fmt taskpaper-file-path-regexp))
-         (uri-re   (format fmt taskpaper-uri-regexp)))
-    (cond ((string-match-p email-re link) 'email)
-          ((string-match-p file-re  link) 'file)
-          ((string-match-p uri-re   link) 'uri)
+         (re-email (format fmt taskpaper-email-regexp))
+         (re-file  (format fmt taskpaper-file-path-regexp))
+         (re-uri   (format fmt taskpaper-uri-regexp)))
+    (cond ((string-match-p re-email link) 'email)
+          ((string-match-p re-file  link) 'file)
+          ((string-match-p re-uri   link) 'uri)
           (t 'unknown))))
 
 (defun taskpaper-get-link-face (link)
@@ -1415,7 +1415,6 @@ directory. An absolute path can be forced with a
   (interactive)
   (let ((link))
     (cond
-     ;; We need to be greedy here
      ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
       (setq link (match-string-no-properties 6)))
      ((taskpaper-in-regexp taskpaper-plain-link-regexp)
@@ -1440,7 +1439,6 @@ If BACK is non-nil, move backward to the previous link."
     (when (taskpaper-in-regexp re)
       ;; Don't stay stuck at link under cursor
       (goto-char (if back (match-beginning 0) (match-end 0))))
-    ;; We need to be greedy here
     (if (and (funcall func re nil t) (taskpaper-in-regexp re))
         (progn
           (goto-char (match-beginning 0)) (skip-syntax-forward "\s")
@@ -1962,15 +1960,15 @@ current file automatically push the old position onto the ring."
 
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
-  (let ((ind-re "^\\([ \t]+\\)")
-        (tag-re (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
+  (let ((re-ind "^\\([ \t]+\\)")
+        (re-tag (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
         (indent "") (tags ""))
     (save-match-data
       ;; Strip indent and trailing tags and save them
-      (when (string-match ind-re item)
+      (when (string-match re-ind item)
         (setq indent (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
-      (when (string-match tag-re item)
+      (when (string-match re-tag item)
         (setq tags (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
       ;; Remove type formatting
@@ -1994,17 +1992,17 @@ Valid symbol names for type are 'project, 'task, or 'note."
   (let* ((begin (line-beginning-position))
          (end (line-end-position))
          (item (buffer-substring-no-properties begin end))
-         (ind-re "^\\([ \t]+\\)")
-         (tag-re (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
+         (re-ind "^\\([ \t]+\\)")
+         (re-tag (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
          (indent "") (tags ""))
     ;; Remove existing type formatting
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
       ;; Strip indent and trailing tags and save them
-      (when (string-match ind-re item)
+      (when (string-match re-ind item)
         (setq indent (match-string-no-properties 1 item)
               item (replace-match "" t nil item)))
-      (when (string-match tag-re item)
+      (when (string-match re-tag item)
         (setq tags (match-string-no-properties 1 item)
               item (replace-match "" t nil item))))
     ;; Sanitize
