@@ -670,7 +670,8 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (concat
    "\\<\\("
    "\\(?:"
-   "[a-zA-Z][-a-zA-Z0-9.+]\\{1,31\\}[:]\\(?:[/]\\{1,3\\}\\|[[:alnum:]%]\\)"
+   "[a-zA-Z][-a-zA-Z0-9.+]\\{1,31\\}[:]"
+   "\\(?:[/]\\{1,3\\}\\|[[:alnum:]%]\\)"
    "\\|"
    "www[[:digit:]]\\{0,3\\}[.]"
    "\\)"
@@ -924,11 +925,11 @@ If TAG is a number, get the corresponding match group."
 LINK should be an unescaped raw link. Recognized types are 'uri,
 'email, 'file, or nil."
   (let* ((fmt "\\`%s\\'")
-         (re-email (format fmt taskpaper-email-regexp))
          (re-file  (format fmt taskpaper-file-path-regexp))
+         (re-email (format fmt taskpaper-email-regexp))
          (re-uri   (format fmt taskpaper-uri-regexp)))
-    (cond ((string-match-p re-email link) 'email)
-          ((string-match-p re-file  link) 'file)
+    (cond ((string-match-p re-file  link) 'file)
+          ((string-match-p re-email link) 'email)
           ((string-match-p re-uri   link) 'uri)
           (t nil))))
 
@@ -1410,9 +1411,9 @@ directory. An absolute path can be forced with a
       (setq link (match-string-no-properties 6)))
      ((taskpaper-in-regexp taskpaper-uri-regexp)
       (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp taskpaper-email-regexp)
-      (setq link (match-string-no-properties 1)))
      ((taskpaper-in-regexp taskpaper-file-link-regexp)
+      (setq link (match-string-no-properties 1)))
+     ((taskpaper-in-regexp taskpaper-email-regexp)
       (setq link (match-string-no-properties 1)))
      (t (user-error "No link at point")))
     (taskpaper-open-link link)))
