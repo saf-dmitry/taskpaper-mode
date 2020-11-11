@@ -233,7 +233,7 @@ location."
 
 (defcustom taskpaper-file-apps
   '((directory . emacs)
-    (remote . emacs)
+    (remote    . emacs)
     (auto-mode . emacs))
   "External applications for opening file links in a document.
 The entries in this list are cons cells where the car identifies
@@ -670,7 +670,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
   (concat
    "\\<\\("
    "\\(?:"
-   "[a-zA-Z][a-zA-Z0-9.+-]\\{1,31\\}[:]\\(?:[/]\\{1,3\\}\\|[[:alnum:]%]\\)"
+   "[a-zA-Z][-a-zA-Z0-9.+]\\{1,31\\}[:]\\(?:[/]\\{1,3\\}\\|[[:alnum:]%]\\)"
    "\\|"
    "www[[:digit:]]\\{0,3\\}[.]"
    "\\)"
@@ -1256,7 +1256,7 @@ file should be visited in Emacs."
      (mapcar (lambda (x) (cons (car x) 'emacs)) auto-mode-alist))))
 
 (defun taskpaper-open-file-with-cmd (file cmd)
-  "Open the FILE using CMD.
+  "Open FILE using CMD.
 If CMD is a string, the command will be executed by a shell. A %s
 formatter will be replaced by the file path. If CMD is the symbol
 'emacs, the file will be visited by the current Emacs process. If
@@ -1386,7 +1386,7 @@ directory. An absolute path can be forced with a
       (insert " "))))
 
 (defun taskpaper-open-link (link)
-  "Open the LINK."
+  "Open LINK."
   (let ((type (taskpaper-get-link-type link)))
     (cond
      ((eq type 'email)
