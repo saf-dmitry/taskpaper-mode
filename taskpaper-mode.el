@@ -52,6 +52,10 @@
 (defconst taskpaper-mode-version "1.0"
   "TaskPaper mode version number.")
 
+(defconst taskpaper-mode-manual-uri
+  "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"
+  "URI for TaskPaper mode manual.")
+
 (defvar taskpaper-mode-map (make-keymap)
   "Keymap for TaskPaper mode.")
 
@@ -411,11 +415,10 @@ Case is significant."
   (interactive)
   (message "TaskPaper mode version %s" taskpaper-mode-version))
 
-(defun taskpaper-mode-manual ()
+(defun taskpaper-mode-browse-manual ()
   "Browse TaskPaper mode manual."
   (interactive)
-  (browse-url
-   "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"))
+  (browse-url taskpaper-mode-manual-uri))
 
 (defun taskpaper-overlay-display (overlay text &optional face evap)
   "Make OVERLAY display TEXT with face FACE.
@@ -658,7 +661,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\("
    "\\<file:\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\|"
-   "\\(?:~\\|[.]\\{1,2\\}\\|[a-zA-Z]:\\)?[/]\\(?:\\\\ \\|[^ \0\n]\\)+"
+   "\\(?:~\\|[.][.]?\\|[a-zA-Z][:]\\)?[/]\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\)")
   "Regular expression for file path.")
 
@@ -1196,7 +1199,7 @@ is essential."
     (remove-text-properties
      begin end
      '(display t mouse-face t keymap t
-       help-echo t invisible t taskpaper-syntax t))))
+               help-echo t invisible t taskpaper-syntax t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
@@ -1406,16 +1409,15 @@ directory. An absolute path can be forced with a
   "Open link at point."
   (interactive)
   (let ((link))
-    (cond
-     ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
-      (setq link (match-string-no-properties 6)))
-     ((taskpaper-in-regexp taskpaper-uri-regexp)
-      (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp taskpaper-file-link-regexp)
-      (setq link (match-string-no-properties 1)))
-     ((taskpaper-in-regexp taskpaper-email-regexp)
-      (setq link (match-string-no-properties 1)))
-     (t (user-error "No link at point")))
+    (cond ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
+           (setq link (match-string-no-properties 6)))
+          ((taskpaper-in-regexp taskpaper-file-link-regexp)
+           (setq link (match-string-no-properties 1)))
+          ((taskpaper-in-regexp taskpaper-uri-regexp)
+           (setq link (match-string-no-properties 1)))
+          ((taskpaper-in-regexp taskpaper-email-regexp)
+           (setq link (match-string-no-properties 1)))
+          (t (user-error "No link at point")))
     (taskpaper-open-link link)))
 
 (defvar taskpaper-link-search-failed nil)
@@ -1783,7 +1785,7 @@ end.")
       (narrow-to-region begin end) (goto-char (point-min))
       (let ((buffer (current-buffer)) start end)
         (with-temp-buffer
-          (let ((temp-buffer (current-buffer)))
+          (let ((tmp-buffer (current-buffer)))
             (with-current-buffer buffer
               ;; Starting on an item
               (when (outline-on-heading-p)
@@ -1791,7 +1793,7 @@ end.")
                 (setq start (point)
                       end (progn
                             (taskpaper-outline-end-of-item) (point)))
-                (with-current-buffer temp-buffer
+                (with-current-buffer tmp-buffer
                   (insert-buffer-substring buffer start end)
                   (insert "\n")))
               (while (outline-next-heading)
@@ -1799,7 +1801,7 @@ end.")
                   (setq start (point)
                         end (progn
                               (taskpaper-outline-end-of-item) (point)))
-                  (with-current-buffer temp-buffer
+                  (with-current-buffer tmp-buffer
                     (insert-buffer-substring buffer start end)
                     (insert "\n"))))))
           (kill-new (buffer-string)))))))
@@ -1984,7 +1986,7 @@ current file automatically push the old position onto the ring."
 
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
-Valid symbol names for type are 'project, 'task, or 'note."
+Item type can be 'project, 'task, or 'note."
   (let* ((begin (line-beginning-position))
          (end (line-end-position))
          (item (buffer-substring-no-properties begin end))
@@ -2012,7 +2014,7 @@ Valid symbol names for type are 'project, 'task, or 'note."
     ;; Add separator space, if nessessary
     (when (and (not (equal item "")) (not (equal tags "")))
       (setq tags (concat " " tags)))
-    ;; Add indent and trailing tags and replace item
+    ;; Add indent and trailing tags and replace the item
     (delete-region begin end) (insert indent item tags)))
 
 (defun taskpaper-item-format-as-project ()
@@ -2067,12 +2069,11 @@ This function does not set or modify the match data."
 
 (defconst taskpaper-special-attributes '("type" "text")
   "The special item attributes.
-These are implicit attributes that are not associated with
-tags.")
+These are implicit attributes not associated with tags.")
 
 (defun taskpaper-item-get-special-attributes ()
   "Get special attrbutes for the item at point.
-Return alist (NAME . VALUE) where NAME is the attribute name and
+Return alist (NAME . VALUE), where NAME is the attribute name and
 VALUE is the attribute value, as strings."
   (let (attrs name value)
     (setq name "type" value (taskpaper-item-type))
@@ -2083,7 +2084,7 @@ VALUE is the attribute value, as strings."
 
 (defun taskpaper-item-get-explicit-attributes ()
   "Get explicit attrbutes for the item at point.
-Return alist (NAME . VALUE) where NAME is the attribute name and
+Return alist (NAME . VALUE), where NAME is the attribute name and
 VALUE is the attribute value, as strings."
   (let (attrs name value)
     (save-excursion
@@ -2100,7 +2101,7 @@ VALUE is the attribute value, as strings."
     (nreverse attrs)))
 
 (defun taskpaper-remove-uninherited-attributes (attrs)
-  "Remove attributes excluded from inheritance from alist ATTRS."
+  "Remove attributes excluded from inheritance from ATTRS."
   (when taskpaper-tags-exclude-from-inheritance
     (let (excluded)
       (dolist (attr attrs)
@@ -2111,8 +2112,8 @@ VALUE is the attribute value, as strings."
 
 ;;;; Attribute caching
 
-;; NOTE: Due to attribute inheritance mechanism
-;; attribute cache should be build and clear atomically as a whole
+;; IMPORTANT: Due to the attribute inheritance mechanism
+;; attribute cache should be build and clear atomically
 
 (defvar taskpaper-attribute-cache (make-hash-table :size 10000)
   "Attribute cache.")
@@ -2148,9 +2149,9 @@ VALUE is the attribute value, as strings."
 
 (defun taskpaper-item-get-attributes (&optional inherit)
   "Get attrbutes for item at point.
-Return read-only alist (NAME . VALUE) where NAME is the attribute
-name and VALUE is the attribute value, as strings. If INHERIT is
-non-nil also check higher levels of the hierarchy."
+Return read-only alist (NAME . VALUE), where NAME is the
+attribute name and VALUE is the attribute value, as strings. If
+INHERIT is non-nil also check higher levels of the hierarchy."
   (let* ((key (point-at-bol))
          (attrs (taskpaper-attribute-cache-get key)))
     (unless attrs
@@ -2613,7 +2614,7 @@ past one. Return unchanged any year larger than 99."
 Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ). When
 TIMEDECODE time value is given, calculate date and time based on
 this time, otherwise use current time."
-  (let ((nowdecode (decode-time (current-time))) temp)
+  (let ((nowdecode (decode-time (current-time))) tmp)
     (setq taskpaper-time-was-given nil
           time-str (downcase time-str)
           timedecode (or timedecode nowdecode))
@@ -2625,49 +2626,49 @@ this time, otherwise use current time."
         (cond
          ;; ISO 8601 date
          ((string-match-p taskpaper-time-iso-date-regexp time-str)
-          (setq temp (taskpaper-time-parse-iso-date nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-iso-date nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; ISO 8601 week date
          ((string-match taskpaper-time-iso-week-date-regexp time-str)
-          (setq temp (taskpaper-time-parse-iso-week-date nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-iso-week-date nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; ISO 8601 date with year omitted
          ((string-match-p taskpaper-time-iso-date-short-regexp time-str)
-          (setq temp (taskpaper-time-parse-iso-date-short nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-iso-date-short nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Relative date
          ((string-match-p taskpaper-time-relative-word-regexp time-str)
-          (setq temp (taskpaper-time-parse-relative-word nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-relative-word nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Relative time period
          ((string-match-p taskpaper-time-relative-period-regexp time-str)
-          (setq temp (taskpaper-time-parse-relative-period nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-relative-period nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Relative month name with optional date
          ((string-match-p taskpaper-time-relative-month-regexp time-str)
-          (setq temp (taskpaper-time-parse-relative-month nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-relative-month nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Relative weekday
          ((string-match-p taskpaper-time-relative-weekday-regexp time-str)
-          (setq temp (taskpaper-time-parse-relative-weekday nowdecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-relative-weekday nowdecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Month name with optional day
          ((string-match-p taskpaper-time-month-regexp time-str)
-          (setq temp (taskpaper-time-parse-month timedecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-month timedecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Weekday
          ((string-match-p taskpaper-time-weekday-regexp time-str)
-          (setq temp (taskpaper-time-parse-weekday timedecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-weekday timedecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Time
          ((or (string-match-p taskpaper-time-time-regexp time-str)
               (string-match-p taskpaper-time-ampm-time-regexp time-str))
-          (setq temp (taskpaper-time-parse-time timedecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-time timedecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Duration offset
          ((string-match-p taskpaper-time-duration-offset-regexp time-str)
-          (setq temp (taskpaper-time-parse-duration-offset timedecode time-str)
-                timedecode (car temp) time-str (cdr temp)))
+          (setq tmp (taskpaper-time-parse-duration-offset timedecode time-str)
+                timedecode (car tmp) time-str (cdr tmp)))
          ;; Unparseable run of non-whitespace characters
          ((string-match taskpaper-time-non-whitespace-regexp time-str)
           (setq time-str (replace-match "" t t time-str))))))
@@ -2753,7 +2754,7 @@ string and show the corresponding date."
          (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
     (insert-before-markers (format-time-string "%Y-%m-%d" time))))
 
-;;;; Date & time prompt
+;;;; Date and time prompt
 
 (defvar taskpaper-calendar-selected-date nil
   "Temporary storage for date selected from calendar.
@@ -2766,7 +2767,7 @@ Date is stored as internal time representation.")
       (let ((inhibit-message t))
         (with-selected-window cwin
           (eval form)
-          ;; Compatibility for Emacs before v25
+          ;; Compatibility for Emacsen before v25
           (unless (boundp 'inhibilt-message) (message nil)))))))
 
 (defvar taskpaper-read-date-minibuffer-local-map
@@ -2810,7 +2811,7 @@ The function should be called from minibuffer as part of
         (let ((inhibit-message t) (calendar-move-hook nil))
           (with-selected-window cwin
             (calendar-goto-date date)
-            ;; Compatibility for Emacs before v25
+            ;; Compatibility for Emacsen before v25
             (unless (boundp 'inhibilt-message) (message nil))))))))
 
 (defvar taskpaper-read-date-overlay nil)
@@ -3028,14 +3029,9 @@ Return selected tag specifier."
     (user-error "No tag at point.")))
 
 (defun taskpaper-item-toggle-done ()
-  "Toggle done state of item at point."
+  "Toggle done state of the current item."
   (interactive)
-  (let ((fmt (cond
-              ((eq taskpaper-complete-save-date t)     "%Y-%m-%d")
-              ((eq taskpaper-complete-save-date 'date) "%Y-%m-%d")
-              ((eq taskpaper-complete-save-date 'time) "%Y-%m-%d %H:%M")
-              (t nil)))
-        (type (taskpaper-item-get-attribute "type")))
+  (let ((type (taskpaper-item-get-attribute "type")) fmt)
     (when (member type '("task" "project"))
       (if (taskpaper-item-has-attribute "done")
           (taskpaper-item-remove-attribute "done")
@@ -3049,7 +3045,12 @@ Return selected tag specifier."
         ;; Remove extra tags
         (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
               taskpaper-tags-to-remove-when-done)
-        ;; Complete item
+        ;; Complete the item
+        (cond ((or (eq taskpaper-complete-save-date t)
+                   (eq taskpaper-complete-save-date 'date))
+               (setq fmt "%Y-%m-%d"))
+              ((eq taskpaper-complete-save-date 'time)
+               (setq fmt "%Y-%m-%d %H:%M")))
         (taskpaper-item-set-attribute
          "done" (when fmt (format-time-string fmt (current-time))))
         ;; Run hook
@@ -3407,9 +3408,9 @@ comparing."
           b (taskpaper-attribute-value-to-list b))
     (setq a (mapcar #'string-to-number a)
           b (mapcar #'string-to-number b))
-    (let (temp1 temp2)
-      (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
-      (and temp1 temp2 (equal temp1 temp2))))
+    (let (tmp1 tmp2)
+      (while (and a b) (push (pop a) tmp1) (push (pop b) tmp2))
+      (and tmp1 tmp2 (equal tmp1 tmp2))))
    (t nil)))
 
 (defun taskpaper-cslist-num-tail-p (a b)
@@ -3515,9 +3516,9 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (let (temp1 temp2)
-      (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
-      (and temp1 temp2 (equal temp1 temp2))))
+    (let (tmp1 tmp2)
+      (while (and a b) (push (pop a) tmp1) (push (pop b) tmp2))
+      (and tmp1 tmp2 (equal tmp1 tmp2))))
    (t nil)))
 
 (defun taskpaper-cslist-string-tail-p (a b)
@@ -3623,9 +3624,9 @@ Case is ignored."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (setq a (mapcar #'downcase a) b (mapcar #'downcase b))
-    (let (temp1 temp2)
-      (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
-      (and temp1 temp2 (equal temp1 temp2))))
+    (let (tmp1 tmp2)
+      (while (and a b) (push (pop a) tmp1) (push (pop b) tmp2))
+      (and tmp1 tmp2 (equal tmp1 tmp2))))
    (t nil)))
 
 (defun taskpaper-cslist-istring-tail-p (a b)
@@ -3741,9 +3742,9 @@ comparing."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (setq a (mapcar #'taskpaper-2ft a) b (mapcar #'taskpaper-2ft b))
-    (let (temp1 temp2)
-      (while (and a b) (push (pop a) temp1) (push (pop b) temp2))
-      (and temp1 temp2 (equal temp1 temp2))))
+    (let (tmp1 tmp2)
+      (while (and a b) (push (pop a) tmp1) (push (pop b) tmp2))
+      (and tmp1 tmp2 (equal tmp1 tmp2))))
    (t nil)))
 
 (defun taskpaper-cslist-time-tail-p (a b)
@@ -3813,7 +3814,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
     (message "Sorting items...")
     (save-restriction
       (narrow-to-region begin end)
-      (let ((case-fold-search nil) temp)
+      (let ((case-fold-search nil) tmp)
         (sort-subr
          ;; REVERSE arg
          reverse
@@ -3831,10 +3832,10 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
          ;; STARTKEYFUN arg
          (lambda nil
            (progn
-             (setq temp (funcall getkey-func))
-             (when (stringp temp)
-               (setq temp (funcall case-func temp)))
-             temp))
+             (setq tmp (funcall getkey-func))
+             (when (stringp tmp)
+               (setq tmp (funcall case-func tmp)))
+             tmp))
          ;; ENDKEYFUN arg
          nil
          ;; PREDICATE arg
@@ -3970,7 +3971,7 @@ which will be excluded from the results."
 
 (defun taskpaper-goto-get-location (&optional prompt no-exclude)
   "Prompt the user for a location, using PROMPT.
-Return a cons cell (OLPATH . POS) where OLPATH is the formatted
+Return a cons cell (OLPATH . POS), where OLPATH is the formatted
 outline path as string and POS is the corresponding buffer
 position. When NO-EXCLUDE is set, do not exclude entries in the
 current subtree."
@@ -3990,7 +3991,7 @@ current subtree."
     (let ((partial-completion-mode nil) (completion-ignore-case t))
       ;; Select outline path
       (setq target (completing-read prompt targets nil t))
-      ;; Find the associated outline path and buffer position
+      ;; Return the associated outline path and buffer position
       (assoc target targets))))
 
 (defun taskpaper-goto ()
@@ -4756,7 +4757,7 @@ matcher and the rest of the token list."
   "Parse next unary Boolean expression in token list TOKENS.
 Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list."
-  (let (temp bool right form)
+  (let (tmp bool right form)
     ;; Get operator
     (when (taskpaper-query-boolean-not-p (nth 0 tokens))
       (setq bool (nth 0 tokens)) (pop tokens))
@@ -4764,10 +4765,10 @@ matcher and the rest of the token list."
     (when tokens
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
-        (setq temp (taskpaper-query-parse-parentheses tokens)))
+        (setq tmp (taskpaper-query-parse-parentheses tokens)))
        (t
-        (setq temp (taskpaper-query-parse-predicate tokens))))
-      (setq right (car temp) tokens (cdr temp)))
+        (setq tmp (taskpaper-query-parse-predicate tokens))))
+      (setq right (car tmp) tokens (cdr tmp)))
     ;; Convert operator to function
     (when bool (setq bool (taskpaper-query-bool-to-func bool)))
     ;; Build Lisp form
@@ -4786,15 +4787,15 @@ precedence for Boolean operators. LEFT is a Lisp form
 representing the left side of the Boolean expression. This
 function implements the top-down recursive parsing algorithm
 known as Pratt's algorithm."
-  (let (temp bool cprec right form)
+  (let (tmp bool cprec right form)
     ;; Get left side
     (when (and tokens (not left))
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
-        (setq temp (taskpaper-query-parse-parentheses tokens)))
+        (setq tmp (taskpaper-query-parse-parentheses tokens)))
        (t
-        (setq temp (taskpaper-query-parse-boolean-unary tokens))))
-      (setq left (car temp) tokens (cdr temp)))
+        (setq tmp (taskpaper-query-parse-boolean-unary tokens))))
+      (setq left (car tmp) tokens (cdr tmp)))
     ;; Get operator
     (when (taskpaper-query-boolean-binary-p (nth 0 tokens))
       (setq bool (nth 0 tokens)) (pop tokens))
@@ -4802,13 +4803,13 @@ known as Pratt's algorithm."
     (when (and tokens bool left)
       (cond
        ((taskpaper-query-lparen-p (nth 0 tokens))
-        (setq temp (taskpaper-query-parse-parentheses tokens)))
+        (setq tmp (taskpaper-query-parse-parentheses tokens)))
        (t
         (setq cprec (cdr (assoc bool taskpaper-query-precedence-boolean)))
-        (setq temp (if (> cprec prec)
-                       (taskpaper-query-parse-boolean-binary tokens cprec)
-                     (taskpaper-query-parse-boolean-unary tokens)))))
-      (setq right (car temp) tokens (cdr temp)))
+        (setq tmp (if (> cprec prec)
+                      (taskpaper-query-parse-boolean-binary tokens cprec)
+                    (taskpaper-query-parse-boolean-unary tokens)))))
+      (setq right (car tmp) tokens (cdr tmp)))
     ;; Convert operator to function
     (when bool (setq bool (taskpaper-query-bool-to-func bool)))
     ;; Build Lisp form
@@ -4823,14 +4824,14 @@ known as Pratt's algorithm."
   "Parse next parenthetical expression in token list TOKENS.
 Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list."
-  (let (temp left)
+  (let (tmp left)
     (if (taskpaper-query-lparen-p (nth 0 tokens))
         (pop tokens)
       (error "Opening parenthesis expected"))
     (while (and tokens (not (taskpaper-query-rparen-p (nth 0 tokens))))
       ;; Parse Boolean binary expression
-      (setq temp (taskpaper-query-parse-boolean-binary tokens 0 left)
-            left (car temp) tokens (cdr temp))
+      (setq tmp (taskpaper-query-parse-boolean-binary tokens 0 left)
+            left (car tmp) tokens (cdr tmp))
       (when (and (not (taskpaper-query-rparen-p (nth 0 tokens)))
                  (not (taskpaper-query-boolean-binary-p (nth 0 tokens))))
         (error "Boolean binary operator or closing parenthesis expected")))
@@ -4843,10 +4844,10 @@ matcher and the rest of the token list."
 (defun taskpaper-query-parse (tokens)
   "Parse token list TOKENS.
 Return constructed Lisp form implementing the matcher."
-  (let (temp left)
+  (let (tmp left)
     (while tokens
-      (setq temp (taskpaper-query-parse-boolean-binary tokens 0 left)
-            left (car temp) tokens (cdr temp))
+      (setq tmp (taskpaper-query-parse-boolean-binary tokens 0 left)
+            left (car tmp) tokens (cdr tmp))
       (when (and tokens
                  (not (taskpaper-query-boolean-binary-p (nth 0 tokens))))
         (error "Boolean binary operator expected")))
@@ -5477,7 +5478,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
     "--"
     ("Documentation"
      ["Show Version" taskpaper-mode-version]
-     ["Browse Manual" taskpaper-mode-manual])
+     ["Browse Manual" taskpaper-mode-browse-manual])
     "--"
     ["Customize..." (customize-browse 'taskpaper)]))
 
@@ -5637,7 +5638,7 @@ items flatten and linked back to the corresponding buffer
 position where the item originated."
   (let ((files (taskpaper-agenda-files))
         file buffer marker item items)
-    ;; Cycle through agenda files
+    ;; Iterate through agenda files
     (while (setq file (pop files))
       (setq buffer
             (if (file-exists-p file)
