@@ -1401,7 +1401,8 @@ directory. An absolute path can be forced with a
                   (string-remove-prefix "file:" link)))
       (taskpaper-open-file link))
      ((eq type 'uri)
-      (when (string-prefix-p "www" link) (setq link (concat "http://" link)))
+      (when (string-match-p "\\`www[[:digit:]]\\{0,3\\}[.]" link)
+        (setq link (concat "http://" link)))
       (taskpaper-open-uri link))
      (t (find-file-other-window link)))))
 
