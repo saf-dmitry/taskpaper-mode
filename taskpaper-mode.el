@@ -1474,7 +1474,7 @@ image link is a plain link to file matching return value from
   (save-excursion
     (save-restriction
       (widen) (goto-char (point-min))
-      (while (re-search-forward taskpaper-file-path-regexp nil t)
+      (while (re-search-forward taskpaper-file-link-regexp nil t)
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
                (path (string-remove-prefix "file:" path))
