@@ -43,6 +43,7 @@
 (require 'easymenu)
 (require 'calendar)
 (require 'parse-time)
+(require 'url-util)
 (require 'cal-iso)
 (require 'overlay)
 (require 'cl-lib)
@@ -517,6 +518,16 @@ is used by default. Only the current line is checked."
     (setq path (replace-regexp-in-string "\\\\ " " " path)))
   path)
 
+(defun taskpaper-unescape-file-link (link)
+  "Unescape file LINK."
+  (when (stringp link)
+    (setq link
+          (if (string-prefix-p "file://" link)
+              (url-unhex-string (string-remove-prefix "file://" link))
+            (taskpaper-file-path-unescape
+             (string-remove-prefix "file:" link)))))
+  link)
+
 (defun taskpaper-file-missing-p (file)
   "Test if local FILE exists.
 Return non-nil if local FILE does not exist, otherwise return
@@ -939,9 +950,7 @@ LINK should be an unescaped raw link. Recognized types are 'uri,
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
   (if (and (eq (taskpaper-get-link-type link) 'file)
-           (taskpaper-file-missing-p
-            (taskpaper-file-path-unescape
-             (string-remove-prefix "file:" link))))
+           (taskpaper-file-missing-p (taskpaper-unescape-file-link link)))
       'taskpaper-missing-link
     'taskpaper-link))
 
@@ -1397,8 +1406,7 @@ directory. An absolute path can be forced with a
       (setq link (string-remove-prefix "mailto:" link))
       (compose-mail-other-window link))
      ((eq type 'file)
-      (setq link (taskpaper-file-path-unescape
-                  (string-remove-prefix "file:" link)))
+      (setq link (taskpaper-unescape-file-link link))
       (taskpaper-open-file link))
      ((eq type 'uri)
       (when (string-match-p "\\`www[[:digit:]]\\{0,3\\}[.]" link)
@@ -1476,25 +1484,24 @@ image link is a plain link to file matching return value from
       (widen) (goto-char (point-min))
       (while (re-search-forward taskpaper-file-link-regexp nil t)
         (let* ((begin (match-beginning 1)) (end (match-end 1))
-               (path (match-string-no-properties 1))
-               (path (string-remove-prefix "file:" path))
-               (path (taskpaper-file-path-unescape path))
-               (path (substitute-in-file-name (expand-file-name path)))
+               (link (match-string-no-properties 1))
+               (link (taskpaper-unescape-file-link link))
+               (link (substitute-in-file-name (expand-file-name link)))
                image)
-          ;; Check file path
-          (when (and (file-exists-p path)
-                     (not (file-remote-p path))
-                     (taskpaper-file-image-p path)
+          ;; Check file link
+          (when (and (file-exists-p link)
+                     (not (file-remote-p link))
+                     (taskpaper-file-image-p link)
                      (not (taskpaper-in-regexp
                            taskpaper-markdown-link-regexp begin)))
             ;; Create image
             (setq image (if (and taskpaper-max-image-size
                                  (image-type-available-p 'imagemagick))
                             (create-image
-                             path 'imagemagick nil
+                             link 'imagemagick nil
                              :max-width  (car taskpaper-max-image-size)
                              :max-height (cdr taskpaper-max-image-size))
-                          (create-image path)))
+                          (create-image link)))
             ;; Display image
             (when image
               (let ((overlay (make-overlay begin end)))
