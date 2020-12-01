@@ -905,7 +905,8 @@ LINK should be an unescaped raw link. Recognized types are 'uri,
 (defun taskpaper-get-link-face (link)
   "Get the right face for LINK."
   (if (and (eq (taskpaper-get-link-type link) 'file)
-           (taskpaper-file-missing-p (taskpaper-file-path-unescape link)))
+           (taskpaper-file-missing-p
+            (expand-file-name (taskpaper-file-path-unescape link))))
       'taskpaper-missing-link
     'taskpaper-link))
 
@@ -1435,8 +1436,7 @@ image link is a plain link to file matching return value from
       (while (re-search-forward taskpaper-file-link-regexp nil t)
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
-               (path (taskpaper-file-path-unescape path))
-               (path (substitute-in-file-name (expand-file-name path)))
+               (path (expand-file-name (taskpaper-file-path-unescape path)))
                image)
           ;; Check file path
           (when (and (file-exists-p path)
