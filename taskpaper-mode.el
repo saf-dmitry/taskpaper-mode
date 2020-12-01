@@ -43,7 +43,6 @@
 (require 'easymenu)
 (require 'calendar)
 (require 'parse-time)
-(require 'url-util)
 (require 'cal-iso)
 (require 'overlay)
 (require 'cl-lib)

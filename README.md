@@ -389,7 +389,7 @@ Tip: If you want to sync your TaskPaper files with all linked images and other a
 TaskPaper mode also has experimental support for inline Markdown links in form `[Link description](destination)`:
 
 - `[URL](http://www.example.net)`
-- `[File](file:///home/username/filename.txt)`
+- `[File](/home/username/filename.txt)`
 - `[Email](mailto:username@example.net)`
 
 This descriptive syntax is useful for long links which can interrupt reading. If markup hiding is enabled (see the [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
