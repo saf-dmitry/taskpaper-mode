@@ -400,7 +400,7 @@ If the point is on a link the command `C-c C-o` or `mouse-1` (`taskpaper-open-li
 
 You can jump to the next/previous link in the buffer using the commands `C-c C-x C-n` (`taskpaper-next-link`) and `C-c C-x C-p` (`taskpaper-previous-link`). When reaching the buffer boundaries the search fails once, and then wraps around. Because the key bindings are probably too long you might want to bind this also to `M-n` and `M-p`.
 
-The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting the user option `taskpaper-max-image-size`. Resizing works in Emacs v25 or higher built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.
+The command `C-c C-x C-v` (`taskpaper-toggle-inline-images`) toggles the inline display of linked images within the buffer skipping images larger than specified by `max-image-size`. Large images may be scaled down to fit in the buffer by setting the user option `taskpaper-max-image-size`. Resizing works in Emacs built with ImageMagick support. You can ask for inline images to be displayed at startup by configuring the user option `taskpaper-startup-with-inline-images`.
 
 ## Inline Formatting
 
@@ -774,7 +774,7 @@ I would also thank the following people, from whose work TaskPaper mode has bene
 
 # Bugs
 
-TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs v24.3 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
+TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs v25.1 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
 
 # License
 

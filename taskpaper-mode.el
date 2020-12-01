@@ -363,26 +363,6 @@ delimiters for strong and emphasis markup similar to Markdown."
 
 ;;;; Compatibility code for older Emacsen
 
-(unless (fboundp 'string-prefix-p)
-  (defun string-prefix-p (prefix string &optional ignore-case)
-    "Return non-nil if PREFIX is a prefix of STRING.
-If IGNORE-CASE is non-nil, the comparison is done without paying
-attention to case differences."
-    (let ((prefix-length (length prefix)))
-      (if (> prefix-length (length string)) nil
-        (eq t (compare-strings prefix 0 prefix-length string 0
-                               prefix-length ignore-case))))))
-
-(unless (fboundp 'string-suffix-p)
-  (defun string-suffix-p (suffix string &optional ignore-case)
-    "Return non-nil if SUFFIX is a suffix of STRING.
-If IGNORE-CASE is non-nil, the comparison is done without paying
-attention to case differences."
-    (let ((start-pos (- (length string) (length suffix))))
-      (and (>= start-pos 0)
-           (eq t (compare-strings suffix nil nil string
-                                  start-pos nil ignore-case))))))
-
 (unless (fboundp 'string-remove-prefix)
   (defun string-remove-prefix (prefix string)
     "Remove PREFIX from STRING if present."
@@ -396,18 +376,6 @@ attention to case differences."
     (if (string-suffix-p suffix string)
         (substring string 0 (- (length string) (length suffix)))
       string)))
-
-(unless (fboundp 'string-collate-equalp)
-  (defun string-collate-equalp (s1 s2 &rest _)
-    "Returns t if two strings have identical contents.
-Case is significant."
-    (string= s1 s2)))
-
-(unless (fboundp 'string-collate-lessp)
-  (defun string-collate-lessp (s1 s2 &rest _)
-    "Return t if first arg string is less than second in lexicographic order.
-Case is significant."
-    (string< s1 s2)))
 
 ;;;; Generally useful functions
 
@@ -1210,7 +1178,7 @@ is essential."
     (remove-from-invisibility-spec 'taskpaper-markup)
     (when (called-interactively-p 'interactive)
       (message "Markup hiding disabled")))
-  (when font-lock-mode (font-lock-fontify-buffer)))
+  (when font-lock-mode (font-lock-flush)))
 
 ;;;; Files and URIs
 
@@ -2756,10 +2724,7 @@ Date is stored as internal time representation.")
   (let ((cwin (get-buffer-window "*Calendar*" t)))
     (when cwin
       (let ((inhibit-message t))
-        (with-selected-window cwin
-          (eval form)
-          ;; Compatibility for Emacsen before v25
-          (unless (boundp 'inhibilt-message) (message nil)))))))
+        (with-selected-window cwin (eval form))))))
 
 (defvar taskpaper-read-date-minibuffer-local-map
   (let* ((map (make-sparse-keymap)))
@@ -2800,10 +2765,7 @@ The function should be called from minibuffer as part of
            (cwin (get-buffer-window "*Calendar*" t)))
       (when cwin
         (let ((inhibit-message t) (calendar-move-hook nil))
-          (with-selected-window cwin
-            (calendar-goto-date date)
-            ;; Compatibility for Emacsen before v25
-            (unless (boundp 'inhibilt-message) (message nil))))))))
+          (with-selected-window cwin (calendar-goto-date date)))))))
 
 (defvar taskpaper-read-date-overlay nil)
 (defun taskpaper-read-date-display ()

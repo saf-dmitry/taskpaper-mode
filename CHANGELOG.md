@@ -9,9 +9,11 @@ Added:
 
 Changed:
 
+- Fixed syntax for file links
 - Fixed list compare in searches
 - Fixed syntax highlighting for Markdown and plain URI links
 - Improved weekday handling in duration offsets
+- Dropped support for Emacs v24
 
 # v1.0
 
