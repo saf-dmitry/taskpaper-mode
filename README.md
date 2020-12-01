@@ -372,14 +372,13 @@ Please consider that recurring appointments like any other event that takes plac
 
 TaskPaper mode auto-creates clickable hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
 
+- `~/filename.txt`
+- `./filename.txt`
+- `../filename.txt`
+- `/home/username/filename.txt`
+- `/username@host:filename.txt`
 - `http://www.example.net`
 - `mailto:username@example.net`
-- `file:filename.txt`
-- `./filename.txt`
-- `file:///home/username/filename.txt`
-- `/home/username/filename.txt`
-- `file:/username@host:filename.txt`
-- `/username@host:filename.txt`
 
 Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g., `./my\ file.txt`. By default, file links to non-existing local files highlight red.
 
