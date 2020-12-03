@@ -165,7 +165,7 @@ returns nil, the completion is blocked."
   :type 'boolean)
 
 (defcustom taskpaper-startup-folded nil
-  "Non-nil means, switch to OVERVIEW when entering TaskPaper mode."
+  "Non-nil means, switch to Overview when entering TaskPaper mode."
   :group 'taskpaper
   :type 'boolean)
 
@@ -176,11 +176,10 @@ returns nil, the completion is blocked."
 
 (defcustom taskpaper-max-image-size nil
   "Maximum width and height for displayed inline images.
-This variable may be nil or a cons cell (MAX-WIDTH . MAX-HEIGHT),
-where MAX-WIDTH and MAX-HEIGHT are maximum image width and height
-in pixels. When nil, use the actual size. Otherwise, use
-ImageMagick to resize larger images. This requires Emacs to be
-built with ImageMagick support."
+This variable may be nil or a cons cell with maximum width in the
+car and maximum height in the cdr, in pixels. When nil, use the
+actual size. Otherwise, use ImageMagick to resize larger images.
+This requires Emacs to be built with ImageMagick support."
   :group 'taskpaper
   :type '(choice
           (const :tag "Actual size" nil)
@@ -280,7 +279,7 @@ See also variable `taskpaper-open-non-existing-files'."
                    (sexp :tag "Lisp form")))))
 
 (defcustom taskpaper-open-non-existing-files nil
-  "Non-nil means, `taskpaper-open-file' will open non-existing files.
+  "Non-nil means, open non-existing files in file links.
 When nil, an error will be generated. This variable applies only
 to external applications because they might choke on non-existing
 files. If the link is to a file that will be opened in Emacs, the
@@ -290,17 +289,17 @@ variable is ignored."
 
 (defcustom taskpaper-mark-ring-length 4
   "Number of different positions to be recorded in the ring.
-Changing this requires a restart of Emacs to work correctly."
+Changing this option requires a restart of Emacs."
   :group 'taskpaper
   :type 'integer)
 
 (defcustom taskpaper-custom-queries nil
   "List of custom queries for fast selection.
 The value of this variable is a list, the first element is a
-character that is used to select that tag through the
+character that is used to select that query through the
 fast-selection interface, the second element is a short
-description string, and the last must be a query string. If the
-first element is a string, it will be used as block separator."
+description string, and the last is a query string. If the first
+element is a string, it will be used as block separator."
   :group 'taskpaper
   :type '(repeat
           (choice (list (character :tag "Access char")
@@ -508,12 +507,11 @@ nil. For performance reasons remote files are not checked."
   '(face taskpaper-markup taskpaper-syntax markup invisible taskpaper-markup)
   "Properties to apply to inline markup.")
 
-(defun taskpaper-range-property-any (begin end prop prop-val)
+(defun taskpaper-range-property-any (begin end prop vals)
   "Check property PROP from BEGIN to END.
 Return non-nil if at least one character between BEGIN and END
-has a property PROP whose value is one of the given values
-PROP-VAL."
-  (cl-some (lambda (val) (text-property-any begin end prop val)) prop-val))
+has a property PROP whose value is one of the given values VALS."
+  (cl-some (lambda (val) (text-property-any begin end prop val)) vals))
 
 (defun taskpaper-remove-markup-chars (s)
   "Remove markup characters from propertized string S."
@@ -591,28 +589,28 @@ current kill."
    "\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u02ff\u0370-\u037d"
    "\u037f-\u1fff\u200c-\u200d\u2070-\u218f\u2c00-\u2fef"
    "\u3001-\ud7ff\uf900-\ufdcf\ufdf0-\ufffd]")
-  "Regular expression for tag name character.")
+  "Regular expression matching valid tag name character.")
 
 (defconst taskpaper-tag-name-regexp
   (format "%s+" taskpaper-tag-name-char-regexp)
-  "Regular expression for tag name.")
+  "Regular expression matching tag name.")
 
 (defconst taskpaper-tag-value-regexp
   "\\(?:\\\\(\\|\\\\)\\|[^()\n]\\)*"
-  "Regular expression for tag value.")
+  "Regular expression matching tag value.")
 
 (defconst taskpaper-tag-regexp
   (format "\\(?:^\\|\\s-+\\)\\(@\\(%s\\)\\(?:(\\(%s\\))\\)?\\)"
           taskpaper-tag-name-regexp
           taskpaper-tag-value-regexp)
-  "Regular expression for tag.
+  "Regular expression matching tag.
 Group 1 matches the whole tag expression.
 Group 2 matches the tag name without tag indicator.
 Group 3 matches the optional tag value without enclosing parentheses.")
 
 (defconst taskpaper-consec-tags-regexp
   (format "\\(?:%s\\)+" taskpaper-tag-regexp)
-  "Regular expression for consecutive tags.")
+  "Regular expression matching multiple consecutive tags.")
 
 (defconst taskpaper-email-regexp
   (concat
@@ -622,18 +620,18 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "[[:alnum:]]\\(?:[[:alnum:]-]\\{0,61\\}[[:alnum:]]\\)?"
    "\\(?:[.][[:alnum:]]\\(?:[[:alnum:]-]\\{0,61\\}[[:alnum:]]\\)?\\)*"
    "\\)")
-  "Regular expression for email address.")
+  "Regular expression matching plain email link.")
 
 (defconst taskpaper-file-path-regexp
   (concat
    "\\("
    "\\(?:~\\|[.][.]?\\|[a-zA-Z][:]\\)?[/]\\(?:\\\\ \\|[^ \0\n]\\)+"
    "\\)")
-  "Regular expression for file path.")
+  "Regular expression matching file path.")
 
 (defconst taskpaper-file-link-regexp
   (concat "\\(?:^\\|\\s-\\)" taskpaper-file-path-regexp)
-  "Regular expression for plain file link.")
+  "Regular expression matching plain file link.")
 
 (defconst taskpaper-uri-regexp
   (concat
@@ -657,7 +655,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "[/]"
    "\\)"
    "\\)")
-  "Regular expression for generic URI.")
+  "Regular expression matching generic URI.")
 
 (defconst taskpaper-markdown-link-regexp
   (concat
@@ -677,7 +675,7 @@ Group 3 matches the optional tag value without enclosing parentheses.")
    "\\)"
    "\\()\\)"
    "\\)")
-  "Regular expression for Markdown-style links.
+  "Regular expression matching Markdown link.
 Group 1 matches the entire link expression.
 Group 2 matches the opening square bracket.
 Group 3 matches the link description.
@@ -698,7 +696,7 @@ Group 7 matches the closing parenthesis.")
 
 (defconst taskpaper-task-regexp
   "^[ \t]*\\(\\([-+*]\\) +\\([^\n]*\\)\\)$"
-  "Regular expression for task.
+  "Regular expression matching task.
 Group 1 matches the whole task expression.
 Group 2 matches the task mark.
 Group 3 matches the task name.")
@@ -707,7 +705,7 @@ Group 3 matches the task name.")
   (format
    "^[ \t]*\\(\\([^\n]*\\)\\(:\\)\\(%s\\)?\\)$"
    taskpaper-consec-tags-regexp)
-  "Regular expression for project.
+  "Regular expression matching project.
 Group 1 matches the whole project expression.
 Group 2 matches the project name.
 Group 3 matches the project mark.
@@ -715,16 +713,16 @@ Group 4 matches optional trailing tags.")
 
 (defconst taskpaper-note-regexp
   "^[ \t]*\\(.*\\S-.*\\)$"
-  "Regular expression for note.
+  "Regular expression matching note.
 Group 1 matches the whole note expression.")
 
 (defconst taskpaper-emphasis-prefix-regexp
   "\\(?:^\\|[^\n*_\\]\\)"
-  "Regular expression for emphasis prefix.")
+  "Regular expression matching emphasis prefix.")
 
 (defconst taskpaper-emphasis-suffix-regexp
   "\\(?:[^\n*_]\\|$\\)"
-  "Regular expression for emphasis suffix.")
+  "Regular expression matching emphasis suffix.")
 
 (defconst taskpaper-emphasis-text-regexp
   (concat
@@ -733,14 +731,14 @@ Group 1 matches the whole note expression.")
    "\\|"
    "[^[:space:]*_][^\n]*?\\(?:\\\\.\\|[^[:space:]*_\\]\\)"
    "\\)")
-  "Regular expression for emphasis text.")
+  "Regular expression matching emphasis text.")
 
 (defconst taskpaper-strong-regexp
   (format "%s\\(\\(\\*\\*\\|__\\)\\(%s\\)\\(\\2\\)\\)%s"
           taskpaper-emphasis-prefix-regexp
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
-  "Regular expression for strong inline emphasis.
+  "Regular expression matching strong inline emphasis.
 Group 1 matches the entire expression.
 Group 2 matches the opening delimiters.
 Group 3 matches the text inside the delimiters.
@@ -751,7 +749,7 @@ Group 4 matches the closing delimiters.")
           taskpaper-emphasis-prefix-regexp
           taskpaper-emphasis-text-regexp
           taskpaper-emphasis-suffix-regexp)
-  "Regular expression for inline emphasis.
+  "Regular expression matching inline emphasis.
 Group 1 matches the entire expression.
 Group 2 matches the opening delimiters.
 Group 3 matches the text inside the delimiters.
@@ -917,7 +915,7 @@ LINK should be an unescaped raw link. Recognized types are 'uri,
   "Mouse events for links.")
 
 (defun taskpaper-font-lock-markdown-links (limit)
-  "Fontify Markdown-style links from point to LIMIT."
+  "Fontify Markdown links from point to LIMIT."
   (when (re-search-forward taskpaper-markdown-link-regexp limit t)
     (taskpaper-remove-flyspell-overlays-in
      (match-beginning 1) (match-end 1))
@@ -1186,7 +1184,7 @@ is essential."
   '((remote . emacs)
     (system . mailcap)
     (t      . mailcap))
-  "Default file applications on a UNIX or GNU/Linux system.")
+  "Default file applications on a GNU/Linux system.")
 
 (defconst taskpaper-file-apps-defaults-macos
   '((remote . emacs)
@@ -1576,7 +1574,7 @@ When SELF is non-nil, also map the current item."
       (funcall func))))
 
 (defun taskpaper-item-has-children-p ()
-  "Return non-nil if item at point has children."
+  "Return non-nil if current item has children."
   (let (eoi eos)
     (save-excursion
       (outline-back-to-heading t)
@@ -1811,7 +1809,7 @@ end.")
 ;;; Mark ring navigation interface
 
 (defvar taskpaper-mark-ring nil
-  "Mark ring for positions before jumps in TaskPaper mode.")
+  "Mark ring for positions before jumps.")
 (defvar taskpaper-mark-ring-last-goto nil
   "Last position in the mark ring used to go back.")
 
@@ -1824,17 +1822,14 @@ end.")
 (setcdr (nthcdr (1- taskpaper-mark-ring-length) taskpaper-mark-ring)
         taskpaper-mark-ring)
 
-(defun taskpaper-mark-ring-push (&optional pos buffer)
+(defun taskpaper-mark-ring-push (&optional pos)
   "Push the current position or POS onto the mark ring."
   (interactive)
   (setq taskpaper-mark-ring
         (nthcdr (1- taskpaper-mark-ring-length) taskpaper-mark-ring))
-  (move-marker (car taskpaper-mark-ring)
-               (or pos (point))
-               (or buffer (current-buffer)))
-  (message "%s" (substitute-command-keys
-                 "Position saved to mark ring, \
-go back with `\\[taskpaper-mark-ring-goto]'.")))
+  (move-marker (car taskpaper-mark-ring) (or pos (point)) (current-buffer))
+  (when (called-interactively-p 'any)
+    (message "Position saved to mark ring.")))
 
 (defun taskpaper-mark-ring-goto (&optional n)
   "Jump to the previous position in the mark ring.
@@ -1898,7 +1893,7 @@ current file automatically push the old position onto the ring."
   item)
 
 (defun taskpaper-item-type ()
-  "Return type of item at point or nil."
+  "Return type of item at point."
   (let ((item (buffer-substring-no-properties
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-remove-indentation item))
@@ -2031,8 +2026,8 @@ These are implicit attributes not associated with tags.")
 
 (defun taskpaper-item-get-special-attributes ()
   "Get special attrbutes for the item at point.
-Return alist (NAME . VALUE), where NAME is the attribute name and
-VALUE is the attribute value, as strings."
+Return a list of cons cells (NAME . VALUE), where NAME is the
+attribute name and VALUE is the attribute value, as strings."
   (let (attrs name value)
     (setq name "type" value (taskpaper-item-type))
     (push (cons name value) attrs)
@@ -2042,8 +2037,8 @@ VALUE is the attribute value, as strings."
 
 (defun taskpaper-item-get-explicit-attributes ()
   "Get explicit attrbutes for the item at point.
-Return alist (NAME . VALUE), where NAME is the attribute name and
-VALUE is the attribute value, as strings."
+Return a list of cons cells (NAME . VALUE), where NAME is the
+attribute name and VALUE is the attribute value, as strings."
   (let (attrs name value)
     (save-excursion
       (beginning-of-line 1)
@@ -2107,9 +2102,9 @@ VALUE is the attribute value, as strings."
 
 (defun taskpaper-item-get-attributes (&optional inherit)
   "Get attrbutes for item at point.
-Return read-only alist (NAME . VALUE), where NAME is the
-attribute name and VALUE is the attribute value, as strings. If
-INHERIT is non-nil also check higher levels of the hierarchy."
+Return read-only list of cons cells (NAME . VALUE), where NAME is
+the attribute name and VALUE is the attribute value, as strings.
+If INHERIT is non-nil also check higher levels of the hierarchy."
   (let* ((key (point-at-bol))
          (attrs (taskpaper-attribute-cache-get key)))
     (unless attrs
@@ -2142,9 +2137,7 @@ hierarchy."
   (assoc name (taskpaper-item-get-attributes inherit)))
 
 (defun taskpaper-item-remove-attribute (name)
-  "Remove non-special attribute NAME from item at point.
-With optional argument VALUE, match only attributes with that
-value."
+  "Remove non-special attribute NAME from item at point."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
@@ -2207,8 +2200,9 @@ instead of item at point. Return new string."
 
 (defun taskpaper-string-set-attribute (str name &optional value)
   "Set non-special attribute NAME for item string STR.
-Like `taskpaper-item-set-attribute' but uses argument string
-instead of item at point. Return new string."
+With optional argument VALUE, set attribute to that value. Like
+`taskpaper-item-set-attribute' but uses argument string instead
+of item at point. Return new string."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-set-attribute name value)
@@ -2228,70 +2222,70 @@ return the values as a list of strings."
 
 (defconst taskpaper-time-whitespace-regexp
   "\\`[ \t\n\r]*"
-  "Regular expression for whitespace characters.")
+  "Regular expression matching whitespace characters.")
 
 (defconst taskpaper-time-non-whitespace-regexp
   "\\`[^ \t\n\r]*"
-  "Regular expression non-whitespace characters.")
+  "Regular expression matching non-whitespace characters.")
 
 (defconst taskpaper-time-relative-word-regexp
   "\\`\\(today\\|tomorrow\\|yesterday\\|now\\)\\>"
-  "Regular expression for relative date and time.")
+  "Regular expression matching relative date and time.")
 
 (defconst taskpaper-time-relative-period-regexp
   (concat
    "\\`\\(this\\|next\\|last\\) +"
    "\\(year\\|quarter\\|month\\|week\\|day\\)\\>")
-  "Regular expression for relative time period.")
+  "Regular expression matching relative time period.")
 
 (defconst taskpaper-time-relative-month-regexp
   (concat
    "\\`\\(this\\|next\\|last\\) +"
    "\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
    "\\(?: +\\([0-9]?[0-9]\\)\\)?\\(?: \\|\\'\\)")
-  "Regular expression for relative month name.")
+  "Regular expression matching relative month name.")
 
 (defconst taskpaper-time-relative-weekday-regexp
   (concat
    "\\`\\(this\\|next\\|last\\) +"
    "\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
-  "Regular expression for relative weekday.")
+  "Regular expression matching relative weekday.")
 
 (defconst taskpaper-time-month-regexp
   (concat
    "\\`\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
    "\\(?: +\\([0-9]?[0-9]\\)\\)?\\(?: \\|\\'\\)")
-  "Regular expression for month name.")
+  "Regular expression matching month name.")
 
 (defconst taskpaper-time-weekday-regexp
   (concat
    "\\`\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
-  "Regular expression for weekday.")
+  "Regular expression matching weekday.")
 
 (defconst taskpaper-time-iso-date-regexp
   (concat
    "\\`\\([0-9]?[0-9]?[0-9][0-9]\\)"
    "\\(?:-\\([0-9]?[0-9]\\)\\(?:-\\([0-9]?[0-9]\\)\\)?\\)?"
    "\\( \\|\\'\\)")
-  "Regular expression for ISO 8601 date.")
+  "Regular expression matching ISO 8601 date.")
 
 (defconst taskpaper-time-iso-week-date-regexp
   (concat
    "\\`\\([0-9]?[0-9]?[0-9][0-9]\\)-w\\([0-9]?[0-9]\\)"
    "\\(?:-\\([0-9]\\)\\)?\\( \\|\\'\\)")
-  "Regular expression for ISO 8601 week date.")
+  "Regular expression matching ISO 8601 week date.")
 
 (defconst taskpaper-time-iso-date-short-regexp
   "\\`--\\([0-9]?[0-9]\\)-\\([0-9]?[0-9]\\)\\( \\|\\'\\)"
-  "Regular expression for ISO 8601 date without year.")
+  "Regular expression matching ISO 8601 date without year.")
 
 (defconst taskpaper-time-ampm-time-regexp
   "\\`\\([0-9]?[0-9]\\)\\(?::\\([0-9][0-9]\\)\\)?\\([ap]m?\\)\\>"
-  "Regular expression for time in 12-hour clock notation.")
+  "Regular expression matching time in 12-hour clock notation.")
 
 (defconst taskpaper-time-time-regexp
   "\\`\\([0-9]?[0-9]\\):\\([0-9][0-9]\\)\\(?: \\|\\'\\)"
-  "Regular expression for time in 24-hour clock notation.")
+  "Regular expression matching time in 24-hour clock notation.")
 
 (defconst taskpaper-time-duration-offset-regexp
   (concat
@@ -2299,7 +2293,7 @@ return the values as a list of strings."
    "\\([hdwmqy]\\|mins?\\|minutes?\\|hours?\\|"
    "days?\\|weeks?\\|months?\\|quarters?\\|years?\\|"
    (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
-  "Regular expression for duration offset.")
+  "Regular expression matching duration offset.")
 
 (defun taskpaper-time-expand-year (year)
   "Expand 2-digit YEAR.
@@ -2635,7 +2629,7 @@ this time, otherwise use current time."
     (decode-time (apply 'encode-time timedecode))))
 
 (defun taskpaper-expand-time-string (time-str &optional timedecode with-time)
-  "Parse and format time string.
+  "Parse and format time string TIME-STR.
 Return the formatted time string. When TIMEDECODE time value is
 given, calculate time based on this time, otherwise use current
 time. If the original time string specifies a time or if the
@@ -2648,7 +2642,7 @@ included."
     (format-time-string fmt (apply 'encode-time time))))
 
 (defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
-  "Convert a time string S to a float number of seconds.
+  "Convert time string TIME-STR to a float number of seconds.
 Return the float number of seconds since the beginning of the
 epoch. When TIMEDECODE time value is given, calculate time based
 on this time, otherwise use current time."
@@ -2692,7 +2686,7 @@ current date."
     (if (and date (not arg)) (calendar-goto-date date) (calendar-goto-today))))
 
 (defun taskpaper-show-in-calendar ()
-  "Show date at point in calendar.
+  "Show date at point in a calendar window.
 If point is on a tag with value, interpret the value as time
 string and show the corresponding date."
   (interactive)
@@ -2701,12 +2695,12 @@ string and show the corresponding date."
     (select-window swin) (select-frame-set-input-focus sframe)))
 
 (defun taskpaper-get-date-from-calendar ()
-  "Return a list (month day year) of date at point in calendar."
+  "Return a list (MONTH DAY YEAR) of date at point in calendar."
   (with-current-buffer "*Calendar*"
     (save-match-data (calendar-cursor-to-date))))
 
 (defun taskpaper-date-from-calendar ()
-  "Insert time stamp corresponding to cursor date in *Calendar* buffer."
+  "Insert time stamp corresponding to cursor date in the calendar buffer."
   (interactive)
   (let* ((date (taskpaper-get-date-from-calendar))
          (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
@@ -2754,8 +2748,8 @@ Date is stored as internal time representation.")
     (when (active-minibuffer-window) (exit-minibuffer))))
 
 (defun taskpaper-read-date-recenter-calendar (&optional _begin _end _length)
-  "Display the date prompt interpretation live in calendar.
-The function should be called from minibuffer as part of
+  "Display the date prompt interpretation live in the calendar window.
+The function should be called from the minibuffer as part of
 `after-change-functions' hook."
   (when (minibufferp (current-buffer))
     (let* ((str (buffer-substring (point-at-bol) (point-max)))
@@ -2768,7 +2762,7 @@ The function should be called from minibuffer as part of
 
 (defvar taskpaper-read-date-overlay nil)
 (defun taskpaper-read-date-display ()
-  "Display the date prompt interpretation live in minibuffer."
+  "Display the date prompt interpretation live in the minibuffer."
   (when taskpaper-read-date-display-live
     (when taskpaper-read-date-overlay
       (delete-overlay taskpaper-read-date-overlay))
@@ -2850,7 +2844,7 @@ time converted to an internal time."
       (if to-time time (format-time-string fmt time)))))
 
 (defun taskpaper-read-date-insert-timestamp ()
-  "Prompt the user for a date and insert the timestamp at point."
+  "Prompt the user for a date and insert a timestamp at point."
   (interactive)
   (insert-before-markers (format "%s" (taskpaper-read-date))))
 
@@ -2952,7 +2946,7 @@ Return selected tag specifier."
           (kill-buffer) (setq quit-flag t))))))
 
 (defun taskpaper-item-set-tag-fast-select ()
-  "Set the tag for the item at point using fast tag selection."
+  "Set a tag for the item at point using fast tag selection."
   (interactive)
   (let ((re (format "\\`@?\\(%s\\)\\(?:(\\(%s\\))\\)?\\'"
                     taskpaper-tag-name-regexp
@@ -3796,7 +3790,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (message "Sorting items...done"))
 
 (defun taskpaper-item-sorting-key-alpha ()
-  "Return sorting key of item at point for alphabetical sorting.
+  "Return sorting key of current item for alphabetical sorting.
 Remove indentation, type formatting and inline markup and return
 sorting key as string."
   (let ((item (buffer-substring
@@ -3808,8 +3802,8 @@ sorting key as string."
     item))
 
 (defun taskpaper-item-sorting-key-type ()
-  "Return sorting key of item at point for sorting by type.
-Get type of item at point and return sorting key as number."
+  "Return sorting key of current item for sorting by type.
+Get type of item and return sorting key as number."
   (let ((type (taskpaper-item-get-attribute "type"))
         (prec '(("project" . 3) ("task" . 2) ("note" . 1))))
     (cdr (assoc type prec))))
@@ -3855,7 +3849,7 @@ order."
 ;;;; Outline path
 
 (defun taskpaper-item-get-outline-path (&optional self)
-  "Return the outline path to the item at point.
+  "Return outline path to the current item.
 An outline path is a list of ancestors for the current item, in
 reverse order, as a list of strings. When SELF is non-nil, the
 path also includes the current item."
@@ -3904,7 +3898,7 @@ When SELF is non-nil, the path also includes the current item."
 
 (defun taskpaper-goto-get-targets (&optional excluded-entries)
   "Produce a table with possible outline targets.
-Return a list of (OLPATH . POS) elements where OLPATH is the
+Return a list of cons cells (OLPATH . POS), where OLPATH is the
 formatted outline path as string and POS is the corresponding
 buffer position. EXCLUDED-ENTRIES is a list of OLPATH elements,
 which will be excluded from the results."
@@ -4048,7 +4042,7 @@ subtree from the kill ring."
 The subtree is filed below the target location as a subitem.
 Depending on the value of `taskpaper-reverse-note-order', it will
 be either the first or last subitem. If ARG is non-nil, just copy
-the subtree. RFLOC can be a refile location in form (OLPATH POS)
+the subtree. RFLOC can be a refile location in form (OLPATH . POS)
 obtained in a different way."
   (interactive)
   (let* ((loc (or rfloc (taskpaper-goto-get-location nil arg)))
@@ -4108,7 +4102,7 @@ If LOCATION is not given, the value of
               (buffer-file-name (buffer-base-buffer)))))))
 
 (defun taskpaper-archive-get-project ()
-  "Get project hierarchy for the item at point.
+  "Get project hierarchy for the current item.
 Return formatted project hierarchy as string or nil, if there are
 no parent projects."
   (let (project projects)
@@ -4209,16 +4203,14 @@ last subitem."
 ;;;###autoload
 (defun taskpaper-add-entry (&optional text location file)
   "Add entry TEXT to LOCATION in FILE.
-
-When FILE is specified, visit it and set this buffer as target
-buffer, otherwise fall back to the current buffer.
-
-Prompt user for entry TEXT and add it as child of the top-level
-LOCATION item. The entry is filed below the target location as a
-subitem. Depending on the value of
+Prompt the user for entry TEXT and add it as child of the
+top-level LOCATION item. The entry is filed below the target
+location as a subitem. Depending on the value of
 `taskpaper-reverse-note-order', it will be either the first or
 last subitem. When the location is omitted, the item is simply
-filed at the end of the file, as top-level item."
+filed at the end of the file, as top-level item. When FILE is
+specified, visit it and set this buffer as target buffer,
+otherwise fall back to the current buffer."
   (interactive)
   (let ((text (or text (read-string "Entry: ")))
         (this-buffer (current-buffer)) buffer level)
@@ -4285,7 +4277,7 @@ filed at the end of the file, as top-level item."
   (setq taskpaper-occur-highlights nil))
 
 (defun taskpaper-occur (&optional regexp)
-  "Make a sparse tree showing items matching REGEXP.
+  "Make a sparse tree view showing items matching REGEXP.
 Return the number of matches."
   (interactive)
   (setq regexp (or regexp (read-regexp "Regexp: ")))
@@ -4307,7 +4299,7 @@ Return the number of matches."
     cnt))
 
 (defun taskpaper-occur-next-match (&optional n _reset)
-  "Function for `next-error-function' to find sparse tree matches.
+  "Function for `next-error-function' to find highlight matches.
 N is the number of matches to move, when negative move backwards.
 This function always goes back to the starting point when no
 match is found."
@@ -4331,69 +4323,69 @@ match is found."
 
 (defconst taskpaper-query-whitespace-regexp
   "\\`[ \t\n\r]*"
-  "Regular expression for whitespace.")
+  "Regular expression matching whitespace.")
 
 (defconst taskpaper-query-attribute-regexp
   (format "\\(@%s+\\)" taskpaper-tag-name-char-regexp)
-  "Regular expression for attribute.")
+  "Regular expression matching attribute.")
 
 (defconst taskpaper-query-operator-regexp
   "\\([<>~!]=\\|[<>=]\\)"
-  "Regular expression for non-word relational operator.")
+  "Regular expression matching non-word relational operator.")
 
 (defconst taskpaper-query-modifier-regexp
   "\\(\\[\\(?:[isnd]l?\\|l\\)\\]\\)"
-  "Regular expression for relational modifier.")
+  "Regular expression matching relational modifier.")
 
 (defconst taskpaper-query-quoted-string-regexp
   "\\(\"\\(?:\\\\\"\\|[^\"]\\)*\"\\)"
-  "Regular expression for double-quoted string.")
+  "Regular expression matching double-quoted string.")
 
 (defconst taskpaper-query-word-regexp
   "\\([^][@<>=~!()\" \t\n\r]+\\)"
-  "Regular expression for word.")
+  "Regular expression matching word.")
 
 (defconst taskpaper-query-word-operator
   '("and" "or" "not"
     "contains" "beginswith" "endswith" "matches")
-  "Valid query word operators.")
+  "List of valid query word operators.")
 
 (defconst taskpaper-query-non-word-operator
   '("=" "<" ">" "<=" ">=" "!=" "~=")
-  "Valid query non-word operators.")
+  "List of valid query non-word operators.")
 
 (defconst taskpaper-query-word-shortcut
   '("project" "task" "note")
-  "Valid query type shortcuts.")
+  "List of valid query type shortcuts.")
 
 (defconst taskpaper-query-relation-operator
   '("=" "<" ">" "<=" ">=" "!=" "~="
     "contains" "beginswith" "endswith" "matches")
-  "Valid query relational operators.")
+  "List of valid query relational operators.")
 
 (defconst taskpaper-query-relation-modifier
   '("[i]" "[s]" "[n]" "[d]" "[l]" "[il]" "[sl]" "[nl]" "[dl]")
-  "Valid query relation modifiers.")
+  "List of valid query relation modifiers.")
 
 (defconst taskpaper-query-boolean-not
   '("not")
-  "Valid Boolean NOT operator.")
+  "List of valid Boolean NOT operators.")
 
 (defconst taskpaper-query-boolean-binary
   '("and" "or")
-  "Valid Boolean binary operators.")
+  "List of valid Boolean binary operators.")
 
 (defconst taskpaper-query-lparen-regexp
   "\\((\\)"
-  "Regular expression for opening parenthesis.")
+  "Regular expression matching opening parenthesis.")
 
 (defconst taskpaper-query-rparen-regexp
   "\\()\\)"
-  "Regular expression for closing parenthesis.")
+  "Regular expression matching closing parenthesis.")
 
 (defconst taskpaper-query-lparen-rparen
   '("(" ")")
-  "Opening and closing parentheses.")
+  "List of opening and closing parentheses.")
 
 (defun taskpaper-query-attribute-p (token)
   "Return non-nil if TOKEN is a valid attribute."
@@ -4810,7 +4802,7 @@ Return constructed Lisp form implementing the matcher."
   "Parse query string QUERY.
 Return constructed Lisp form implementing the matcher. The
 matcher is to be evaluated at an outline item and returns non-nil
-if the item matches the selection string STR."
+if the item matches the query string."
   (let (tokens)
     ;; Tokenize query string and expand shortcuts
     (setq tokens (taskpaper-query-read-tokenize query))
@@ -4819,11 +4811,11 @@ if the item matches the selection string STR."
     (if tokens (taskpaper-query-parse tokens) nil)))
 
 (defun taskpaper-query-item-match-p (query)
-  "Return non-nil if item at point matches query string QUERY."
+  "Return non-nil if the current item matches query string QUERY."
   (eval (taskpaper-query-matcher query)))
 
 (defun taskpaper-query-fontify-query ()
-  "Fontify query string in minibuffer."
+  "Fontify query string in the minibuffer."
   (save-excursion
     (let ((case-fold-search nil))
       ;; Fontify word operators
@@ -4856,9 +4848,9 @@ if the item matches the selection string STR."
                            'face 'default)))))
 
 (defun taskpaper-read-query-propertize (&optional _begin _end _length)
-  "Propertize query string live in minibuffer.
+  "Propertize query string live in the minibuffer.
 Incrementally read query string, validate it and propertize
-accordingly. The function should be called from minibuffer as
+accordingly. The function should be called from the minibuffer as
 part of `after-change-functions' hook."
   (when (minibufferp (current-buffer))
     (condition-case nil
@@ -4872,7 +4864,7 @@ part of `after-change-functions' hook."
                           'face 'taskpaper-query-error)))))
 
 (defun taskpaper-match-sparse-tree (matcher)
-  "Create a sparse tree according to MATCHER.
+  "Create a sparse tree view according to MATCHER.
 MATCHER is a Lisp form to be evaluated at an outline item and
 returns non-nil if the item matches."
   (taskpaper-occur-remove-highlights)
@@ -4887,8 +4879,8 @@ returns non-nil if the item matches."
           (taskpaper-outline-show-context))))))
 
 (defun taskpaper-query-read-query (&optional prompt)
-  "Prompt user for search query.
-Validate input and provide tab completion for attributes in
+  "Prompt the user for a search query.
+Validate input and provide tab completion for attributes in the
 minibuffer. Return query string. PROMPT can overwrite the default
 prompt."
   (let ((attrs (taskpaper-add-tag-prefix
@@ -4918,7 +4910,7 @@ prompt."
       str)))
 
 (defun taskpaper-query (&optional query)
-  "Create a sparse tree according to query string QUERY."
+  "Create a sparse tree view according to query string QUERY."
   (interactive)
   (setq query (or query (taskpaper-query-read-query)))
   (message "Querying...")
@@ -4929,7 +4921,7 @@ prompt."
   (message "Querying...done"))
 
 (defun taskpaper-iquery-query ()
-  "Evaluate query in main window."
+  "Evaluate query in the main window."
   (when (and (minibufferp (current-buffer))
              (minibuffer-selected-window))
     (let* ((str (minibuffer-contents-no-properties))
@@ -4944,7 +4936,7 @@ prompt."
   "The idle timer object for I-query mode.")
 
 (defun taskpaper-iquery (&optional query prompt)
-  "Create a sparse tree according to query string.
+  "Create a sparse tree view according to query string.
 Query results are updated incrementally as you type, showing
 items, that matches. If non-nil, QUERY is an initial query
 string. PROMPT can overwrite the default prompt."
@@ -5057,7 +5049,7 @@ Return selected query string."
 
 (defun taskpaper-query-tag-at-point ()
   "Query buffer for tag at point.
-When point is on the \"@search\" tag, execute query stored in the
+When point is on a \"@search\" tag, execute query stored in the
 tag value. For other tags when point is on the tag name, query
 for the tag name, otherwise query for the name-value
 combination."
@@ -5085,7 +5077,7 @@ combination."
 ;;;; Ispell and Flyspell support
 
 (defun taskpaper-ispell-setup ()
-  "Ispell setup for TaskPaper-mode."
+  "Ispell setup for TaskPaper mode."
   (add-to-list 'ispell-skip-region-alist (list taskpaper-tag-regexp))
   (add-to-list 'ispell-skip-region-alist (list taskpaper-uri-regexp))
   (add-to-list 'ispell-skip-region-alist (list taskpaper-email-regexp))
@@ -5102,7 +5094,7 @@ combination."
 ;;;; Bookmarks support
 
 (defun taskpaper-bookmark-jump-unhide ()
-  "Unhide the current position to show the bookmark location."
+  "Reveal the current position to show the bookmark location."
   (and (derived-mode-p 'taskpaper-mode)
        (or (outline-invisible-p)
            (save-excursion
@@ -5129,14 +5121,14 @@ combination."
 ;;;; Miscellaneous
 
 (defun taskpaper-tab ()
-  "Demote item at point or indent line."
+  "Demote current item or indent line."
   (interactive)
   (cond ((outline-on-heading-p)
          (call-interactively #'taskpaper-outline-demote))
         (t (call-interactively #'indent-for-tab-command))))
 
 (defun taskpaper-shifttab ()
-  "Promote item at point."
+  "Promote current item."
   (interactive)
   (when (outline-on-heading-p)
     (call-interactively #'taskpaper-outline-promote)))
@@ -5148,7 +5140,7 @@ combination."
     st))
 
 (defun taskpaper-transpose-words ()
-  "Transpose words in TaskPaper buffer."
+  "Transpose words in a TaskPaper buffer."
   (interactive)
   (let ((st (if taskpaper-use-inline-emphasis
                 taskpaper-mode-transpose-word-syntax-table
@@ -5158,7 +5150,7 @@ combination."
 (taskpaper-remap taskpaper-mode-map #'transpose-words #'taskpaper-transpose-words)
 
 (defun taskpaper-save-all-taskpaper-buffers ()
-  "Save all TaskPaper mode buffers without user confirmation."
+  "Save all TaskPaper buffers without user confirmation."
   (interactive)
   (save-some-buffers t (lambda () (derived-mode-p 'taskpaper-mode))))
 
@@ -5437,7 +5429,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 ;;;; Agenda view
 
 (defcustom taskpaper-agenda-files nil
-  "List of files to be used for agenda display.
+  "List of files to be used for agenda view.
 If an entry is a directory, all files in that directory that are
 matched by `taskpaper-agenda-file-regexp' will be part of the
 file list."
@@ -5453,12 +5445,12 @@ matched by this regular expression will be included."
   :type 'regexp)
 
 (defcustom taskpaper-agenda-skip-unavailable-files nil
-  "Non-nil means, silently skip unavailable agenda files"
+  "Non-nil means, silently skip unavailable agenda files."
   :group 'taskpaper
   :type 'boolean)
 
 (defcustom taskpaper-agenda-sorting-predicate nil
-  "Predicate function for sorting items in Agenda buffer.
+  "Predicate function for sorting items in an Agenda mode buffer.
 If non-nil, it is called with two arguments, the items to
 compare, and should return non-nil if the first item should sort
 before the second one."
@@ -5466,18 +5458,18 @@ before the second one."
   :type 'symbol)
 
 (defcustom taskpaper-agenda-start-with-follow-mode nil
-  "The initial value of Follow mode in a newly created agenda window."
+  "The initial value of Follow mode in an Agenda mode buffer."
   :group 'taskpaper
   :type 'boolean)
 
 (defcustom taskpaper-agenda-after-show-hook nil
-  "Normal hook run after an item has been shown from the agenda.
+  "Normal hook run after an item has been shown from agenda view.
 Point is in the buffer where the item originated."
   :group 'taskpaper
   :type 'hook)
 
 (defcustom taskpaper-agenda-window-setup 'reorganize-frame
-  "How the agenda buffer should be displayed.
+  "How the Agenda mode buffer should be displayed.
 Possible values for this option are:
 
  current-window    Show agenda in the current window, keeping other windows
@@ -5496,8 +5488,8 @@ Possible values for this option are:
 (defcustom taskpaper-agenda-restore-windows-after-quit nil
   "Non-nil means, restore window configuration upon exiting agenda.
 Before the window configuration is changed for displaying the
-agenda, the current status is recorded. When the agenda is exited
-and this option is set, the old state is restored. If
+agenda, the current status is recorded. When the Agenda mode is
+exited and this option is set, the old state is restored. If
 `taskpaper-agenda-window-setup' is `other-frame', the value of
 this option will be ignored."
   :group 'taskpaper
@@ -5509,7 +5501,7 @@ this option will be ignored."
 (defvar taskpaper-agenda-pre-follow-window-conf nil)
 
 (defvar taskpaper-agenda-matcher-form nil
-  "Recent matcher form for agenda re-building.")
+  "Recent matcher form for re-building agenda view.")
 (make-variable-buffer-local 'taskpaper-agenda-matcher-form)
 
 (defvar taskpaper-agenda-new-buffers nil
@@ -5519,27 +5511,27 @@ this option will be ignored."
   taskpaper-agenda-start-with-follow-mode)
 
 (defun taskpaper-agenda-buffer-p ()
-  "Return non-nil if current buffer is an agenda buffer."
+  "Return non-nil if current buffer is an Agenda mode buffer."
   (and (derived-mode-p 'taskpaper-agenda-mode)
        (equal (buffer-name) taskpaper-agenda-buffer-name)))
 
 (defun taskpaper-agenda-buffer-error ()
-  "Throw an error when not in agenda buffer."
-  (error "Not in TaskPaper Agenda buffer"))
+  "Throw an error when not in an Agenda mode buffer."
+  (error "Not in TaskPaper Agenda mode buffer"))
 
 (defun taskpaper-agenda-error ()
-  "Throw an error when a command is not allowed in the agenda."
+  "Throw an error when a command is not allowed."
   (user-error "Command not allowed in this line"))
 
 (defun taskpaper-agenda-set-mode-name ()
-  "Set mode name to indicate all mode settings."
+  "Set mode name to indicate all Agenda mode settings."
   (setq mode-name
         (list "TP-Agenda"
               (if taskpaper-agenda-follow-mode " Follow" "")
               (force-mode-line-update))))
 
 (defun taskpaper-agenda-files ()
-  "Get the list of agenda files."
+  "Get list of agenda files."
   (let ((files
          (if (listp taskpaper-agenda-files)
              taskpaper-agenda-files
@@ -5615,12 +5607,12 @@ position where the item originated."
     (nreverse items)))
 
 (defun taskpaper-agenda-sort-init (list)
-  "Sort list of items for Agenda view."
+  "Sort list of items for agenda view."
   (let ((sfunc taskpaper-agenda-sorting-predicate))
     (if sfunc (sort list sfunc) list)))
 
 (defun taskpaper-agenda-insert-items (matcher)
-  "Insert items matching MATCHER in agenda buffer.
+  "Insert items matching MATCHER in the current Agenda mode buffer.
 Return number of items."
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((inhibit-read-only t)
@@ -5632,7 +5624,7 @@ Return number of items."
     (length items)))
 
 (defun taskpaper-agenda-redo ()
-  "Re-buid the current agenda buffer."
+  "Re-build the current Agenda mode buffer."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (when taskpaper-agenda-matcher-form
@@ -5643,7 +5635,7 @@ Return number of items."
       (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items"))))))
 
 (defun taskpaper-agenda-goto ()
-  "Go to the item at point."
+  "Go to the origin of the current item."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let* ((marker
@@ -5656,7 +5648,7 @@ Return number of items."
   (run-hooks 'taskpaper-agenda-after-show-hook))
 
 (defun taskpaper-agenda-switch-to ()
-  "Go to the item at points and delete other windows."
+  "Go to the origin of the current item and delete other windows."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let* ((marker
@@ -5671,14 +5663,14 @@ Return number of items."
     (widen) (goto-char pos)))
 
 (defun taskpaper-agenda-show ()
-  "Display the TaskPaper file which contains the item at point."
+  "Display the origin of the current item in another window."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((win (selected-window)))
     (taskpaper-agenda-goto) (select-window win)))
 
 (defun taskpaper-agenda-show-recenter ()
-  "Display to the item at point and recenter."
+  "Display the origin of the current item in another window and recenter it."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((win (selected-window)))
@@ -5692,7 +5684,7 @@ Return number of items."
          taskpaper-agenda-follow-mode (taskpaper-agenda-show))))
 
 (defun taskpaper-agenda-follow-mode ()
-  "Toggle Follow mode in an agenda buffer."
+  "Toggle Follow mode in the Agenda mode buffer."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (unless taskpaper-agenda-follow-mode
@@ -5710,8 +5702,7 @@ Return number of items."
 
 (defun taskpaper-agenda-next-line ()
   "Move cursor to the next line.
-Display the TaskPaper file which contains the item at point if
-Follow mode is active."
+Display the origin of the current item if Follow mode is active."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'next-line)
@@ -5719,15 +5710,16 @@ Follow mode is active."
 
 (defun taskpaper-agenda-previous-line ()
   "Move cursor to the previous line.
-Display the TaskPaper file which contains the item at point if
-Follow mode is active."
+Display the origin of the current item if Follow mode is active."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'previous-line)
   (taskpaper-agenda-do-context-action))
 
 (defun taskpaper-agenda-quit ()
-  "Quit the agenda and kill the agenda buffer."
+  "Quit the agenda.
+Kill the current Agenda mode buffer and restore window
+configuration."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((buf (current-buffer)))
@@ -5747,10 +5739,10 @@ Follow mode is active."
     (kill-buffer buf)))
 
 (defun taskpaper-agenda-exit ()
-  "Exit the agenda, killing TaskPaper buffers loaded by the agenda.
-Like `taskpaper-agenda-quit', but kill any buffers that were
-created by the agenda. TaskPaper buffers visited directly by the
-user will not be touched."
+  "Exit the agenda.
+Like `taskpaper-agenda-quit', but kill all TaskPaper buffers that
+were created by the agenda. TaskPaper buffers visited directly by
+the user will not be touched."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (taskpaper-release-buffers taskpaper-agenda-new-buffers)
@@ -5782,10 +5774,10 @@ user will not be touched."
     (define-key map (kbd "q") 'taskpaper-agenda-quit)
     (define-key map (kbd "x") 'taskpaper-agenda-exit)
     map)
-  "Keymap for `taskpaper-agenda-mode'.")
+  "Keymap for TaskPaper Agenda mode.")
 
 (defun taskpaper-agenda-prepare-window (abuf)
-  "Setup agenda buffer in the window.
+  "Setup Agenda mode buffer in the window.
 ABUF is the buffer for the agenda window."
   (setq taskpaper-agenda-pre-window-conf
         (current-window-configuration))
@@ -5806,7 +5798,7 @@ ABUF is the buffer for the agenda window."
     (pop-to-buffer-same-window abuf)))
 
 (defun taskpaper-agenda-build (matcher)
-  "Build agenda buffer using MATCHER."
+  "Build Agenda mode buffer using MATCHER."
   (let ((cnt))
     (message "Building agenda...")
     (taskpaper-agenda-prepare-window
@@ -5823,7 +5815,7 @@ ABUF is the buffer for the agenda window."
 
 ;;;###autoload
 (defun taskpaper-agenda-search ()
-  "Promt for query string and build agenda."
+  "Promt for query string and build agenda view."
   (interactive)
   (let ((matcher (taskpaper-query-matcher
                   (taskpaper-query-read-query "Agenda query: "))))
@@ -5831,7 +5823,7 @@ ABUF is the buffer for the agenda window."
 
 ;;;###autoload
 (defun taskpaper-agenda-select ()
-  "Promts for query selection and build agenda."
+  "Promts for query selection and build agenda view."
   (interactive)
   (let ((matcher (taskpaper-query-matcher (taskpaper-query-fast-selection))))
     (taskpaper-agenda-build matcher)))
