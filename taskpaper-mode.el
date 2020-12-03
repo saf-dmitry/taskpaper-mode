@@ -5617,12 +5617,11 @@ Return number of items."
       (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items"))))))
 
 (defun taskpaper-agenda-goto ()
-  "Go to the origin of the current item."
+  "Go to the original location of the current item."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
-  (let* ((marker
-          (or (taskpaper-get-at-bol 'taskpaper-marker)
-              (taskpaper-agenda-error)))
+  (let* ((marker (or (taskpaper-get-at-bol 'taskpaper-marker)
+                     (taskpaper-agenda-error)))
          (buffer (marker-buffer marker))
          (pos (marker-position marker)))
     (switch-to-buffer-other-window buffer)
@@ -5630,39 +5629,29 @@ Return number of items."
   (run-hooks 'taskpaper-agenda-after-show-hook))
 
 (defun taskpaper-agenda-switch-to ()
-  "Go to the origin of the current item and delete other windows."
+  "Go to the original location of the current item and delete other windows."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
-  (let* ((marker
-          (or (taskpaper-get-at-bol 'taskpaper-marker)
-              (taskpaper-agenda-error)))
+  (let* ((marker (or (taskpaper-get-at-bol 'taskpaper-marker)
+                     (taskpaper-agenda-error)))
          (buffer (marker-buffer marker))
          (pos (marker-position marker)))
-    (unless buffer
-      (user-error "Trying to switch to non-existent buffer"))
+    (unless buffer (user-error "Trying to switch to non-existent buffer"))
     (pop-to-buffer-same-window buffer)
-    (delete-other-windows)
-    (widen) (goto-char pos)))
+    (delete-other-windows) (widen) (goto-char pos))
+  (run-hooks 'taskpaper-agenda-after-show-hook))
 
 (defun taskpaper-agenda-show ()
-  "Display the origin of the current item in another window."
+  "Display the original location of the current item."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((win (selected-window)))
     (taskpaper-agenda-goto) (select-window win)))
 
-(defun taskpaper-agenda-show-recenter ()
-  "Display the origin of the current item in another window and recenter it."
-  (interactive)
-  (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
-  (let ((win (selected-window)))
-    (taskpaper-agenda-goto)
-    (recenter) (select-window win)))
-
 (defun taskpaper-agenda-do-context-action ()
   "Show Follow mode window."
-  (let ((m (taskpaper-get-at-bol 'taskpaper-marker)))
-    (and (markerp m) (marker-buffer m)
+  (let ((marker (taskpaper-get-at-bol 'taskpaper-marker)))
+    (and (markerp marker) (marker-buffer marker)
          taskpaper-agenda-follow-mode (taskpaper-agenda-show))))
 
 (defun taskpaper-agenda-follow-mode ()
@@ -5743,7 +5732,6 @@ the user will not be touched."
     (define-key map (kbd "<down>") 'taskpaper-agenda-next-line)
     (define-key map (kbd "SPC") 'taskpaper-agenda-show)
     (define-key map (kbd "TAB") 'taskpaper-agenda-goto)
-    (define-key map (kbd "L") 'taskpaper-agenda-show-recenter)
     (define-key map (kbd "RET") 'taskpaper-agenda-switch-to)
     (define-key map (kbd "I") 'taskpaper-iquery)
     (define-key map (kbd "Q") 'taskpaper-query)

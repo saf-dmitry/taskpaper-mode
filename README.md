@@ -653,8 +653,6 @@ Items in an Agenda mode buffer are displayed as a flat list and linked back to t
 
 - `SPC`: Display the original location of the item in another window (`taskpaper-agenda-show`).
 
-- `L`: Display the original location in another window and recenter that window (`taskpaper-agenda-show-recenter`).
-
 - `TAB`: Go to the original location of the item in another window (`taskpaper-agenda-goto`).
 
 - `RET`: Go to the original location of the item and delete other windows (`taskpaper-agenda-switch-to`).
