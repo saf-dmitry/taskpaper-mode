@@ -35,7 +35,7 @@ The system doesn't force any particular workflow on you; it provides basic list 
 
 ![](./images/screencast_02.gif)
 
-TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline-aware filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful agenda mode.
+TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline-aware filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful Agenda mode.
 
 # About This Manual
 
@@ -606,24 +606,24 @@ When archiving the hook `taskpaper-archive-hook` runs after successfully archivi
 
 ## Multi-Document Support and Agenda View
 
-For querying a collection of TaskPaper files, TaskPaper mode includes a powerful agenda mode. In this mode items from different TaskPaper files can be collected based on search queries and displayed in an organized way in a special agenda buffer. This buffer is read-only, but provides commands to visit the corresponding locations in the original TaskPaper files. In this way, all information is stored only once, removing the risk that your agenda view and agenda files may diverge.
+For querying a collection of TaskPaper files, TaskPaper mode includes a powerful Agenda mode. In this mode items from different TaskPaper files can be collected based on search queries and displayed in an organized way in a special Agenda mode buffer. This buffer is read-only, but provides commands to visit the corresponding locations in the original TaskPaper files. In this way, all information is stored only once, removing the risk that your agenda view and agenda files may diverge.
 
 The information to be shown is normally collected from all agenda files, the files listed in the user option `taskpaper-agenda-files`:
 
     (setq taskpaper-agenda-files '("~/gtd.taskpaper" "~/projects/"))
 
-If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize the user option `taskpaper-agenda-file-regexp` to change this behavior. If the user option `taskpaper-agenda-skip-unavailable-files` is non-nil, agenda mode will silently skip unavailable agenda files without issuing an error.
+If a directory is part of this list, all files with the extension `.taskpaper` in this directory will be part of the list. You can customize the user option `taskpaper-agenda-file-regexp` to change this behavior. If the user option `taskpaper-agenda-skip-unavailable-files` is non-nil, Agenda mode will silently skip unavailable agenda files without issuing an error.
 
-The following commands enter the agenda mode. The command `taskpaper-agenda-search` prompts the user for a search query. The command `taskpaper-agenda-select` let the user select a predefined query via the custom query dialog described above. You may consider to assign global key bindings to these commands in your init file:
+The following commands enter the Agenda mode. The command `taskpaper-agenda-search` prompts the user for a search query. The command `taskpaper-agenda-select` let the user select a predefined query via the custom query dialog described above. You may consider to assign global key bindings to these commands in your init file:
 
     (global-set-key (kbd "C-c a") 'taskpaper-agenda-search)
     (global-set-key (kbd "C-c s") 'taskpaper-agenda-select)
 
-Two user options control how the agenda buffer is displayed and whether the window configuration is restored when the agenda exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these user options.
+Two user options control how the Agenda mode buffer is displayed and whether the window configuration is restored when the Agenda mode exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these user options.
 
 ### Sorting Agenda Items
 
-Before being inserted into an agenda buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two string arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
+Before being inserted into an Agenda mode buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two string arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
 In the example below items will be sorted according to their due dates form earliest to latest. The sorting is done by date & time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
@@ -647,7 +647,7 @@ See the [Scripting Guide][scripting-guide] for the list of API functions, which 
 
 ### Motion and Display Commands
 
-Items in the agenda buffer are displayed as a flat list and linked back to the TaskPaper file where they originate. You are not allowed to edit the agenda buffer itself, but commands are provided to show and jump to the original item location.
+Items in an Agenda mode buffer are displayed as a flat list and linked back to the TaskPaper file where they originate. You are not allowed to edit the Agenda mode buffer itself, but commands are provided to show and jump to the original item location.
 
 - `n` or `DOWN`: Move to the next line (`taskpaper-agenda-next-line`).
 
@@ -661,26 +661,26 @@ Items in the agenda buffer are displayed as a flat list and linked back to the T
 
 - `RET`: Go to the original location of the item and delete other windows (`taskpaper-agenda-switch-to`).
 
-- `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the agenda buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new agenda buffers can be set with the user option `taskpaper-agenda-start-with-follow-mode`.
+- `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the Agenda mode buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new Agenda mode buffers can be set with the user option `taskpaper-agenda-start-with-follow-mode`.
 
 - `c`: Display date under cursor in calendar (`taskpaper-show-in-calendar`).
 
 - `>`: Access calendar for the date under cursor (`taskpaper-goto-calendar`).
 
-The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-after-show-hook` after an item has been shown from the agenda. Hook functions are called with point in the buffer where the item originated. Thus, if you want to display only the current item, its ancestors and top-level items, put this in your init file:
+The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-after-show-hook` after an item has been shown from the agenda view. Hook functions are called with point in the buffer where the item originated. Thus, if you want to display only the current item, its ancestors and top-level items, put this in your init file:
 
     (add-hook 'taskpaper-agenda-after-show-hook
               'taskpaper-outline-hide-other)
 
 ### Filtering Agenda Items
 
-You can also querying the agenda view to further narrow your search. Following commands and key bindings are defined in the agenda buffer:
+You can also querying the agenda view to further narrow your search. Following commands and key bindings are defined in an Agenda mode buffer:
 
-- `I`: Query agenda buffer using I-query mode (`taskpaper-iquery-mode`).
+- `I`: Query agenda view using I-query mode (`taskpaper-iquery-mode`).
 
-- `Q`: Query agenda buffer non-interactively (`taskpaper-query`).
+- `Q`: Query agenda view non-interactively (`taskpaper-query`).
 
-- `S`: Query agenda buffer using custom query selection dialog (`taskpaper-query-fast-select`).
+- `S`: Query agenda view using custom query selection dialog (`taskpaper-query-fast-select`).
 
 - `t`: Show a filtered view of the items that contain the tag under cursor (`taskpaper-query-tag-at-point`).
 
@@ -696,11 +696,11 @@ You can also querying the agenda view to further narrow your search. Following c
 
 - `v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
 
-- `r`: Recreate the agenda buffer (`taskpaper-agenda-redo`). Useful to reflect changes after modification of original TaskPaper files.
+- `r`: Recreate the agenda view (`taskpaper-agenda-redo`). Useful to reflect changes after modification of original TaskPaper files.
 
-- `q`: Quit agenda and remove the agenda buffer (`taskpaper-agenda-quit`).
+- `q`: Quit agenda and remove the Agenda mode buffer (`taskpaper-agenda-quit`).
 
-- `x`: Exit agenda and remove the agenda buffer and all buffers loaded by Emacs for the compilation of the agenda (`taskpaper-agenda-exit`). Buffers created by the user to visit TaskPaper files will not be removed.
+- `x`: Exit agenda and remove the Agenda mode buffer and all buffers loaded by Emacs for the compilation of the agenda view (`taskpaper-agenda-exit`). Buffers created by the user to visit TaskPaper files will not be removed.
 
 ## Miscellaneous
 
