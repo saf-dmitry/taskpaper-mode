@@ -163,8 +163,6 @@ The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to
 
 Commands like `C-c C-j` jumping to a different position in the current file automatically push the old position onto the mark ring, to be able to return easily. The command `C-c &` (`taskpaper-mark-ring-goto`) jumps back to a recorded position. Using this command several times in direct succession moves through a ring of previously recorded positions. You can also use the command `C-c %` (`taskpaper-mark-ring-push`) to manually push the current position onto the mark ring.
 
-To assist navigation in long documents the command `C-c :` (`taskpaper-item-display-outline-path`) shows the current outline path in the echo area.
-
 ## Structure Editing
 
 Outlines allow a document to be organized in a hierarchical structure. The structure editing commands let you easily rearrange the order and hierarchy of items in the outline.

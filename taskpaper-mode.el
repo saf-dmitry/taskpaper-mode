@@ -3880,20 +3880,6 @@ the default is \"/\"."
   (concat prefix (mapconcat #'taskpaper-format-olpath-entry
                             olpath separator)))
 
-(defun taskpaper-item-display-outline-path (&optional prefix self)
-  "Display the current outline path in the echo area.
-PREFIX is a prefix to be included in the displayed output.
-When SELF is non-nil, the path also includes the current item."
-  (interactive)
-  (when (outline-on-heading-p)
-    (let (olpathf)
-      (save-excursion
-        (save-restriction
-          (widen)
-          (setq olpathf (taskpaper-format-outline-path
-                         (taskpaper-item-get-outline-path self) prefix))))
-      (taskpaper-unlogged-message "%s" olpathf))))
-
 ;;;; Goto interface
 
 (defun taskpaper-goto-get-targets (&optional excluded-entries)
@@ -5256,7 +5242,6 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c /") 'taskpaper-occur)
 (define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-read-select)
 (define-key taskpaper-mode-map (kbd "C-c !") 'taskpaper-query-fast-select)
-(define-key taskpaper-mode-map (kbd "C-c :") 'taskpaper-item-display-outline-path)
 (define-key taskpaper-mode-map (kbd "C-c %") 'taskpaper-mark-ring-push)
 (define-key taskpaper-mode-map (kbd "C-c &") 'taskpaper-mark-ring-goto)
 
@@ -5325,9 +5310,6 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Forward Same Level" taskpaper-outline-forward-same-level
       :active (outline-on-heading-p)]
      ["Backward Same Level" taskpaper-outline-backward-same-level
-      :active (outline-on-heading-p)]
-     "--"
-     ["Display Outline Path" taskpaper-item-display-outline-path
       :active (outline-on-heading-p)]
      "--"
      ["Go To..." taskpaper-goto])
