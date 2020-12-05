@@ -3868,7 +3868,7 @@ path also includes the current item."
   "Format the outline path entry ENTRY for display."
   (setq entry (taskpaper-remove-trailing-tags
                (taskpaper-remove-type-formatting entry))
-        entry (replace-regexp-in-string "/" ":" entry))
+        entry (replace-regexp-in-string "/" "\\\\/" entry))
   entry)
 
 (defun taskpaper-format-outline-path (olpath &optional separator)
