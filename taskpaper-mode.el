@@ -2786,7 +2786,7 @@ The function should be called from the minibuffer as part of
 Return formatted date as string. If the user specifies a time or
 if the optional argument WITH-TIME is non-nil, the formatted
 output contains the date and the time. Otherwise, only the date
-is included. If optional argument TO-TIME is non-nil return the
+is included. If optional argument TO-TIME is non-nil, return the
 time converted to an internal time."
   (let ((mouse-autoselect-window nil)
         (calendar-setup nil)
