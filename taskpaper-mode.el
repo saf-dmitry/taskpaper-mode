@@ -2923,8 +2923,8 @@ Return selected tag specifier."
                      (lambda (x)
                        (if (stringp (car x)) (string-width (car x)) 0))
                      taskpaper-tag-alist)))
-             (fwidth (+ maxlen 4))
-             (ncol (/ (window-width) fwidth))
+             (fwidth (+ maxlen 5))
+             (ncol (floor (/ (window-width) fwidth)))
              cnt tbl e c tg)
         ;; Insert selection dialog
         (insert "\n")
