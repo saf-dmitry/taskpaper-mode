@@ -462,7 +462,7 @@ Every item in the outline has its own set of attributes. Explicit attributes are
 
 Search predicates describe what you are looking for. The full predicate pattern looks like this:
 
-    @<attribute> <relation> [<modifier>] <search term>
+    @<attribute> <relation> [<modifiers>] <search term>
 
 Predicates start with the attribute, whose value or existence you want to test. Attribute represents tag with the same name or one of the implicit attributes and search term will be compared with the tag value. Pressing `TAB` offers completion on attribute names at point in both static and incremental query modes. Attribute names are always treated as case-sensitive.
 
