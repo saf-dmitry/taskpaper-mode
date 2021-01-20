@@ -1435,6 +1435,7 @@ image link is a plain link to file matching return value from
         (let* ((begin (match-beginning 1)) (end (match-end 1))
                (path (match-string-no-properties 1))
                (path (expand-file-name (taskpaper-file-path-unescape path)))
+               (type (if (image-type-available-p 'imagemagick) 'imagemagick nil))
                image)
           ;; Check file path
           (when (and (file-exists-p path)
@@ -1443,13 +1444,12 @@ image link is a plain link to file matching return value from
                      (not (taskpaper-in-regexp
                            taskpaper-markdown-link-regexp begin)))
             ;; Create image
-            (setq image (if (and taskpaper-max-image-size
-                                 (image-type-available-p 'imagemagick))
-                            (create-image
-                             path 'imagemagick nil
-                             :max-width  (car taskpaper-max-image-size)
-                             :max-height (cdr taskpaper-max-image-size))
-                          (create-image path)))
+            (setq image
+                  (if taskpaper-max-image-size
+                      (create-image path type nil
+                                    :max-width  (car taskpaper-max-image-size)
+                                    :max-height (cdr taskpaper-max-image-size))
+                    (create-image path)))
             ;; Display image
             (when image
               (let ((overlay (make-overlay begin end)))
