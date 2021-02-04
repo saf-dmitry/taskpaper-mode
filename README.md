@@ -229,7 +229,7 @@ In addition to the in-buffer completion TaskPaper mode also implements another t
 
 Pressing `C-c @` (`taskpaper-item-set-tag-fast-select`) will then present you with a special interface, listing all predefined tags with corresponding selection keys.
 
-Tag specifiers can have value in parentheses. If the tag value begins with `%%` the following time string will be expanded into an absolute date in ISO 8601 format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
+Tag specifiers in `taskpaper-tag-alist` can have value in parentheses. If the tag value begins with `%%` the following time string will be expanded into an absolute date in ISO 8601 format. E.g., if today is May 8, 2018, the tag specifier `due(%%+2d)` will expand to `@due(2018-05-10)`, i.e., in two days from now. See [Date and Time Formats](#date-and-time-formats) section below for date & time formats you can use here. This way you can create handy presets for often used relative dates based on your average routine. If after stripping the leading `%%` the tag value is empty, the user will be prompted for time stamp using interactive date & time prompt.
 
 The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under cursor.
 
