@@ -68,7 +68,7 @@ Functions for working with attributes.
 
 ### Relation Functions for Attribute Values
 
-Some handy functions for checking attribute values.
+Functions for checking and comparing attribute values.
 
 - `taskpaper-num=`
 - `taskpaper-num<`
