@@ -3847,7 +3847,11 @@ order."
    '> nil reverse))
 
 (defalias 'taskpaper-sort-alpha 'taskpaper-sort-by-text)
+(defalias 'taskpaper-item-sorting-key-alpha 'taskpaper-item-sorting-key-text)
+(defalias 'taskpaper-string-sorting-key-alpha 'taskpaper-string-sorting-key-text)
 (make-obsolete 'taskpaper-sort-alpha 'taskpaper-sort-by-text "1.0")
+(make-obsolete 'taskpaper-item-sorting-key-alpha 'taskpaper-item-sorting-key-text "1.0")
+(make-obsolete 'taskpaper-string-sorting-key-alpha 'taskpaper-string-sorting-key-text "1.0")
 
 ;;;; Outline path
 
