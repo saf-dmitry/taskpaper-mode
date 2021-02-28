@@ -3789,8 +3789,8 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (run-hooks 'taskpaper-after-sorting-items-hook)
   (message "Sorting items...done"))
 
-(defun taskpaper-item-sorting-key-alpha ()
-  "Return sorting key of current item for alphabetical sorting.
+(defun taskpaper-item-sorting-key-text ()
+  "Return sorting key of current item for lexicographic sorting.
 Remove indentation, type formatting and inline markup and return
 sorting key as string."
   (let ((item (buffer-substring
@@ -3808,9 +3808,9 @@ Get type of item and return sorting key as number."
         (prec '(("project" . 3) ("task" . 2) ("note" . 1))))
     (cdr (assoc type prec))))
 
-(defun taskpaper-string-sorting-key-alpha (str)
-  "Return sorting key of item string STR for alphabetical sorting.
-Like `taskpaper-item-sorting-key-alpha' but uses argument string
+(defun taskpaper-string-sorting-key-text (str)
+  "Return sorting key of item string STR for lexicographic sorting.
+Like `taskpaper-item-sorting-key-text' but uses argument string
 instead of item at point."
   (with-temp-buffer
     (erase-buffer) (insert str)
@@ -3818,7 +3818,7 @@ instead of item at point."
     (font-lock-default-function 'taskpaper-mode)
     (font-lock-default-fontify-region (point-min) (point-max) nil)
     (goto-char (point-min))
-    (taskpaper-item-sorting-key-alpha)))
+    (taskpaper-item-sorting-key-text)))
 
 (defun taskpaper-string-sorting-key-type (str)
   "Return sorting key of item string STR for sorting by type.
@@ -3828,12 +3828,12 @@ instead of item at point."
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-sorting-key-type)))
 
-(defun taskpaper-sort-alpha (&optional reverse)
-  "Sort items on a certain level alphabetically.
+(defun taskpaper-sort-by-text (&optional reverse)
+  "Sort items on a certain level in lexicographic order.
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil (taskpaper-item-sorting-key-alpha))
+   '(lambda nil (taskpaper-item-sorting-key-text))
    'string-collate-lessp nil reverse))
 
 (defun taskpaper-sort-by-type (&optional reverse)
@@ -3845,6 +3845,9 @@ order."
   (taskpaper-sort-items-generic
    '(lambda nil (taskpaper-item-sorting-key-type))
    '> nil reverse))
+
+(defalias 'taskpaper-sort-alpha 'taskpaper-sort-by-text)
+(make-obsolete 'taskpaper-sort-alpha 'taskpaper-sort-by-text "1.0")
 
 ;;;; Outline path
 
@@ -5262,7 +5265,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c C-f t") 'taskpaper-item-format-as-task)
 (define-key taskpaper-mode-map (kbd "C-c C-f n") 'taskpaper-item-format-as-note)
 
-(define-key taskpaper-mode-map (kbd "C-c C-s a") 'taskpaper-sort-alpha)
+(define-key taskpaper-mode-map (kbd "C-c C-s a") 'taskpaper-sort-by-text)
 (define-key taskpaper-mode-map (kbd "C-c C-s t") 'taskpaper-sort-by-type)
 
 (define-key taskpaper-mode-map (kbd "C-c C-x a") 'taskpaper-archive-subtree)
@@ -5341,7 +5344,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Narrow to Subtree" taskpaper-narrow-to-subtree
       :active (outline-on-heading-p)]
      "--"
-     ["Sort Children Alphabetically" taskpaper-sort-alpha
+     ["Sort Children by Text" taskpaper-sort-by-text
       :active (or (bobp) (outline-on-heading-p))]
      ["Sort Children by Type" taskpaper-sort-by-type
       :active (or (bobp) (outline-on-heading-p))]

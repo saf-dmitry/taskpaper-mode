@@ -45,9 +45,9 @@ General functions for extending sorting and filtering functionality.
 - `taskpaper-query-item-match-p`
 - `taskpaper-match-sparse-tree`
 - `taskpaper-sort-items-generic`
-- `taskpaper-item-sorting-key-alpha`
+- `taskpaper-item-sorting-key-text`
 - `taskpaper-item-sorting-key-type`
-- `taskpaper-string-sorting-key-alpha`
+- `taskpaper-string-sorting-key-text`
 - `taskpaper-string-sorting-key-type`
 
 ### Accessing and Setting Attributes
@@ -286,7 +286,7 @@ Sometimes actions need to be completed in a predetermined order: The first task 
 
 ### Sorting
 
-In addition to the existing sorting functions `taskpaper-sort-alpha` and `taskpaper-sort-by-type` you can define your own using the generic sorting function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in ascending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
+In addition to the existing sorting functions `taskpaper-sort-by-text` and `taskpaper-sort-by-type` you can define your own using the generic sorting function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in ascending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
 
     (defun my-taskpaper-sort-by-priority ()
       "Sort items on a certain level by priority."
@@ -312,7 +312,7 @@ The next function sorts items according to their due dates. The sorting is done 
     (define-key taskpaper-mode-map (kbd "C-c C-s d")
                 'my-taskpaper-sort-by-due-date)
 
-As further examples see the `taskpaper-sort-alpha` and `taskpaper-sort-by-type` function definitions.
+As further examples see the `taskpaper-sort-by-text` and `taskpaper-sort-by-type` function definitions.
 
 ### Repeating Actions
 

@@ -417,7 +417,7 @@ If you often use the asterisk or underscore in a different context, you can disa
 
 The following commands sort same-level items. When point is at the beginning of the buffer, the top-level items are sorted. When point is in an item, the children of the current item are sorted. Sorting is case-insensitive. A `C-u` prefix will reverse the sort order.
 
-- `C-c C-s a`: Sort same-level items alphabetically (`taskpaper-sort-alpha`).
+- `C-c C-s a`: Sort same-level items by item text (`taskpaper-sort-by-text`).
 
 - `C-c C-s t`: Sort same-level items by item type (`taskpaper-sort-by-type`).
 
