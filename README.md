@@ -181,7 +181,7 @@ The commands `M-LEFT` (`taskpaper-outline-promote-subtree`) and `M-RIGHT` (`task
 
 The commands `M-UP` (`taskpaper-outline-move-subtree-up`) and `M-DOWN` (`taskpaper-outline-move-subtree-down`) move the entire current subtree (folded or not) past the next same-level subtree in the given direction. The cursor moves with the subtree, so these commands can be used repeatedly to "drag" a subtree to the wanted position.
 
-Additionally, the commands `TAB` (`taskpaper-outline-promote`) and `S-TAB` (`taskpaper-outline-demote`) promote/demote single item under cursor.
+Additionally, the commands `TAB` and `S-TAB` promote/demote the single item under cursor, or all items in the active region.
 
 TaskPaper mode also provides following additional commands for working with subtrees (folded or not):
 

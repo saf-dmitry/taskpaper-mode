@@ -5112,17 +5112,27 @@ combination."
 ;;;; Miscellaneous
 
 (defun taskpaper-tab ()
-  "Demote current item or indent line."
+  "Demote current item or indent line.
+When multiple items are selected, demote every item in the active
+region."
   (interactive)
-  (cond ((outline-on-heading-p)
+  (cond ((region-active-p)
+         (taskpaper-outline-map-region
+          'taskpaper-outline-demote (region-beginning) (region-end)))
+        ((outline-on-heading-p)
          (call-interactively #'taskpaper-outline-demote))
         (t (call-interactively #'indent-for-tab-command))))
 
 (defun taskpaper-shifttab ()
-  "Promote current item."
+  "Promote current item.
+When multiple items are selected, promote every item in the
+active region."
   (interactive)
-  (when (outline-on-heading-p)
-    (call-interactively #'taskpaper-outline-promote)))
+  (cond ((region-active-p)
+         (taskpaper-outline-map-region
+          'taskpaper-outline-promote (region-beginning) (region-end)))
+        ((outline-on-heading-p)
+         (call-interactively #'taskpaper-outline-promote))))
 
 (defvar taskpaper-mode-transpose-word-syntax-table
   (let ((st (make-syntax-table text-mode-syntax-table)))

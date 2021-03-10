@@ -14,6 +14,7 @@ Changed:
 - Fixed syntax highlighting for Markdown and plain URI links
 - Improved weekday handling in duration offsets
 - Dropped support for Emacs v24
+- Improved promotion/demotion of selected items
 
 # v1.0
 
