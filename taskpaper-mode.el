@@ -331,7 +331,7 @@ overlays the UTF-8 character for display purposes only."
   :group 'taskpaper
   :type 'character)
 
-(defcustom taskpaper-bullet-done ?\u2014
+(defcustom taskpaper-bullet-done ?\u2013
   "Display character for done task mark."
   :group 'taskpaper
   :type 'character)
