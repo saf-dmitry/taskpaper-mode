@@ -284,6 +284,15 @@ Sometimes actions need to be completed in a predetermined order: The first task 
 
     (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-2)
 
+Attributes of the current item can be checked as well. The following blocker function will ensure that neither the item itself nor any of its ancestors is tagged as `@waiting` or `@blocked`:
+
+    (defun my-taskpaper-blocker-func-3 (pos)
+      "Return non-nil if item at point can be marked as completed."
+      (goto-char pos)
+      (taskpaper-query-item-match-p "not @waiting and not @blocked"))
+
+    (add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-3)
+
 ### Sorting
 
 In addition to the existing sorting functions `taskpaper-sort-by-text` and `taskpaper-sort-by-type` you can define your own using the generic sorting function `taskpaper-sort-items-generic`. For details see the documentation string of this function. For example, the function below sorts items according to the value of the `@priority` tag. The sorting is done numerically, in ascending order. Items, which have no or empty `@priority` tag, are assumed to have 99 as priority value, effectively ending up at the bottom of the sorted list.
