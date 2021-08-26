@@ -421,7 +421,7 @@ You can use Markdown syntax for inline emphasis in notes. Text enclosed by singl
 
 ```text
 Emphasis with *asterisks* or _underscores_.
-Strong emphasis with **asterisks** or __underscores__.
+Strong emphasis with **asterisks** or **underscores**.
 ```
 
 You can use whichever style you prefer; the only restriction is that the same character must be used as opening and closing emphasis delimiter. A `*` or `_` character surrounded by whitespaces, or backslash-escaped, will not trigger emphasis. By default, emphasis will be displayed in italic while strong emphasis will be displayed in bold face.
