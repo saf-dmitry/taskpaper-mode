@@ -17,167 +17,167 @@ Following API functions can be used to automate and extend TaskPaper mode. For d
 
 The mapping routines can call any arbitrary function.
 
--   `taskpaper-outline-map-tree`
--   `taskpaper-outline-map-region`
--   `taskpaper-outline-map-descendants`
--   `taskpaper-outline-up-level-safe`
--   `taskpaper-outline-next-item`
--   `taskpaper-outline-next-item-safe`
--   `taskpaper-outline-previous-item`
--   `taskpaper-outline-previous-item-safe`
--   `taskpaper-outline-forward-same-level`
--   `taskpaper-outline-forward-same-level-safe`
--   `taskpaper-outline-backward-same-level`
--   `taskpaper-outline-backward-same-level-safe`
--   `taskpaper-outline-end-of-item`
--   `taskpaper-outline-end-of-subtree`
+- `taskpaper-outline-map-tree`
+- `taskpaper-outline-map-region`
+- `taskpaper-outline-map-descendants`
+- `taskpaper-outline-up-level-safe`
+- `taskpaper-outline-next-item`
+- `taskpaper-outline-next-item-safe`
+- `taskpaper-outline-previous-item`
+- `taskpaper-outline-previous-item-safe`
+- `taskpaper-outline-forward-same-level`
+- `taskpaper-outline-forward-same-level-safe`
+- `taskpaper-outline-backward-same-level`
+- `taskpaper-outline-backward-same-level-safe`
+- `taskpaper-outline-end-of-item`
+- `taskpaper-outline-end-of-subtree`
 
 ### Item Path
 
--   `taskpaper-item-has-children-p`
--   `taskpaper-item-get-outline-path`
+- `taskpaper-item-has-children-p`
+- `taskpaper-item-get-outline-path`
 
 ### Sorting and Filtering
 
 General functions for extending sorting and filtering functionality.
 
--   `taskpaper-query-matcher`
--   `taskpaper-query-item-match-p`
--   `taskpaper-match-sparse-tree`
--   `taskpaper-sort-items-generic`
--   `taskpaper-item-sorting-key-text`
--   `taskpaper-item-sorting-key-type`
--   `taskpaper-string-sorting-key-text`
--   `taskpaper-string-sorting-key-type`
+- `taskpaper-query-matcher`
+- `taskpaper-query-item-match-p`
+- `taskpaper-match-sparse-tree`
+- `taskpaper-sort-items-generic`
+- `taskpaper-item-sorting-key-text`
+- `taskpaper-item-sorting-key-type`
+- `taskpaper-string-sorting-key-text`
+- `taskpaper-string-sorting-key-type`
 
 ### Accessing and Setting Attributes
 
 Functions for working with attributes.
 
--   `taskpaper-item-get-attributes`
--   `taskpaper-item-get-attribute`
--   `taskpaper-item-has-attribute`
--   `taskpaper-item-set-attribute`
--   `taskpaper-item-remove-attribute`
--   `taskpaper-string-get-attributes`
--   `taskpaper-string-get-attribute`
--   `taskpaper-string-has-attribute`
--   `taskpaper-string-set-attribute`
--   `taskpaper-string-remove-attribute`
--   `taskpaper-attribute-value-to-list`
+- `taskpaper-item-get-attributes`
+- `taskpaper-item-get-attribute`
+- `taskpaper-item-has-attribute`
+- `taskpaper-item-set-attribute`
+- `taskpaper-item-remove-attribute`
+- `taskpaper-string-get-attributes`
+- `taskpaper-string-get-attribute`
+- `taskpaper-string-has-attribute`
+- `taskpaper-string-set-attribute`
+- `taskpaper-string-remove-attribute`
+- `taskpaper-attribute-value-to-list`
 
 ### Relation Functions for Attribute Values
 
 Functions for checking and comparing attribute values.
 
--   `taskpaper-num=`
--   `taskpaper-num<`
--   `taskpaper-num<=`
--   `taskpaper-num>`
--   `taskpaper-num>=`
--   `taskpaper-num<>`
--   `taskpaper-string=`
--   `taskpaper-string<`
--   `taskpaper-string<=`
--   `taskpaper-string>`
--   `taskpaper-string>=`
--   `taskpaper-string<>`
--   `taskpaper-string-match-p`
--   `taskpaper-string-contain-p`
--   `taskpaper-string-prefix-p`
--   `taskpaper-string-suffix-p`
--   `taskpaper-istring=`
--   `taskpaper-istring<`
--   `taskpaper-istring<=`
--   `taskpaper-istring>`
--   `taskpaper-istring>=`
--   `taskpaper-istring<>`
--   `taskpaper-istring-match-p`
--   `taskpaper-istring-contain-p`
--   `taskpaper-istring-prefix-p`
--   `taskpaper-istring-suffix-p`
--   `taskpaper-time=`
--   `taskpaper-time<`
--   `taskpaper-time<=`
--   `taskpaper-time>`
--   `taskpaper-time>=`
--   `taskpaper-time<>`
+- `taskpaper-num=`
+- `taskpaper-num<`
+- `taskpaper-num<=`
+- `taskpaper-num>`
+- `taskpaper-num>=`
+- `taskpaper-num<>`
+- `taskpaper-string=`
+- `taskpaper-string<`
+- `taskpaper-string<=`
+- `taskpaper-string>`
+- `taskpaper-string>=`
+- `taskpaper-string<>`
+- `taskpaper-string-match-p`
+- `taskpaper-string-contain-p`
+- `taskpaper-string-prefix-p`
+- `taskpaper-string-suffix-p`
+- `taskpaper-istring=`
+- `taskpaper-istring<`
+- `taskpaper-istring<=`
+- `taskpaper-istring>`
+- `taskpaper-istring>=`
+- `taskpaper-istring<>`
+- `taskpaper-istring-match-p`
+- `taskpaper-istring-contain-p`
+- `taskpaper-istring-prefix-p`
+- `taskpaper-istring-suffix-p`
+- `taskpaper-time=`
+- `taskpaper-time<`
+- `taskpaper-time<=`
+- `taskpaper-time>`
+- `taskpaper-time>=`
+- `taskpaper-time<>`
 
 Following functions interpret attribute values as comma-separated lists.
 
--   `taskpaper-cslist-num=`
--   `taskpaper-cslist-num<`
--   `taskpaper-cslist-num<=`
--   `taskpaper-cslist-num>`
--   `taskpaper-cslist-num>=`
--   `taskpaper-cslist-num<>`
--   `taskpaper-cslist-num-match-p`
--   `taskpaper-cslist-num-contain-p`
--   `taskpaper-cslist-num-prefix-p`
--   `taskpaper-cslist-num-suffix-p`
--   `taskpaper-cslist-string=`
--   `taskpaper-cslist-string<`
--   `taskpaper-cslist-string<=`
--   `taskpaper-cslist-string>`
--   `taskpaper-cslist-string>=`
--   `taskpaper-cslist-string<>`
--   `taskpaper-cslist-string-match-p`
--   `taskpaper-cslist-string-contain-p`
--   `taskpaper-cslist-string-prefix-p`
--   `taskpaper-cslist-string-suffix-p`
--   `taskpaper-cslist-istring=`
--   `taskpaper-cslist-istring<`
--   `taskpaper-cslist-istring<=`
--   `taskpaper-cslist-istring>`
--   `taskpaper-cslist-istring>=`
--   `taskpaper-cslist-istring<>`
--   `taskpaper-cslist-istring-match-p`
--   `taskpaper-cslist-istring-contain-p`
--   `taskpaper-cslist-istring-prefix-p`
--   `taskpaper-cslist-istring-suffix-p`
--   `taskpaper-cslist-time=`
--   `taskpaper-cslist-time<`
--   `taskpaper-cslist-time<=`
--   `taskpaper-cslist-time>`
--   `taskpaper-cslist-time>=`
--   `taskpaper-cslist-time<>`
--   `taskpaper-cslist-time-match-p`
--   `taskpaper-cslist-time-contain-p`
--   `taskpaper-cslist-time-prefix-p`
--   `taskpaper-cslist-time-suffix-p`
+- `taskpaper-cslist-num=`
+- `taskpaper-cslist-num<`
+- `taskpaper-cslist-num<=`
+- `taskpaper-cslist-num>`
+- `taskpaper-cslist-num>=`
+- `taskpaper-cslist-num<>`
+- `taskpaper-cslist-num-match-p`
+- `taskpaper-cslist-num-contain-p`
+- `taskpaper-cslist-num-prefix-p`
+- `taskpaper-cslist-num-suffix-p`
+- `taskpaper-cslist-string=`
+- `taskpaper-cslist-string<`
+- `taskpaper-cslist-string<=`
+- `taskpaper-cslist-string>`
+- `taskpaper-cslist-string>=`
+- `taskpaper-cslist-string<>`
+- `taskpaper-cslist-string-match-p`
+- `taskpaper-cslist-string-contain-p`
+- `taskpaper-cslist-string-prefix-p`
+- `taskpaper-cslist-string-suffix-p`
+- `taskpaper-cslist-istring=`
+- `taskpaper-cslist-istring<`
+- `taskpaper-cslist-istring<=`
+- `taskpaper-cslist-istring>`
+- `taskpaper-cslist-istring>=`
+- `taskpaper-cslist-istring<>`
+- `taskpaper-cslist-istring-match-p`
+- `taskpaper-cslist-istring-contain-p`
+- `taskpaper-cslist-istring-prefix-p`
+- `taskpaper-cslist-istring-suffix-p`
+- `taskpaper-cslist-time=`
+- `taskpaper-cslist-time<`
+- `taskpaper-cslist-time<=`
+- `taskpaper-cslist-time>`
+- `taskpaper-cslist-time>=`
+- `taskpaper-cslist-time<>`
+- `taskpaper-cslist-time-match-p`
+- `taskpaper-cslist-time-contain-p`
+- `taskpaper-cslist-time-prefix-p`
+- `taskpaper-cslist-time-suffix-p`
 
 ### Formatting of Items
 
--   `taskpaper-item-format`
+- `taskpaper-item-format`
 
 ### Date and Time
 
--   `taskpaper-read-date`
--   `taskpaper-expand-time-string`
+- `taskpaper-read-date`
+- `taskpaper-expand-time-string`
 
 ### Buffers and Files
 
 Functions for working with TaskPaper files and buffers.
 
--   `taskpaper-agenda-files`
--   `taskpaper-agenda-file-p`
--   `taskpaper-save-all-taskpaper-buffers`
--   `taskpaper-outline-normalize-indentation`
+- `taskpaper-agenda-files`
+- `taskpaper-agenda-file-p`
+- `taskpaper-save-all-taskpaper-buffers`
+- `taskpaper-outline-normalize-indentation`
 
 ### Quick Entry
 
--   `taskpaper-add-entry`
+- `taskpaper-add-entry`
 
 ## Hooks
 
 Hooks are options containing functions to be run before or after a function.
 
--   `taskpaper-mode-hook`
--   `taskpaper-blocker-hook`
--   `taskpaper-after-completion-hook`
--   `taskpaper-archive-hook`
--   `taskpaper-after-sorting-items-hook`
--   `taskpaper-agenda-after-show-hook`
+- `taskpaper-mode-hook`
+- `taskpaper-blocker-hook`
+- `taskpaper-after-completion-hook`
+- `taskpaper-archive-hook`
+- `taskpaper-after-sorting-items-hook`
+- `taskpaper-agenda-after-show-hook`
 
 ## Scripting Examples
 

@@ -17,17 +17,17 @@ Project meeting: @sintef
 
 The file format is fairly simple:
 
--   Files are expected to use the UTF-8 encoding and use a newline (`\n`) to separate lines.
+- Files are expected to use the UTF-8 encoding and use a newline (`\n`) to separate lines.
 
--   Each line makes a new item: project, task, or note.
+- Each line makes a new item: project, task, or note.
 
--   A task is a line that begins with a hyphen (`-`) followed by a space, which can optionally be prefixed (i.e. indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
+- A task is a line that begins with a hyphen (`-`) followed by a space, which can optionally be prefixed (i.e. indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
 
--   A project is a line that isn't a task and ends with a colon (`:`) followed by a newline. Tags can exist after the colon, but if any non-tag text is present, then it won't be recognized as a project.
+- A project is a line that isn't a task and ends with a colon (`:`) followed by a newline. Tags can exist after the colon, but if any non-tag text is present, then it won't be recognized as a project.
 
--   A note is any non-blank line that doesn't match the task or project rules. A note can have zero or more tags anywhere on the line.
+- A note is any non-blank line that doesn't match the task or project rules. A note can have zero or more tags anywhere on the line.
 
--   A tag consists of an at symbol (`@`) preceded by a space and followed by a tag name. Tags can optionally have a value in parentheses after the tag name.
+- A tag consists of an at symbol (`@`) preceded by a space and followed by a tag name. Tags can optionally have a value in parentheses after the tag name.
 
 Indentation level (with tabs, not spaces) defines ownership. For instance, if you indent one task under another task, then it is considered a subtask. Projects, tasks, and notes own all items that are indented underneath them. The nesting can go as deep as you need it to be. Empty lines are ignored when calculating ownership.
 
@@ -119,17 +119,17 @@ In TaskPaper mode each line makes a new item. When you hit `RET` TaskPaper mode 
 
 The following commands auto-format and indent you items as you type.
 
--   `RET`: Create a new item with the same level as the one under cursor (`taskpaper-new-item-same-level`).
+- `RET`: Create a new item with the same level as the one under cursor (`taskpaper-new-item-same-level`).
 
--   `M-RET`: Create a new task with the same level as the item under cursor (`taskpaper-new-task-same-level`).
+- `M-RET`: Create a new task with the same level as the item under cursor (`taskpaper-new-task-same-level`).
 
 The following commands change the type of the current item.
 
--   `C-c C-f p`: Format item under cursor as project (`taskpaper-item-format-as-project`).
+- `C-c C-f p`: Format item under cursor as project (`taskpaper-item-format-as-project`).
 
--   `C-c C-f t`: Format item under cursor as task (`taskpaper-item-format-as-task`).
+- `C-c C-f t`: Format item under cursor as task (`taskpaper-item-format-as-task`).
 
--   `C-c C-f n`: Format item under cursor as note (`taskpaper-item-format-as-note`).
+- `C-c C-f n`: Format item under cursor as note (`taskpaper-item-format-as-note`).
 
 ## Folding
 
@@ -139,14 +139,14 @@ The main folding command `C-TAB` (`taskpaper-cycle`) changes the visibility of i
 
 When point is at the beginning of the buffer, rotate the entire buffer among the two states:
 
--   Overview: Only top-level items are shown.
--   Show All: Everything is shown.
+- Overview: Only top-level items are shown.
+- Show All: Everything is shown.
 
 When point is in an item, rotate current subtree among the three states:
 
--   Folded: Only the main item is shown.
--   Children: The item and its direct children are shown. From this state, you can move to one of the children and zoom in further.
--   Subtree: The entire subtree under the item is shown.
+- Folded: Only the main item is shown.
+- Children: The item and its direct children are shown. From this state, you can move to one of the children and zoom in further.
+- Subtree: The entire subtree under the item is shown.
 
 When Emacs first visits a TaskPaper file, the global state is set to Show All, i.e., all items are visible. This can be configured through the user option `taskpaper-startup-folded`.
 
@@ -160,13 +160,13 @@ The command `C-c C-a` (`taskpaper-outline-show-all`) switches to Show All state 
 
 The following commands jump to other items in the buffer.
 
--   `C-DOWN`: Go to the next item with the same level (`taskpaper-outline-forward-same-level`).
+- `C-DOWN`: Go to the next item with the same level (`taskpaper-outline-forward-same-level`).
 
--   `C-UP`: Go to the previous item with the same level (`taskpaper-outline-backward-same-level`).
+- `C-UP`: Go to the previous item with the same level (`taskpaper-outline-backward-same-level`).
 
--   `S-UP`: Go to the parent item (`taskpaper-outline-up-level`).
+- `S-UP`: Go to the parent item (`taskpaper-outline-up-level`).
 
--   `C-c C-j`: Go to selected item (`taskpaper-goto`).
+- `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
 The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select an outline path in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
@@ -178,13 +178,13 @@ Outlines allow a document to be organized in a hierarchical structure. The struc
 
 Four main commands are provided for structure editing. The commands work on the current subtree (the current item plus all its children) and are assigned to the four arrow keys pressed with a modifier (META by default) in the following way.
 
--   `M-LEFT`: Promote the subtree under cursor by one level (`taskpaper-outline-promote-subtree`).
+- `M-LEFT`: Promote the subtree under cursor by one level (`taskpaper-outline-promote-subtree`).
 
--   `M-RIGHT`: Demote the subtree under cursor by one level (`taskpaper-outline-demote-subtree`).
+- `M-RIGHT`: Demote the subtree under cursor by one level (`taskpaper-outline-demote-subtree`).
 
--   `M-UP`: Move the subtree under cursor up past the previous same-level subtree (`taskpaper-outline-move-subtree-up`).
+- `M-UP`: Move the subtree under cursor up past the previous same-level subtree (`taskpaper-outline-move-subtree-up`).
 
--   `M-DOWN`: Move the subtree under cursor down past the next same-level subtree (`taskpaper-outline-move-subtree-down`).
+- `M-DOWN`: Move the subtree under cursor down past the next same-level subtree (`taskpaper-outline-move-subtree-down`).
 
 The commands `M-LEFT` (`taskpaper-outline-promote-subtree`) and `M-RIGHT` (`taskpaper-outline-demote-subtree`) change the current subtree to a different outline level — i.e. the level of all items in the tree is decreased or increased. Note that the scope of "current subtree" may be changed after a promotion.
 
@@ -194,19 +194,19 @@ Additionally, the commands `TAB` and `S-TAB` promote/demote the single item unde
 
 TaskPaper mode also provides following additional commands for working with subtrees (folded or not):
 
--   `C-c #`: Narrow buffer to the subtree under cursor (`taskpaper-narrow-to-subtree`). Pressing `C-x n w` (`widen`) will remove narrowing from the current buffer.
+- `C-c #`: Narrow buffer to the subtree under cursor (`taskpaper-narrow-to-subtree`). Pressing `C-x n w` (`widen`) will remove narrowing from the current buffer.
 
--   `C-c C-m`: Mark the subtree under cursor (`taskpaper-mark-subtree`).
+- `C-c C-m`: Mark the subtree under cursor (`taskpaper-mark-subtree`).
 
--   `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
+- `C-c C-x v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
 
--   `C-c C-x C-w`: Cut the subtree under cursor into the kill ring (`taskpaper-cut-subtree`).
+- `C-c C-x C-w`: Cut the subtree under cursor into the kill ring (`taskpaper-cut-subtree`).
 
--   `C-c C-x M-w`: Copy the subtree under cursor into the kill ring (`taskpaper-copy-subtree`).
+- `C-c C-x M-w`: Copy the subtree under cursor into the kill ring (`taskpaper-copy-subtree`).
 
--   `C-c C-x C-c`: Duplicate the subtree under cursor (`taskpaper-clone-subtree`).
+- `C-c C-x C-c`: Duplicate the subtree under cursor (`taskpaper-clone-subtree`).
 
--   `C-c C-x C-y`: Paste the subtree from the kill ring as child of the current item (`taskpaper-paste-subtree`).
+- `C-c C-x C-y`: Paste the subtree from the kill ring as child of the current item (`taskpaper-paste-subtree`).
 
 ## Tagging
 
@@ -214,11 +214,11 @@ In addition to the hierarchical ways of organizing your actions, tags provide an
 
 To create a tag type the `@` symbol preceded by a space and followed by a tag name with no spaces. Tag names may basically contain uppercase and lowercase letters, digits, hyphens, underscores, and dots. Tags can optionally have a value (or list of comma-separated values) in parentheses after the tag name:
 
--   `@today`
--   `@effort(0.5)`
--   `@priority(1)`
--   `@due(2018-08-19)`
--   `@status(in press)`
+- `@today`
+- `@effort(0.5)`
+- `@priority(1)`
+- `@due(2018-08-19)`
+- `@status(in press)`
 
 The value text inside can have whitespaces, but no newlines. If you need to include parentheses in the tag value, precede them with a backslash.
 
@@ -246,9 +246,9 @@ The command `C-c C-r` (`taskpaper-remove-tag-at-point`) deletes single tag under
 
 Following tags have special meaning in TaskPaper mode:
 
--   `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see the [Completing Actions](#completing-actions) section).
--   `@search`: The `@search` tags are used to store search queries on per-document basis (see the [Storing Queries](#storing-queries) section).
--   `@project`: The `@project` tags are used to store original project hierarchy of archived items (see the [Archiving](#archiving) section).
+- `@done`: To-do items can be marked as completed by applying the `@done` tag to them (see the [Completing Actions](#completing-actions) section).
+- `@search`: The `@search` tags are used to store search queries on per-document basis (see the [Storing Queries](#storing-queries) section).
+- `@project`: The `@project` tags are used to store original project hierarchy of archived items (see the [Archiving](#archiving) section).
 
 ## Completing Actions
 
@@ -260,13 +260,13 @@ By default, items tagged with `@done` are visually crossed out. You can change t
 
 The Emacs calendar displays a three-month calendar with holidays from different countries and cultures. Following commands provide some integration with the calendar.
 
--   `C-c SPC`: Display current date or date under cursor in calendar (`taskpaper-show-in-calendar`).
+- `C-c SPC`: Display current date or date under cursor in calendar (`taskpaper-show-in-calendar`).
 
--   `C-c >`: Access the calendar at the current date or date under cursor (`taskpaper-goto-calendar`).
+- `C-c >`: Access the calendar at the current date or date under cursor (`taskpaper-goto-calendar`).
 
--   `C-c <`: Insert a time stamp corresponding to the cursor date in the calendar (`taskpaper-date-from-calendar`).
+- `C-c <`: Insert a time stamp corresponding to the cursor date in the calendar (`taskpaper-date-from-calendar`).
 
--   `C-c .`: Prompt for a date and insert a corresponding time stamp (`taskpaper-read-date-insert-timestamp`).
+- `C-c .`: Prompt for a date and insert a corresponding time stamp (`taskpaper-read-date-insert-timestamp`).
 
 The command `C-c >` (`taskpaper-goto-calendar`) goes to the calendar at the current date. If point is on a tag with value, the command interprets it as date and goes to this date instead. With a `C-u` prefix, the command always goes to the current date.
 
@@ -274,15 +274,15 @@ The command `C-c .` (`taskpaper-read-date-insert-timestamp`) prompts for the dat
 
 Parallel to the minibuffer prompt the current interpretation of your input is tracked in the calendar window (see the user option `taskpaper-read-date-popup-calendar`). You can control the calendar from the minibuffer using the following commands:
 
--   `RET`: Choose date at cursor in calendar.
+- `RET`: Choose date at cursor in calendar.
 
--   `mouse-1`: Select date by clicking on it.
+- `mouse-1`: Select date by clicking on it.
 
--   ` >` / `<`: Scroll calendar forward/backward by one month.
+- ` >` / `<`: Scroll calendar forward/backward by one month.
 
--   `C-.`: Go to the current date.
+- `C-.`: Go to the current date.
 
--   `!`: Mark diary items in calendar.
+- `!`: Mark diary items in calendar.
 
 ## Date and Time Formats
 
@@ -301,21 +301,21 @@ Note: Using of `@due` tag here for storing dates is merely convention. You can u
 
 Dates resolve to midnight of the given date.
 
--   `2017`
--   `2017-5`
--   `2017-05-10`
--   `--05-10`
--   `2017-W02`
--   `2017-W02-5`
--   `this week`
--   `last month`
--   `next quarter`
--   `next Friday`
--   `last June 5`
--   `June`
--   `today`
--   `tomorrow`
--   `yesterday`
+- `2017`
+- `2017-5`
+- `2017-05-10`
+- `--05-10`
+- `2017-W02`
+- `2017-W02-5`
+- `this week`
+- `last month`
+- `next quarter`
+- `next Friday`
+- `last June 5`
+- `June`
+- `today`
+- `tomorrow`
+- `yesterday`
 
 TaskPaper mode understands English month and weekday abbreviations. If you enter the name of a specific time period, the date will be at its beginning. So `June` without date means June first. Week refers to ISO 8601 standard week that starts on Monday, not Sunday.
 
@@ -325,30 +325,30 @@ You can refer to relative dates using common words (`today`, `tomorrow`, `yester
 
 Times are relative to the current date.
 
--   `6am`
--   `6:45pm`
--   `12:45`
--   `now`
+- `6am`
+- `6:45pm`
+- `12:45`
+- `now`
 
 ### Duration Offsets
 
 Duration offsets are relative to the current time.
 
--   `+5min`
--   `+2h`
--   `-1d`
--   `-4w`
--   `+2m`
--   `+2q`
--   `+1y`
--   `+5 minutes`
--   `+2 hours`
--   `-1 day`
--   `-4 weeks`
--   `+2 months`
--   `+2 quarters`
--   `+1 year`
--   `+3 Wed`
+- `+5min`
+- `+2h`
+- `-1d`
+- `-4w`
+- `+2m`
+- `+2q`
+- `+1y`
+- `+5 minutes`
+- `+2 hours`
+- `-1 day`
+- `-4 weeks`
+- `+2 months`
+- `+2 quarters`
+- `+1 year`
+- `+3 Wed`
 
 The shorthands `min`, `h`, `d`, `w`, `m`, `q`, and `y` stand for minute, hour, day, week, month, quarter, and year, respectively. Positive numbers stand for the future whereas negative numbers stand for the past. In case of weekdays the date will be the nth such day, e.g., `+2 Tue` means the second Tuesday from now.
 
@@ -356,10 +356,10 @@ The shorthands `min`, `h`, `d`, `w`, `m`, `q`, and `y` stand for minute, hour, d
 
 You can combine dates, times, and duration offsets:
 
--   `tomorrow at 8am`
--   `2017-08-19 21:00`
--   `2017 Jan 10 14:25`
--   `today +2m +2d 5pm`
+- `tomorrow at 8am`
+- `2017-08-19 21:00`
+- `2017 Jan 10 14:25`
+- `today +2m +2d 5pm`
 
 The time string is evaluated from left to right.
 
@@ -385,13 +385,13 @@ Please consider that recurring appointments like any other event that takes plac
 
 TaskPaper mode auto-creates clickable hyperlinks when it recognizes link text. Below are some examples of the plain links that will be recognized.
 
--   `~/filename.txt`
--   `./filename.txt`
--   `../filename.txt`
--   `/home/username/filename.txt`
--   `/username@host:filename.txt`
--   `http://www.example.net`
--   `mailto:username@example.net`
+- `~/filename.txt`
+- `./filename.txt`
+- `../filename.txt`
+- `/home/username/filename.txt`
+- `/username@host:filename.txt`
+- `http://www.example.net`
+- `mailto:username@example.net`
 
 Absolute file links are starting with `/` or `~/`. Relative file links starting with `./` or `../` are relative to the location of your TaskPaper file. Spaces in file links must be protected using backslash, e.g., `./my\ file.txt`. By default, file links to non-existing local files highlight red.
 
@@ -401,9 +401,9 @@ Tip: If you want to sync your TaskPaper files with all linked images and other a
 
 TaskPaper mode also has experimental support for inline Markdown links in form `[Link description](destination)`:
 
--   `[URL](http://www.example.net)`
--   `[File](/home/username/filename.txt)`
--   `[Email](mailto:username@example.net)`
+- `[URL](http://www.example.net)`
+- `[File](/home/username/filename.txt)`
+- `[Email](mailto:username@example.net)`
 
 This descriptive syntax is useful for long links which can interrupt reading. If markup hiding is enabled (see the [Customization](#customization) section), only the description part is displayed as hyperlink making the link more readable. You can hover the mouse pointer over the description text to see the destination part. The destination part can include up to two levels of balanced, nested parentheses. Spaces in file links must be backslash-escaped.
 
@@ -434,9 +434,9 @@ If you often use the asterisk or underscore in a different context, you can disa
 
 The following commands sort same-level items. When point is at the beginning of the buffer, the top-level items are sorted. When point is in an item, the children of the current item are sorted. Sorting is case-insensitive. A `C-u` prefix will reverse the sort order.
 
--   `C-c C-s a`: Sort same-level items by item text (`taskpaper-sort-by-text`).
+- `C-c C-s a`: Sort same-level items by item text (`taskpaper-sort-by-text`).
 
--   `C-c C-s t`: Sort same-level items by item type (`taskpaper-sort-by-type`).
+- `C-c C-s t`: Sort same-level items by item type (`taskpaper-sort-by-type`).
 
 When sorting is done, the hook `taskpaper-after-sorting-items-hook` is run. When children are sorted, hook functions are called with point on the parent item.
 
@@ -474,8 +474,8 @@ Note: Though the query language syntax described here represents a valid subset 
 
 Every item in the outline has its own set of attributes. Explicit attributes are associated with assigned tags and have the same names, e.g., the tag `@priority(1)` added to an item will be translated to an attribute named "priority" whose value is "1". And vice versa, setting an explicit attribute programmatically will change the corresponding tag. TaskPaper mode also includes some implicit (built-in) read-only attributes, which are not associated with tags and set in other way:
 
--   `type`: Item's type (project, task, or note)
--   `text`: Item's full line of text sans indentation
+- `type`: Item's type (project, task, or note)
+- `text`: Item's full line of text sans indentation
 
 ### Predicates
 
@@ -489,25 +489,25 @@ Predicates start with the attribute, whose value or existence you want to test. 
 
 Relations determine the test that the predicate performs:
 
--   `=`: True if the attribute and search term are equal
--   `<`: True if the attribute is less than the search term
--   `>`: True if the attribute is greater than the search term
--   `<=`: True if the attribute is less than or equal to the search term
--   `>=`: True if the attribute is greater than or equal to the search term
--   `!=`: True if the attribute and search term are not equal
--   `~=`: True if the attribute matches the search term
--   `contains`: True if the attribute contains the search term
--   `beginswith`: True if the attribute begins with the search term
--   `endswith`: True if the attribute ends with the search term
--   `matches`: True if the attribute matches the search term (same as `~=`)
+- `=`: True if the attribute and search term are equal
+- `<`: True if the attribute is less than the search term
+- `>`: True if the attribute is greater than the search term
+- `<=`: True if the attribute is less than or equal to the search term
+- `>=`: True if the attribute is greater than or equal to the search term
+- `!=`: True if the attribute and search term are not equal
+- `~=`: True if the attribute matches the search term
+- `contains`: True if the attribute contains the search term
+- `beginswith`: True if the attribute begins with the search term
+- `endswith`: True if the attribute ends with the search term
+- `matches`: True if the attribute matches the search term (same as `~=`)
 
 The default type of comparison is case-insensitive string comparison. You can change this behavior by providing a modifier after the relation. The available modifiers are:
 
--   `i`: Case-insensitive string compare (the default)
--   `s`: Case-sensitive string compare
--   `n`: Numeric compare
--   `d`: Date compare
--   `l`: List compare (can be combined with other modifiers)
+- `i`: Case-insensitive string compare (the default)
+- `s`: Case-sensitive string compare
+- `n`: Numeric compare
+- `d`: Date compare
+- `l`: List compare (can be combined with other modifiers)
 
 Search terms can contain multiple words in sequence. Leading and trailing whitespaces are removed and multiple inter-word whitespaces collapsed into to a single space. If you want to search for an exact word or phrase preserving whitespaces, enclose the search term in double quotes. If some words or symbols are part of the predicate syntax or Boolean operators ("and", "or", "not", "matches", "@", etc.), they must be enclosed in double quotes. To include a double-quote character in a quoted search term, precede it with a backslash. If no search term is provided, attribute's presence will be tested.
 
@@ -525,26 +525,26 @@ In case of string compare `matches` will return matches if the left side matches
 
 Here are some examples for predicates:
 
--   `@today`
--   `@type = note`
--   `@due <=[d] +10d`
--   `@due <=[d] next week`
--   `@priority >[n] 3`
--   `@amount <[n] 1.2e3`
--   `@text endswith ?`
--   `@text matches " v[0-9]"`
--   `@text contains[s] new logo`
--   `@value contains[nl] 10,20`
--   `@text contains "this is not what I want"`
--   `@text contains "\"Winter\" by A. Vivaldi"`
+- `@today`
+- `@type = note`
+- `@due <=[d] +10d`
+- `@due <=[d] next week`
+- `@priority >[n] 3`
+- `@amount <[n] 1.2e3`
+- `@text endswith ?`
+- `@text matches " v[0-9]"`
+- `@text contains[s] new logo`
+- `@value contains[nl] 10,20`
+- `@text contains "this is not what I want"`
+- `@text contains "\"Winter\" by A. Vivaldi"`
 
 You don't need to enter the entire predicate pattern every time you search. Predicates use default values when part of the pattern is missing. Attribute defaults to `text`, relation defaults to `contains`, and modifier defaults to `i`. For example the following predicates are equal:
 
--   `Inbox`
--   `@text Inbox`
--   `contains Inbox`
--   `@text contains Inbox`
--   `@text contains[i] Inbox`
+- `Inbox`
+- `@text Inbox`
+- `contains Inbox`
+- `@text contains Inbox`
+- `@text contains[i] Inbox`
 
 ### Boolean Expressions
 
@@ -578,9 +578,9 @@ project Inbox
 
 These are the shortcut forms and what they expand to:
 
--   `project` expands to `@type = project and`
--   `task` expands to `@type = task and`
--   `note` expands to `@type = note and`
+- `project` expands to `@type = project and`
+- `task` expands to `@type = task and`
+- `note` expands to `@type = note and`
 
 ### Storing Queries
 
@@ -621,9 +621,9 @@ You can configure certain queries to be executed automatically when visiting a T
 
 When reorganizing your outline, you may want to refile or to copy some of the items into a different subtree. Cutting, finding the right location, and then pasting the item can be a cumbersome task, especially for large outlines with many sublevels. In addition to other structure editing commands (see the [Structure Editing](#structure-editing) section) the following special commands can be used to simplify this process:
 
--   `C-c C-w`: Move the subtree under cursor to different (possibly invisible) location (`taskpaper-refile-subtree`).
+- `C-c C-w`: Move the subtree under cursor to different (possibly invisible) location (`taskpaper-refile-subtree`).
 
--   `C-c M-w`: Copy the subtree under cursor to different (possibly invisible) location (`taskpaper-refile-subtree-copy`).
+- `C-c M-w`: Copy the subtree under cursor to different (possibly invisible) location (`taskpaper-refile-subtree-copy`).
 
 The commands `C-c C-w` and `C-c M-w` offer possible target locations via outline path completion. This is the interface also used by the `C-c C-j` goto command.
 
@@ -690,21 +690,21 @@ See the [Scripting Guide][scripting-guide] for the list of API functions, which 
 
 Items in an Agenda mode buffer are displayed as a flat list and linked back to the TaskPaper file where they originate. You are not allowed to edit the Agenda mode buffer itself, but commands are provided to show and jump to the original item location.
 
--   `n` or `DOWN`: Move to the next line (`taskpaper-agenda-next-line`).
+- `n` or `DOWN`: Move to the next line (`taskpaper-agenda-next-line`).
 
--   `p` or `UP`: Move to the previous line (`taskpaper-agenda-previous-line`).
+- `p` or `UP`: Move to the previous line (`taskpaper-agenda-previous-line`).
 
--   `SPC`: Display the original location of the item in another window (`taskpaper-agenda-show`).
+- `SPC`: Display the original location of the item in another window (`taskpaper-agenda-show`).
 
--   `TAB`: Go to the original location of the item in another window (`taskpaper-agenda-goto`).
+- `TAB`: Go to the original location of the item in another window (`taskpaper-agenda-goto`).
 
--   `RET`: Go to the original location of the item and delete other windows (`taskpaper-agenda-switch-to`).
+- `RET`: Go to the original location of the item and delete other windows (`taskpaper-agenda-switch-to`).
 
--   `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the Agenda mode buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new Agenda mode buffers can be set with the user option `taskpaper-agenda-start-with-follow-mode`.
+- `F`: Toggle Follow mode (`taskpaper-agenda-follow-mode`). In Follow mode, as you move the cursor through the Agenda mode buffer, the other window always shows the corresponding location in the original TaskPaper file. The initial setting for this mode in new Agenda mode buffers can be set with the user option `taskpaper-agenda-start-with-follow-mode`.
 
--   `c`: Display date under cursor in calendar (`taskpaper-show-in-calendar`).
+- `c`: Display date under cursor in calendar (`taskpaper-show-in-calendar`).
 
--   `>`: Access calendar for the date under cursor (`taskpaper-goto-calendar`).
+- `>`: Access calendar for the date under cursor (`taskpaper-goto-calendar`).
 
 The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-after-show-hook` after an item has been shown from the agenda view. Hook functions are called with point in the buffer where the item originated. Thus, if you want to display only the current item, its ancestors and top-level items, put this in your init file:
 
@@ -717,43 +717,43 @@ The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-afte
 
 You can also querying the agenda view to further narrow your search. Following commands and key bindings are defined in an Agenda mode buffer:
 
--   `I`: Query agenda view using I-query mode (`taskpaper-iquery-mode`).
+- `I`: Query agenda view using I-query mode (`taskpaper-iquery-mode`).
 
--   `Q`: Query agenda view non-interactively (`taskpaper-query`).
+- `Q`: Query agenda view non-interactively (`taskpaper-query`).
 
--   `S`: Query agenda view using custom query selection dialog (`taskpaper-query-fast-select`).
+- `S`: Query agenda view using custom query selection dialog (`taskpaper-query-fast-select`).
 
--   `t`: Show a filtered view of the items that contain the tag under cursor (`taskpaper-query-tag-at-point`).
+- `t`: Show a filtered view of the items that contain the tag under cursor (`taskpaper-query-tag-at-point`).
 
--   `/`: Prompt for a regular expression and show a filtered view with all matches highlighted (`taskpaper-occur`).
+- `/`: Prompt for a regular expression and show a filtered view with all matches highlighted (`taskpaper-occur`).
 
--   `C-c C-c`: Remove highlights (`taskpaper-occur-remove-highlights`).
+- `C-c C-c`: Remove highlights (`taskpaper-occur-remove-highlights`).
 
--   `a`: Show all items (`taskpaper-outline-show-all`).
+- `a`: Show all items (`taskpaper-outline-show-all`).
 
 ### Other Agenda Commands
 
--   `o`: Delete other windows (`delete-other-windows`).
+- `o`: Delete other windows (`delete-other-windows`).
 
--   `v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
+- `v`: Copy all visible items in region to the kill ring and clipboard (`taskpaper-outline-copy-visible`).
 
--   `r`: Recreate the agenda view (`taskpaper-agenda-redo`). Useful to reflect changes after modification of original TaskPaper files.
+- `r`: Recreate the agenda view (`taskpaper-agenda-redo`). Useful to reflect changes after modification of original TaskPaper files.
 
--   `q`: Quit agenda and remove the Agenda mode buffer (`taskpaper-agenda-quit`).
+- `q`: Quit agenda and remove the Agenda mode buffer (`taskpaper-agenda-quit`).
 
--   `x`: Exit agenda and remove the Agenda mode buffer and all buffers loaded by Emacs for the compilation of the agenda view (`taskpaper-agenda-exit`). Buffers created by the user to visit TaskPaper files will not be removed.
+- `x`: Exit agenda and remove the Agenda mode buffer and all buffers loaded by Emacs for the compilation of the agenda view (`taskpaper-agenda-exit`). Buffers created by the user to visit TaskPaper files will not be removed.
 
 ## Miscellaneous
 
 All the rest which did not fit elsewhere.
 
--   `M-x taskpaper-save-all-taskpaper-buffers RET`: Save all TaskPaper mode buffers without user confirmation.
+- `M-x taskpaper-save-all-taskpaper-buffers RET`: Save all TaskPaper mode buffers without user confirmation.
 
--   `M-x taskpaper-outline-normalize-indentation RET`: Normalize outline indentation.
+- `M-x taskpaper-outline-normalize-indentation RET`: Normalize outline indentation.
 
--   `M-x taskpaper-mode-version RET`: Show TaskPaper mode version in the echo area.
+- `M-x taskpaper-mode-version RET`: Show TaskPaper mode version in the echo area.
 
--   `M-x taskpaper-mode-browse-manual RET`: Browse TaskPaper mode user's manual.
+- `M-x taskpaper-mode-browse-manual RET`: Browse TaskPaper mode user's manual.
 
 # Customization
 
@@ -817,9 +817,9 @@ Thanks to Jesse Grosjean for writing the [TaskPaper app][taskpaper] for macOS, w
 
 I would also thank the following people, from whose work TaskPaper mode has benefited greatly:
 
--   Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining the [Org mode][emacs-orgmode] package for Emacs, from which ideas and implementation I borrowed liberally;
+- Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining the [Org mode][emacs-orgmode] package for Emacs, from which ideas and implementation I borrowed liberally;
 
--   Stephen Berman and Stefan Monnier for creating and maintaining the [adaptive-wrap][emacs-adaptive-wrap] package.
+- Stephen Berman and Stefan Monnier for creating and maintaining the [adaptive-wrap][emacs-adaptive-wrap] package.
 
 # Bugs
 
