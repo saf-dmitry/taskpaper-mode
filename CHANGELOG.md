@@ -6,6 +6,7 @@ Added:
 - Added commands for link navigation
 - Added commands for mark ring navigation
 - Added handling links with any registered URI scheme
+- Added hook for opening links with an URI scheme
 
 Changed:
 

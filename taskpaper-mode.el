@@ -287,6 +287,18 @@ variable is ignored."
   :group 'taskpaper
   :type 'boolean)
 
+(defcustom taskpaper-open-uri-hook nil
+  "Hook for functions to open links with an URI scheme.
+The value of this hook may be nil, a function, or a list of
+functions. The functions will be called for links with an URI
+scheme like \"http:\". Each function must take a single argument,
+the link URI. When the function does handle the URI, it must
+return a non-nil value. If it decides that it is not responsible
+for this URI, it must return nil to indicate that TaskPaper mode
+can continue to resolve the URI with other options."
+  :group 'taskpaper
+  :type 'hook)
+
 (defcustom taskpaper-mark-ring-length 4
   "Number of different positions to be recorded in the ring.
 Changing this option requires a restart of Emacs."
@@ -1303,16 +1315,17 @@ the URI as a single argument."
 
 (defun taskpaper-open-uri (uri)
   "Open the URI using the default system command."
-  (let ((cmd (taskpaper-default-open-cmd)))
-    (cond
-     ((stringp cmd)
-      (while (string-match "%s" cmd)
-        (setq cmd (replace-match
-                   (save-match-data (shell-quote-argument uri)) t t cmd)))
-      (save-window-excursion (start-process-shell-command cmd nil cmd))
-      (message "Running %s" cmd))
-     ((functionp cmd)
-      (save-match-data (funcall cmd uri))))))
+  (unless (run-hook-with-args-until-success 'taskpaper-open-uri-hook uri)
+    (let ((cmd (taskpaper-default-open-cmd)))
+      (cond
+       ((stringp cmd)
+        (while (string-match "%s" cmd)
+          (setq cmd (replace-match
+                     (save-match-data (shell-quote-argument uri)) t t cmd)))
+        (save-window-excursion (start-process-shell-command cmd nil cmd))
+        (message "Running %s" cmd))
+       ((functionp cmd)
+        (save-match-data (funcall cmd uri)))))))
 
 ;;;; Links
 

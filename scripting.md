@@ -176,6 +176,7 @@ Hooks are options containing functions to be run before or after a function.
 - `taskpaper-blocker-hook`
 - `taskpaper-after-completion-hook`
 - `taskpaper-archive-hook`
+- `taskpaper-open-uri-hook`
 - `taskpaper-after-sorting-items-hook`
 - `taskpaper-agenda-after-show-hook`
 
