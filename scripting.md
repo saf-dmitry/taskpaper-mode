@@ -375,6 +375,24 @@ The following function checks if the item at point has a repeater attribute `@re
       (taskpaper-item-set-attribute "due" time-str))))
 ```
 
+### Custom Link Behavior for Certain URIs
+
+To open links with a specified URI scheme like `http://example.net` the TaskPaper mode uses an appropriate OS command (except `mailto:` links, which are handled internally). In the praxis this allows handling any custom protocol associated with a certain URI scheme and registered on the OS level.
+
+However, if you want to process some URIs or URI-like locators inside Emacs, you can configure the hook `taskpaper-open-uri-hook` to handle certain URIs differently. In the example below we delegate opening all `doi:` links to the Org mode:
+
+```elisp
+(defun my-org-open-uri (uri)
+  "Open selected URIs, as if it was in Org mode."
+  (when (string-prefix-p "doi:" uri)
+    (org-open-link-from-string (format "[[%s]]" uri))
+    t))
+
+(add-hook 'taskpaper-open-uri-hook 'my-org-open-uri)
+```
+
+See the documentation string of `taskpaper-open-uri-hook` for more details.
+
 ### Summary Reports
 
 Using mapping and querying functions you can generate your own custom summary reports and statistics. The following simple example creates a short summary for the current subtree and displays it in the echo area:
