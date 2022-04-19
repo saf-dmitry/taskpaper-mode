@@ -70,6 +70,7 @@ You can also use Emacs' help commands to access the usual built-in documentation
     - [Miscellaneous](#miscellaneous)
 - [Customization](#customization)
     - [Syntax Highlighting](#syntax-highlighting)
+    - [Task Marks](#task-marks)
     - [Cleaner Outline View](#cleaner-outline-view)
     - [Indentation Guides](#indentation-guides)
 - [Acknowledgments](#acknowledgments)
