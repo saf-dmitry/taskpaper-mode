@@ -1173,8 +1173,8 @@ is essential."
          deactivate-mark buffer-file-name buffer-file-truename)
     (remove-text-properties
      begin end
-     '(display t mouse-face t keymap t
-               help-echo t invisible t taskpaper-syntax t))))
+     '(display t mouse-face t keymap t line-height t
+       help-echo t invisible t taskpaper-syntax t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
