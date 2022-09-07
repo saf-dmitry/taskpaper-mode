@@ -37,18 +37,25 @@ The mapping routines can call any arbitrary function.
 - `taskpaper-item-has-children-p`
 - `taskpaper-item-get-outline-path`
 
-### Sorting and Filtering
+### Sorting
 
-General functions for extending sorting and filtering functionality.
+General functions for extending sorting functionality.
 
-- `taskpaper-query-matcher`
-- `taskpaper-query-item-match-p`
-- `taskpaper-match-sparse-tree`
 - `taskpaper-sort-items-generic`
 - `taskpaper-item-sorting-key-text`
 - `taskpaper-item-sorting-key-type`
 - `taskpaper-string-sorting-key-text`
 - `taskpaper-string-sorting-key-type`
+
+### Filtering
+
+Functions for extending filtering functionality and creating custom views.
+
+- `taskpaper-query-matcher`
+- `taskpaper-query-item-match-p`
+- `taskpaper-match-sparse-tree`
+- `taskpaper-outline-show-context`
+- `taskpaper-occur`
 
 ### Accessing and Setting Attributes
 
@@ -146,7 +153,7 @@ Following functions interpret attribute values as comma-separated lists.
 - `taskpaper-cslist-time-prefix-p`
 - `taskpaper-cslist-time-suffix-p`
 
-### Formatting of Items
+### Item Formatting
 
 - `taskpaper-item-format`
 
