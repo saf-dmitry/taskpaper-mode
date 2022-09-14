@@ -256,7 +256,7 @@ The following more complex example utilizes `taskpaper-outline-map-region` outli
    (point-min) (point-max)))
 ```
 
-The function `taskpaper-outline-previous-item-safe` prevents the next entry to be skipped when the current subtree is removed (archived). You can extend the function definition to consider only items, which have been completed before certain date. The function below will archive all items, which have been completed before last 14 days:
+Calling the function `taskpaper-outline-previous-item-safe` prevents the next entry to be skipped when the current subtree is removed by the previous archiving operation. You can extend the function definition to consider only items, which have been completed before certain date. The function below will archive all items, which have been completed before last 14 days:
 
 ```elisp
 (defun my-taskpaper-archive-done ()
