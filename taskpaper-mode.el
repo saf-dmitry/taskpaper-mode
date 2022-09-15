@@ -1805,14 +1805,14 @@ end.")
 (defun taskpaper-outline-promote-subtree ()
   "Promote the current (possibly invisible) subtree."
   (interactive)
-  (taskpaper-outline-map-tree 'taskpaper-outline-promote)
-  (back-to-indentation))
+  (save-excursion
+    (taskpaper-outline-map-tree 'taskpaper-outline-promote)))
 
 (defun taskpaper-outline-demote-subtree ()
   "Demote the current (possibly invisible) subtree."
   (interactive)
-  (taskpaper-outline-map-tree 'taskpaper-outline-demote)
-  (back-to-indentation))
+  (save-excursion
+    (taskpaper-outline-map-tree 'taskpaper-outline-demote)))
 
 ;;;; Vertical tree movement
 
