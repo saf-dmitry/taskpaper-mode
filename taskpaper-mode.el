@@ -3894,12 +3894,10 @@ path also includes the current item."
         entry (replace-regexp-in-string "/" "\\\\/" entry))
   entry)
 
-(defun taskpaper-format-outline-path (olpath &optional separator)
-  "Format the outline path OLPATH for display.
-SEPARATOR can overwrite the default separator between the
-different path entries."
-  (setq olpath (delq nil olpath) separator (or separator "/"))
-  (mapconcat #'taskpaper-format-olpath-entry olpath separator))
+(defun taskpaper-format-outline-path (olpath)
+  "Format the outline path OLPATH for display."
+  (setq olpath (delq nil olpath))
+  (mapconcat #'taskpaper-format-olpath-entry olpath "/"))
 
 ;;;; Goto interface
 
