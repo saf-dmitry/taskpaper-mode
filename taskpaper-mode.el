@@ -1728,7 +1728,8 @@ buffer. When point is on an item, rotate the current subtree."
                (taskpaper-unlogged-message "FOLDED")))))
      (t
       ;; Not at an item
-      (outline-back-to-heading))))))
+      (outline-back-to-heading)))))
+  (back-to-indentation))
 
 (defun taskpaper-set-startup-visibility ()
   "Set startup visibility."
