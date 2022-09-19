@@ -16,6 +16,7 @@ Changed:
 - Improved weekday handling in duration offsets
 - Dropped support for Emacs v24
 - Improved promotion/demotion of selected items
+- Improved filtering and searching performance
 
 # v1.0
 

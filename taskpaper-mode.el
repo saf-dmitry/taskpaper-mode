@@ -2108,41 +2108,6 @@ attribute name and VALUE is the attribute value, as strings."
       (setq attrs (nreverse excluded))))
   attrs)
 
-;;;; Attribute caching
-
-;; IMPORTANT: Due to the attribute inheritance mechanism
-;; attribute cache should be build and clear atomically
-
-(defvar taskpaper-attribute-cache (make-hash-table :size 10000)
-  "Attribute cache.")
-(make-variable-buffer-local 'taskpaper-attribute-cache)
-
-(defun taskpaper-attribute-cache-clear ()
-  "Clear attribute cache."
-  (clrhash taskpaper-attribute-cache))
-
-(defun taskpaper-attribute-cache-put (key attrs)
-  "Push attribute list ATTRS into attribute cache, under KEY."
-  (puthash key attrs taskpaper-attribute-cache))
-
-(defun taskpaper-attribute-cache-get (key)
-  "Retrieve attribute list for KEY from attribute cache."
-  (gethash key taskpaper-attribute-cache))
-
-(defun taskpaper-attribute-cache-build ()
-  "Build attribute cache."
-  (taskpaper-attribute-cache-clear)
-  (message "Caching...")
-  (save-excursion
-    (goto-char (point-min))
-    (let ((re (concat "^" outline-regexp)))
-      (while (let (case-fold-search)
-               (re-search-forward re nil t))
-        (let ((key (point-at-bol))
-              (attrs (taskpaper-item-get-attributes t)))
-          (taskpaper-attribute-cache-put key attrs)))))
-  (message "Caching...done"))
-
 ;;;; Attribute API
 
 (defun taskpaper-item-get-attributes (&optional inherit)
@@ -2150,18 +2115,15 @@ attribute name and VALUE is the attribute value, as strings."
 Return read-only list of cons cells (NAME . VALUE), where NAME is
 the attribute name and VALUE is the attribute value, as strings.
 If INHERIT is non-nil also check higher levels of the hierarchy."
-  (let* ((key (point-at-bol))
-         (attrs (taskpaper-attribute-cache-get key)))
-    (unless attrs
-      (setq attrs (append (taskpaper-item-get-special-attributes)
-                          (taskpaper-item-get-explicit-attributes)))
-      (when (and inherit (outline-on-heading-p t))
-        (save-excursion
-          (while (taskpaper-outline-up-level-safe)
-            (setq attrs
-                  (append attrs
-                          (taskpaper-remove-uninherited-attributes
-                           (taskpaper-item-get-explicit-attributes))))))))
+  (let ((attrs (append (taskpaper-item-get-special-attributes)
+                       (taskpaper-item-get-explicit-attributes))))
+    (when (and inherit (outline-on-heading-p t))
+      (save-excursion
+        (while (taskpaper-outline-up-level-safe)
+          (setq attrs
+                (append attrs
+                        (taskpaper-remove-uninherited-attributes
+                         (taskpaper-item-get-explicit-attributes)))))))
     (taskpaper-uniquify attrs)))
 
 (defun taskpaper-item-get-attribute (name &optional inherit)
@@ -4988,8 +4950,6 @@ string. PROMPT can overwrite the default prompt."
           (minibuffer-message-timeout 0.5))
       (unwind-protect
           (progn
-            ;; Build attribute cache
-            (taskpaper-attribute-cache-build)
             ;; Add hooks and set idle timer
             (setq taskpaper-iquery-idle-timer
                   (run-with-idle-timer
@@ -5001,9 +4961,7 @@ string. PROMPT can overwrite the default prompt."
         ;; Remove hooks and cancel idle timer
         (remove-hook 'after-change-functions
                      'taskpaper-read-query-propertize)
-        (cancel-timer taskpaper-iquery-idle-timer)
-        ;; Clear attribute cache
-        (taskpaper-attribute-cache-clear)))))
+        (cancel-timer taskpaper-iquery-idle-timer)))))
 
 (defun taskpaper-get-buffer-queries ()
   "Return a list of embedded buffer queries for selection."
