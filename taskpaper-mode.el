@@ -1554,16 +1554,40 @@ This version will not throw an error."
       (progn (outline-backward-same-level 1) t)
     (error nil)))
 
-(defsubst taskpaper-outline-up-level-safe ()
+(defvar-local taskpaper--up-level-cache nil
+  "Buffer-local `taskpaper-outline-up-level-safe' cache.")
+(defvar-local taskpaper--up-level-cache-tick nil
+  "Buffer `buffer-chars-modified-tick' in `taskpaper--up-level-cache'.")
+(defun taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
-This version will not throw an error. Also, this version is much
-faster than `outline-up-heading', relying directly on leading
+Return the level of the item found or nil otherwise. This version
+will not throw an error. Also, this version is a lot faster than
+`outline-up-heading', because it relies directly on leading
 tabs."
   (when (ignore-errors (outline-back-to-heading t))
-    (let ((level-up (1- (funcall outline-level))))
-      (and (> level-up 0)
-           (re-search-backward
-            (format "^[\t]\\{0,%d\\}[^\t\f\n]" (1- level-up)) nil t)))))
+    (let (level-cache)
+      (unless taskpaper--up-level-cache
+        (setq taskpaper--up-level-cache (make-hash-table)))
+      (if (and (eq (buffer-chars-modified-tick) taskpaper--up-level-cache-tick)
+               (setq level-cache (gethash (point) taskpaper--up-level-cache)))
+          (when (<= (point-min) (car level-cache) (point-max))
+            ;; Parent is inside accessible part of the buffer
+            (progn (goto-char (car level-cache))
+                   (cdr level-cache)))
+        ;; Buffer modified. Invalidate cache.
+        (unless (eq (buffer-chars-modified-tick) taskpaper--up-level-cache-tick)
+          (setq-local taskpaper--up-level-cache-tick
+                      (buffer-chars-modified-tick))
+          (clrhash taskpaper--up-level-cache))
+        (let* ((level-up (1- (funcall outline-level)))
+               (pos (point))
+               (res (and (> level-up 0)
+                         (re-search-backward
+                          (format "^[\t]\\{0,%d\\}[^\t\f\n]" (1- level-up)) nil t)
+                         (funcall outline-level))))
+          (when res
+            (puthash pos (cons (point) res) taskpaper--up-level-cache))
+          res)))))
 
 (defun taskpaper-outline-map-descendants (func &optional self)
   "Call FUNC for every descendant of the current item.
