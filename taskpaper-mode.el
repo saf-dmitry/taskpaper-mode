@@ -1541,14 +1541,14 @@ This version will not throw an error."
     (error nil)))
 
 (defun taskpaper-outline-forward-same-level-safe ()
-  "Move to the next (possibly invisible) sibling item.
+  "Move to the next sibling item.
 This version will not throw an error."
   (condition-case nil
       (progn (outline-forward-same-level 1) t)
     (error nil)))
 
 (defun taskpaper-outline-backward-same-level-safe ()
-  "Move to the previous (possibly invisible) sibling item.
+  "Move to the previous sibling item.
 This version will not throw an error."
   (condition-case nil
       (progn (outline-backward-same-level 1) t)
