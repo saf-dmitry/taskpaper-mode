@@ -351,6 +351,21 @@ The next function sorts items according to their due dates. The sorting is done 
 
 As further examples see the `taskpaper-sort-by-text` and `taskpaper-sort-by-type` function definitions.
 
+### Archiving
+
+You may want to configure the user option `taskpaper-archive-location` for external archiving, but still have the possibility to archive some items locally in the current file. In this case you can overwrite the global behavior by locally binding the variable `taskpaper-archive-location` to another value. For example, the following function will move the subtree under cursor to an "Archive" project in the current file:
+
+```elisp
+(defun my-taskpaper-archive-subtree-local ()
+  "Move the subtree to Archive project in current file."
+  (interactive)
+  (let ((taskpaper-archive-location "::Archive:")
+        (taskpaper-archive-save-context t))
+    (taskpaper-archive-subtree)))
+```
+
+If needed, the "Archive" project will be automatically created at the end of the file. For more details see the documentation string of the user option `taskpaper-archive-location`.
+
 ### Repeating Actions
 
 You can specify the recurrence of repeating actions using a dedicated repeater tag. In the following example the time value of the `repeat` tag is the repeater specification:
