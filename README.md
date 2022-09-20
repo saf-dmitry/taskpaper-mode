@@ -459,7 +459,7 @@ TaskPaper mode has a special mode for incremental querying. The I-query mode is 
 
 If your query has a formatting error the query string highlights red in the minibuffer. In addition to the standard motion and editing commands both static and incremental query modes define some additional key bindings while in minibuffer. Pressing `TAB` while editing query string offers completion on attribute names at point (see below). Pressing `C-c C-c` clears the query string and displays all items in the outline. Pressing `ESC ESC` or `C-g` quits the I-query mode while preserving the outline view.
 
-By default, incremental query results are not updated immediately after each character typed. Instead, the query is evaluated after a certain period of idle time (one tenth of a second, by default). If you would like to change this behavior, customize the user option `taskpaper-iquery-delay`. For example, delaying evaluation until the user stops typing is beneficial when working on long documents over a slow network connection. To disable the delay entirely set the `taskpaper-iquery-delay` value to zero:
+By default, incremental query results are not updated immediately after each character typed. Instead, the query is evaluated after a certain period of idle time. If you would like to change this behavior, customize the user option `taskpaper-iquery-delay`. For example, delaying evaluation until the user stops typing is beneficial when working on long documents over a slow network connection. To disable the delay entirely set the `taskpaper-iquery-delay` value to zero:
 
 ```elisp
 (setq taskpaper-iquery-delay 0)

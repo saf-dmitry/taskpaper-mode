@@ -325,7 +325,7 @@ instead of default `taskpaper-query'."
   :group 'taskpaper
   :type 'boolean)
 
-(defcustom taskpaper-iquery-delay 0.1
+(defcustom taskpaper-iquery-delay 0.5
   "The number of seconds to wait before evaluating incremental
 query."
   :group 'taskpaper
