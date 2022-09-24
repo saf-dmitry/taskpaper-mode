@@ -1908,8 +1908,8 @@ current file automatically push the old position onto the ring."
   "Remove indentation from ITEM."
   (save-match-data
     (when (string-match "^[ \t]+" item)
-      (setq item (replace-match "" t nil item)))
-    item))
+      (setq item (replace-match "" t nil item))))
+  item)
 
 (defun taskpaper-remove-trailing-tags (item)
   "Remove trailing tags from ITEM."
@@ -1983,7 +1983,7 @@ Item type can be 'project, 'task, or 'note."
          (re-ind "^\\([ \t]+\\)")
          (re-tag (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
          (indent "") (tags ""))
-    ;; Remove existing type formatting
+    ;; Remove type formatting
     (setq item (taskpaper-remove-type-formatting item))
     (save-match-data
       ;; Strip indent and trailing tags and save them
@@ -2065,11 +2065,9 @@ These are implicit attributes not associated with tags.")
   "Get special attrbutes for the item at point.
 Return a list of cons cells (NAME . VALUE), where NAME is the
 attribute name and VALUE is the attribute value, as strings."
-  (let (attrs name value)
-    (setq name "type" value (taskpaper-item-type))
-    (push (cons name value) attrs)
-    (setq name "text" value (taskpaper-item-text))
-    (push (cons name value) attrs)
+  (let (attrs)
+    (push (cons "type" (taskpaper-item-type)) attrs)
+    (push (cons "text" (taskpaper-item-text)) attrs)
     attrs))
 
 (defun taskpaper-item-get-explicit-attributes ()
