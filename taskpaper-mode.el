@@ -6,6 +6,7 @@
 ;; Maintainer: Dmitry Safronov <saf.dmitry@gmail.com>
 ;; URL: <https://github.com/saf-dmitry/taskpaper-mode>
 ;; Keywords: outlines, notetaking, task management, productivity, taskpaper
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -447,10 +448,6 @@ is used by default. Only the current line is checked."
                      (<= pos (match-end 0)))
             (throw 'exit (cons (match-beginning 0)
                                (match-end 0)))))))))
-
-(defsubst taskpaper-set-local (var value)
-  "Make VAR local in the current buffer and set it to VALUE."
-  (set (make-local-variable var) value))
 
 (defsubst taskpaper-uniquify (list)
   "Non-destructively remove duplicate elements from LIST."
@@ -1158,9 +1155,8 @@ is essential."
           (when taskpaper-pretty-task-marks
             '(taskpaper-activate-task-marks)))))
     (setq taskpaper-font-lock-keywords (delq nil font-lock-keywords))
-    (taskpaper-set-local
-     'font-lock-defaults
-     '(taskpaper-font-lock-keywords t nil nil backward-paragraph))
+    (setq-local font-lock-defaults
+                '(taskpaper-font-lock-keywords t nil nil backward-paragraph))
     (kill-local-variable 'font-lock-keywords)
     nil))
 
@@ -1391,17 +1387,16 @@ absolute path is used. An absolute path can be forced with a
           (t (user-error "No link at point")))
     (taskpaper-open-link link)))
 
-(defvar taskpaper-link-search-failed nil)
-(make-variable-buffer-local 'taskpaper-link-search-failed)
+(defvar-local taskpaper--link-search-failed nil)
 
 (defun taskpaper-next-link (&optional back)
   "Move forward to the next link.
 If BACK is non-nil, move backward to the previous link."
   (interactive)
-  (when (and taskpaper-link-search-failed (eq this-command last-command))
+  (when (and taskpaper--link-search-failed (eq this-command last-command))
     (goto-char (if back (point-max) (point-min)))
     (message "Wrapping link search"))
-  (setq taskpaper-link-search-failed nil)
+  (setq taskpaper--link-search-failed nil)
   (let ((pos (point))
         (func (if back 're-search-backward 're-search-forward))
         (re taskpaper-any-link-regexp))
@@ -1412,7 +1407,7 @@ If BACK is non-nil, move backward to the previous link."
         (progn
           (goto-char (match-beginning 0)) (skip-syntax-forward "\s")
           (when (outline-invisible-p) (taskpaper-outline-show-context)))
-      (goto-char pos) (setq taskpaper-link-search-failed t)
+      (goto-char pos) (setq taskpaper--link-search-failed t)
       (message "No further link found"))))
 
 (defun taskpaper-previous-link ()
@@ -1422,9 +1417,8 @@ If BACK is non-nil, move backward to the previous link."
 
 ;;;; Inline images
 
-(defvar taskpaper-inline-image-overlays nil
+(defvar-local taskpaper-inline-image-overlays nil
   "List of inline image overlays.")
-(make-variable-buffer-local 'taskpaper-inline-image-overlays)
 
 (defun taskpaper-remove-inline-images ()
   "Remove inline images in the buffer."
@@ -1695,9 +1689,7 @@ Essentially a much simplified version of `next-line'."
               (get-char-property (1- (point)) 'invisible))
     (beginning-of-line 2)))
 
-(defvar taskpaper-cycle-global-status 1)
-(make-variable-buffer-local 'taskpaper-cycle-global-status)
-
+(defvar-local taskpaper-cycle--global-status 1)
 (defun taskpaper-cycle (&optional arg)
   "Perform visibility cycling.
 When point is at the beginning of the buffer, or when called with
@@ -1712,16 +1704,16 @@ buffer. When point is on an item, rotate the current subtree."
      ((bobp)
       ;; Perform global cycling
       (cond ((and (eq last-command this-command)
-                  (eq taskpaper-cycle-global-status 2))
+                  (eq taskpaper-cycle--global-status 2))
              ;; Show everything
              (taskpaper-outline-show-all)
              (taskpaper-unlogged-message "SHOW ALL")
-             (setq taskpaper-cycle-global-status 1))
+             (setq taskpaper-cycle--global-status 1))
             (t
              ;; Show overview (default)
              (taskpaper-outline-hide-sublevels 1)
              (taskpaper-unlogged-message "OVERVIEW")
-             (setq taskpaper-cycle-global-status 2))))
+             (setq taskpaper-cycle--global-status 2))))
      ((save-excursion
         (beginning-of-line 1) (looking-at outline-regexp))
       ;; Cycle current subtree
@@ -2224,8 +2216,7 @@ return the values as a list of strings."
 
 ;;;; Date and time
 
-(defvar taskpaper-time-was-given nil)
-(make-variable-buffer-local 'taskpaper-time-was-given)
+(defvar-local taskpaper-time--time-was-given nil)
 
 (defconst taskpaper-time-whitespace-regexp
   "\\`[ \t\n\r]*"
@@ -2396,7 +2387,7 @@ past one. Return unchanged any year larger than 99."
           ((equal word "yesterday")
            (setq day (1- day) hour 0 minute 0 second 0))
           ((equal word "now")
-           (setq taskpaper-time-was-given t)))
+           (setq taskpaper-time--time-was-given t)))
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
 
@@ -2526,7 +2517,7 @@ past one. Return unchanged any year larger than 99."
             time-str (replace-match "" t t time-str))))
     (and (equal ?a ampm) (= hour 12) (setq hour 0))
     (and (equal ?p ampm) (< hour 12) (setq hour (+ hour 12)))
-    (setq taskpaper-time-was-given t)
+    (setq taskpaper-time--time-was-given t)
     ;; Return decoded time and remaining time string
     (cons (list second minute hour day month year) time-str)))
 
@@ -2552,9 +2543,9 @@ past one. Return unchanged any year larger than 99."
       (and (>= wday1 wday) (> inc 0) (setq inc (1- inc)))
       (setq day (+ day (- wday1 wday) (* inc 7))))
      ((member unit '("min" "mins" "minute" "minutes"))
-      (setq minute (+ minute inc) taskpaper-time-was-given t))
+      (setq minute (+ minute inc) taskpaper-time--time-was-given t))
      ((member unit '("h" "hour" "hours"))
-      (setq hour (+ hour inc) taskpaper-time-was-given t))
+      (setq hour (+ hour inc) taskpaper-time--time-was-given t))
      ((member unit '("d" "day" "days"))
       (setq day (+ day inc)))
      ((member unit '("w" "week" "weeks"))
@@ -2574,7 +2565,7 @@ Return list (SEC MIN HOUR DAY MON YEAR DOW DST TZ). When
 TIMEDECODE time value is given, calculate date and time based on
 this time, otherwise use current time."
   (let ((nowdecode (decode-time (current-time))) tmp)
-    (setq taskpaper-time-was-given nil
+    (setq taskpaper-time--time-was-given nil
           time-str (downcase time-str)
           timedecode (or timedecode nowdecode))
     (while (> (length time-str) 0)
@@ -2644,7 +2635,7 @@ optional argument WITH-TIME is non-nil, the formatted output
 contains the date and the time. Otherwise, only the date is
 included."
   (let ((time (taskpaper-parse-time-string time-str timedecode))
-        (fmt (if (or with-time taskpaper-time-was-given)
+        (fmt (if (or with-time taskpaper-time--time-was-given)
                  "%Y-%m-%d %H:%M" "%Y-%m-%d")))
     (format-time-string fmt (apply 'encode-time time))))
 
@@ -2844,7 +2835,7 @@ time converted to an internal time."
            (time (or taskpaper-calendar-selected-date
                      (apply 'encode-time date)))
            (fmt (if (or with-time
-                        (and taskpaper-time-was-given
+                        (and taskpaper-time--time-was-given
                              (not taskpaper-calendar-selected-date)))
                     "%Y-%m-%d %H:%M" "%Y-%m-%d")))
       ;; Return the selected date
@@ -4251,9 +4242,8 @@ otherwise fall back to the current buffer."
 
 ;;;; Filtering
 
-(defvar taskpaper-occur-highlights nil
+(defvar-local taskpaper-occur-highlights nil
   "List of overlays used for occur matches.")
-(make-variable-buffer-local 'taskpaper-occur-highlights)
 
 (defun taskpaper-occur-add-highlights (begin end)
   "Highlight from BEGIN to END."
@@ -5170,7 +5160,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (setq mode-name "TaskPaper")
   (use-local-map taskpaper-mode-map)
   ;; Invisibility spec
-  (taskpaper-set-local 'line-move-ignore-invisible t)
+  (setq-local line-move-ignore-invisible t)
   (add-to-invisibility-spec '(outline . t))
   (if taskpaper-hide-markup
       (add-to-invisibility-spec 'taskpaper-markup)
@@ -5178,22 +5168,22 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   ;; Outline settings
   ;; NOTE: Group 1 in `outline-regexp' is used by `replace-match'
   ;; in `taskpaper-promote' and `taskpaper-demote' functions.
-  (taskpaper-set-local 'outline-regexp "\\([\t]*\\)[^\t\f\n]")
-  (taskpaper-set-local 'outline-heading-end-regexp "\n")
-  (taskpaper-set-local 'outline-blank-line t)
+  (setq-local outline-regexp "\\([\t]*\\)[^\t\f\n]")
+  (setq-local outline-heading-end-regexp "\n")
+  (setq-local outline-blank-line t)
   ;; Paragraph filling
-  (taskpaper-set-local 'paragraph-start
-                       (concat "\f\\|[ \t]*$\\|\\(?:" outline-regexp "\\)"))
-  (taskpaper-set-local 'paragraph-separate "[ \t\f]*$")
-  (taskpaper-set-local 'auto-fill-inhibit-regexp outline-regexp)
-  (taskpaper-set-local 'adaptive-fill-regexp
-                       "[ \t]*\\(\\(?:[-+*]+\\|[0-9]+\\.\\)[ \t]*\\)*")
+  (setq-local paragraph-start
+              (concat "\f\\|[ \t]*$\\|\\(?:" outline-regexp "\\)"))
+  (setq-local paragraph-separate "[ \t\f]*$")
+  (setq-local auto-fill-inhibit-regexp outline-regexp)
+  (setq-local adaptive-fill-regexp
+              "[ \t]*\\(\\(?:[-+*]+\\|[0-9]+\\.\\)[ \t]*\\)*")
   ;; Font lock settings
   (taskpaper-set-font-lock-defaults)
-  (taskpaper-set-local 'font-lock-unfontify-region-function 'taskpaper-unfontify-region)
+  (setq-local font-lock-unfontify-region-function 'taskpaper-unfontify-region)
   ;; Indentation settings
-  (taskpaper-set-local 'indent-tabs-mode t)
-  (taskpaper-set-local 'indent-line-function 'indent-to-left-margin)
+  (setq-local indent-tabs-mode t)
+  (setq-local indent-line-function 'indent-to-left-margin)
   ;; Syntax table settings
   (set-syntax-table taskpaper-mode-syntax-table)
   ;; Next error function for sparse trees
@@ -5494,9 +5484,8 @@ this option will be ignored."
 (defvar taskpaper-agenda-pre-window-conf nil)
 (defvar taskpaper-agenda-pre-follow-window-conf nil)
 
-(defvar taskpaper-agenda-matcher-form nil
+(defvar-local taskpaper-agenda--matcher-form nil
   "Recent matcher form for re-building agenda view.")
-(make-variable-buffer-local 'taskpaper-agenda-matcher-form)
 
 (defvar taskpaper-agenda-new-buffers nil
   "Buffers created to visit agenda files.")
@@ -5621,10 +5610,10 @@ Return number of items."
   "Re-build the current Agenda mode buffer."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
-  (when taskpaper-agenda-matcher-form
+  (when taskpaper-agenda--matcher-form
     (let ((cnt))
       (message "Re-building agenda buffer...")
-      (setq cnt (taskpaper-agenda-insert-items taskpaper-agenda-matcher-form))
+      (setq cnt (taskpaper-agenda-insert-items taskpaper-agenda--matcher-form))
       (message "Re-building agenda buffer...done")
       (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items"))))))
 
@@ -5791,7 +5780,7 @@ ABUF is the buffer for the agenda window."
     (use-local-map taskpaper-agenda-mode-map)
     (setq cnt (taskpaper-agenda-insert-items matcher))
     (setq buffer-read-only t)
-    (setq taskpaper-agenda-matcher-form matcher)
+    (setq taskpaper-agenda--matcher-form matcher)
     (message "Building agenda...done")
     (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items")))))
 
