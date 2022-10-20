@@ -5175,7 +5175,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (setq-local paragraph-separate "[ \t\f]*$")
   (setq-local auto-fill-inhibit-regexp outline-regexp)
   (setq-local adaptive-fill-regexp
-              "[ \t]*\\(\\(?:[-+*]+\\|[0-9]+\\.\\)[ \t]*\\)*")
+              "[ \t]*\\(\\(?:[-+*]+\\|[0-9]+[.]\\)[ \t]+\\)*")
   ;; Font lock settings
   (taskpaper-set-font-lock-defaults)
   (setq-local font-lock-unfontify-region-function 'taskpaper-unfontify-region)
