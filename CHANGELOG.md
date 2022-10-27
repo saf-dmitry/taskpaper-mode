@@ -17,6 +17,7 @@ Changed:
 - Dropped support for Emacs v24
 - Improved promotion/demotion of selected items
 - Improved filtering and searching performance
+- Dropped support for "+" and "*" characters as task marks
 
 # v1.0
 
