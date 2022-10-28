@@ -792,7 +792,7 @@ Tasks can then be marked as done by clicking on the task mark with `mouse-1`.
 
 ## Cleaner Outline View
 
-The [adaptive-wrap][emacs-adaptive-wrap] package is helpful for correct wrapping of indented long-line items. The package provides the `adaptive-wrap-prefix-mode` minor mode which sets the `wrap-prefix` property on the fly so that single-long-line paragraphs get word-wrapped in a way similar to what you'd get with `M-q` using `adaptive-fill-mode`, but without actually changing the buffer's text. Since v0.7 it supports single-line paragraphs and can be used in TaskPaper mode as well. The package can be activated globally by putting `adaptive-wrap-mode.el` on the load path and adding to your init file
+The [adaptive-wrap][emacs-adaptive-wrap] package is helpful for correct wrapping of indented long-line items. The package provides the `adaptive-wrap-prefix-mode` minor mode which sets the `wrap-prefix` property on the fly so that single-long-line paragraphs get word-wrapped in a way similar to what you'd get with `M-q` using `adaptive-fill-mode`, but without actually changing the buffer's text. Since v0.7 it supports single-line paragraphs and can be used in TaskPaper mode as well. The package can be activated globally by putting `adaptive-wrap-mode.el` on the load path and adding the following lines to your Emacs init file:
 
 ```elisp
 (require 'adaptive-wrap)
