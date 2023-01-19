@@ -438,7 +438,7 @@ Using mapping and querying functions you can generate your own custom summary re
 The API function `taskpaper-add-entry` can be used in Lisp programs to add entries inside Emacs or in shell scripts to add entries from the command line. On UNIX systems the following small shell script will add entries to the top-level project "Inbox" located in the file `~/gtd.taskpaper`. If the project doesn't exist, it will be created at the end of given file as top-level item. The entry text should be given as single argument (quoted or not) to the shell script. A tag `@added` with the current date will be appended to the entry.
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env bash
 
 emacs='/Applications/Emacs.app/Contents/MacOS/Emacs'
 file="$HOME/gtd.taskpaper"
