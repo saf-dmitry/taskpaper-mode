@@ -21,7 +21,7 @@ The file format is fairly simple:
 
 - Each line makes a new item: project, task, or note.
 
-- A task is a line that begins with a hyphen (`-`) followed by a space, which can optionally be prefixed (i.e. indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
+- A task is a line that begins with a hyphen (`-`) followed by a space, which can optionally be prefixed (i.e., indented) with tabs. A task can have zero or more tags anywhere on the line (not just trailing at the end).
 
 - A project is a line that isn't a task and ends with a colon (`:`) followed by a newline. Tags can exist after the colon, but if any non-tag text is present, then it won't be recognized as a project.
 
@@ -187,7 +187,7 @@ Four main commands are provided for structure editing. The commands work on the 
 
 - `M-DOWN`: Move the subtree under cursor down past the next same-level subtree (`taskpaper-outline-move-subtree-down`).
 
-The commands `M-LEFT` (`taskpaper-outline-promote-subtree`) and `M-RIGHT` (`taskpaper-outline-demote-subtree`) change the current subtree to a different outline level — i.e. the level of all items in the tree is decreased or increased. Note that the scope of "current subtree" may be changed after a promotion.
+The commands `M-LEFT` (`taskpaper-outline-promote-subtree`) and `M-RIGHT` (`taskpaper-outline-demote-subtree`) change the current subtree to a different outline level — i.e., the level of all items in the tree is decreased or increased. Note that the scope of "current subtree" may be changed after a promotion.
 
 The commands `M-UP` (`taskpaper-outline-move-subtree-up`) and `M-DOWN` (`taskpaper-outline-move-subtree-down`) move the entire current subtree (folded or not) past the next same-level subtree in the given direction. The cursor moves with the subtree, so these commands can be used repeatedly to "drag" a subtree to the wanted position.
 
@@ -296,7 +296,7 @@ Dates and times are an essential part of any task management system. You can sto
 
 If the time string is unparseable, current time is returned.
 
-Note: Using of `@due` tag here for storing dates is merely convention. You can use any tag name which makes sense to you, e.g. `@deadline`.
+Note: Using of `@due` tag here for storing dates is merely convention. You can use any tag name which makes sense to you, e.g., `@deadline`.
 
 ### Dates
 
@@ -398,7 +398,7 @@ Absolute file links are starting with `/` or `~/`. Relative file links starting 
 
 The command `C-c C-l` (`taskpaper-insert-file-link-at-point`) inserts a plain file link at point offering standard minibuffer completion to select the name of the file. The path to the file is inserted relative to the directory of the current TaskPaper file, if the linked file is in the current directory or in a subdirectory of it, or if the path is written relative to the current directory using `../`. Otherwise an absolute path is used, if possible with `~/` for your home directory. You can force an absolute path with `C-u` prefix.
 
-Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via e.g. Dropbox, put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
+Tip: If you want to sync your TaskPaper files with all linked images and other attachments across different devices via some cloud service like Dropbox, put the TaskPaper files together with the attachments somewhere inside the synced directory and link to them from your TaskPaper documents using the relative link syntax.
 
 TaskPaper mode also has experimental support for inline Markdown links in form `[Link description](destination)`:
 

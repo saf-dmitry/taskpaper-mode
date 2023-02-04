@@ -275,7 +275,7 @@ Calling the function `taskpaper-outline-previous-item-safe` prevents the next en
 
 Usually, a parent action should not be marked as done until all sub-tasks are marked as done. Sometimes when pressing `C-c C-d` you may inadvertently complete items still containing open sub-tasks. Configuring the hook `taskpaper-blocker-hook` helps preventing this. The value of this hook may be nil, a function, or a list of functions. Functions in this hook should not modify the buffer. Each function gets as its single argument a buffer position at the beginning of item. If any of the functions in this hook returns nil, the completion is blocked.
 
-The following code adds `my-taskpaper-blocker-func-1` function to the hook. The function will check the current item and return non-nil if all its actionable children, i.e. projects and tasks, are completed.
+The following code adds `my-taskpaper-blocker-func-1` function to the hook. The function will check the current item and return non-nil if all its actionable children, i.e., projects and tasks, are completed.
 
 ```elisp
 (defun my-taskpaper-blocker-func-1 (pos)
@@ -469,11 +469,9 @@ in the command line.
 
 ### Synchronization
 
-Activating the auto-revert minor mode can be useful if you want to edit your TaskPaper files from another location and sync them e.g. via [Dropbox][dropbox] or add entries using quick entry script as described above, so whenever a file changes and is re-synced, the corresponding buffer is updated. You can automate the activation of this mode via `taskpaper-mode-hook`:
+Activating the auto-revert minor mode can be useful if you want to edit your TaskPaper files from another location and sync them via some cloud service like Dropbox, or add entries using quick entry script as described above, so whenever a file changes and is re-synced, the corresponding buffer is updated. You can automate the activation of this mode via `taskpaper-mode-hook`:
 
 ```elisp
-(add-hook 'taskpaper-mode-hook (lambda () (auto-revert-mode 1)))
+(add-hook 'taskpaper-mode-hook '(lambda () (auto-revert-mode 1)))
 ```
-
-[dropbox]: https://www.dropbox.com/
 
