@@ -5201,7 +5201,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (add-hook 'change-major-mode-hook 'taskpaper-remove-inline-images nil t)
   (add-hook 'change-major-mode-hook 'taskpaper-occur-remove-highlights nil t)
   (add-hook 'change-major-mode-hook
-            '(lambda () (remove-from-invisibility-spec 'taskpaper-markup) nil t))
+            #'(lambda () (remove-from-invisibility-spec 'taskpaper-markup) nil t))
   (run-hooks 'taskpaper-mode-hook))
 
 ;;;###autoload
