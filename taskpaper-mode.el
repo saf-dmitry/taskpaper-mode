@@ -1848,7 +1848,7 @@ end.")
 (defvar taskpaper-mark-ring nil
   "Mark ring for positions before jumps.")
 (defvar taskpaper-mark-ring-last-goto nil
-  "Last position in the mark ring used to go back.")
+  "Last position in the mark ring used to navigate back.")
 
 ;; In case file is reloaded
 (setq taskpaper-mark-ring nil taskpaper-mark-ring-last-goto nil)
@@ -1869,11 +1869,12 @@ end.")
     (message "Position saved to mark ring.")))
 
 (defun taskpaper-mark-ring-goto (&optional n)
-  "Jump to the previous position in the mark ring.
-With prefix argument N, jump back that many stored positions. When
-called several times in succession, walk through the entire ring.
-TaskPaper mode commands jumping to a different position in the
-current file automatically push the old position onto the ring."
+  "Navigate to the previous position in the mark ring.
+With prefix argument N, navigate back that many stored positions.
+When called several times in succession, walk through the entire
+ring. TaskPaper mode commands jumping to a different position in
+the current file automatically push the old position onto the
+ring."
   (interactive "p")
   (let (p m)
     (if (eq last-command this-command)
@@ -1881,7 +1882,7 @@ current file automatically push the old position onto the ring."
                               taskpaper-mark-ring)))
       (setq p taskpaper-mark-ring))
     (setq taskpaper-mark-ring-last-goto p) (setq m (car p))
-    (unless (marker-position m) (user-error "No saved position"))
+    (unless (marker-position m) (user-error "No previous position"))
     (pop-to-buffer-same-window (marker-buffer m)) (goto-char m)
     (when (outline-invisible-p) (taskpaper-outline-show-context))))
 
@@ -5311,6 +5312,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Backward Same Level" taskpaper-outline-backward-same-level
       :active (outline-on-heading-p)]
      "--"
+     ["Navigate Back" taskpaper-mark-ring-goto
+      :active (marker-position (car taskpaper-mark-ring))]
      ["Go To..." taskpaper-goto])
     ("Structure Editing"
      ["Promote Item" taskpaper-outline-promote
