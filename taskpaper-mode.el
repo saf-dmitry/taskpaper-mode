@@ -5047,6 +5047,7 @@ combination."
                       (setq value (taskpaper-escape-double-quotes value))
                       (format "@%s = \"%s\"" name value))
                      (t (format "@%s" name)))))
+        (taskpaper-mark-ring-push)
         (if taskpaper-iquery-default
             (taskpaper-iquery query) (taskpaper-query query)))
     (user-error "No tag at point")))
