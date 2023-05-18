@@ -5244,7 +5244,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-read-select)
 (define-key taskpaper-mode-map (kbd "C-c !") 'taskpaper-query-fast-select)
 (define-key taskpaper-mode-map (kbd "C-c %") 'taskpaper-mark-ring-push)
-(define-key taskpaper-mode-map (kbd "C-c &") 'taskpaper-mark-ring-goto)
+(define-key taskpaper-mode-map (kbd "C-c [") 'taskpaper-mark-ring-goto)
 
 (define-key taskpaper-mode-map (kbd "C-c C-a") 'taskpaper-outline-show-all)
 (define-key taskpaper-mode-map (kbd "C-c C-z") 'taskpaper-outline-overview)
