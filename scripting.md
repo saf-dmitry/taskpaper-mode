@@ -397,7 +397,7 @@ The following function checks if the item at point has a repeater attribute `@re
       (taskpaper-item-set-attribute "due" time-str))))
 ```
 
-### Custom Link Behavior for Certain URIs
+### Custom Link Behavior
 
 To open links with a specified URI scheme like `http://example.net` the TaskPaper mode uses an appropriate OS command (except `mailto:` links, which are handled internally). In the praxis this allows handling any custom protocol associated with a certain URI scheme and registered on the OS level.
 
