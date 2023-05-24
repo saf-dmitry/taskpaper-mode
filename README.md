@@ -820,7 +820,9 @@ I would also thank the following people, from whose work TaskPaper mode has bene
 
 - Carsten Dominik, Bastien Guerry and other Org mode developers for creating and maintaining the [Org mode][emacs-orgmode] package for Emacs, from which ideas and implementation I borrowed liberally;
 
-- Stephen Berman and Stefan Monnier for creating and maintaining the [adaptive-wrap][emacs-adaptive-wrap] package.
+- Stephen Berman and Stefan Monnier for creating and maintaining the [adaptive-wrap][emacs-adaptive-wrap] package;
+
+- Piotrek Wilczyński for developing the [TodoFlow][todoflow] Python module.
 
 # Bugs
 
@@ -859,6 +861,8 @@ You should have received a copy of the GNU General Public License along with thi
 [emacs-orgmode]: http://orgmode.org/
 
 [birch-outline]: https://github.com/jessegrosjean/birch-outline
+
+[todoflow]: https://github.com/bevesce/TodoFlow
 
 [github-issues]: https://github.com/saf-dmitry/taskpaper-mode/issues
 
