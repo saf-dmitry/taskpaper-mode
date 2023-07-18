@@ -4950,7 +4950,9 @@ string. PROMPT can overwrite the default prompt."
         ;; Remove hooks and cancel idle timer
         (remove-hook 'after-change-functions
                      'taskpaper-read-query-propertize)
-        (cancel-timer taskpaper-iquery-idle-timer)))))
+        (when (timerp taskpaper-iquery-idle-timer)
+          (cancel-timer taskpaper-iquery-idle-timer))
+        (setq taskpaper-iquery-idle-timer nil)))))
 
 (defun taskpaper-get-buffer-queries ()
   "Return a list of embedded buffer queries for selection."
