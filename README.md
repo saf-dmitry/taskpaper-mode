@@ -814,7 +814,7 @@ For customizing the way guides are displayed, see the package options.
 
 # Acknowledgments
 
-Thanks to Jesse Grosjean for writing the [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs, and for publishing TaskPaper's [open source model layer][birch-outline], which gave me some valuable implementation insights.
+Thanks to Jesse Grosjean for writing the [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs. The [TaskPaper project][github-taskpaper] gave me some valuable implementation insights.
 
 I would also thank the following people, from whose work TaskPaper mode has benefited greatly:
 
@@ -860,7 +860,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 [emacs-orgmode]: http://orgmode.org/
 
-[birch-outline]: https://github.com/jessegrosjean/birch-outline
+[github-taskpaper]: https://github.com/jessegrosjean/TaskPaper
 
 [todoflow]: https://github.com/bevesce/TodoFlow
 
