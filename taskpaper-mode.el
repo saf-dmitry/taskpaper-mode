@@ -4971,7 +4971,9 @@ string. PROMPT can overwrite the default prompt."
                       desc (taskpaper-remove-trailing-tags
                             (taskpaper-remove-type-formatting
                              (taskpaper-remove-inline-markup desc))))
-                (when (equal desc "") (setq desc (format "@search(%s)" query)))
+                (when (equal desc "")
+                  (setq desc (format "@search(%s)"
+                                     (taskpaper-tag-value-escape query))))
                 ;; Add entry to the list
                 (push (cons desc query) queries)))))))
     (nreverse queries)))
