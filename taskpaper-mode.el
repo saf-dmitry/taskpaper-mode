@@ -4955,7 +4955,7 @@ string. PROMPT can overwrite the default prompt."
         (setq taskpaper-iquery-idle-timer nil)))))
 
 (defun taskpaper-get-buffer-queries ()
-  "Return a list of embedded buffer queries for selection."
+  "Return a list of embedded buffer queries."
   (let (desc query queries)
     (save-excursion
       (save-restriction
@@ -4971,9 +4971,9 @@ string. PROMPT can overwrite the default prompt."
                       desc (taskpaper-remove-trailing-tags
                             (taskpaper-remove-type-formatting
                              (taskpaper-remove-inline-markup desc))))
+                (when (equal desc "") (setq desc (format "@search(%s)" query)))
                 ;; Add entry to the list
-                (when (and desc (not (equal desc "")))
-                  (push (cons desc query) queries))))))))
+                (push (cons desc query) queries)))))))
     (nreverse queries)))
 
 (defun taskpaper-query-read-select ()
