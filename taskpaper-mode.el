@@ -2864,45 +2864,16 @@ If optional POS is inside a tag, ignore the tag."
                 (push tag tags)))))))
     (taskpaper-sort (taskpaper-uniquify tags))))
 
-(defun taskpaper-complete-tag-at-point (&optional attrs)
-  "Complete tag name or query attribute at point.
-Complete tag name or query attribute using completions from
-ATTRS. If ATTRS is not given, use tag names from the current
-buffer instead."
-  (interactive "*")
-  (setq attrs (or attrs (taskpaper-add-tag-prefix
-                         (taskpaper-get-buffer-tags (point)))))
-  (let* ((completion-ignore-case nil)
-         (re (format "@%s*" taskpaper-tag-name-char-regexp))
-         (pattern (if (taskpaper-in-regexp re)
-                      (match-string-no-properties 0) ""))
-         (completion-buffer-name "*Completions*")
-         (end (point)) completion)
-    ;; Close completion window, if any
-    (let ((window (get-buffer-window completion-buffer-name)))
-      (when window (delete-window window)))
-    ;; Check if there is something to complete
-    (unless (taskpaper-in-regexp re)
-      (user-error "Nothing to complete"))
-    ;; Try completion
-    (setq completion (try-completion pattern attrs))
-    (cond
-     ((eq completion t)
-      ;; Sole completion
-      (message "Sole completion"))
-     ((null completion)
-      ;; No completion found
-      (user-error "No match for %s" pattern))
-     ((not (string-equal pattern completion))
-      ;; Expand the current word to max match
-      (delete-region (- end (length pattern)) end) (insert completion))
-     (t
-      ;; List possible completions
-      (when completion-auto-help
-        (with-output-to-temp-buffer completion-buffer-name
-          (display-completion-list (all-completions pattern attrs))))
-      (set-window-dedicated-p
-       (get-buffer-window completion-buffer-name) 'soft)))))
+(defun taskpaper-tag-completion-at-point ()
+  "Completion function for tag names."
+  (let ((re (format "\\(?:^\\|\\s-\\)\\(@%s*\\)" taskpaper-tag-name-char-regexp)))
+    (if (taskpaper-in-regexp re)
+        (list (match-beginning 1) (match-end 1)
+              (completion-table-dynamic
+               (lambda (_)
+                 (taskpaper-add-tag-prefix (taskpaper-get-buffer-tags (point)))))
+              :exclusive 'no)
+      nil)))
 
 (defun taskpaper-fast-tag-selection ()
   "Provide fast selection interface for tags.
@@ -4859,6 +4830,35 @@ returns non-nil if the item matches."
                 (save-excursion (eval matcher)))
           (taskpaper-outline-show-context))))))
 
+(defun taskpaper-query-complete-attr (attrs)
+  "Complete query attribute at point.
+Complete query attribute using completions from ATTRS."
+  (let* ((re (format "@%s*" taskpaper-tag-name-char-regexp))
+         (pattern (if (taskpaper-in-regexp re)
+                      (match-string-no-properties 0) ""))
+         (completion-buffer-name "*Completions*")
+         (end (point)) completion)
+    (let ((window (get-buffer-window completion-buffer-name)))
+      (when window (delete-window window)))
+    (unless (taskpaper-in-regexp re)
+      (user-error "Nothing to complete"))
+    (setq completion (try-completion pattern attrs))
+    (cond
+     ((eq completion t)
+      (user-error "Sole completion"))
+     ((null completion)
+      (user-error "No completion found"))
+     ((not (string-equal pattern completion))
+      ;; Expand the current word to max match
+      (delete-region (- end (length pattern)) end) (insert completion))
+     (t
+      ;; List possible completions
+      (when completion-auto-help
+        (with-output-to-temp-buffer completion-buffer-name
+          (display-completion-list (all-completions pattern attrs))))
+      (set-window-dedicated-p
+       (get-buffer-window completion-buffer-name) 'soft)))))
+
 (defun taskpaper-query-read-query (&optional prompt)
   "Prompt the user for a search query.
 Validate input and provide tab completion for attributes in the
@@ -4871,7 +4871,7 @@ prompt."
         (prompt (or prompt "Query: ")) str)
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
-      (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
+      (lambda () (interactive) (taskpaper-query-complete-attr attrs)))
     (define-key map (kbd "C-c C-c")
       (lambda () (interactive) (delete-minibuffer-contents)))
     (define-key map (kbd "ESC ESC")
@@ -4930,7 +4930,7 @@ string. PROMPT can overwrite the default prompt."
         (win (get-buffer-window (current-buffer))) str)
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
-      (lambda () (interactive) (taskpaper-complete-tag-at-point attrs)))
+      (lambda () (interactive) (taskpaper-query-complete-attr attrs)))
     (define-key map (kbd "C-c C-c")
       (lambda () (interactive) (delete-minibuffer-contents)))
     (define-key map (kbd "ESC ESC")
@@ -5187,6 +5187,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   ;; Indentation settings
   (setq-local indent-tabs-mode t)
   (setq-local indent-line-function 'indent-to-left-margin)
+  ;; Completion settings
+  (setq-local completion-at-point-functions (list 'taskpaper-tag-completion-at-point))
   ;; Syntax table settings
   (set-syntax-table taskpaper-mode-syntax-table)
   ;; Next error function for sparse trees
@@ -5231,9 +5233,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 (define-key taskpaper-mode-map (kbd "M-<right>") 'taskpaper-outline-demote-subtree)
 (define-key taskpaper-mode-map (kbd "M-RET") 'taskpaper-new-task-same-level)
 (define-key taskpaper-mode-map (kbd "M-<return>") 'taskpaper-new-task-same-level)
-(define-key taskpaper-mode-map (kbd "C-M-i") 'taskpaper-complete-tag-at-point)
-(define-key taskpaper-mode-map (kbd "M-<tab>") 'taskpaper-complete-tag-at-point)
-(define-key taskpaper-mode-map (kbd "ESC TAB") 'taskpaper-complete-tag-at-point)
+(define-key taskpaper-mode-map (kbd "C-M-i") 'completion-at-point)
+(define-key taskpaper-mode-map (kbd "M-<tab>") 'completion-at-point)
 (define-key taskpaper-mode-map (kbd "S-<up>") 'taskpaper-outline-up-level)
 (define-key taskpaper-mode-map (kbd "ESC ESC") 'taskpaper-outline-show-all)
 
@@ -5341,8 +5342,6 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
      ["Copy Visible Items" taskpaper-outline-copy-visible
       :active (region-active-p)])
     ("Tags"
-     ["Complete Tag" taskpaper-complete-tag-at-point
-      :keys "<M-tab>"]
      ["Select Tag..." taskpaper-item-set-tag-fast-select]
      ["Remove Tag" taskpaper-remove-tag-at-point]
      "--"
