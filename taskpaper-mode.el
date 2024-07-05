@@ -455,7 +455,7 @@ is used by default. Only the current line is checked."
 
 (defsubst taskpaper-sort (list)
   "Non-destructively sort elements of LIST as strings."
-  (let ((res (copy-sequence list))) (sort res 'string-lessp)))
+  (let ((res (copy-sequence list))) (sort res #'string-lessp)))
 
 (defun taskpaper-trim-string (str)
   "Trim leading and trailing whitespaces from STR."
@@ -467,7 +467,7 @@ is used by default. Only the current line is checked."
 
 (defun taskpaper-unlogged-message (&rest args)
   "Display a message without logging."
-  (let ((message-log-max nil)) (apply 'message args)))
+  (let ((message-log-max nil)) (apply #'message args)))
 
 (defun taskpaper-escape-double-quotes (str)
   "Escape double quotation marks in STR."
@@ -538,7 +538,7 @@ has a property PROP whose value is one of the given values VALS."
 (defun taskpaper-remove-flyspell-overlays-in (begin end)
   "Remove Flyspell overlays in region between BEGIN and END."
   (and (bound-and-true-p flyspell-mode)
-       (fboundp 'flyspell-delete-region-overlays)
+       (fboundp #'flyspell-delete-region-overlays)
        (flyspell-delete-region-overlays begin end)))
 
 (defun taskpaper-remap (map &rest commands)
@@ -547,7 +547,7 @@ COMMANDS is a list of alternating OLDDEF NEWDEF command names."
   (let (olddef newdef)
     (while commands
       (setq olddef (pop commands) newdef (pop commands))
-      (if (fboundp 'command-remapping)
+      (if (fboundp #'command-remapping)
           (define-key map (vector 'remap olddef) newdef)
         (substitute-key-definition olddef newdef map global-map)))))
 
@@ -557,7 +557,7 @@ NAME should be a string or a list of strings."
   (cond
    ((stringp name)
     (if (string-prefix-p "@" name) name (concat "@" name)))
-   ((and (listp name) (cl-every 'stringp name))
+   ((and (listp name) (cl-every #'stringp name))
     (mapcar #'(lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) name))
    (t (error "Argument should be a string or a list of strings."))))
 
@@ -567,7 +567,7 @@ NAME should be a string or a list of strings."
   (cond
    ((stringp name)
     (string-remove-prefix "@" name))
-   ((and (listp name) (cl-every 'stringp name))
+   ((and (listp name) (cl-every #'stringp name))
     (mapcar #'(lambda (x) (string-remove-prefix "@" x)) name))
    (t (error "Argument should be a string or a list of strings."))))
 
@@ -871,7 +871,7 @@ If TAG is a number, get the corresponding match group."
 
 (defvar taskpaper-mouse-map-tag
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'taskpaper-query-tag-at-point)
+    (define-key map [mouse-1] #'taskpaper-query-tag-at-point)
     map)
   "Mouse events for tags.")
 
@@ -919,7 +919,7 @@ LINK should be an unescaped raw link. Recognized types are 'uri,
 
 (defvar taskpaper-mouse-map-link
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'taskpaper-open-link-at-point)
+    (define-key map [mouse-1] #'taskpaper-open-link-at-point)
     map)
   "Mouse events for links.")
 
@@ -1097,7 +1097,7 @@ LINK should be an unescaped raw link. Recognized types are 'uri,
 
 (defvar taskpaper-mouse-map-mark
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'taskpaper-item-toggle-done)
+    (define-key map [mouse-1] #'taskpaper-item-toggle-done)
     map)
   "Mouse events for task marks.")
 
@@ -1398,7 +1398,7 @@ If BACK is non-nil, move backward to the previous link."
     (message "Wrapping link search"))
   (setq taskpaper--link-search-failed nil)
   (let ((pos (point))
-        (func (if back 're-search-backward 're-search-forward))
+        (func (if back #'re-search-backward #'re-search-forward))
         (re taskpaper-any-link-regexp))
     (when (taskpaper-in-regexp re)
       ;; Don't stay stuck at link under cursor
@@ -1413,7 +1413,7 @@ If BACK is non-nil, move backward to the previous link."
 (defun taskpaper-previous-link ()
   "Move backward to the previous link."
   (interactive)
-  (funcall 'taskpaper-next-link t))
+  (funcall #'taskpaper-next-link t))
 
 ;;;; Inline images
 
@@ -1434,7 +1434,7 @@ image link is a plain link to file matching return value from
   (interactive)
   (unless (display-images-p) (error "Images cannot be displayed"))
   (taskpaper-remove-inline-images)
-  (when (fboundp 'clear-image-cache) (clear-image-cache))
+  (when (fboundp #'clear-image-cache) (clear-image-cache))
   (save-excursion
     (save-restriction
       (widen) (goto-char (point-min))
@@ -1478,10 +1478,10 @@ image link is a plain link to file matching return value from
 
 ;;;; Outline API and navigation
 
-(defalias 'taskpaper-outline-end-of-item 'outline-end-of-heading
+(defalias 'taskpaper-outline-end-of-item #'outline-end-of-heading
   "Move to the end of the current item.")
 
-(defalias 'taskpaper-outline-end-of-subtree 'outline-end-of-subtree
+(defalias 'taskpaper-outline-end-of-subtree #'outline-end-of-subtree
   "Move to the end of the current subtree.")
 
 (defun taskpaper-outline-next-item ()
@@ -1635,22 +1635,22 @@ indentation level."
 
 (eval-and-compile
   (defalias 'taskpaper-outline-show-all
-    (if (fboundp 'outline-show-all) 'outline-show-all 'show-all)
+    (if (fboundp #'outline-show-all) #'outline-show-all #'show-all)
     "Show all items in the buffer.")
   (defalias 'taskpaper-outline-show-item
-    (if (fboundp 'outline-show-entry) 'outline-show-entry 'show-entry)
+    (if (fboundp #'outline-show-entry) #'outline-show-entry #'show-entry)
     "Show the current item.")
   (defalias 'taskpaper-outline-show-children
-    (if (fboundp 'outline-show-children) 'outline-show-children 'show-children)
+    (if (fboundp #'outline-show-children) #'outline-show-children #'show-children)
     "Show all direct subitems of the current item.")
   (defalias 'taskpaper-outline-show-subtree
-    (if (fboundp 'outline-show-subtree) 'outline-show-subtree 'show-subtree)
+    (if (fboundp #'outline-show-subtree) #'outline-show-subtree #'show-subtree)
     "Show all subitems of the current item.")
   (defalias 'taskpaper-outline-hide-subtree
-    (if (fboundp 'outline-hide-subtree) 'outline-hide-subtree 'hide-subtree)
+    (if (fboundp #'outline-hide-subtree) #'outline-hide-subtree #'hide-subtree)
     "Hide all subitems of the current item.")
   (defalias 'taskpaper-outline-hide-sublevels
-    (if (fboundp 'outline-hide-sublevels) 'outline-hide-sublevels 'hide-sublevels))
+    (if (fboundp #'outline-hide-sublevels) #'outline-hide-sublevels #'hide-sublevels))
   "Hide everything but the top-level items in the buffer.")
 
 (defun taskpaper-outline-show-context ()
@@ -1765,7 +1765,7 @@ buffer. When point is on an item, rotate the current subtree."
         (taskpaper-outline-end-of-subtree) (setq end (point))
         (narrow-to-region begin end)))))
 
-(defalias 'taskpaper-mark-subtree 'outline-mark-subtree
+(defalias 'taskpaper-mark-subtree #'outline-mark-subtree
   "Mark the current subtree.
 Put point at the start of the current subtree, and mark at the
 end.")
@@ -1823,13 +1823,13 @@ end.")
   "Promote the current (possibly invisible) subtree."
   (interactive)
   (save-excursion
-    (taskpaper-outline-map-tree 'taskpaper-outline-promote)))
+    (taskpaper-outline-map-tree #'taskpaper-outline-promote)))
 
 (defun taskpaper-outline-demote-subtree ()
   "Demote the current (possibly invisible) subtree."
   (interactive)
   (save-excursion
-    (taskpaper-outline-map-tree 'taskpaper-outline-demote)))
+    (taskpaper-outline-map-tree #'taskpaper-outline-demote)))
 
 ;;;; Vertical tree movement
 
@@ -2238,25 +2238,25 @@ return the values as a list of strings."
 (defconst taskpaper-time-relative-month-regexp
   (concat
    "\\`\\(this\\|next\\|last\\) +"
-   "\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
+   "\\(" (mapconcat #'car parse-time-months "\\|") "\\)"
    "\\(?: +\\([0-9]?[0-9]\\)\\)?\\(?: \\|\\'\\)")
   "Regular expression matching relative month name.")
 
 (defconst taskpaper-time-relative-weekday-regexp
   (concat
    "\\`\\(this\\|next\\|last\\) +"
-   "\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
+   "\\(" (mapconcat #'car parse-time-weekdays "\\|") "\\)\\>")
   "Regular expression matching relative weekday.")
 
 (defconst taskpaper-time-month-regexp
   (concat
-   "\\`\\(" (mapconcat 'car parse-time-months "\\|") "\\)"
+   "\\`\\(" (mapconcat #'car parse-time-months "\\|") "\\)"
    "\\(?: +\\([0-9]?[0-9]\\)\\)?\\(?: \\|\\'\\)")
   "Regular expression matching month name.")
 
 (defconst taskpaper-time-weekday-regexp
   (concat
-   "\\`\\(" (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
+   "\\`\\(" (mapconcat #'car parse-time-weekdays "\\|") "\\)\\>")
   "Regular expression matching weekday.")
 
 (defconst taskpaper-time-iso-date-regexp
@@ -2289,7 +2289,7 @@ return the values as a list of strings."
    "\\`\\([-+]\\) *\\([0-9]+\\) *"
    "\\([hdwmqy]\\|mins?\\|minutes?\\|hours?\\|"
    "days?\\|weeks?\\|months?\\|quarters?\\|years?\\|"
-   (mapconcat 'car parse-time-weekdays "\\|") "\\)\\>")
+   (mapconcat #'car parse-time-weekdays "\\|") "\\)\\>")
   "Regular expression matching duration offset.")
 
 (defun taskpaper-time-expand-year (year)
@@ -2623,7 +2623,7 @@ this time, otherwise use current time."
           (setq time-str (replace-match "" t t time-str))))))
     ;; Get rid of out-of-range values
     ;; TODO: Account for daylight saving?
-    (decode-time (apply 'encode-time timedecode))))
+    (decode-time (apply #'encode-time timedecode))))
 
 (defun taskpaper-expand-time-string (time-str &optional timedecode with-time)
   "Parse and format time string TIME-STR.
@@ -2636,14 +2636,14 @@ included."
   (let ((time (taskpaper-parse-time-string time-str timedecode))
         (fmt (if (or with-time taskpaper-time--time-was-given)
                  "%Y-%m-%d %H:%M" "%Y-%m-%d")))
-    (format-time-string fmt (apply 'encode-time time))))
+    (format-time-string fmt (apply #'encode-time time))))
 
 (defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
   "Convert time string TIME-STR to a float number of seconds.
 Return the float number of seconds since the beginning of the
 epoch. When TIMEDECODE time value is given, calculate time based
 on this time, otherwise use current time."
-  (float-time (apply 'encode-time
+  (float-time (apply #'encode-time
                      (taskpaper-parse-time-string time-str timedecode))))
 
 (defun taskpaper-2ft (s)
@@ -2805,24 +2805,24 @@ time converted to an internal time."
               (progn
                 ;; Set temporary calendar keymap
                 (define-key calendar-mode-map (kbd "RET")
-                  'taskpaper-calendar-select)
+                  #'taskpaper-calendar-select)
                 (define-key calendar-mode-map [mouse-1]
-                  'taskpaper-calendar-select)
+                  #'taskpaper-calendar-select)
                 ;; Reset `taskpaper-calendar-selected-date'
                 (setq taskpaper-calendar-selected-date nil)
                 ;; Activate live preview
                 (add-hook 'post-command-hook
-                          'taskpaper-read-date-display)
+                          #'taskpaper-read-date-display)
                 (add-hook 'after-change-functions
-                          'taskpaper-read-date-recenter-calendar)
+                          #'taskpaper-read-date-recenter-calendar)
                 ;; Read date
                 (setq text (read-string prompt nil
                                         taskpaper-read-date-history)))
             ;; Deactivate live preview
             (remove-hook 'post-command-hook
-                         'taskpaper-read-date-display)
+                         #'taskpaper-read-date-display)
             (remove-hook 'after-change-functions
-                         'taskpaper-read-date-recenter-calendar)
+                         #'taskpaper-read-date-recenter-calendar)
             ;; Restore calendar keymap
             (setq calendar-mode-map old-map)
             ;; Remove live preview overlay
@@ -2832,7 +2832,7 @@ time converted to an internal time."
     ;; Convert and format date
     (let* ((date (taskpaper-parse-time-string text))
            (time (or taskpaper-calendar-selected-date
-                     (apply 'encode-time date)))
+                     (apply #'encode-time date)))
            (fmt (if (or with-time
                         (and taskpaper-time--time-was-given
                              (not taskpaper-calendar-selected-date)))
@@ -2887,7 +2887,7 @@ Return selected tag specifier."
       (setq show-trailing-whitespace nil)
       (let* ((maxlen
               (apply
-               'max (mapcar
+               #'max (mapcar
                      (lambda (x)
                        (if (stringp (car x)) (string-width (car x)) 0))
                      taskpaper-tag-alist)))
@@ -3227,7 +3227,7 @@ comparing."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (and (= (length a) (length b))
-         (cl-every 'taskpaper-num= a b)))
+         (cl-every #'taskpaper-num= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-num< (a b)
@@ -3238,7 +3238,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-num< a b))
+    (cl-every #'taskpaper-num< a b))
    (t nil)))
 
 (defun taskpaper-cslist-num<= (a b)
@@ -3249,7 +3249,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-num<= a b))
+    (cl-every #'taskpaper-num<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-num> (a b)
@@ -3260,7 +3260,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-num> a b))
+    (cl-every #'taskpaper-num> a b))
    (t nil)))
 
 (defun taskpaper-cslist-num>= (a b)
@@ -3271,7 +3271,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-num>= a b))
+    (cl-every #'taskpaper-num>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-num<> (a b)
@@ -3283,7 +3283,7 @@ comparing."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (or (not (= (length a) (length b)))
-        (not (cl-every 'taskpaper-num= a b))))
+        (not (cl-every #'taskpaper-num= a b))))
    (t nil)))
 
 (defun taskpaper-cslist-num-match-p (a b)
@@ -3349,7 +3349,7 @@ Case is significant."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (and (= (length a) (length b))
-         (cl-every 'taskpaper-string= a b)))
+         (cl-every #'taskpaper-string= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-string< (a b)
@@ -3359,7 +3359,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-string< a b))
+    (cl-every #'taskpaper-string< a b))
    (t nil)))
 
 (defun taskpaper-cslist-string<= (a b)
@@ -3369,7 +3369,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-string<= a b))
+    (cl-every #'taskpaper-string<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-string> (a b)
@@ -3379,7 +3379,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-string> a b))
+    (cl-every #'taskpaper-string> a b))
    (t nil)))
 
 (defun taskpaper-cslist-string>= (a b)
@@ -3389,7 +3389,7 @@ Case is significant."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-string>= a b))
+    (cl-every #'taskpaper-string>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-string<> (a b)
@@ -3400,7 +3400,7 @@ Case is significant."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (or (not (= (length a) (length b)))
-        (not (cl-every 'taskpaper-string= a b))))
+        (not (cl-every #'taskpaper-string= a b))))
    (t nil)))
 
 (defun taskpaper-cslist-string-match-p (a b)
@@ -3454,7 +3454,7 @@ Case is ignored."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (and (= (length a) (length b))
-         (cl-every 'taskpaper-istring= a b)))
+         (cl-every #'taskpaper-istring= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-istring< (a b)
@@ -3464,7 +3464,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-istring< a b))
+    (cl-every #'taskpaper-istring< a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring<= (a b)
@@ -3474,7 +3474,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-istring<= a b))
+    (cl-every #'taskpaper-istring<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring> (a b)
@@ -3484,7 +3484,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-istring> a b))
+    (cl-every #'taskpaper-istring> a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring>= (a b)
@@ -3494,7 +3494,7 @@ Case is ignored."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-istring>= a b))
+    (cl-every #'taskpaper-istring>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-istring<> (a b)
@@ -3505,7 +3505,7 @@ Case is ignored."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (or (not (= (length a) (length b)))
-        (not (cl-every 'taskpaper-istring= a b))))
+        (not (cl-every #'taskpaper-istring= a b))))
    (t nil)))
 
 (defun taskpaper-cslist-istring-match-p (a b)
@@ -3564,7 +3564,7 @@ comparing."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (and (= (length a) (length b))
-         (cl-every 'taskpaper-time= a b)))
+         (cl-every #'taskpaper-time= a b)))
    (t nil)))
 
 (defun taskpaper-cslist-time< (a b)
@@ -3575,7 +3575,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-time< a b))
+    (cl-every #'taskpaper-time< a b))
    (t nil)))
 
 (defun taskpaper-cslist-time<= (a b)
@@ -3586,7 +3586,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-time<= a b))
+    (cl-every #'taskpaper-time<= a b))
    (t nil)))
 
 (defun taskpaper-cslist-time> (a b)
@@ -3597,7 +3597,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-time> a b))
+    (cl-every #'taskpaper-time> a b))
    (t nil)))
 
 (defun taskpaper-cslist-time>= (a b)
@@ -3608,7 +3608,7 @@ comparing."
    ((and a b)
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
-    (cl-every 'taskpaper-time>= a b))
+    (cl-every #'taskpaper-time>= a b))
    (t nil)))
 
 (defun taskpaper-cslist-time<> (a b)
@@ -3620,7 +3620,7 @@ comparing."
     (setq a (taskpaper-attribute-value-to-list a)
           b (taskpaper-attribute-value-to-list b))
     (or (not (= (length a) (length b)))
-        (not (cl-every 'taskpaper-time= a b))))
+        (not (cl-every #'taskpaper-time= a b))))
    (t nil)))
 
 (defun taskpaper-cslist-time-match-p (a b)
@@ -3695,7 +3695,7 @@ The optional argument REVERSE will reverse the sort order.
 
 When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (when (buffer-narrowed-p) (widen))
-  (let ((case-func (if with-case 'identity 'downcase))
+  (let ((case-func (if with-case #'identity #'downcase))
         begin end)
     ;; Set boundaries
     (cond
@@ -3805,7 +3805,7 @@ The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
    '(lambda nil (taskpaper-item-sorting-key-text))
-   'string-collate-lessp nil reverse))
+   #'string-collate-lessp nil reverse))
 
 (defun taskpaper-sort-by-type (&optional reverse)
   "Sort items on a certain level by type.
@@ -3815,7 +3815,7 @@ order."
   (interactive "P")
   (taskpaper-sort-items-generic
    '(lambda nil (taskpaper-item-sorting-key-type))
-   '> nil reverse))
+   #'> nil reverse))
 
 ;;;; Outline path
 
@@ -3952,8 +3952,8 @@ subtree from the kill ring."
          (shift (- new-level old-level))
          (delta (if (> shift 0) -1 1))
          (func (if (> shift 0)
-                   'taskpaper-outline-demote
-                 'taskpaper-outline-promote))
+                   #'taskpaper-outline-demote
+                 #'taskpaper-outline-promote))
          begin end)
     ;; Paste the subtree and bound it
     (beginning-of-line 2)
@@ -4225,7 +4225,7 @@ otherwise fall back to the current buffer."
 (defun taskpaper-occur-remove-highlights (&optional _begin _end)
   "Remove the occur highlights from the buffer."
   (interactive)
-  (mapc 'delete-overlay taskpaper-occur-highlights)
+  (mapc #'delete-overlay taskpaper-occur-highlights)
   (setq taskpaper-occur-highlights nil))
 
 (defun taskpaper-occur (&optional regexp)
@@ -4244,7 +4244,7 @@ Return the number of matches."
        (match-beginning 0) (match-end 0))
       (taskpaper-outline-show-context))
     (add-hook 'before-change-functions
-              'taskpaper-occur-remove-highlights
+              #'taskpaper-occur-remove-highlights
               nil 'local)
     (when (called-interactively-p 'any)
       (message "%d %s" cnt (if (= cnt 1) "match" "matches")))
@@ -4257,8 +4257,8 @@ This function always goes back to the starting point when no
 match is found."
   (let* ((limit (if (< n 0) (point-min) (point-max)))
          (search-func (if (< n 0)
-                          'previous-single-char-property-change
-                        'next-single-char-property-change))
+                          #'previous-single-char-property-change
+                        #'next-single-char-property-change))
          (n (abs n)) (pos (point)) p1)
     (catch 'exit
       (while (setq p1 (funcall search-func (point) 'taskpaper-type))
@@ -4500,107 +4500,107 @@ characters repsesenting different types ot tokens."
 (defun taskpaper-query-relop-to-func (op &optional mod)
   "Convert relational operator OP and modifier MOD into function."
   (cond ((equal op "=")
-         (cond ((equal "i"  mod) 'taskpaper-istring=)
-               ((equal "s"  mod) 'taskpaper-string=)
-               ((equal "n"  mod) 'taskpaper-num=)
-               ((equal "d"  mod) 'taskpaper-time=)
-               ((equal "l"  mod) 'taskpaper-cslist-istring=)
-               ((equal "il" mod) 'taskpaper-cslist-istring=)
-               ((equal "sl" mod) 'taskpaper-cslist-string=)
-               ((equal "nl" mod) 'taskpaper-cslist-num=)
-               ((equal "dl" mod) 'taskpaper-cslist-time=)
-               (t                'taskpaper-istring=)))
+         (cond ((equal "i"  mod) #'taskpaper-istring=)
+               ((equal "s"  mod) #'taskpaper-string=)
+               ((equal "n"  mod) #'taskpaper-num=)
+               ((equal "d"  mod) #'taskpaper-time=)
+               ((equal "l"  mod) #'taskpaper-cslist-istring=)
+               ((equal "il" mod) #'taskpaper-cslist-istring=)
+               ((equal "sl" mod) #'taskpaper-cslist-string=)
+               ((equal "nl" mod) #'taskpaper-cslist-num=)
+               ((equal "dl" mod) #'taskpaper-cslist-time=)
+               (t                #'taskpaper-istring=)))
         ((equal op "<")
-         (cond ((equal "i"  mod) 'taskpaper-istring<)
-               ((equal "s"  mod) 'taskpaper-string<)
-               ((equal "n"  mod) 'taskpaper-num<)
-               ((equal "d"  mod) 'taskpaper-time<)
-               ((equal "l"  mod) 'taskpaper-cslist-istring<)
-               ((equal "il" mod) 'taskpaper-cslist-istring<)
-               ((equal "sl" mod) 'taskpaper-cslist-string<)
-               ((equal "nl" mod) 'taskpaper-cslist-num<)
-               ((equal "dl" mod) 'taskpaper-cslist-time<)
-               (t                'taskpaper-istring<)))
+         (cond ((equal "i"  mod) #'taskpaper-istring<)
+               ((equal "s"  mod) #'taskpaper-string<)
+               ((equal "n"  mod) #'taskpaper-num<)
+               ((equal "d"  mod) #'taskpaper-time<)
+               ((equal "l"  mod) #'taskpaper-cslist-istring<)
+               ((equal "il" mod) #'taskpaper-cslist-istring<)
+               ((equal "sl" mod) #'taskpaper-cslist-string<)
+               ((equal "nl" mod) #'taskpaper-cslist-num<)
+               ((equal "dl" mod) #'taskpaper-cslist-time<)
+               (t                #'taskpaper-istring<)))
         ((equal op "<=")
-         (cond ((equal "i"  mod) 'taskpaper-istring<=)
-               ((equal "s"  mod) 'taskpaper-string<=)
-               ((equal "n"  mod) 'taskpaper-num<=)
-               ((equal "d"  mod) 'taskpaper-time<=)
-               ((equal "l"  mod) 'taskpaper-cslist-istring<=)
-               ((equal "il" mod) 'taskpaper-cslist-istring<=)
-               ((equal "sl" mod) 'taskpaper-cslist-string<=)
-               ((equal "nl" mod) 'taskpaper-cslist-num<=)
-               ((equal "dl" mod) 'taskpaper-cslist-time<=)
-               (t                'taskpaper-istring<=)))
+         (cond ((equal "i"  mod) #'taskpaper-istring<=)
+               ((equal "s"  mod) #'taskpaper-string<=)
+               ((equal "n"  mod) #'taskpaper-num<=)
+               ((equal "d"  mod) #'taskpaper-time<=)
+               ((equal "l"  mod) #'taskpaper-cslist-istring<=)
+               ((equal "il" mod) #'taskpaper-cslist-istring<=)
+               ((equal "sl" mod) #'taskpaper-cslist-string<=)
+               ((equal "nl" mod) #'taskpaper-cslist-num<=)
+               ((equal "dl" mod) #'taskpaper-cslist-time<=)
+               (t                #'taskpaper-istring<=)))
         ((equal op ">")
-         (cond ((equal "i"  mod) 'taskpaper-istring>)
-               ((equal "s"  mod) 'taskpaper-string>)
-               ((equal "n"  mod) 'taskpaper-num>)
-               ((equal "d"  mod) 'taskpaper-time>)
-               ((equal "l"  mod) 'taskpaper-cslist-istring>)
-               ((equal "il" mod) 'taskpaper-cslist-istring>)
-               ((equal "sl" mod) 'taskpaper-cslist-string>)
-               ((equal "nl" mod) 'taskpaper-cslist-num>)
-               ((equal "dl" mod) 'taskpaper-cslist-time>)
-               (t                'taskpaper-istring>)))
+         (cond ((equal "i"  mod) #'taskpaper-istring>)
+               ((equal "s"  mod) #'taskpaper-string>)
+               ((equal "n"  mod) #'taskpaper-num>)
+               ((equal "d"  mod) #'taskpaper-time>)
+               ((equal "l"  mod) #'taskpaper-cslist-istring>)
+               ((equal "il" mod) #'taskpaper-cslist-istring>)
+               ((equal "sl" mod) #'taskpaper-cslist-string>)
+               ((equal "nl" mod) #'taskpaper-cslist-num>)
+               ((equal "dl" mod) #'taskpaper-cslist-time>)
+               (t                #'taskpaper-istring>)))
         ((equal op ">=")
-         (cond ((equal "i"  mod) 'taskpaper-istring>=)
-               ((equal "s"  mod) 'taskpaper-string>=)
-               ((equal "n"  mod) 'taskpaper-num>=)
-               ((equal "d"  mod) 'taskpaper-time>=)
-               ((equal "l"  mod) 'taskpaper-cslist-istring>=)
-               ((equal "il" mod) 'taskpaper-cslist-istring>=)
-               ((equal "sl" mod) 'taskpaper-cslist-string>=)
-               ((equal "nl" mod) 'taskpaper-cslist-num>=)
-               ((equal "dl" mod) 'taskpaper-cslist-time>=)
-               (t                'taskpaper-istring>=)))
+         (cond ((equal "i"  mod) #'taskpaper-istring>=)
+               ((equal "s"  mod) #'taskpaper-string>=)
+               ((equal "n"  mod) #'taskpaper-num>=)
+               ((equal "d"  mod) #'taskpaper-time>=)
+               ((equal "l"  mod) #'taskpaper-cslist-istring>=)
+               ((equal "il" mod) #'taskpaper-cslist-istring>=)
+               ((equal "sl" mod) #'taskpaper-cslist-string>=)
+               ((equal "nl" mod) #'taskpaper-cslist-num>=)
+               ((equal "dl" mod) #'taskpaper-cslist-time>=)
+               (t                #'taskpaper-istring>=)))
         ((equal op "!=")
-         (cond ((equal "i"  mod) 'taskpaper-istring<>)
-               ((equal "s"  mod) 'taskpaper-string<>)
-               ((equal "n"  mod) 'taskpaper-num<>)
-               ((equal "d"  mod) 'taskpaper-time<>)
-               ((equal "l"  mod) 'taskpaper-cslist-istring<>)
-               ((equal "il" mod) 'taskpaper-cslist-istring<>)
-               ((equal "sl" mod) 'taskpaper-cslist-string<>)
-               ((equal "nl" mod) 'taskpaper-cslist-num<>)
-               ((equal "dl" mod) 'taskpaper-cslist-time<>)
-               (t                'taskpaper-istring<>)))
+         (cond ((equal "i"  mod) #'taskpaper-istring<>)
+               ((equal "s"  mod) #'taskpaper-string<>)
+               ((equal "n"  mod) #'taskpaper-num<>)
+               ((equal "d"  mod) #'taskpaper-time<>)
+               ((equal "l"  mod) #'taskpaper-cslist-istring<>)
+               ((equal "il" mod) #'taskpaper-cslist-istring<>)
+               ((equal "sl" mod) #'taskpaper-cslist-string<>)
+               ((equal "nl" mod) #'taskpaper-cslist-num<>)
+               ((equal "dl" mod) #'taskpaper-cslist-time<>)
+               (t                #'taskpaper-istring<>)))
         ((equal op "contains")
-         (cond ((equal "i"  mod) 'taskpaper-istring-contain-p)
-               ((equal "s"  mod) 'taskpaper-string-contain-p)
-               ((equal "l"  mod) 'taskpaper-cslist-istring-contain-p)
-               ((equal "il" mod) 'taskpaper-cslist-istring-contain-p)
-               ((equal "sl" mod) 'taskpaper-cslist-string-contain-p)
-               ((equal "nl" mod) 'taskpaper-cslist-num-contain-p)
-               ((equal "dl" mod) 'taskpaper-cslist-time-contain-p)
-               (t                'taskpaper-istring-contain-p)))
+         (cond ((equal "i"  mod) #'taskpaper-istring-contain-p)
+               ((equal "s"  mod) #'taskpaper-string-contain-p)
+               ((equal "l"  mod) #'taskpaper-cslist-istring-contain-p)
+               ((equal "il" mod) #'taskpaper-cslist-istring-contain-p)
+               ((equal "sl" mod) #'taskpaper-cslist-string-contain-p)
+               ((equal "nl" mod) #'taskpaper-cslist-num-contain-p)
+               ((equal "dl" mod) #'taskpaper-cslist-time-contain-p)
+               (t                #'taskpaper-istring-contain-p)))
         ((equal op "beginswith")
-         (cond ((equal "i"  mod) 'taskpaper-istring-prefix-p)
-               ((equal "s"  mod) 'taskpaper-string-prefix-p)
-               ((equal "l"  mod) 'taskpaper-cslist-istring-head-p)
-               ((equal "il" mod) 'taskpaper-cslist-istring-head-p)
-               ((equal "sl" mod) 'taskpaper-cslist-string-head-p)
-               ((equal "nl" mod) 'taskpaper-cslist-num-head-p)
-               ((equal "dl" mod) 'taskpaper-cslist-time-head-p)
-               (t                'taskpaper-istring-prefix-p)))
+         (cond ((equal "i"  mod) #'taskpaper-istring-prefix-p)
+               ((equal "s"  mod) #'taskpaper-string-prefix-p)
+               ((equal "l"  mod) #'taskpaper-cslist-istring-head-p)
+               ((equal "il" mod) #'taskpaper-cslist-istring-head-p)
+               ((equal "sl" mod) #'taskpaper-cslist-string-head-p)
+               ((equal "nl" mod) #'taskpaper-cslist-num-head-p)
+               ((equal "dl" mod) #'taskpaper-cslist-time-head-p)
+               (t                #'taskpaper-istring-prefix-p)))
         ((equal op "endswith")
-         (cond ((equal "i"  mod) 'taskpaper-istring-suffix-p)
-               ((equal "s"  mod) 'taskpaper-string-suffix-p)
-               ((equal "l"  mod) 'taskpaper-cslist-istring-tail-p)
-               ((equal "il" mod) 'taskpaper-cslist-istring-tail-p)
-               ((equal "sl" mod) 'taskpaper-cslist-string-tail-p)
-               ((equal "nl" mod) 'taskpaper-cslist-num-tail-p)
-               ((equal "dl" mod) 'taskpaper-cslist-time-tail-p)
-               (t                'taskpaper-istring-suffix-p)))
+         (cond ((equal "i"  mod) #'taskpaper-istring-suffix-p)
+               ((equal "s"  mod) #'taskpaper-string-suffix-p)
+               ((equal "l"  mod) #'taskpaper-cslist-istring-tail-p)
+               ((equal "il" mod) #'taskpaper-cslist-istring-tail-p)
+               ((equal "sl" mod) #'taskpaper-cslist-string-tail-p)
+               ((equal "nl" mod) #'taskpaper-cslist-num-tail-p)
+               ((equal "dl" mod) #'taskpaper-cslist-time-tail-p)
+               (t                #'taskpaper-istring-suffix-p)))
         ((member op '("matches" "~="))
-         (cond ((equal "i"  mod) 'taskpaper-istring-match-p)
-               ((equal "s"  mod) 'taskpaper-string-match-p)
-               ((equal "l"  mod) 'taskpaper-cslist-istring-match-p)
-               ((equal "il" mod) 'taskpaper-cslist-istring-match-p)
-               ((equal "sl" mod) 'taskpaper-cslist-string-match-p)
-               ((equal "nl" mod) 'taskpaper-cslist-num-match-p)
-               ((equal "dl" mod) 'taskpaper-cslist-time-match-p)
-               (t                'taskpaper-istring-match-p)))
+         (cond ((equal "i"  mod) #'taskpaper-istring-match-p)
+               ((equal "s"  mod) #'taskpaper-string-match-p)
+               ((equal "l"  mod) #'taskpaper-cslist-istring-match-p)
+               ((equal "il" mod) #'taskpaper-cslist-istring-match-p)
+               ((equal "sl" mod) #'taskpaper-cslist-string-match-p)
+               ((equal "nl" mod) #'taskpaper-cslist-num-match-p)
+               ((equal "dl" mod) #'taskpaper-cslist-time-match-p)
+               (t                #'taskpaper-istring-match-p)))
         (t (error "Invalid relational operator: %s" op))))
 
 (defun taskpaper-query-bool-to-func (bool)
@@ -4882,12 +4882,12 @@ prompt."
           (progn
             ;; Add hooks
             (add-hook 'after-change-functions
-                      'taskpaper-read-query-propertize)
+                      #'taskpaper-read-query-propertize)
             ;; Read query string
             (setq str (read-string prompt nil taskpaper-query-history nil t)))
         ;; Remove hooks
         (remove-hook 'after-change-functions
-                     'taskpaper-read-query-propertize))
+                     #'taskpaper-read-query-propertize))
       str)))
 
 (defun taskpaper-query (&optional query)
@@ -4942,14 +4942,14 @@ string. PROMPT can overwrite the default prompt."
             ;; Add hooks and set idle timer
             (setq taskpaper-iquery-idle-timer
                   (run-with-idle-timer
-                   taskpaper-iquery-delay t 'taskpaper-iquery-query))
+                   taskpaper-iquery-delay t #'taskpaper-iquery-query))
             (add-hook 'after-change-functions
-                      'taskpaper-read-query-propertize 'append)
+                      #'taskpaper-read-query-propertize 'append)
             ;; Read query string
             (read-string prompt query taskpaper-query-history nil t))
         ;; Remove hooks and cancel idle timer
         (remove-hook 'after-change-functions
-                     'taskpaper-read-query-propertize)
+                     #'taskpaper-read-query-propertize)
         (when (timerp taskpaper-iquery-idle-timer)
           (cancel-timer taskpaper-iquery-idle-timer))
         (setq taskpaper-iquery-idle-timer nil)))))
@@ -5086,7 +5086,7 @@ combination."
 
 (eval-after-load "bookmark"
   '(if (boundp 'bookmark-after-jump-hook)
-       (add-hook 'bookmark-after-jump-hook 'taskpaper-bookmark-jump-unhide)
+       (add-hook 'bookmark-after-jump-hook #'taskpaper-bookmark-jump-unhide)
      (defadvice bookmark-jump (after taskpaper-make-visible activate)
        "Make the position visible."
        (taskpaper-bookmark-jump-unhide))))
@@ -5109,7 +5109,7 @@ region."
   (interactive)
   (cond ((region-active-p)
          (taskpaper-outline-map-region
-          'taskpaper-outline-demote (region-beginning) (region-end)))
+          #'taskpaper-outline-demote (region-beginning) (region-end)))
         ((outline-on-heading-p)
          (call-interactively #'taskpaper-outline-demote))
         (t (call-interactively #'indent-for-tab-command))))
@@ -5121,7 +5121,7 @@ active region."
   (interactive)
   (cond ((region-active-p)
          (taskpaper-outline-map-region
-          'taskpaper-outline-promote (region-beginning) (region-end)))
+          #'taskpaper-outline-promote (region-beginning) (region-end)))
         ((outline-on-heading-p)
          (call-interactively #'taskpaper-outline-promote))))
 
@@ -5183,16 +5183,16 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (setq-local adaptive-fill-regexp "[ \t]*\\(- \\)?")
   ;; Font lock settings
   (taskpaper-set-font-lock-defaults)
-  (setq-local font-lock-unfontify-region-function 'taskpaper-unfontify-region)
+  (setq-local font-lock-unfontify-region-function #'taskpaper-unfontify-region)
   ;; Indentation settings
   (setq-local indent-tabs-mode t)
-  (setq-local indent-line-function 'indent-to-left-margin)
+  (setq-local indent-line-function #'indent-to-left-margin)
   ;; Completion settings
-  (setq-local completion-at-point-functions (list 'taskpaper-tag-completion-at-point))
+  (setq-local completion-at-point-functions (list #'taskpaper-tag-completion-at-point))
   ;; Syntax table settings
   (set-syntax-table taskpaper-mode-syntax-table)
   ;; Next error function for sparse trees
-  (setq-local next-error-function 'taskpaper-occur-next-match)
+  (setq-local next-error-function #'taskpaper-occur-next-match)
   ;; Imenu settings
   (setq imenu-generic-expression (list (list nil taskpaper-project-regexp 1)))
   ;; I-search settings
@@ -5205,9 +5205,9 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (taskpaper-set-startup-visibility)
   (when taskpaper-startup-with-inline-images (taskpaper-display-inline-images))
   ;; Hooks
-  (add-hook 'change-major-mode-hook 'taskpaper-outline-show-all nil t)
-  (add-hook 'change-major-mode-hook 'taskpaper-remove-inline-images nil t)
-  (add-hook 'change-major-mode-hook 'taskpaper-occur-remove-highlights nil t)
+  (add-hook 'change-major-mode-hook #'taskpaper-outline-show-all nil t)
+  (add-hook 'change-major-mode-hook #'taskpaper-remove-inline-images nil t)
+  (add-hook 'change-major-mode-hook #'taskpaper-occur-remove-highlights nil t)
   (add-hook 'change-major-mode-hook
             #'(lambda () (remove-from-invisibility-spec 'taskpaper-markup) nil t))
   (run-hooks 'taskpaper-mode-hook))
@@ -5217,74 +5217,74 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
 
 ;;;; Key bindings
 
-(define-key taskpaper-mode-map (kbd "TAB") 'taskpaper-tab)
-(define-key taskpaper-mode-map (kbd "<tab>") 'taskpaper-tab)
-(define-key taskpaper-mode-map (kbd "S-<tab>") 'taskpaper-shifttab)
-(define-key taskpaper-mode-map (kbd "<backtab>") 'taskpaper-shifttab)
-(define-key taskpaper-mode-map (kbd "<S-iso-lefttab>") 'taskpaper-shifttab)
-(define-key taskpaper-mode-map (kbd "C-<tab>") 'taskpaper-cycle)
-(define-key taskpaper-mode-map (kbd "C-<up>") 'taskpaper-outline-backward-same-level)
-(define-key taskpaper-mode-map (kbd "C-<down>") 'taskpaper-outline-forward-same-level)
-(define-key taskpaper-mode-map (kbd "RET") 'taskpaper-new-item-same-level)
-(define-key taskpaper-mode-map (kbd "<return>") 'taskpaper-new-item-same-level)
-(define-key taskpaper-mode-map (kbd "M-<up>") 'taskpaper-outline-move-subtree-up)
-(define-key taskpaper-mode-map (kbd "M-<down>") 'taskpaper-outline-move-subtree-down)
-(define-key taskpaper-mode-map (kbd "M-<left>") 'taskpaper-outline-promote-subtree)
-(define-key taskpaper-mode-map (kbd "M-<right>") 'taskpaper-outline-demote-subtree)
-(define-key taskpaper-mode-map (kbd "M-RET") 'taskpaper-new-task-same-level)
-(define-key taskpaper-mode-map (kbd "M-<return>") 'taskpaper-new-task-same-level)
-(define-key taskpaper-mode-map (kbd "C-M-i") 'completion-at-point)
-(define-key taskpaper-mode-map (kbd "M-<tab>") 'completion-at-point)
-(define-key taskpaper-mode-map (kbd "S-<up>") 'taskpaper-outline-up-level)
-(define-key taskpaper-mode-map (kbd "ESC ESC") 'taskpaper-outline-show-all)
+(define-key taskpaper-mode-map (kbd "TAB") #'taskpaper-tab)
+(define-key taskpaper-mode-map (kbd "<tab>") #'taskpaper-tab)
+(define-key taskpaper-mode-map (kbd "S-<tab>") #'taskpaper-shifttab)
+(define-key taskpaper-mode-map (kbd "<backtab>") #'taskpaper-shifttab)
+(define-key taskpaper-mode-map (kbd "<S-iso-lefttab>") #'taskpaper-shifttab)
+(define-key taskpaper-mode-map (kbd "C-<tab>") #'taskpaper-cycle)
+(define-key taskpaper-mode-map (kbd "C-<up>") #'taskpaper-outline-backward-same-level)
+(define-key taskpaper-mode-map (kbd "C-<down>") #'taskpaper-outline-forward-same-level)
+(define-key taskpaper-mode-map (kbd "RET") #'taskpaper-new-item-same-level)
+(define-key taskpaper-mode-map (kbd "<return>") #'taskpaper-new-item-same-level)
+(define-key taskpaper-mode-map (kbd "M-<up>") #'taskpaper-outline-move-subtree-up)
+(define-key taskpaper-mode-map (kbd "M-<down>") #'taskpaper-outline-move-subtree-down)
+(define-key taskpaper-mode-map (kbd "M-<left>") #'taskpaper-outline-promote-subtree)
+(define-key taskpaper-mode-map (kbd "M-<right>") #'taskpaper-outline-demote-subtree)
+(define-key taskpaper-mode-map (kbd "M-RET") #'taskpaper-new-task-same-level)
+(define-key taskpaper-mode-map (kbd "M-<return>") #'taskpaper-new-task-same-level)
+(define-key taskpaper-mode-map (kbd "C-M-i") #'completion-at-point)
+(define-key taskpaper-mode-map (kbd "M-<tab>") #'completion-at-point)
+(define-key taskpaper-mode-map (kbd "S-<up>") #'taskpaper-outline-up-level)
+(define-key taskpaper-mode-map (kbd "ESC ESC") #'taskpaper-outline-show-all)
 
-(define-key taskpaper-mode-map (kbd "C-c SPC") 'taskpaper-show-in-calendar)
-(define-key taskpaper-mode-map (kbd "C-c #") 'taskpaper-narrow-to-subtree)
-(define-key taskpaper-mode-map (kbd "C-c *") 'taskpaper-outline-hide-other)
-(define-key taskpaper-mode-map (kbd "C-c >") 'taskpaper-goto-calendar)
-(define-key taskpaper-mode-map (kbd "C-c <") 'taskpaper-date-from-calendar)
-(define-key taskpaper-mode-map (kbd "C-c .") 'taskpaper-read-date-insert-timestamp)
-(define-key taskpaper-mode-map (kbd "C-c @") 'taskpaper-item-set-tag-fast-select)
-(define-key taskpaper-mode-map (kbd "C-c /") 'taskpaper-occur)
-(define-key taskpaper-mode-map (kbd "C-c ?") 'taskpaper-query-read-select)
-(define-key taskpaper-mode-map (kbd "C-c !") 'taskpaper-query-fast-select)
-(define-key taskpaper-mode-map (kbd "C-c %") 'taskpaper-mark-ring-push)
-(define-key taskpaper-mode-map (kbd "C-c [") 'taskpaper-mark-ring-goto)
+(define-key taskpaper-mode-map (kbd "C-c SPC") #'taskpaper-show-in-calendar)
+(define-key taskpaper-mode-map (kbd "C-c #") #'taskpaper-narrow-to-subtree)
+(define-key taskpaper-mode-map (kbd "C-c *") #'taskpaper-outline-hide-other)
+(define-key taskpaper-mode-map (kbd "C-c >") #'taskpaper-goto-calendar)
+(define-key taskpaper-mode-map (kbd "C-c <") #'taskpaper-date-from-calendar)
+(define-key taskpaper-mode-map (kbd "C-c .") #'taskpaper-read-date-insert-timestamp)
+(define-key taskpaper-mode-map (kbd "C-c @") #'taskpaper-item-set-tag-fast-select)
+(define-key taskpaper-mode-map (kbd "C-c /") #'taskpaper-occur)
+(define-key taskpaper-mode-map (kbd "C-c ?") #'taskpaper-query-read-select)
+(define-key taskpaper-mode-map (kbd "C-c !") #'taskpaper-query-fast-select)
+(define-key taskpaper-mode-map (kbd "C-c %") #'taskpaper-mark-ring-push)
+(define-key taskpaper-mode-map (kbd "C-c [") #'taskpaper-mark-ring-goto)
 
-(define-key taskpaper-mode-map (kbd "C-c C-a") 'taskpaper-outline-show-all)
-(define-key taskpaper-mode-map (kbd "C-c C-z") 'taskpaper-outline-overview)
-(define-key taskpaper-mode-map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
-(define-key taskpaper-mode-map (kbd "C-c C-d") 'taskpaper-item-toggle-done)
-(define-key taskpaper-mode-map (kbd "C-c C-j") 'taskpaper-goto)
-(define-key taskpaper-mode-map (kbd "C-c C-l") 'taskpaper-insert-file-link-at-point)
-(define-key taskpaper-mode-map (kbd "C-c C-m") 'taskpaper-mark-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-o") 'taskpaper-open-link-at-point)
-(define-key taskpaper-mode-map (kbd "C-c C-i") 'taskpaper-iquery)
-(define-key taskpaper-mode-map (kbd "C-c C-q") 'taskpaper-query)
-(define-key taskpaper-mode-map (kbd "C-c C-r") 'taskpaper-remove-tag-at-point)
-(define-key taskpaper-mode-map (kbd "C-c C-t") 'taskpaper-query-tag-at-point)
-(define-key taskpaper-mode-map (kbd "C-c C-w") 'taskpaper-refile-subtree)
-(define-key taskpaper-mode-map (kbd "C-c M-w") 'taskpaper-refile-subtree-copy)
+(define-key taskpaper-mode-map (kbd "C-c C-a") #'taskpaper-outline-show-all)
+(define-key taskpaper-mode-map (kbd "C-c C-z") #'taskpaper-outline-overview)
+(define-key taskpaper-mode-map (kbd "C-c C-c") #'taskpaper-occur-remove-highlights)
+(define-key taskpaper-mode-map (kbd "C-c C-d") #'taskpaper-item-toggle-done)
+(define-key taskpaper-mode-map (kbd "C-c C-j") #'taskpaper-goto)
+(define-key taskpaper-mode-map (kbd "C-c C-l") #'taskpaper-insert-file-link-at-point)
+(define-key taskpaper-mode-map (kbd "C-c C-m") #'taskpaper-mark-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-o") #'taskpaper-open-link-at-point)
+(define-key taskpaper-mode-map (kbd "C-c C-i") #'taskpaper-iquery)
+(define-key taskpaper-mode-map (kbd "C-c C-q") #'taskpaper-query)
+(define-key taskpaper-mode-map (kbd "C-c C-r") #'taskpaper-remove-tag-at-point)
+(define-key taskpaper-mode-map (kbd "C-c C-t") #'taskpaper-query-tag-at-point)
+(define-key taskpaper-mode-map (kbd "C-c C-w") #'taskpaper-refile-subtree)
+(define-key taskpaper-mode-map (kbd "C-c M-w") #'taskpaper-refile-subtree-copy)
 
-(define-key taskpaper-mode-map (kbd "C-c C-f p") 'taskpaper-item-format-as-project)
-(define-key taskpaper-mode-map (kbd "C-c C-f t") 'taskpaper-item-format-as-task)
-(define-key taskpaper-mode-map (kbd "C-c C-f n") 'taskpaper-item-format-as-note)
+(define-key taskpaper-mode-map (kbd "C-c C-f p") #'taskpaper-item-format-as-project)
+(define-key taskpaper-mode-map (kbd "C-c C-f t") #'taskpaper-item-format-as-task)
+(define-key taskpaper-mode-map (kbd "C-c C-f n") #'taskpaper-item-format-as-note)
 
-(define-key taskpaper-mode-map (kbd "C-c C-s a") 'taskpaper-sort-by-text)
-(define-key taskpaper-mode-map (kbd "C-c C-s t") 'taskpaper-sort-by-type)
+(define-key taskpaper-mode-map (kbd "C-c C-s a") #'taskpaper-sort-by-text)
+(define-key taskpaper-mode-map (kbd "C-c C-s t") #'taskpaper-sort-by-type)
 
-(define-key taskpaper-mode-map (kbd "C-c C-x a") 'taskpaper-archive-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x v") 'taskpaper-outline-copy-visible)
+(define-key taskpaper-mode-map (kbd "C-c C-x a") #'taskpaper-archive-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-x v") #'taskpaper-outline-copy-visible)
 
-(define-key taskpaper-mode-map (kbd "C-c C-x C-c") 'taskpaper-clone-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x C-w") 'taskpaper-cut-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x M-w") 'taskpaper-copy-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x C-y") 'taskpaper-paste-subtree)
-(define-key taskpaper-mode-map (kbd "C-c C-x C-n") 'taskpaper-next-link)
-(define-key taskpaper-mode-map (kbd "C-c C-x C-p") 'taskpaper-previous-link)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-c") #'taskpaper-clone-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-w") #'taskpaper-cut-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-x M-w") #'taskpaper-copy-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-y") #'taskpaper-paste-subtree)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-n") #'taskpaper-next-link)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-p") #'taskpaper-previous-link)
 
-(define-key taskpaper-mode-map (kbd "C-c C-x C-m") 'taskpaper-toggle-markup-hiding)
-(define-key taskpaper-mode-map (kbd "C-c C-x C-v") 'taskpaper-toggle-inline-images)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-m") #'taskpaper-toggle-markup-hiding)
+(define-key taskpaper-mode-map (kbd "C-c C-x C-v") #'taskpaper-toggle-inline-images)
 
 ;;;; Menu
 
@@ -5492,7 +5492,7 @@ this option will be ignored."
              taskpaper-agenda-files
            (error "Invalid value of `taskpaper-agenda-files'"))))
     (setq files
-          (apply 'append
+          (apply #'append
                  (mapcar (lambda (f)
                            (if (file-directory-p f)
                                (directory-files
@@ -5694,28 +5694,28 @@ the user will not be touched."
 
 (defvar taskpaper-agenda-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "r") 'taskpaper-agenda-redo)
-    (define-key map (kbd "a") 'taskpaper-outline-show-all)
-    (define-key map (kbd "c") 'taskpaper-show-in-calendar)
-    (define-key map (kbd ">") 'taskpaper-goto-calendar)
-    (define-key map (kbd "F") 'taskpaper-agenda-follow-mode)
-    (define-key map (kbd "p") 'taskpaper-agenda-previous-line)
-    (define-key map (kbd "n") 'taskpaper-agenda-next-line)
-    (define-key map (kbd "<up>") 'taskpaper-agenda-previous-line)
-    (define-key map (kbd "<down>") 'taskpaper-agenda-next-line)
-    (define-key map (kbd "SPC") 'taskpaper-agenda-show)
-    (define-key map (kbd "TAB") 'taskpaper-agenda-goto)
-    (define-key map (kbd "RET") 'taskpaper-agenda-switch-to)
-    (define-key map (kbd "I") 'taskpaper-iquery)
-    (define-key map (kbd "Q") 'taskpaper-query)
-    (define-key map (kbd "S") 'taskpaper-query-fast-select)
-    (define-key map (kbd "t") 'taskpaper-query-tag-at-point)
-    (define-key map (kbd "/") 'taskpaper-occur)
-    (define-key map (kbd "C-c C-c") 'taskpaper-occur-remove-highlights)
-    (define-key map (kbd "v") 'taskpaper-outline-copy-visible)
-    (define-key map (kbd "o") 'delete-other-windows)
-    (define-key map (kbd "q") 'taskpaper-agenda-quit)
-    (define-key map (kbd "x") 'taskpaper-agenda-exit)
+    (define-key map (kbd "r") #'taskpaper-agenda-redo)
+    (define-key map (kbd "a") #'taskpaper-outline-show-all)
+    (define-key map (kbd "c") #'taskpaper-show-in-calendar)
+    (define-key map (kbd ">") #'taskpaper-goto-calendar)
+    (define-key map (kbd "F") #'taskpaper-agenda-follow-mode)
+    (define-key map (kbd "p") #'taskpaper-agenda-previous-line)
+    (define-key map (kbd "n") #'taskpaper-agenda-next-line)
+    (define-key map (kbd "<up>") #'taskpaper-agenda-previous-line)
+    (define-key map (kbd "<down>") #'taskpaper-agenda-next-line)
+    (define-key map (kbd "SPC") #'taskpaper-agenda-show)
+    (define-key map (kbd "TAB") #'taskpaper-agenda-goto)
+    (define-key map (kbd "RET") #'taskpaper-agenda-switch-to)
+    (define-key map (kbd "I") #'taskpaper-iquery)
+    (define-key map (kbd "Q") #'taskpaper-query)
+    (define-key map (kbd "S") #'taskpaper-query-fast-select)
+    (define-key map (kbd "t") #'taskpaper-query-tag-at-point)
+    (define-key map (kbd "/") #'taskpaper-occur)
+    (define-key map (kbd "C-c C-c") #'taskpaper-occur-remove-highlights)
+    (define-key map (kbd "v") #'taskpaper-outline-copy-visible)
+    (define-key map (kbd "o") #'delete-other-windows)
+    (define-key map (kbd "q") #'taskpaper-agenda-quit)
+    (define-key map (kbd "x") #'taskpaper-agenda-exit)
     map)
   "Keymap for TaskPaper Agenda mode.")
 

@@ -653,8 +653,8 @@ If a directory is part of this list, all files with the extension `.taskpaper` i
 The following commands enter the Agenda mode. The command `taskpaper-agenda-search` prompts the user for a search query. The command `taskpaper-agenda-select` let the user select a predefined query via the custom query dialog described above. You may consider to assign global key bindings to these commands in your init file:
 
 ```elisp
-(global-set-key (kbd "C-c a") 'taskpaper-agenda-search)
-(global-set-key (kbd "C-c s") 'taskpaper-agenda-select)
+(global-set-key (kbd "C-c a") #'taskpaper-agenda-search)
+(global-set-key (kbd "C-c s") #'taskpaper-agenda-select)
 ```
 
 Two user options control how the Agenda mode buffer is displayed and whether the window configuration is restored when the Agenda mode exits: `taskpaper-agenda-window-setup` and `taskpaper-agenda-restore-windows-after-quit`. For details see the documentation strings of these user options.

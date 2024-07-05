@@ -200,14 +200,14 @@ The following two functions are similar to `taskpaper-outline-promote-subtree` a
   "Promote all items in region."
   (interactive)
   (taskpaper-outline-map-region
-   'taskpaper-outline-promote
+   #'taskpaper-outline-promote
    (region-beginning) (region-end)))
 
 (defun my-taskpaper-outline-demote-region ()
   "Demote all items in region."
   (interactive)
   (taskpaper-outline-map-region
-   'taskpaper-outline-demote
+   #'taskpaper-outline-demote
    (region-beginning) (region-end)))
 ```
 
@@ -288,7 +288,7 @@ The following code adds `my-taskpaper-blocker-func-1` function to the hook. The 
           (throw 'exit nil))))
     t))
 
-(add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-1)
+(add-hook 'taskpaper-blocker-hook #'my-taskpaper-blocker-func-1)
 ```
 
 Sometimes actions need to be completed in a predetermined order: The first task must be finished before you can move on to the next. In this case you can instruct another blocker function to check if all previous actionable siblings are completed:
@@ -303,7 +303,7 @@ Sometimes actions need to be completed in a predetermined order: The first task 
         (throw 'exit nil)))
     t))
 
-(add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-2)
+(add-hook 'taskpaper-blocker-hook #'my-taskpaper-blocker-func-2)
 ```
 
 Attributes of the current item can be checked as well. The following blocker function will ensure that neither the item itself nor any of its ancestors is tagged as `@waiting` or `@blocked`:
@@ -314,7 +314,7 @@ Attributes of the current item can be checked as well. The following blocker fun
   (goto-char pos)
   (taskpaper-query-item-match-p "not @waiting and not @blocked"))
 
-(add-hook 'taskpaper-blocker-hook 'my-taskpaper-blocker-func-3)
+(add-hook 'taskpaper-blocker-hook #'my-taskpaper-blocker-func-3)
 ```
 
 ### Sorting
@@ -328,10 +328,10 @@ In addition to the existing sorting functions `taskpaper-sort-by-text` and `task
   (taskpaper-sort-items-generic
    '(lambda nil
       (or (taskpaper-item-get-attribute "priority") "99"))
-   'taskpaper-num<))
+   #'taskpaper-num<))
 
 (define-key taskpaper-mode-map (kbd "C-c C-s p")
-            'my-taskpaper-sort-by-priority)
+            #'my-taskpaper-sort-by-priority)
 ```
 
 The next function sorts items according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
@@ -346,7 +346,7 @@ The next function sorts items according to their due dates. The sorting is done 
    'taskpaper-time<))
 
 (define-key taskpaper-mode-map (kbd "C-c C-s d")
-            'my-taskpaper-sort-by-due-date)
+            #'my-taskpaper-sort-by-due-date)
 ```
 
 As further examples see the `taskpaper-sort-by-text` and `taskpaper-sort-by-type` function definitions.
@@ -410,7 +410,7 @@ However, if you want to process some URIs or URI-like locators inside Emacs, you
     (org-open-link-from-string (format "[[%s]]" uri))
     t))
 
-(add-hook 'taskpaper-open-uri-hook 'my-org-open-uri)
+(add-hook 'taskpaper-open-uri-hook #'my-org-open-uri)
 ```
 
 See the documentation string of `taskpaper-open-uri-hook` for more details.
