@@ -1634,24 +1634,18 @@ indentation level."
 ;;;; Folding
 
 (eval-and-compile
-  (defalias 'taskpaper-outline-show-all
-    (if (fboundp #'outline-show-all) #'outline-show-all #'show-all)
+  (defalias 'taskpaper-outline-show-all #'outline-show-all
     "Show all items in the buffer.")
-  (defalias 'taskpaper-outline-show-item
-    (if (fboundp #'outline-show-entry) #'outline-show-entry #'show-entry)
+  (defalias 'taskpaper-outline-show-item #'outline-show-entry
     "Show the current item.")
-  (defalias 'taskpaper-outline-show-children
-    (if (fboundp #'outline-show-children) #'outline-show-children #'show-children)
+  (defalias 'taskpaper-outline-show-children #'outline-show-children
     "Show all direct subitems of the current item.")
-  (defalias 'taskpaper-outline-show-subtree
-    (if (fboundp #'outline-show-subtree) #'outline-show-subtree #'show-subtree)
+  (defalias 'taskpaper-outline-show-subtree #'outline-show-subtree
     "Show all subitems of the current item.")
-  (defalias 'taskpaper-outline-hide-subtree
-    (if (fboundp #'outline-hide-subtree) #'outline-hide-subtree #'hide-subtree)
+  (defalias 'taskpaper-outline-hide-subtree #'outline-hide-subtree
     "Hide all subitems of the current item.")
-  (defalias 'taskpaper-outline-hide-sublevels
-    (if (fboundp #'outline-hide-sublevels) #'outline-hide-sublevels #'hide-sublevels))
-  "Hide everything but the top-level items in the buffer.")
+  (defalias 'taskpaper-outline-hide-sublevels #'outline-hide-sublevels
+    "Hide everything but the top-level items in the buffer."))
 
 (defun taskpaper-outline-show-context ()
   "Show the current item and all its ancestors."
