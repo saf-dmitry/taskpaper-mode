@@ -237,7 +237,7 @@ The function described in the next example marks all items in the subtree under 
     (taskpaper-outline-map-tree
      `(lambda ()
         (unless (taskpaper-item-has-attribute "done")
-          (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
+          (mapc '(lambda (tag) (taskpaper-item-remove-attribute tag))
                 taskpaper-tags-to-remove-when-done)
           (taskpaper-item-set-attribute "done" ,ts))))))
 ```
