@@ -801,17 +801,6 @@ The [adaptive-wrap][emacs-adaptive-wrap] package is helpful for correct wrapping
 (global-visual-line-mode 1)
 ```
 
-## Indentation Guides
-
-If you want to display indentation guides in TaskPaper mode windows I recommend the [highlight-indent-guides][emacs-highlight-indent-guides] package. To enable it automatically when entering TaskPaper mode, you can use the `taskpaper-mode-hook`:
-
-```elisp
-(add-hook 'taskpaper-mode-hook
-          '(lambda () (highlignt-indent-guides-mode 1)))
-```
-
-For customizing the way guides are displayed, see the package options.
-
 # Acknowledgments
 
 Thanks to Jesse Grosjean for writing the [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs. The [TaskPaper project][github-taskpaper] gave me some valuable implementation insights.
@@ -855,8 +844,6 @@ You should have received a copy of the GNU General Public License along with thi
 [emacs-regexp]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Regular-Expressions.html
 
 [emacs-adaptive-wrap]: https://elpa.gnu.org/packages/adaptive-wrap.html
-
-[emacs-highlight-indent-guides]: https://github.com/DarthFennec/highlight-indent-guides
 
 [emacs-orgmode]: http://orgmode.org/
 
