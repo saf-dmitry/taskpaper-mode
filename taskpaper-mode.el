@@ -5181,8 +5181,6 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   ;; Indentation settings
   (setq-local indent-tabs-mode t)
   (setq-local indent-line-function #'indent-to-left-margin)
-  ;; Completion settings
-  (setq-local completion-at-point-functions (list #'taskpaper-tag-completion-at-point))
   ;; Syntax table settings
   (set-syntax-table taskpaper-mode-syntax-table)
   ;; Next error function for sparse trees
@@ -5199,6 +5197,8 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (taskpaper-set-startup-visibility)
   (when taskpaper-startup-with-inline-images (taskpaper-display-inline-images))
   ;; Hooks
+  (add-hook 'completion-at-point-functions
+            #'taskpaper-tag-completion-at-point nil 'local)
   (add-hook 'change-major-mode-hook #'taskpaper-outline-show-all nil t)
   (add-hook 'change-major-mode-hook #'taskpaper-remove-inline-images nil t)
   (add-hook 'change-major-mode-hook #'taskpaper-occur-remove-highlights nil t)
