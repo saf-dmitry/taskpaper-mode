@@ -237,7 +237,7 @@ The function described in the next example marks all items in the subtree under 
     (taskpaper-outline-map-tree
      `(lambda ()
         (unless (taskpaper-item-has-attribute "done")
-          (mapc '(lambda (tag) (taskpaper-item-remove-attribute tag))
+          (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
                 taskpaper-tags-to-remove-when-done)
           (taskpaper-item-set-attribute "done" ,ts))))))
 ```
@@ -249,7 +249,7 @@ The following more complex example utilizes `taskpaper-outline-map-region` outli
   "Archive all completed items."
   (interactive)
   (taskpaper-outline-map-region
-   '(lambda nil
+   (lambda nil
       (when (taskpaper-item-has-attribute "done")
         (taskpaper-archive-subtree)
         (taskpaper-outline-previous-item-safe)))
@@ -263,7 +263,7 @@ Calling the function `taskpaper-outline-previous-item-safe` prevents the next en
   "Archive all completed items."
   (interactive)
   (taskpaper-outline-map-region
-   '(lambda nil
+   (lambda nil
       (when (taskpaper-time<=
              (taskpaper-item-get-attribute "done") "-14d")
         (taskpaper-archive-subtree)
@@ -283,7 +283,7 @@ The following code adds `my-taskpaper-blocker-func-1` function to the hook. The 
   (goto-char pos)
   (catch 'exit
     (taskpaper-outline-map-descendants
-     '(lambda ()
+     (lambda ()
         (when (taskpaper-query-item-match-p "not note and not @done")
           (throw 'exit nil))))
     t))
@@ -326,7 +326,7 @@ In addition to the existing sorting functions `taskpaper-sort-by-text` and `task
   "Sort items on a certain level by priority."
   (interactive)
   (taskpaper-sort-items-generic
-   '(lambda nil
+   (lambda nil
       (or (taskpaper-item-get-attribute "priority") "99"))
    #'taskpaper-num<))
 
@@ -341,9 +341,9 @@ The next function sorts items according to their due dates. The sorting is done 
   "Sort items on a certain level by due date."
   (interactive)
   (taskpaper-sort-items-generic
-   '(lambda nil
+   (lambda nil
       (or (taskpaper-item-get-attribute "due") "2100-12-12"))
-   'taskpaper-time<))
+   #'taskpaper-time<))
 
 (define-key taskpaper-mode-map (kbd "C-c C-s d")
             #'my-taskpaper-sort-by-due-date)
@@ -425,7 +425,7 @@ Using mapping and querying functions you can generate your own custom summary re
   (interactive)
   (let ((cnt-task-open 0) (cnt-task-hold 0))
     (taskpaper-outline-map-tree
-     '(lambda ()
+     (lambda ()
         (when (taskpaper-query-item-match-p "task and not @done")
           (setq cnt-task-open (1+ cnt-task-open)))
         (when (taskpaper-query-item-match-p "task and not @done and @hold")
@@ -472,6 +472,6 @@ in the command line.
 Activating the auto-revert minor mode can be useful if you want to edit your TaskPaper files from another location and sync them via some cloud service like Dropbox, or add entries using quick entry script as described above, so whenever a file changes and is re-synced, the corresponding buffer is updated. You can automate the activation of this mode via `taskpaper-mode-hook`:
 
 ```elisp
-(add-hook 'taskpaper-mode-hook '(lambda () (auto-revert-mode 1)))
+(add-hook 'taskpaper-mode-hook (lambda () (auto-revert-mode 1)))
 ```
 

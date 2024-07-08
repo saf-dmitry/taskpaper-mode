@@ -558,7 +558,7 @@ NAME should be a string or a list of strings."
    ((stringp name)
     (if (string-prefix-p "@" name) name (concat "@" name)))
    ((and (listp name) (cl-every #'stringp name))
-    (mapcar #'(lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) name))
+    (mapcar (lambda (x) (if (string-prefix-p "@" x) x (concat "@" x))) name))
    (t (error "Argument should be a string or a list of strings."))))
 
 (defun taskpaper-remove-tag-prefix (name)
@@ -568,7 +568,7 @@ NAME should be a string or a list of strings."
    ((stringp name)
     (string-remove-prefix "@" name))
    ((and (listp name) (cl-every #'stringp name))
-    (mapcar #'(lambda (x) (string-remove-prefix "@" x)) name))
+    (mapcar (lambda (x) (string-remove-prefix "@" x)) name))
    (t (error "Argument should be a string or a list of strings."))))
 
 (defun taskpaper-kill-is-subtree-p (&optional text)
@@ -3798,7 +3798,7 @@ instead of item at point."
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil (taskpaper-item-sorting-key-text))
+   (lambda nil (taskpaper-item-sorting-key-text))
    #'string-collate-lessp nil reverse))
 
 (defun taskpaper-sort-by-type (&optional reverse)
@@ -3808,7 +3808,7 @@ before tasks. The optional argument REVERSE will reverse the sort
 order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   '(lambda nil (taskpaper-item-sorting-key-type))
+   (lambda nil (taskpaper-item-sorting-key-type))
    #'> nil reverse))
 
 ;;;; Outline path
@@ -5203,7 +5203,7 @@ TaskPaper mode runs the normal hook `text-mode-hook', and then
   (add-hook 'change-major-mode-hook #'taskpaper-remove-inline-images nil t)
   (add-hook 'change-major-mode-hook #'taskpaper-occur-remove-highlights nil t)
   (add-hook 'change-major-mode-hook
-            #'(lambda () (remove-from-invisibility-spec 'taskpaper-markup) nil t))
+            (lambda () (remove-from-invisibility-spec 'taskpaper-markup) nil t))
   (run-hooks 'taskpaper-mode-hook))
 
 ;;;###autoload

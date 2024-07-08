@@ -615,7 +615,7 @@ You can configure certain queries to be executed automatically when visiting a T
 
 ```elisp
 (add-hook 'taskpaper-mode-hook
-          '(lambda () (taskpaper-query "not @type = note")))
+          (lambda () (taskpaper-query "not @type = note")))
 ```
 
 ## Refiling
@@ -667,22 +667,22 @@ In the example below items will be sorted according to their due dates form earl
 
 ```elisp
 (setq taskpaper-agenda-sorting-predicate
-      '(lambda (a b)
-          (setq a (or (taskpaper-string-get-attribute a "due") "2100-12-12")
-                b (or (taskpaper-string-get-attribute b "due") "2100-12-12"))
-          (taskpaper-time< a b)))
+      (lambda (a b)
+         (setq a (or (taskpaper-string-get-attribute a "due") "2100-12-12")
+               b (or (taskpaper-string-get-attribute b "due") "2100-12-12"))
+         (taskpaper-time< a b)))
 ```
 
 Items with equal sort keys maintain their relative order before and after the sort, which means, the `taskpaper-agenda-sorting-predicate` option can be accommodated to order items according to multiple criteria. In the following example agenda items will be sorted numerically by priority from highest to lowest (where "1" means the highest) and within the same priority by due date from earliest to latest:
 
 ```elisp
 (setq taskpaper-agenda-sorting-predicate
-      '(lambda (a b)
-         (let ((p1 (or (taskpaper-string-get-attribute a "priority") "99"))
-               (p2 (or (taskpaper-string-get-attribute b "priority") "99"))
-               (d1 (or (taskpaper-string-get-attribute a "due") "2100-12-12"))
-               (d2 (or (taskpaper-string-get-attribute b "due") "2100-12-12")))
-           (if (taskpaper-num= p1 p2) (taskpaper-time< d1 d2) (taskpaper-num< p1 p2)))))
+      (lambda (a b)
+        (let ((p1 (or (taskpaper-string-get-attribute a "priority") "99"))
+              (p2 (or (taskpaper-string-get-attribute b "priority") "99"))
+              (d1 (or (taskpaper-string-get-attribute a "due") "2100-12-12"))
+              (d2 (or (taskpaper-string-get-attribute b "due") "2100-12-12")))
+          (if (taskpaper-num= p1 p2) (taskpaper-time< d1 d2) (taskpaper-num< p1 p2)))))
 ```
 
 See the [Scripting Guide][scripting-guide] for the list of API functions, which can be used for attribute evaluation.
@@ -797,7 +797,7 @@ The [adaptive-wrap][emacs-adaptive-wrap] package is helpful for correct wrapping
 ```elisp
 (require 'adaptive-wrap)
 (add-hook 'visual-line-mode-hook
-          '(lambda () (adaptive-wrap-prefix-mode 1)))
+          (lambda () (adaptive-wrap-prefix-mode 1)))
 (global-visual-line-mode 1)
 ```
 
