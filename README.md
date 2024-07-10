@@ -39,14 +39,14 @@ The system doesn't force any particular workflow on you; it provides basic outli
 
 TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline-aware filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful Agenda mode.
 
-# Documentation
+## Documentation
 
 Following documentation is available:
 
 - [TaskPaper mode manual][manual] explains installation, usage, and basic customization.
 - [Scripting guide][scripting-guide] describes more advanced customization, hacking and scripting.
 
-# Acknowledgments
+## Acknowledgments
 
 Thanks to Jesse Grosjean for writing the [TaskPaper app][taskpaper] for macOS, whose functionality and sleekness I wanted to bring to Emacs. The [TaskPaper project][github-taskpaper] gave me some valuable implementation insights.
 
@@ -58,11 +58,11 @@ I would also thank the following people, from whose work TaskPaper mode has bene
 
 - Piotrek Wilczyński for developing the [TodoFlow][todoflow] Python module.
 
-# Bugs
+## Bugs
 
 TaskPaper mode is developed and tested primarily for compatibility with GNU Emacs v25.1 and later. If you find any bugs in TaskPaper mode, please construct a test case or a patch and open a ticket on the [GitHub issue tracker][github-issues].
 
-# License
+## License
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3, or (at your option) any later version.
 
