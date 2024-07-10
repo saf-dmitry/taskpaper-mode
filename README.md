@@ -33,9 +33,9 @@ Indentation level (with tabs, not spaces) defines ownership. For instance, if yo
 
 The system doesn't force any particular workflow on you; it provides basic outlining and list making elements for you to use as you see fit.
 
-![](./images/screencast_01.gif)
+![Screencast 1](./images/screencast_01.gif)
 
-![](./images/screencast_02.gif)
+![Screencast 2](./images/screencast_02.gif)
 
 TaskPaper mode is implemented on top of Outline mode. Visibility cycling and structure editing help to work with the outline structure. Special commands also provided for outline-aware filtering, tags manipulation, sorting, refiling, and archiving of items. For querying a collection of TaskPaper files, TaskPaper mode also includes a powerful Agenda mode.
 

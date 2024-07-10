@@ -671,7 +671,7 @@ The command `SPC` (`taskpaper-agenda-show`) runs the hook `taskpaper-agenda-afte
 
 ```elisp
 (add-hook 'taskpaper-agenda-after-show-hook
-          'taskpaper-outline-hide-other)
+          #'taskpaper-outline-hide-other)
 ```
 
 ### Filtering Agenda Items
