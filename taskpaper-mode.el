@@ -54,7 +54,7 @@
   "TaskPaper mode version number.")
 
 (defconst taskpaper-mode-manual-uri
-  "https://github.com/saf-dmitry/taskpaper-mode/blob/master/README.md"
+  "https://github.com/saf-dmitry/taskpaper-mode/blob/master/manual.md"
   "URI for TaskPaper mode manual.")
 
 (defvar taskpaper-mode-map (make-keymap)
