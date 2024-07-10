@@ -43,7 +43,7 @@ TaskPaper mode is implemented on top of Outline mode. Visibility cycling and str
 
 Following documentation is available:
 
-- [TaskPaper manual][manual] explains installation, usage, and basic customization.
+- [TaskPaper mode manual][manual] explains installation, usage, and basic customization.
 - [Scripting guide][scripting-guide] describes more advanced customization, hacking and scripting.
 
 # Acknowledgments
