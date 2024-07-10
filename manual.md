@@ -129,7 +129,7 @@ The following commands jump to other items in the buffer.
 
 - `C-c C-j`: Go to selected item (`taskpaper-goto`).
 
-The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select an outline path in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
+The command `C-c C-j` (`taskpaper-goto`) prompts the user for an outline path to an item offering standard minibuffer completion for possible target locations. Completion packages like [Vertico][emacs-vertico] or [Ivy][emacs-ivy] provide faster and more convenient way to select an outline path in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections. Additionally, you can use [Imenu][emacs-imenu] to go to a specific project in the buffer.
 
 Commands like `C-c C-j` jumping to a different position in the current file automatically save the old position to the mark ring, to be able to return easily. The command `C-c [` (`taskpaper-mark-ring-goto`) navigates back to a recorded position. Using this command several times in direct succession moves through a ring of previously recorded positions. You can also use the command `C-c %` (`taskpaper-mark-ring-push`) to manually save the current position to the mark ring.
 
@@ -773,9 +773,9 @@ You should have received a copy of the GNU General Public License along with thi
 
 [melpa]: https://melpa.org/
 
-[emacs-ivy]: https://github.com/abo-abo/swiper
+[emacs-vertico]: https://github.com/minad/vertico
 
-[emacs-icicles]: https://www.emacswiki.org/emacs/Icicles
+[emacs-ivy]: https://github.com/abo-abo/swiper
 
 [emacs-imenu]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html
 
