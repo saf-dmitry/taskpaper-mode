@@ -413,6 +413,31 @@ However, if you want to process some URIs or URI-like locators inside Emacs, you
 (add-hook 'taskpaper-open-uri-hook #'my-org-open-uri)
 ```
 
+The hook function in the next example enables linking to items with an `@id` tag, e.g. `@id(b1aed4)`, by clicking on `goto:b1aed4` links anywhere in the same document:
+
+```elisp
+(defun my-taskpaper-goto-id (uri)
+  "Follow internal link URIs."
+  (when (string-prefix-p "goto:" uri)
+    (let ((id (substring uri 5)) match)
+      (save-excursion
+        (save-restriction
+          (widen) (goto-char (point-min))
+          (while (and (not match) (re-search-forward "@id" nil t))
+            (if (taskpaper-string= (taskpaper-item-get-attribute "id") id)
+                (setq match (point))))))
+      (unless match (error "No match for custom ID: %s" id))
+      (taskpaper-mark-ring-push)
+      (unless (<= (point-min) match (point-max)) (widen))
+      (goto-char match) (back-to-indentation)
+      (taskpaper-outline-show-context))
+    t))
+
+(add-hook 'taskpaper-open-uri-hook #'my-taskpaper-goto-id)
+```
+
+Instead of `taskpaper-outline-next-item-safe` function we use `re-search-forward` to speed up link navigation in large files. Before jumping to link target we save current cursor position to the mark ring using `taskpaper-mark-ring-push` function, so we can go back using `C-c [` (`taskpaper-mark-ring-goto`).
+
 See the documentation string of `taskpaper-open-uri-hook` for more details.
 
 ### Summary Reports
