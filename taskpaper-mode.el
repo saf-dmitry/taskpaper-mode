@@ -4818,10 +4818,8 @@ returns non-nil if the item matches."
   (let ((re (concat "^" outline-regexp)))
     (goto-char (point-min))
     (save-excursion
-      (while (let (case-fold-search)
-               (re-search-forward re nil t))
-        (when (let ((case-fold-search t))
-                (save-excursion (eval matcher)))
+      (while (re-search-forward re nil t)
+        (when (save-excursion (eval matcher))
           (taskpaper-outline-show-context))))))
 
 (defun taskpaper-query-complete-attr (attrs)
@@ -5544,10 +5542,8 @@ position where the item originated."
           (save-excursion
             (save-restriction
               (widen) (goto-char (point-min))
-              (while (let (case-fold-search)
-                       (re-search-forward re nil t))
-                (when (let ((case-fold-search t))
-                        (save-excursion (eval matcher)))
+              (while (re-search-forward re nil t)
+                (when (save-excursion (eval matcher))
                   ;; Set marker and add the item to the list
                   (setq marker (taskpaper-new-marker (point-at-bol))
                         item (taskpaper-item-get-attribute "text")
