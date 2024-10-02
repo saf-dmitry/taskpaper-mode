@@ -1706,7 +1706,7 @@ buffer. When point is on an item, rotate the current subtree."
              (taskpaper-unlogged-message "OVERVIEW")
              (setq taskpaper-cycle--global-status 2))))
      ((save-excursion
-        (beginning-of-line 1) (looking-at outline-regexp))
+        (beginning-of-line) (looking-at outline-regexp))
       ;; Cycle current subtree
       (outline-back-to-heading)
       (let ((goal-column 0) eoi eol eos)
@@ -2068,7 +2068,7 @@ Return a list of cons cells (NAME . VALUE), where NAME is the
 attribute name and VALUE is the attribute value, as strings."
   (let (attrs name value)
     (save-excursion
-      (beginning-of-line 1)
+      (beginning-of-line)
       (save-match-data
         (while (re-search-forward
                 taskpaper-tag-regexp (line-end-position) t)
@@ -2131,7 +2131,7 @@ hierarchy."
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be removed: %s" name))
-  (beginning-of-line 1)
+  (beginning-of-line)
   (save-match-data
     (while (re-search-forward
             taskpaper-tag-regexp (line-end-position) t)
