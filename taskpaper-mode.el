@@ -452,7 +452,7 @@ is used by default. Only current line is checked."
 
 (defsubst taskpaper-sort (list)
   "Non-destructively sort elements of LIST as strings."
-  (let ((res (copy-sequence list))) (sort res #'string-lessp)))
+  (let ((res (copy-sequence list))) (sort res #'string<)))
 
 (defun taskpaper-unlogged-message (&rest args)
   "Display a message without logging."
@@ -2840,8 +2840,7 @@ If optional POS is inside a tag, ignore the tag."
             (when (taskpaper-in-tag-p (match-beginning 1))
               (setq tag (match-string-no-properties 2))
               (unless (and pos
-                           (<= (match-beginning 0) pos)
-                           (>= (match-end 0) pos))
+                           (<= (match-beginning 0) pos (match-end 0)))
                 (push tag tags)))))))
     (taskpaper-sort (taskpaper-uniquify tags))))
 
@@ -5024,13 +5023,10 @@ combination."
              (value (match-string-no-properties 3))
              (value (taskpaper-tag-value-unescape value))
              (query (cond
-                     ((and (equal name "search") value)
+                     ((and value (equal name "search"))
                       value)
-                     ((and name
-                           (>= (point) (match-beginning 2))
-                           (<= (point) (match-end 2)))
-                      (format "@%s" name))
-                     ((and name value)
+                     ((and value
+                           (<= (match-beginning 3) (point) (match-end 3)))
                       (setq value (taskpaper-escape-double-quotes value))
                       (format "@%s = \"%s\"" name value))
                      (t (format "@%s" name)))))
