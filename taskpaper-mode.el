@@ -454,14 +454,6 @@ is used by default. Only current line is checked."
   "Non-destructively sort elements of LIST as strings."
   (let ((res (copy-sequence list))) (sort res #'string-lessp)))
 
-(defun taskpaper-trim-string (str)
-  "Trim leading and trailing whitespaces from STR."
-  (when (stringp str)
-    (save-match-data
-      (while (string-match "\\`[ \t\n\r]+\\|[ \t\n\r]+\\'" str)
-        (setq str (replace-match "" t t str)))))
-  str)
-
 (defun taskpaper-unlogged-message (&rest args)
   "Display a message without logging."
   (let ((message-log-max nil)) (apply #'message args)))
@@ -1958,8 +1950,7 @@ ring."
              (setq item (replace-match "" t nil item)))
             (t item)))
     ;; Sanitize
-    (setq item (taskpaper-trim-string item)
-          tags (taskpaper-trim-string tags))
+    (setq item (string-trim item) tags (string-trim tags))
     ;; Add separator space, if nessessary
     (when (and (not (equal item "")) (not (equal tags "")))
       (setq tags (concat " " tags)))
@@ -1986,8 +1977,7 @@ Item type can be 'project, 'task, or 'note."
         (setq tags (match-string-no-properties 1 item)
               item (replace-match "" t nil item))))
     ;; Sanitize
-    (setq item (taskpaper-trim-string item)
-          tags (taskpaper-trim-string tags))
+    (setq item (string-trim item) tags (string-trim tags))
     ;; Add type formatting as required
     (cond ((eq type 'task) (setq item (concat "- " item)))
           ((eq type 'project) (setq item (concat item ":")))
@@ -2559,7 +2549,7 @@ this time, otherwise use current time."
           time-str (downcase time-str)
           timedecode (or timedecode nowdecode))
     (while (> (length time-str) 0)
-      ;; Trim leading whitespaces
+      ;; Trim leading whitespace
       (when (string-match taskpaper-time-whitespace-regexp time-str)
         (setq time-str (replace-match "" nil nil time-str)))
       (unless (= (length time-str) 0)
@@ -4383,7 +4373,7 @@ Return list of substrings. Each substring is a run of valid
 characters repsesenting different types ot tokens."
   (let ((depth 0) tokens val st)
     (while (> (length str) 0)
-      ;; Trim leading whitespaces
+      ;; Trim leading whitespace
       (when (string-match taskpaper-query-whitespace-regexp str)
         (setq str (replace-match "" nil nil str)))
       (unless (= (length str) 0)
