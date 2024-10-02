@@ -18,6 +18,7 @@ Changed:
 - Improved promotion/demotion of selected items
 - Improved filtering and searching performance
 - Dropped support for "+" and "*" characters as task marks
+- Improved CAPF setting
 
 # v1.0
 
