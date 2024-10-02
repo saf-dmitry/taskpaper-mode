@@ -434,20 +434,17 @@ Like `find-buffer-visiting' but always return the base buffer."
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
 
-(defun taskpaper-in-regexp (regexp &optional pos)
+(defun taskpaper-in-regexp-p (regexp &optional pos)
   "Return non-nil if POS is in a match for REGEXP.
 Set the match data. If POS is omitted or nil, the value of point
-is used by default. Only the current line is checked."
+is used by default. Only current line is checked."
   (catch 'exit
-    (let ((pos (or pos (point)))
-          (eol (line-end-position 1)))
+    (let ((pos (or pos (point))))
       (save-excursion
-        (goto-char pos) (beginning-of-line 1)
-        (while (re-search-forward regexp eol t)
-          (when (and (>= pos (match-beginning 0))
-                     (<= pos (match-end 0)))
-            (throw 'exit (cons (match-beginning 0)
-                               (match-end 0)))))))))
+        (goto-char pos) (beginning-of-line)
+        (while (re-search-forward regexp (line-end-position) t)
+          (when (<= (match-beginning 0) pos (match-end 0))
+            (throw 'exit t)))))))
 
 (defsubst taskpaper-uniquify (list)
   "Non-destructively remove duplicate elements from LIST."
@@ -1376,13 +1373,13 @@ absolute path is used. An absolute path can be forced with a
   "Open link at point."
   (interactive)
   (let ((link))
-    (cond ((taskpaper-in-regexp taskpaper-markdown-link-regexp)
+    (cond ((taskpaper-in-regexp-p taskpaper-markdown-link-regexp)
            (setq link (match-string-no-properties 6)))
-          ((taskpaper-in-regexp taskpaper-file-link-regexp)
+          ((taskpaper-in-regexp-p taskpaper-file-link-regexp)
            (setq link (match-string-no-properties 1)))
-          ((taskpaper-in-regexp taskpaper-uri-regexp)
+          ((taskpaper-in-regexp-p taskpaper-uri-regexp)
            (setq link (match-string-no-properties 1)))
-          ((taskpaper-in-regexp taskpaper-email-regexp)
+          ((taskpaper-in-regexp-p taskpaper-email-regexp)
            (setq link (match-string-no-properties 1)))
           (t (user-error "No link at point")))
     (taskpaper-open-link link)))
@@ -1400,10 +1397,10 @@ If BACK is non-nil, move backward to the previous link."
   (let ((pos (point))
         (func (if back #'re-search-backward #'re-search-forward))
         (re taskpaper-any-link-regexp))
-    (when (taskpaper-in-regexp re)
+    (when (taskpaper-in-regexp-p re)
       ;; Don't stay stuck at link under cursor
       (goto-char (if back (match-beginning 0) (match-end 0))))
-    (if (and (funcall func re nil t) (taskpaper-in-regexp re))
+    (if (and (funcall func re nil t) (taskpaper-in-regexp-p re))
         (progn
           (goto-char (match-beginning 0)) (skip-syntax-forward "\s")
           (when (outline-invisible-p) (taskpaper-outline-show-context)))
@@ -1448,7 +1445,7 @@ image link is a plain link to file matching return value from
           (when (and (file-exists-p path)
                      (not (file-remote-p path))
                      (taskpaper-file-image-p path)
-                     (not (taskpaper-in-regexp
+                     (not (taskpaper-in-regexp-p
                            taskpaper-markdown-link-regexp begin)))
             ;; Create image
             (setq image
@@ -2026,10 +2023,10 @@ This function does not set or modify the match data."
   (let ((pos (or pos (point))))
     (save-excursion
       (save-match-data
-        (and (taskpaper-in-regexp taskpaper-tag-regexp pos)
-             (not (taskpaper-in-regexp
+        (and (taskpaper-in-regexp-p taskpaper-tag-regexp pos)
+             (not (taskpaper-in-regexp-p
                    taskpaper-markdown-link-regexp pos))
-             (not (taskpaper-in-regexp
+             (not (taskpaper-in-regexp-p
                    taskpaper-file-link-regexp pos)))))))
 
 (defun taskpaper-tag-name-p (name)
@@ -2666,7 +2663,7 @@ current date."
         value time date)
     (cond
      ((and (taskpaper-in-tag-p)
-           (taskpaper-in-regexp taskpaper-tag-regexp))
+           (taskpaper-in-regexp-p taskpaper-tag-regexp))
       (setq value (match-string-no-properties 3))
       (when value
         (setq value (taskpaper-tag-value-unescape value)
@@ -2861,7 +2858,7 @@ If optional POS is inside a tag, ignore the tag."
 (defun taskpaper-tag-completion-at-point ()
   "Completion function for tag names."
   (let ((re (format "\\(?:^\\|\\s-\\)\\(@%s*\\)" taskpaper-tag-name-char-regexp)))
-    (if (taskpaper-in-regexp re)
+    (if (taskpaper-in-regexp-p re)
         (list (match-beginning 1) (match-end 1)
               (completion-table-dynamic
                (lambda (_)
@@ -2932,7 +2929,7 @@ Return selected tag specifier."
   "Remove tag at point."
   (interactive)
   (if (and (taskpaper-in-tag-p)
-           (taskpaper-in-regexp taskpaper-tag-regexp))
+           (taskpaper-in-regexp-p taskpaper-tag-regexp))
       (delete-region (match-beginning 0) (match-end 0))
     (user-error "No tag at point.")))
 
@@ -4826,13 +4823,13 @@ returns non-nil if the item matches."
   "Complete query attribute at point.
 Complete query attribute using completions from ATTRS."
   (let* ((re (format "@%s*" taskpaper-tag-name-char-regexp))
-         (pattern (if (taskpaper-in-regexp re)
+         (pattern (if (taskpaper-in-regexp-p re)
                       (match-string-no-properties 0) ""))
          (completion-buffer-name "*Completions*")
          (end (point)) completion)
     (let ((window (get-buffer-window completion-buffer-name)))
       (when window (delete-window window)))
-    (unless (taskpaper-in-regexp re)
+    (unless (taskpaper-in-regexp-p re)
       (user-error "Nothing to complete"))
     (setq completion (try-completion pattern attrs))
     (cond
@@ -5028,7 +5025,7 @@ for the tag name, otherwise query for the name-value
 combination."
   (interactive)
   (if (and (taskpaper-in-tag-p)
-           (taskpaper-in-regexp taskpaper-tag-regexp))
+           (taskpaper-in-regexp-p taskpaper-tag-regexp))
       (let* ((name  (match-string-no-properties 2))
              (value (match-string-no-properties 3))
              (value (taskpaper-tag-value-unescape value))
@@ -5059,10 +5056,10 @@ combination."
 
 (defun taskpaper-mode-flyspell-verify ()
   "Function used for `flyspell-generic-check-word-predicate'."
-  (and (not (taskpaper-in-regexp taskpaper-tag-regexp))
-       (not (taskpaper-in-regexp taskpaper-uri-regexp))
-       (not (taskpaper-in-regexp taskpaper-email-regexp))
-       (not (taskpaper-in-regexp taskpaper-file-path-regexp))))
+  (and (not (taskpaper-in-regexp-p taskpaper-tag-regexp))
+       (not (taskpaper-in-regexp-p taskpaper-uri-regexp))
+       (not (taskpaper-in-regexp-p taskpaper-email-regexp))
+       (not (taskpaper-in-regexp-p taskpaper-file-path-regexp))))
 (put 'taskpaper-mode 'flyspell-mode-predicate 'taskpaper-mode-flyspell-verify)
 
 ;;;; Bookmarks support
