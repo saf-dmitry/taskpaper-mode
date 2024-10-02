@@ -3044,8 +3044,10 @@ Case is significant."
   "Return t if first arg string contains second.
 Case is significant."
   (cond ((and a b)
-         (let ((case-fold-search nil))
-           (setq b (regexp-quote b)) (string-match-p b a)))
+         (if (fboundp 'string-search)
+             (string-search b a)
+           (let ((case-fold-search nil))
+             (setq b (regexp-quote b)) (string-match-p b a))))
         (t nil)))
 
 (defun taskpaper-string-prefix-p (a b)
@@ -3114,9 +3116,11 @@ Case is ignored."
   "Return t if first arg string contains second.
 Case is ignored."
   (cond ((and a b)
-         (let ((case-fold-search nil))
-           (setq a (downcase a) b (downcase b))
-           (setq b (regexp-quote b)) (string-match-p b a)))
+         (setq a (downcase a) b (downcase b))
+         (if (fboundp 'string-search)
+             (string-search b a)
+           (let ((case-fold-search nil))
+             (setq b (regexp-quote b)) (string-match-p b a))))
         (t nil)))
 
 (defun taskpaper-istring-prefix-p (a b)
