@@ -553,7 +553,7 @@ Searches:
     Active tasks @search(task and not \(@done or @hold\))
 ```
 
-The command `C-c ?` (`taskpaper-query-read-select`) lets the user select a query offering standard minibuffer completion. Query description will be derived from the item's text. If the user option `taskpaper-custom-queries` is set (see below), its entries will be added to the possible selections. Special completion packages like [Ivy][emacs-ivy] or [Icicles][emacs-icicles] provide faster and more convenient way to select a query in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections.
+The command `C-c ?` (`taskpaper-query-read-select`) lets the user select a query offering standard minibuffer completion. Query description will be derived from the item's text. If the user option `taskpaper-custom-queries` is set (see below), its entries will be added to the selection candidates. Completion packages like [Vertico][emacs-vertico] or [Ivy][emacs-ivy] provide faster and more convenient way to select a query in minibuffer using regular expressions or fuzzy matching and incremental narrowing of possible selections.
 
 Fast selection interface allows you to save your commonly used search queries and later select them with just a single key press. For this to work you should assign unique, case-sensitive, letters (or other characters, e.g., numbers) to your saved queries. You can do this by configuring the user option `taskpaper-custom-queries` in your init file:
 
