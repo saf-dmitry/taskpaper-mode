@@ -5052,32 +5052,20 @@ combination."
        (not (taskpaper-in-regexp-p taskpaper-file-path-regexp))))
 (put 'taskpaper-mode 'flyspell-mode-predicate 'taskpaper-mode-flyspell-verify)
 
-;;;; Bookmarks support
+;;;; Imenu and Bookmark support
 
-(defun taskpaper-bookmark-jump-unhide ()
-  "Reveal the current position to show the bookmark location."
-  (and (derived-mode-p 'taskpaper-mode)
-       (or (outline-invisible-p)
-           (save-excursion
-             (goto-char (max (point-min) (1- (point))))
-             (outline-invisible-p)))
-       (taskpaper-outline-show-context)))
+(defun taskpaper-jump-unhide ()
+  "Reveal the item at point and all its ancestors."
+  (when (derived-mode-p 'taskpaper-mode) (taskpaper-outline-show-context)))
+
+(eval-after-load "imenu"
+  '(add-hook 'imenu-after-jump-hook #'taskpaper-jump-unhide))
 
 (eval-after-load "bookmark"
   '(if (boundp 'bookmark-after-jump-hook)
-       (add-hook 'bookmark-after-jump-hook #'taskpaper-bookmark-jump-unhide)
+       (add-hook 'bookmark-after-jump-hook #'taskpaper-jump-unhide)
      (defadvice bookmark-jump (after taskpaper-make-visible activate)
-       "Make the position visible."
-       (taskpaper-bookmark-jump-unhide))))
-
-;;;; Imenu support
-
-(eval-after-load "imenu"
-  '(progn
-     (add-hook 'imenu-after-jump-hook
-               (lambda ()
-                 (when (derived-mode-p 'taskpaper-mode)
-                   (taskpaper-outline-show-context))))))
+       (taskpaper-jump-unhide))))
 
 ;;;; Miscellaneous
 
