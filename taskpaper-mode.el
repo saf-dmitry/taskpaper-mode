@@ -5058,14 +5058,11 @@ combination."
   "Reveal the item at point and all its ancestors."
   (when (derived-mode-p 'taskpaper-mode) (taskpaper-outline-show-context)))
 
-(eval-after-load "imenu"
-  '(add-hook 'imenu-after-jump-hook #'taskpaper-jump-unhide))
+(with-eval-after-load "imenu"
+  (add-hook 'imenu-after-jump-hook #'taskpaper-jump-unhide))
 
-(eval-after-load "bookmark"
-  '(if (boundp 'bookmark-after-jump-hook)
-       (add-hook 'bookmark-after-jump-hook #'taskpaper-jump-unhide)
-     (defadvice bookmark-jump (after taskpaper-make-visible activate)
-       (taskpaper-jump-unhide))))
+(with-eval-after-load "bookmark"
+  (add-hook 'bookmark-after-jump-hook #'taskpaper-jump-unhide))
 
 ;;;; Miscellaneous
 
