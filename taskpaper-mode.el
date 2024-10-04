@@ -92,14 +92,13 @@ background color. For more details see custom variable
 (defcustom taskpaper-tag-faces nil
   "Faces for specific tags.
 This is a list of cons cells, with tag names in the car and faces
-in the cdr. The tag name can basically contain uppercase and
-lowercase letters, digits, hyphens, underscores, and dots. The
-face can be a symbol corresponding to a name of an existing face,
-a color (in which case it will be interpreted as either
-foreground or background color according to the variable
-`taskpaper-faces-easy-properties' and the rest is inherited from
-the face `taskpaper-tag') or a property list of attributes,
-like (:foreground \"blue\" :weight bold)."
+in the cdr. The tag name can contain letters, digits, hyphens,
+underscores, and dots. The face can be a symbol corresponding to
+a name of an existing face, a color (in which case it will be
+interpreted as either foreground or background color according to
+the variable `taskpaper-faces-easy-properties' and the rest is
+inherited from the face `taskpaper-tag') or a property list of
+attributes, like (:foreground \"blue\" :weight bold)."
   :group 'taskpaper
   :type '(repeat
           (cons (string :tag "Tag name")
@@ -109,16 +108,15 @@ like (:foreground \"blue\" :weight bold)."
 
 (defcustom taskpaper-tag-alist nil
   "List of tags for fast selection.
-The value of this variable is an alist, the car of each entry
-must be a tag as a string, the cdr may be a character that is
-used to select that tag through the fast-selection interface."
+This is a list of cons cells, with tag strings in the car and
+selection characters in the cdr."
   :group 'taskpaper
   :type '(repeat
-          (cons (string :tag "Tag name")
-                (character :tag "Access char"))))
+          (cons (string :tag "Tag")
+                (character :tag "Key"))))
 
 (defcustom taskpaper-tags-exclude-from-inheritance nil
-  "List of tags that should never be inherited."
+  "List of tags that should not be inherited."
   :group 'taskpaper
   :type '(repeat (string :tag "Tag name")))
 
@@ -129,11 +127,8 @@ used to select that tag through the fast-selection interface."
 
 (defcustom taskpaper-complete-save-date 'date
   "Non-nil means, include date when completing item.
-Possible values for this option are:
-
- nil   No date
- date  Include date
- time  Include date and time"
+When `date', include current date. When `time', include date and
+time."
   :group 'taskpaper
   :type '(choice
           (const :tag "No date" nil)
@@ -141,7 +136,7 @@ Possible values for this option are:
           (const :tag "Date and time" time)))
 
 (defcustom taskpaper-blocker-hook nil
-  "Hook for functions that are allowed to block completion of item.
+  "Hook for functions to block completion of item.
 The value of this hook may be nil, a function, or a list of
 functions. Functions in this hook should not modify the buffer.
 Each function gets as its single argument a buffer position at
@@ -151,7 +146,7 @@ returns nil, the completion is blocked."
   :type 'hook)
 
 (defcustom taskpaper-after-completion-hook nil
-  "Hook run when completing item."
+  "Hook run after completing item."
   :group 'taskpaper
   :type 'hook)
 
@@ -200,19 +195,17 @@ this hook gets called."
   "The location where subtrees should be archived.
 
 The value of this variable is a string, consisting of two parts,
-separated by a double-colon. The first part is a filename and the
-second part is a heading.
+separated by a double-colon. The first part is a file name and
+the second part is a heading.
 
-When the filename is omitted, archiving happens in the same file.
-A %s formatter in the filename will be replaced by the current
-file name without the directory part and file extension.
+When the file name is omitted, archiving happens in the same
+file. A %s formatter in the file name will be replaced by the
+current file name without the directory part and file extension.
 
-The archived items will be filed as subtrees of the specified
-item. When the heading is omitted, the subtrees are simply filed
-away at the end of the file, as top-level items. Also in the
-heading you can use %s to represent the file name, this can be
-useful when using the same archive for a number of different
-files."
+The archived subtrees will be filed as children of the specified
+heading. When the heading is omitted, the subtrees will be filed
+at the end of the file. Also in the heading you can use %s to
+represent the file name."
   :group 'taskpaper
   :type 'string)
 
@@ -222,7 +215,7 @@ files."
   :type 'boolean)
 
 (defcustom taskpaper-archive-hook nil
-  "Hook run after successfully archiving a subtree.
+  "Hook run after successfull archiving of a subtree.
 Hook functions are called with point on the subtree in the
 original location. At this stage, the subtree has been added to
 the archive location, but not yet deleted from the original
@@ -231,7 +224,7 @@ location."
   :type 'hook)
 
 (defcustom taskpaper-reverse-note-order nil
-  "Non-nil means, store new notes at the beginning of item."
+  "Non-nil means, put new subitems at the beginning of item."
   :group 'taskpaper
   :type 'boolean)
 
@@ -239,7 +232,7 @@ location."
   '((directory . emacs)
     (remote    . emacs)
     (auto-mode . emacs))
-  "External applications for opening file links in a document.
+  "External applications for opening file links.
 The entries in this list are cons cells where the car identifies
 files and the cdr the corresponding command.
 
@@ -248,7 +241,7 @@ Possible values for the file identifier are:
  directory  Matches directories
  remote     Matches remote files
  auto-mode  Matches files that are matched by any entry in `auto-mode-alist'
- system     The system command to open files
+ system     System command to open files
  t          Default for files not matched by any of the other options
 
 Possible values for the command are:
@@ -266,18 +259,19 @@ See also variable `taskpaper-open-non-existing-files'."
   :type '(repeat
           (cons
            (choice :value ""
-                   (string :tag "Extension")
+                   (string :tag "Files with extension")
+                   (const :tag "Directories" directory)
+                   (const :tag "Remote files" remote)
+                   (const :tag "Files that have Emacs modes" auto-mode)
                    (const :tag "System command to open files" system)
-                   (const :tag "Default for unrecognized files" t)
-                   (const :tag "Remote file" remote)
-                   (const :tag "Links to a directory" directory)
-                   (const :tag "Any files that have Emacs modes" auto-mode))
+                   (const :tag "Other files" t))
            (choice :value ""
-                   (const :tag "Visit with Emacs" emacs)
-                   (const :tag "Use default" default)
-                   (const :tag "Use the system command" system)
-                   (string :tag "Command")
-                   (sexp :tag "Lisp form")))))
+                   (string :tag "Shell command")
+                   (const :tag "Emacs" emacs)
+                   (const :tag "Default application" default)
+                   (const :tag "System command" system)
+                   (const :tag "Mailcap command" mailcap)
+                   (sexp :tag "Lisp function")))))
 
 (defcustom taskpaper-open-non-existing-files nil
   "Non-nil means, open non-existing files in file links.
@@ -301,21 +295,20 @@ can continue to resolve the URI with other options."
   :type 'hook)
 
 (defcustom taskpaper-mark-ring-length 4
-  "Number of different positions to be recorded in the ring.
+  "Number of positions to be recorded in the mark ring.
 Changing this option requires a restart of Emacs."
   :group 'taskpaper
   :type 'integer)
 
 (defcustom taskpaper-custom-queries nil
   "List of custom queries for fast selection.
-The value of this variable is a list, the first element is a
-character that is used to select that query through the
-fast-selection interface, the second element is a short
-description string, and the last is a query string. If the first
-element is a string, it will be used as block separator."
+Each element in the list may be a list or a string. If it is a
+list, the first element is a selection character, the second
+element is a description string, and the third element is a query
+string. If it is a string, it will be used as block separator."
   :group 'taskpaper
   :type '(repeat
-          (choice (list (character :tag "Access char")
+          (choice (list (character :tag "Key")
                         (string :tag "Description")
                         (string :tag "Query string"))
                   (string :tag "Block separator"))))
@@ -327,8 +320,7 @@ instead of default `taskpaper-query'."
   :type 'boolean)
 
 (defcustom taskpaper-iquery-delay 0.5
-  "The number of seconds to wait before evaluating incremental
-query."
+  "Incremental query evaluation delay in seconds."
   :group 'taskpaper
   :type 'number)
 
@@ -340,12 +332,14 @@ overlays the UTF-8 character for display purposes only."
   :type 'boolean)
 
 (defcustom taskpaper-bullet ?\u2013
-  "Display character for task mark."
+  "Display character for task mark.
+See `taskpaper-pretty-task-marks' variable for details."
   :group 'taskpaper
   :type 'character)
 
 (defcustom taskpaper-bullet-done ?\u2013
-  "Display character for done task mark."
+  "Display character for done task mark.
+See `taskpaper-pretty-task-marks' variable for details."
   :group 'taskpaper
   :type 'character)
 
@@ -361,7 +355,7 @@ overlays the UTF-8 character for display purposes only."
 (make-variable-buffer-local 'taskpaper-hide-markup)
 
 (defcustom taskpaper-use-inline-emphasis t
-  "Non-nil means, interpret emphasis delimiters for display.
+  "Non-nil means, interpret emphasis delimiters.
 This will interpret \"*\" and \"_\" characters as inline emphasis
 delimiters for strong and emphasis markup similar to Markdown."
   :group 'taskpaper
@@ -374,21 +368,7 @@ delimiters for strong and emphasis markup similar to Markdown."
 
 ;;;; Compatibility code for older Emacsen
 
-(unless (fboundp 'string-remove-prefix)
-  (defun string-remove-prefix (prefix string)
-    "Remove PREFIX from STRING if present."
-    (if (string-prefix-p prefix string)
-        (substring string (length prefix))
-      string)))
-
-(unless (fboundp 'string-remove-suffix)
-  (defun string-remove-suffix (suffix string)
-    "Remove SUFFIX from STRING if present."
-    (if (string-suffix-p suffix string)
-        (substring string 0 (- (length string) (length suffix)))
-      string)))
-
-;;;; Generally useful functions
+;;;; General utility functions
 
 (defun taskpaper-mode-version ()
   "Show TaskPaper mode version."
@@ -418,7 +398,7 @@ If POS is omitted or nil, the value of point is used by default."
 
 (defun taskpaper-release-buffers (blist)
   "Release all buffers in list BLIST.
-When a buffer is modified, it is saved after user confirmation."
+When a buffer is modified, prompt the user to save it first."
   (let (file)
     (dolist (buf blist)
       (setq file (buffer-file-name buf))
@@ -428,8 +408,7 @@ When a buffer is modified, it is saved after user confirmation."
       (kill-buffer buf))))
 
 (defun taskpaper-find-base-buffer-visiting (file)
-  "Return the base buffer visiting FILE.
-Like `find-buffer-visiting' but always return the base buffer."
+  "Return the base buffer visiting FILE."
   (let ((buf (or (get-file-buffer file)
                  (find-buffer-visiting file))))
     (if buf (or (buffer-base-buffer buf) buf) nil)))
@@ -484,8 +463,8 @@ is used by default. Only current line is checked."
 
 (defun taskpaper-file-missing-p (file)
   "Test if local FILE exists.
-Return non-nil if local FILE does not exist, otherwise return
-nil. For performance reasons remote files are not checked."
+Return non-nil if local FILE does not exist. For performance
+reasons remote files are not checked."
   (if (and (not (file-remote-p file)) (not (file-exists-p file)))
       t
     nil))
@@ -536,9 +515,7 @@ COMMANDS is a list of alternating OLDDEF NEWDEF command names."
   (let (olddef newdef)
     (while commands
       (setq olddef (pop commands) newdef (pop commands))
-      (if (fboundp #'command-remapping)
-          (define-key map (vector 'remap olddef) newdef)
-        (substitute-key-definition olddef newdef map global-map)))))
+      (define-key map (vector 'remap olddef) newdef))))
 
 (defun taskpaper-add-tag-prefix (name)
   "Add tag prefix to NAME.
@@ -562,10 +539,9 @@ NAME should be a string or a list of strings."
 
 (defun taskpaper-kill-is-subtree-p (&optional text)
   "Check if the current kill is a valid subtree.
-Return nil if the first item level is not the largest item level
-in the tree. So this will actually accept a set of subtrees as
-well. If optional TEXT string is given, check it instead of the
-current kill."
+Return non-nil if the current kill is a valid subtree or a set of
+subtrees. If optional TEXT string is given, check it instead of
+the current kill."
   (save-match-data
     (let* ((kill (or text (and kill-ring (current-kill 0)) ""))
            (start-level (and (string-match "\\`\\([\t]*[^\t\f\n]\\)" kill)
@@ -603,8 +579,8 @@ current kill."
           taskpaper-tag-value-regexp)
   "Regular expression matching tag.
 Group 1 matches the whole tag expression.
-Group 2 matches the tag name without tag indicator.
-Group 3 matches the optional tag value without enclosing parentheses.")
+Group 2 matches the tag name.
+Group 3 matches the optional tag value.")
 
 (defconst taskpaper-consec-tags-regexp
   (format "\\(?:%s\\)+" taskpaper-tag-regexp)
@@ -886,9 +862,7 @@ If TAG is a number, get the corresponding match group."
     t))
 
 (defun taskpaper-get-link-type (link)
-  "Return link type as symbol.
-LINK should be an unescaped raw link. Recognized types are 'uri,
-'email, 'file, or nil."
+  "Return type of LINK as symbol."
   (let* ((fmt "\\`%s\\'")
          (re-file  (format fmt taskpaper-file-path-regexp))
          (re-email (format fmt taskpaper-email-regexp))
@@ -1115,9 +1089,7 @@ LINK should be an unescaped raw link. Recognized types are 'uri,
 
 (defvar taskpaper-font-lock-keywords nil)
 (defun taskpaper-set-font-lock-defaults ()
-  "Set Font Lock defaults for the current buffer.
-The order in which other fontification functions are called here,
-is essential."
+  "Set Font Lock defaults for the current buffer."
   (let ((font-lock-keywords
          (list
           (cons taskpaper-task-regexp
@@ -1289,7 +1261,7 @@ With optional argument IN-EMACS, visit the file in Emacs."
     (taskpaper-open-file-with-cmd file cmd)))
 
 (defun taskpaper-default-open-cmd ()
-  "Return the default system command to open URIs.
+  "Return default system command to open URIs.
 Command can be a string containing a %s formatter, which will be
 replaced by the URI, or a Lisp function, which will be called with
 the URI as a single argument."
@@ -1299,7 +1271,7 @@ the URI as a single argument."
         (t "xdg-open %s")))
 
 (defun taskpaper-open-uri (uri)
-  "Open the URI using the default system command."
+  "Open URI using default system command."
   (unless (run-hook-with-args-until-success 'taskpaper-open-uri-hook uri)
     (let ((cmd (taskpaper-default-open-cmd)))
       (cond
@@ -1322,7 +1294,7 @@ non-nil, force absolute path."
         (pwd  (file-name-as-directory (expand-file-name ".")))
         (pwd1 (file-name-as-directory
                (abbreviate-file-name (expand-file-name ".")))))
-    (when (equal file "") (user-error "File name must not be empty"))
+    (when (equal file "") (user-error "File name cannot be empty"))
     (cond
      (arg (abbreviate-file-name (expand-file-name file)))
      ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
@@ -1335,10 +1307,10 @@ non-nil, force absolute path."
 (defun taskpaper-insert-file-link-at-point (&optional arg)
   "Insert a file link at point using completion.
 The path to the file is inserted relative to the directory of the
-current TaskPaper file, if the linked file is in the current
-directory or in a subdirectory of it, or if the path is written
-relative to the current directory using \"../\". Otherwise an
-absolute path is used. An absolute path can be forced with a
+current file, if the linked file is in the current directory or
+in a subdirectory of it, or if the path is written relative to
+the current directory using \"../\". Otherwise, an absolute path
+is used. An absolute path can be forced with a
 \\[universal-argument] prefix argument."
   (interactive "P")
   (unless (or (bolp) (eq (char-syntax (char-before)) 32)) (insert " "))
@@ -1423,7 +1395,7 @@ image link is a plain link to file matching return value from
   (interactive)
   (unless (display-images-p) (error "Images cannot be displayed"))
   (taskpaper-remove-inline-images)
-  (when (fboundp #'clear-image-cache) (clear-image-cache))
+  (clear-image-cache)
   (save-excursion
     (save-restriction
       (widen) (goto-char (point-min))
@@ -1545,8 +1517,7 @@ This version will not throw an error."
   "Move to the (possibly invisible) ancestor item.
 Return the level of the item found or nil otherwise. This version
 will not throw an error. Also, this version is a lot faster than
-`outline-up-heading', because it relies directly on leading
-tabs."
+`outline-up-heading'."
   (when (ignore-errors (outline-back-to-heading t))
     (let (level-cache)
       (unless taskpaper--up-level-cache
@@ -1601,7 +1572,7 @@ When SELF is non-nil, also map the current item."
       (funcall func))))
 
 (defun taskpaper-item-has-children-p ()
-  "Return non-nil if current item has children."
+  "Return non-nil if the current item has children."
   (let (eoi eos)
     (save-excursion
       (outline-back-to-heading t)
@@ -1611,14 +1582,14 @@ When SELF is non-nil, also map the current item."
 
 (defun taskpaper-outline-normalize-indentation ()
   "Normalize outline indentation.
-The variable `tab-width' controls the amount of spaces per
-indentation level."
+Convert mixed indentation to tabs. The variable `tab-width'
+controls the amount of columns per indentation level."
   (interactive)
   (save-restriction
     (widen) (goto-char (point-min))
     (while (re-search-forward "^[ \t]+" nil t)
-      (let ((indent (floor (string-width (match-string 0)) tab-width)))
-        (replace-match (make-string indent ?\t))))))
+      (let ((level (floor (string-width (match-string 0)) tab-width)))
+        (replace-match (make-string level ?\t))))))
 
 ;;;; Folding
 
@@ -1649,8 +1620,7 @@ indentation level."
 
 (defun taskpaper-outline-hide-other ()
   "Hide everything except the current item and its context.
-Shows only current item, its ancestors and top-level items.
-Essentially a slightly modified version of `outline-hide-other'."
+Shows only the current item, its ancestors and top-level items."
   (interactive)
   (taskpaper-outline-hide-sublevels 1)
   (save-excursion (taskpaper-outline-show-context))
@@ -1664,8 +1634,7 @@ Essentially a slightly modified version of `outline-hide-other'."
   (taskpaper-outline-hide-sublevels 1))
 
 (defun taskpaper-next-line ()
-  "Forward line, but move over invisible line ends.
-Essentially a much simplified version of `next-line'."
+  "Forward line, but move over invisible line ends."
   (interactive)
   (beginning-of-line 2)
   (while (and (not (eobp))
@@ -1829,7 +1798,7 @@ end.")
 ;;; Mark ring navigation interface
 
 (defvar taskpaper-mark-ring nil
-  "Mark ring for positions before jumps.")
+  "Mark ring for navigation interface.")
 (defvar taskpaper-mark-ring-last-goto nil
   "Last position in the mark ring used to navigate back.")
 
@@ -1855,8 +1824,6 @@ end.")
   "Navigate to the previous position in the mark ring.
 With prefix argument N, navigate back that many stored positions.
 When called several times in succession, walk through the entire
-ring. TaskPaper mode commands jumping to a different position in
-the current file automatically push the old position onto the
 ring."
   (interactive "p")
   (let (p m)
@@ -1925,7 +1892,7 @@ ring."
           (t "note"))))
 
 (defun taskpaper-item-text ()
-  "Return text of item at point."
+  "Return text of the item at point."
   (let ((item (buffer-substring-no-properties
                (line-beginning-position) (line-end-position))))
     (taskpaper-remove-indentation item)))
@@ -1959,7 +1926,7 @@ ring."
 
 (defun taskpaper-item-format (type)
   "Format item at point as TYPE.
-Item type can be 'project, 'task, or 'note."
+Item type can be `project', `task', or `note'."
   (let* ((begin (line-beginning-position))
          (end (line-end-position))
          (item (buffer-substring-no-properties begin end))
@@ -2040,8 +2007,7 @@ This function does not set or modify the match data."
   value)
 
 (defconst taskpaper-special-attributes '("type" "text")
-  "The special item attributes.
-These are implicit attributes not associated with tags.")
+  "The implicit item attributes not associated with tags.")
 
 (defun taskpaper-item-get-special-attributes ()
   "Get special attrbutes for the item at point.
@@ -2083,10 +2049,10 @@ attribute name and VALUE is the attribute value, as strings."
 ;;;; Attribute API
 
 (defun taskpaper-item-get-attributes (&optional inherit)
-  "Get attrbutes for item at point.
-Return read-only list of cons cells (NAME . VALUE), where NAME is
-the attribute name and VALUE is the attribute value, as strings.
-If INHERIT is non-nil also check higher levels of the hierarchy."
+  "Get attrbutes for the item at point.
+Return a list of cons cells (NAME . VALUE), where NAME is the
+attribute name and VALUE is the attribute value, as strings. If
+INHERIT is non-nil also check higher levels of the hierarchy."
   (let ((attrs (append (taskpaper-item-get-special-attributes)
                        (taskpaper-item-get-explicit-attributes))))
     (when (and inherit (outline-on-heading-p t))
@@ -2099,24 +2065,23 @@ If INHERIT is non-nil also check higher levels of the hierarchy."
     (taskpaper-uniquify attrs)))
 
 (defun taskpaper-item-get-attribute (name &optional inherit)
-  "Get value of attribute NAME for item at point.
+  "Get value of attribute NAME for the item at point.
 Return the value as a string or nil if the attribute does not
-exist or has no value. If INHERIT is non-nil also check higher
-levels of the hierarchy."
+exist or no value is specified. If INHERIT is non-nil also check
+higher levels of the hierarchy."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (cdr (assoc name (taskpaper-item-get-attributes inherit))))
 
 (defun taskpaper-item-has-attribute (name &optional inherit)
-  "Return non-nil if item at point has attribute NAME.
-If INHERIT is non-nil also check higher levels of the
-hierarchy."
+  "Return non-nil if the item at point has attribute NAME.
+If INHERIT is non-nil also check higher levels of the hierarchy."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (assoc name (taskpaper-item-get-attributes inherit)))
 
 (defun taskpaper-item-remove-attribute (name)
-  "Remove non-special attribute NAME from item at point."
+  "Remove non-special attribute NAME from the item at point."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
@@ -2130,7 +2095,7 @@ hierarchy."
         (delete-region (match-beginning 0) (match-end 0))))))
 
 (defun taskpaper-item-set-attribute (name &optional value)
-  "Set non-special attribute NAME for item at point.
+  "Set non-special attribute NAME for the item at point.
 With optional argument VALUE, set attribute to that value."
   (unless (taskpaper-tag-name-p name)
     (user-error "Invalid attribute name: %s" name))
@@ -2170,8 +2135,8 @@ instead of item at point."
 
 (defun taskpaper-string-remove-attribute (str name)
   "Remove non-special attribute NAME from item string STR.
-Like `taskpaper-item-remove-attribute' but uses argument string
-instead of item at point. Return new string."
+Return new string. Like `taskpaper-item-remove-attribute' but
+uses argument string instead of item at point."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-remove-attribute name)
@@ -2179,18 +2144,16 @@ instead of item at point. Return new string."
 
 (defun taskpaper-string-set-attribute (str name &optional value)
   "Set non-special attribute NAME for item string STR.
-With optional argument VALUE, set attribute to that value. Like
-`taskpaper-item-set-attribute' but uses argument string instead
-of item at point. Return new string."
+With optional argument VALUE, set attribute to that value. Return
+new string. Like `taskpaper-item-set-attribute' but uses argument
+string instead of item at point."
   (with-temp-buffer
     (erase-buffer) (insert str) (goto-char (point-min))
     (taskpaper-item-set-attribute name value)
     (buffer-string)))
 
 (defun taskpaper-attribute-value-to-list (value)
-  "Convert attribute value VALUE to a list.
-Treat the value string as a comma-separated list of values and
-return the values as a list of strings."
+  "Convert attribute value VALUE to a list."
   (when (stringp value)
     (save-match-data (split-string value ",\\s-*" nil))))
 
@@ -2647,10 +2610,7 @@ string and go to the corresponding date instead. A
 \\[universal-argument] prefix argument can be used to force the
 current date."
   (interactive "P")
-  (let ((calendar-move-hook nil)
-        (calendar-view-diary-initially-flag nil)
-        (calendar-view-holidays-initially-flag nil)
-        value time date)
+  (let ((calendar-move-hook nil) value time date)
     (cond
      ((and (taskpaper-in-tag-p)
            (taskpaper-in-regexp-p taskpaper-tag-regexp))
@@ -2661,7 +2621,9 @@ current date."
               date (list (nth 4 time) (nth 3 time) (nth 5 time)))))
      (t (setq date nil)))
     (calendar)
-    (if (and date (not arg)) (calendar-goto-date date) (calendar-goto-today))))
+    (if (and date (not arg))
+        (calendar-goto-date date)
+      (calendar-goto-today))))
 
 (defun taskpaper-show-in-calendar ()
   "Show date at point in a calendar window.
@@ -2678,7 +2640,7 @@ string and show the corresponding date."
     (save-match-data (calendar-cursor-to-date))))
 
 (defun taskpaper-date-from-calendar ()
-  "Insert time stamp corresponding to cursor date in the calendar buffer."
+  "Insert time stamp corresponding to date at point in calendar."
   (interactive)
   (let* ((date (taskpaper-get-date-from-calendar))
          (time (encode-time 0 0 0 (nth 1 date) (nth 0 date) (nth 2 date))))
@@ -2687,8 +2649,7 @@ string and show the corresponding date."
 ;;;; Date and time prompt
 
 (defvar taskpaper-calendar-selected-date nil
-  "Temporary storage for date selected from calendar.
-Date is stored as internal time representation.")
+  "Temporary storage for date selected from calendar.")
 
 (defun taskpaper-eval-in-calendar (form)
   "Eval FORM in the calendar window."
@@ -2727,8 +2688,7 @@ Date is stored as internal time representation.")
 
 (defun taskpaper-read-date-recenter-calendar (&optional _begin _end _length)
   "Display the date prompt interpretation live in the calendar window.
-The function should be called from the minibuffer as part of
-`after-change-functions' hook."
+This function should be called from `taskpaper-read-date' function."
   (when (minibufferp (current-buffer))
     (let* ((str (buffer-substring (point-at-bol) (point-max)))
            (time (taskpaper-parse-time-string str))
@@ -2740,7 +2700,8 @@ The function should be called from the minibuffer as part of
 
 (defvar taskpaper-read-date-overlay nil)
 (defun taskpaper-read-date-display ()
-  "Display the date prompt interpretation live in the minibuffer."
+  "Display the date prompt interpretation live in the minibuffer.
+This function should be called from `taskpaper-read-date' function."
   (when taskpaper-read-date-display-live
     (when taskpaper-read-date-overlay
       (delete-overlay taskpaper-read-date-overlay))
@@ -2822,7 +2783,7 @@ time converted to an internal time."
       (if to-time time (format-time-string fmt time)))))
 
 (defun taskpaper-read-date-insert-timestamp ()
-  "Prompt the user for a date and insert a timestamp at point."
+  "Prompt the user for a date and insert a timestamp."
   (interactive)
   (insert-before-markers (format "%s" (taskpaper-read-date))))
 
@@ -2894,7 +2855,7 @@ Return selected tag specifier."
           (kill-buffer) (setq quit-flag t))))))
 
 (defun taskpaper-item-set-tag-fast-select ()
-  "Set a tag for the item at point using fast tag selection."
+  "Set a tag for the item at point using fast selection."
   (interactive)
   (let ((re (format "\\`@?\\(%s\\)\\(?:(\\(%s\\))\\)?\\'"
                     taskpaper-tag-name-regexp
@@ -3043,7 +3004,7 @@ Case is significant."
   "Return t if first arg string contains second.
 Case is significant."
   (cond ((and a b)
-         (if (fboundp 'string-search)
+         (if (fboundp #'string-search)
              (string-search b a)
            (let ((case-fold-search nil))
              (setq b (regexp-quote b)) (string-match-p b a))))
@@ -3116,7 +3077,7 @@ Case is ignored."
 Case is ignored."
   (cond ((and a b)
          (setq a (downcase a) b (downcase b))
-         (if (fboundp 'string-search)
+         (if (fboundp #'string-search)
              (string-search b a)
            (let ((case-fold-search nil))
              (setq b (regexp-quote b)) (string-match-p b a))))
@@ -3745,9 +3706,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
   (message "Sorting items...done"))
 
 (defun taskpaper-item-sorting-key-text ()
-  "Return sorting key of current item for lexicographic sorting.
-Remove indentation, type formatting and inline markup and return
-sorting key as string."
+  "Return sorting key of current item for lexicographic sorting."
   (let ((item (buffer-substring
                (line-beginning-position) (line-end-position))))
     (setq item (taskpaper-remove-markup-chars item)
@@ -3757,8 +3716,7 @@ sorting key as string."
     item))
 
 (defun taskpaper-item-sorting-key-type ()
-  "Return sorting key of current item for sorting by type.
-Get type of item and return sorting key as number."
+  "Return sorting key of current item for sorting by type."
   (let ((type (taskpaper-item-get-attribute "type"))
         (prec '(("project" . 3) ("task" . 2) ("note" . 1))))
     (cdr (assoc type prec))))
@@ -3804,10 +3762,9 @@ order."
 ;;;; Outline path
 
 (defun taskpaper-item-get-outline-path (&optional self)
-  "Return outline path to the current item.
-An outline path is a list of ancestors for the current item, in
-reverse order, as a list of strings. When SELF is non-nil, the
-path also includes the current item."
+  "Get outline path for the current item.
+Return outline path for the current item as a list of strings.
+When SELF is non-nil, also include the current item."
   (let (item olpath)
     (save-excursion
       (outline-back-to-heading t)
@@ -3820,14 +3777,14 @@ path also includes the current item."
     olpath))
 
 (defun taskpaper-format-olpath-entry (entry)
-  "Format the outline path entry ENTRY for display."
+  "Format the outline path entry ENTRY."
   (setq entry (taskpaper-remove-trailing-tags
                (taskpaper-remove-type-formatting entry))
         entry (replace-regexp-in-string "/" "\\\\/" entry))
   entry)
 
 (defun taskpaper-format-outline-path (olpath)
-  "Format the outline path OLPATH for display."
+  "Format the outline path OLPATH."
   (setq olpath (delq nil olpath))
   (mapconcat #'taskpaper-format-olpath-entry olpath "/"))
 
@@ -3853,7 +3810,7 @@ which will be excluded from the results."
     (nreverse targets)))
 
 (defun taskpaper-goto-get-location (&optional prompt no-exclude)
-  "Prompt the user for a location, using PROMPT.
+  "Prompt the user for a location using PROMPT.
 Return a cons cell (OLPATH . POS), where OLPATH is the formatted
 outline path as string and POS is the corresponding buffer
 position. When NO-EXCLUDE is non-nil, don't exclude entries in
@@ -3890,7 +3847,7 @@ the current subtree."
 
 (defun taskpaper-copy-subtree (&optional cut)
   "Copy the current subtree into the kill ring.
-If CUT is non-nil, actually cut the subtree."
+If CUT is non-nil, cut the subtree from its original location."
   (interactive)
   (let (begin end)
     (save-excursion
@@ -3913,13 +3870,13 @@ If CUT is non-nil, actually cut the subtree."
   (taskpaper-copy-subtree 'cut))
 
 (defun taskpaper-paste-subtree (&optional level text remove)
-  "Paste the current kill as a subtree, with modification of level.
-If point is on a (possibly invisible) item, paste as child of the
-current item. You can force a different level by specifying LEVEL
-or using a numeric prefix argument. If optional TEXT is given,
-use this text instead of the current kill. Place point at the
-beginning of pasted subtree. When REMOVE is non-nil, remove the
-subtree from the kill ring."
+  "Paste the current kill as a subtree.
+If point is on an item, paste as child of the current item. You
+can force a different level by specifying LEVEL or using a
+numeric prefix argument. If optional TEXT is given, use this text
+instead of the current kill. Place point at the beginning of
+pasted subtree. When REMOVE is non-nil, remove the subtree from
+the kill ring."
   (interactive "P")
   (setq text (or text (and kill-ring (current-kill 0))))
   (unless text (user-error "Nothing to paste"))
@@ -3975,12 +3932,13 @@ subtree from the kill ring."
 ;;;; Refiling
 
 (defun taskpaper-refile-subtree (&optional arg rfloc)
-  "Move the subtree at point to another (possibly invisible) location.
-The subtree is filed below the target location as a subitem.
+  "Move the subtree at point to another location.
+Prompt the user for a location and move the current subtree to
+it. The subtree is filed below the target location as a subitem.
 Depending on the value of `taskpaper-reverse-note-order', it will
 be either the first or last subitem. If ARG is non-nil, just copy
-the subtree. RFLOC can be a refile location in form (OLPATH . POS)
-obtained in a different way."
+the subtree. RFLOC can be a target location in form (OLPATH .
+POS) obtained in a different way."
   (interactive)
   (let* ((loc (or rfloc (taskpaper-goto-get-location nil arg)))
          (path (car loc)) (pos (cdr loc)) level)
@@ -4005,9 +3963,7 @@ obtained in a different way."
       (message "Subtree refiled to %s." path))))
 
 (defun taskpaper-refile-subtree-copy ()
-  "Copy the subtree at point to another location.
-Copying works like refiling, except that the subtree is not
-deleted from the original location."
+  "Copy the subtree at point to another location."
   (interactive)
   (taskpaper-refile-subtree t))
 
@@ -4015,8 +3971,8 @@ deleted from the original location."
 
 (defun taskpaper-extract-archive-file (&optional location)
   "Extract and expand the file name from archive LOCATION.
-Return file name for archive file. If LOCATION is not given, the
-value of `taskpaper-archive-location' is used."
+If LOCATION is not specified, the value of
+`taskpaper-archive-location' is used by default."
   (setq location (or location taskpaper-archive-location))
   (when (string-match "\\(.*\\)::\\(.*\\)" location)
     (if (= (match-beginning 1) (match-end 1))
@@ -4029,8 +3985,8 @@ value of `taskpaper-archive-location' is used."
 
 (defun taskpaper-extract-archive-heading (&optional location)
   "Extract the heading from archive LOCATION.
-If LOCATION is not given, the value of
-`taskpaper-archive-location' is used."
+If LOCATION is not specified, the value of
+`taskpaper-archive-location' is used by default."
   (setq location (or location taskpaper-archive-location))
   (when (string-match "\\(.*\\)::\\(.*\\)" location)
     (format (match-string-no-properties 2 location)
@@ -4039,9 +3995,7 @@ If LOCATION is not given, the value of
               (buffer-file-name (buffer-base-buffer)))))))
 
 (defun taskpaper-archive-get-project ()
-  "Get project hierarchy for the current item.
-Return formatted project hierarchy as string or nil, if there are
-no parent projects."
+  "Get project hierarchy for the current item."
   (let (project projects)
     (save-excursion
       (save-restriction
@@ -4054,10 +4008,10 @@ no parent projects."
 
 (defun taskpaper-archive-subtree ()
   "Move the current subtree to the archive location.
-The archive can be a certain top-level heading in the current
-file, or in a different file. For details see the variable
-`taskpaper-archive-location'. The subtree is filed below the
-archive heading as a subitem. Depending on the value of
+The archive location can be a certain top-level heading in the
+current file, or in a different file. For details see the
+variable `taskpaper-archive-location'. The subtree is filed below
+the archive heading as a subitem. Depending on the value of
 `taskpaper-reverse-note-order', it will be either the first or
 last subitem."
   (interactive)
@@ -4141,13 +4095,11 @@ last subitem."
 (defun taskpaper-add-entry (&optional text location file)
   "Add entry TEXT to LOCATION in FILE.
 Prompt the user for entry TEXT and add it as child of the
-top-level LOCATION item. The entry is filed below the target
-location as a subitem. Depending on the value of
+top-level LOCATION item. Depending on the value of
 `taskpaper-reverse-note-order', it will be either the first or
-last subitem. When the location is omitted, the item is simply
-filed at the end of the file, as top-level item. When FILE is
-specified, visit it and set this buffer as target buffer,
-otherwise fall back to the current buffer."
+last subitem. When the location is omitted, the item is filed at
+the end of the file. When FILE is specified, visit it and set
+this buffer as target buffer, otherwise use the current buffer."
   (interactive)
   (let ((text (or text (read-string "Entry: ")))
         (this-buffer (current-buffer)) buffer level)
@@ -4371,9 +4323,7 @@ match is found."
        (not (taskpaper-query-rparen-p token))))
 
 (defun taskpaper-query-read-tokenize (str)
-  "Read query string STR into tokens.
-Return list of substrings. Each substring is a run of valid
-characters repsesenting different types ot tokens."
+  "Read query string STR into list of tokens."
   (let ((depth 0) tokens val st)
     (while (> (length str) 0)
       ;; Trim leading whitespace
@@ -4464,7 +4414,7 @@ characters repsesenting different types ot tokens."
     (nreverse tokens)))
 
 (defun taskpaper-query-expand-type-shortcuts (tokens)
-  "Expand type shortcuts in TOKENS."
+  "Expand item type shortcuts in token list TOKENS."
   (let (token prev next expanded)
     (while tokens
       (setq token (pop tokens) next (nth 0 tokens))
@@ -4596,8 +4546,7 @@ characters repsesenting different types ot tokens."
 
 (defconst taskpaper-query-precedence-boolean
   '(("and" . 0) ("or" . 1))
-  "Order of precedence for binary Boolean operators.
-Operators with lower precedence bind more strongly.")
+  "Order of precedence for binary Boolean operators.")
 
 (defun taskpaper-query-parse-predicate (tokens)
   "Parse next predicate expression in token list TOKENS.
@@ -4664,9 +4613,7 @@ matcher and the rest of the token list."
 Return a cons of the constructed Lisp form implementing the
 matcher and the rest of the token list. PREC is the current
 precedence for Boolean operators. LEFT is a Lisp form
-representing the left side of the Boolean expression. This
-function implements the top-down recursive parsing algorithm
-known as Pratt's algorithm."
+representing the left side of the Boolean expression."
   (let (tmp bool cprec right form)
     ;; Get left side
     (when (and tokens (not left))
@@ -4785,9 +4732,8 @@ if the item matches the query string."
 
 (defun taskpaper-read-query-propertize (&optional _begin _end _length)
   "Propertize query string live in the minibuffer.
-Incrementally read query string, validate it and propertize
-accordingly. The function should be called from the minibuffer as
-part of `after-change-functions' hook."
+This function should be called from the minibuffer as part of
+`after-change-functions' hook."
   (when (minibufferp (current-buffer))
     (condition-case nil
         (progn
@@ -4843,9 +4789,7 @@ Complete query attribute using completions from ATTRS."
 
 (defun taskpaper-query-read-query (&optional prompt)
   "Prompt the user for a search query.
-Validate input and provide tab completion for attributes in the
-minibuffer. Return query string. PROMPT can overwrite the default
-prompt."
+Return query string. PROMPT can overwrite the default prompt."
   (let ((attrs (taskpaper-add-tag-prefix
                 (append (taskpaper-get-buffer-tags)
                         taskpaper-special-attributes)))
@@ -4900,9 +4844,9 @@ prompt."
 
 (defun taskpaper-iquery (&optional query prompt)
   "Create a sparse tree view according to query string.
-Query results are updated incrementally as you type, showing
-items, that matches. If non-nil, QUERY is an initial query
-string. PROMPT can overwrite the default prompt."
+The tree view is updated incrementally as you type. If non-nil,
+QUERY is an initial query string. PROMPT can overwrite the
+default prompt."
   (interactive)
   (let ((map (make-sparse-keymap))
         (prompt (or prompt "I-query: "))
@@ -5013,9 +4957,7 @@ Return selected query string."
 (defun taskpaper-query-tag-at-point ()
   "Query buffer for tag at point.
 When point is on a \"@search\" tag, execute query stored in the
-tag value. For other tags when point is on the tag name, query
-for the tag name, otherwise query for the name-value
-combination."
+tag value."
   (interactive)
   (if (and (taskpaper-in-tag-p)
            (taskpaper-in-regexp-p taskpaper-tag-regexp))
@@ -5114,7 +5056,7 @@ active region."
 
 ;;;###autoload
 (define-derived-mode taskpaper-mode outline-mode "TaskPaper"
-  "Major mode for editing and querying files in TaskPaper format.
+  "Major mode for editing files in TaskPaper format.
 TaskPaper mode is implemented on top of Outline mode. Turning on
 TaskPaper mode runs the normal hook `text-mode-hook', and then
 `outline-mode-hook' and `taskpaper-mode-hook'."
@@ -5357,10 +5299,7 @@ file list."
   :type 'list)
 
 (defcustom taskpaper-agenda-file-regexp "^[^.].*\\.taskpaper\\'"
-  "Regular expression to match files for `taskpaper-agenda-files'.
-If any element in the list in that variable contains a directory
-instead of a normal file, all files in that directory that are
-matched by this regular expression will be included."
+  "Regular expression to match files for `taskpaper-agenda-files'."
   :group 'taskpaper
   :type 'regexp)
 
@@ -5407,10 +5346,7 @@ Possible values for this option are:
 
 (defcustom taskpaper-agenda-restore-windows-after-quit nil
   "Non-nil means, restore window configuration upon exiting agenda.
-Before the window configuration is changed for displaying the
-agenda, the current status is recorded. When the Agenda mode is
-exited and this option is set, the old state is restored. If
-`taskpaper-agenda-window-setup' is `other-frame', the value of
+When `taskpaper-agenda-window-setup' is set to `other-frame',
 this option will be ignored."
   :group 'taskpaper
   :type 'boolean)
@@ -5424,13 +5360,13 @@ this option will be ignored."
   "Recent matcher form for re-building agenda view.")
 
 (defvar taskpaper-agenda-new-buffers nil
-  "Buffers created to visit agenda files.")
+  "List of buffers created to visit agenda files.")
 
 (defvar taskpaper-agenda-follow-mode
   taskpaper-agenda-start-with-follow-mode)
 
 (defun taskpaper-agenda-buffer-p ()
-  "Return non-nil if current buffer is an Agenda mode buffer."
+  "Return non-nil if the current buffer is an Agenda mode buffer."
   (and (derived-mode-p 'taskpaper-agenda-mode)
        (equal (buffer-name) taskpaper-agenda-buffer-name)))
 
@@ -5450,7 +5386,7 @@ this option will be ignored."
               (force-mode-line-update))))
 
 (defun taskpaper-agenda-files ()
-  "Get list of agenda files."
+  "Compute list of agenda files."
   (let ((files
          (if (listp taskpaper-agenda-files)
              taskpaper-agenda-files
@@ -5473,7 +5409,7 @@ this option will be ignored."
     files))
 
 (defun taskpaper-agenda-file-p (&optional file)
-  "Return non-nil, if FILE is an agenda file.
+  "Return non-nil if FILE is an agenda file.
 If FILE is omitted, use the file associated with the current
 buffer."
   (let ((fname (or file (buffer-file-name))))
@@ -5483,9 +5419,7 @@ buffer."
                          (taskpaper-agenda-files))))))
 
 (defun taskpaper-agenda-get-file-buffer (file)
-  "Get an agenda buffer visiting FILE.
-If the buffer needs to be created, add it to the list of buffers
-which might be released later."
+  "Get buffer visiting agenda FILE."
   (let ((buf (taskpaper-find-base-buffer-visiting file)))
     (if buf buf
       (setq buf (find-file-noselect file))
@@ -5495,9 +5429,7 @@ which might be released later."
 (defun taskpaper-agenda-collect-items (matcher)
   "Return list of items from agenda files matching MATCHER.
 Cycle through agenda files and collect items matching MATCHER.
-MATCHER is a Lisp form to be evaluated at an item; returning a
-non-nil value qualifies the item for inclusion. Return list of
-items flatten and linked back to the corresponding buffer
+Return list of items with each item linked back to a buffer
 position where the item originated."
   (let ((files (taskpaper-agenda-files))
         file buffer marker item items)
@@ -5552,7 +5484,7 @@ Return number of items."
       (when cnt (message "%d %s" cnt (if (= cnt 1) "item" "items"))))))
 
 (defun taskpaper-agenda-goto ()
-  "Go to the original location of the current item."
+  "Go to the original location for the current agenda item."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let* ((marker (or (taskpaper-get-at-bol 'taskpaper-marker)
@@ -5564,7 +5496,8 @@ Return number of items."
   (run-hooks 'taskpaper-agenda-after-show-hook))
 
 (defun taskpaper-agenda-switch-to ()
-  "Go to the original location of the current item and delete other windows."
+  "Go to the original location for the current agenda item.
+Delete other windows."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let* ((marker (or (taskpaper-get-at-bol 'taskpaper-marker)
@@ -5577,7 +5510,7 @@ Return number of items."
   (run-hooks 'taskpaper-agenda-after-show-hook))
 
 (defun taskpaper-agenda-show ()
-  "Display the original location of the current item."
+  "Display the original location of the current agenda item."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (let ((win (selected-window)))
@@ -5608,7 +5541,8 @@ Return number of items."
 
 (defun taskpaper-agenda-next-line ()
   "Move cursor to the next line.
-Display the origin of the current item if Follow mode is active."
+Display the origin of the current agenda item if Follow mode is
+active."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'next-line)
@@ -5616,7 +5550,8 @@ Display the origin of the current item if Follow mode is active."
 
 (defun taskpaper-agenda-previous-line ()
   "Move cursor to the previous line.
-Display the origin of the current item if Follow mode is active."
+Display the origin of the current agenda item if Follow mode is
+active."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (call-interactively #'previous-line)
@@ -5646,9 +5581,9 @@ configuration."
 
 (defun taskpaper-agenda-exit ()
   "Exit the agenda.
-Like `taskpaper-agenda-quit', but kill all TaskPaper buffers that
-were created by the agenda. TaskPaper buffers visited directly by
-the user will not be touched."
+Kill the current Agenda mode buffer and all TaskPaper buffers
+that were created by the agenda. TaskPaper buffers visited
+directly by the user will not be touched."
   (interactive)
   (unless (taskpaper-agenda-buffer-p) (taskpaper-agenda-buffer-error))
   (taskpaper-release-buffers taskpaper-agenda-new-buffers)
@@ -5728,7 +5663,7 @@ ABUF is the buffer for the agenda window."
 
 ;;;###autoload
 (defun taskpaper-agenda-select ()
-  "Promts for query selection and build agenda view."
+  "Promt for query selection and build agenda view."
   (interactive)
   (let ((matcher (taskpaper-query-matcher (taskpaper-query-fast-selection))))
     (taskpaper-agenda-build matcher)))
