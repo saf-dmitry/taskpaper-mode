@@ -302,16 +302,16 @@ Changing this option requires a restart of Emacs."
 
 (defcustom taskpaper-custom-queries nil
   "List of custom queries for fast selection.
-Each element in the list may be a list or a string. If it is a
-list, the first element is a selection character, the second
-element is a description string, and the third element is a query
-string. If it is a string, it will be used as block separator."
+Each element in the list should be a list where the first element
+is a selection character, the second element is a description
+string, and the third element is a query string. If the first
+element is a string, it will be used as block separator."
   :group 'taskpaper
   :type '(repeat
           (choice (list (character :tag "Key")
                         (string :tag "Description")
                         (string :tag "Query string"))
-                  (string :tag "Block separator"))))
+                  (list (string :tag "Block separator")))))
 
 (defcustom taskpaper-iquery-default nil
   "Non-nil means, querying commands will use `taskpaper-iquery'
