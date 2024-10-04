@@ -81,9 +81,9 @@
 
 (defcustom taskpaper-faces-easy-properties :foreground
   "The property changes by easy faces.
-The value can be :foreground or :background. A color string for
-specific tags will then be interpreted as either foreground or
-background color. For more details see custom variable
+The value can be `:foreground' or `:background'. A color string
+for specific tags will then be interpreted as either foreground
+or background color. For more details see custom variable
 `taskpaper-tag-faces'."
   :group 'taskpaper
   :type '(choice (const :foreground)
@@ -98,7 +98,7 @@ a name of an existing face, a color (in which case it will be
 interpreted as either foreground or background color according to
 the variable `taskpaper-faces-easy-properties' and the rest is
 inherited from the face `taskpaper-tag') or a property list of
-attributes, like (:foreground \"blue\" :weight bold)."
+face attributes."
   :group 'taskpaper
   :type '(repeat
           (cons (string :tag "Tag name")
@@ -382,7 +382,7 @@ delimiters for strong and emphasis markup similar to Markdown."
 
 (defun taskpaper-overlay-display (overlay text &optional face evap)
   "Make OVERLAY display TEXT with face FACE.
-When EVAP is non-nil, set the 'evaporate' property to t."
+When EVAP is non-nil, set the `evaporate' property to t."
   (overlay-put overlay 'display text)
   (when face (overlay-put overlay 'face face))
   (when evap (overlay-put overlay 'evaporate t)))
@@ -2688,7 +2688,8 @@ string and show the corresponding date."
 
 (defun taskpaper-read-date-recenter-calendar (&optional _begin _end _length)
   "Display the date prompt interpretation live in the calendar window.
-This function should be called from `taskpaper-read-date' function."
+This function should be called from `taskpaper-read-date'
+function."
   (when (minibufferp (current-buffer))
     (let* ((str (buffer-substring (point-at-bol) (point-max)))
            (time (taskpaper-parse-time-string str))
@@ -2701,7 +2702,8 @@ This function should be called from `taskpaper-read-date' function."
 (defvar taskpaper-read-date-overlay nil)
 (defun taskpaper-read-date-display ()
   "Display the date prompt interpretation live in the minibuffer.
-This function should be called from `taskpaper-read-date' function."
+This function should be called from `taskpaper-read-date'
+function."
   (when taskpaper-read-date-display-live
     (when taskpaper-read-date-overlay
       (delete-overlay taskpaper-read-date-overlay))
@@ -2807,12 +2809,14 @@ If optional POS is inside a tag, ignore the tag."
 
 (defun taskpaper-tag-completion-at-point ()
   "Completion function for tag names."
-  (let ((re (format "\\(?:^\\|\\s-\\)\\(@%s*\\)" taskpaper-tag-name-char-regexp)))
+  (let ((re (format "\\(?:^\\|\\s-\\)\\(@%s*\\)"
+                    taskpaper-tag-name-char-regexp)))
     (if (taskpaper-in-regexp-p re)
         (list (match-beginning 1) (match-end 1)
               (completion-table-dynamic
                (lambda (_)
-                 (taskpaper-add-tag-prefix (taskpaper-get-buffer-tags (point)))))
+                 (taskpaper-add-tag-prefix
+                  (taskpaper-get-buffer-tags (point)))))
               :exclusive 'no)
       nil)))
 
