@@ -232,27 +232,27 @@ location."
   '((directory . emacs)
     (remote    . emacs)
     (auto-mode . emacs))
-  "External applications for opening file links.
+  "External applications for opening files.
 The entries in this list are cons cells where the car identifies
 files and the cdr the corresponding command.
 
 Possible values for the file identifier are:
- \"string\"   Matches files with this extension
- directory  Matches directories
- remote     Matches remote files
- auto-mode  Matches files that are matched by any entry in `auto-mode-alist'
- system     System command to open files
- t          Default for files not matched by any of the other options
+ string       Files with this extension
+ `directory'  Directories
+ `remote'     Remote files
+ `auto-mode'  Files that are matched by any entry in `auto-mode-alist'
+ `system'     System command to open files
+ t            Files not matched by any of the other options
 
 Possible values for the command are:
- \"string\"   A command to be executed by a shell;
-            a %s formatter will be replaced by the file name
- emacs      The file will be visited by the current Emacs process
- default    Use the default application for this file type
- system     Use the system command for opening files
- mailcap    Use command specified in the mailcaps
- function   A Lisp function, which will be called with one argument:
-            the file path
+ `emacs'     Current Emacs process
+ `default'   Default application for this file type
+ `system'    System command for opening files
+ `mailcap'   Command specified in the mailcaps
+ string      A command to be executed by a shell;
+             %s will be replaced by the file path
+ function    Lisp function to be called with one argument:
+             the file path
 
 See also variable `taskpaper-open-non-existing-files'."
   :group 'taskpaper
@@ -266,12 +266,12 @@ See also variable `taskpaper-open-non-existing-files'."
                    (const :tag "System command to open files" system)
                    (const :tag "Other files" t))
            (choice :value ""
-                   (string :tag "Shell command")
                    (const :tag "Emacs" emacs)
                    (const :tag "Default application" default)
                    (const :tag "System command" system)
                    (const :tag "Mailcap command" mailcap)
-                   (sexp :tag "Lisp function")))))
+                   (string :tag "Shell command")
+                   (function :tag "Lisp function")))))
 
 (defcustom taskpaper-open-non-existing-files nil
   "Non-nil means, open non-existing files in file links.
@@ -1153,7 +1153,7 @@ If TAG is a number, get the corresponding match group."
   '((remote . emacs)
     (system . mailcap)
     (t      . mailcap))
-  "Default file applications on a GNU/Linux system.")
+  "Default file applications on a UNIX or GNU/Linux system.")
 
 (defconst taskpaper-file-apps-defaults-macos
   '((remote . emacs)
@@ -1169,7 +1169,7 @@ If TAG is a number, get the corresponding match group."
                   (with-no-warnings (w32-shell-execute "open" file)))))
   "Default file applications on a Windows NT system.")
 
-(defun taskpaper-default-apps ()
+(defun taskpaper-default-file-apps ()
   "Return the default applications for this operating system."
   (cond
    ((eq system-type 'darwin) taskpaper-file-apps-defaults-macos)
@@ -1179,14 +1179,15 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-apps-regexp-alist (list &optional add-auto-mode)
   "Convert file extensions to regular expressions in the cars of LIST.
 When ADD-AUTO-MODE is non-nil, make all matches in
-`auto-mode-alist' point to the symbol 'emacs, indicating that the
-file should be visited in Emacs."
+`auto-mode-alist' point to the symbol `emacs', indicating that
+the file should be opened in Emacs."
   (append
    (delq nil
          (mapcar (lambda (x)
-                   (cond ((not (stringp (car x))) nil)
-                         ((string-match "\\W" (car x)) x)
-                         (t (cons (concat "\\." (car x) "\\'") (cdr x)))))
+                   (unless (not (stringp (car x)))
+                     (if (string-match "\\W" (car x))
+                         x
+                       (cons (concat "\\." (car x) "\\'") (cdr x)))))
                  list))
    (when add-auto-mode
      (mapcar (lambda (x) (cons (car x) 'emacs)) auto-mode-alist))))
@@ -1194,30 +1195,30 @@ file should be visited in Emacs."
 (defun taskpaper-open-file-with-cmd (file cmd)
   "Open FILE using CMD.
 If CMD is a string, the command will be executed by a shell. A %s
-formatter will be replaced by the file path. If CMD is the symbol
-'emacs, the file will be visited by the current Emacs process. If
-CMD is a Lisp function, the function will be called with the file
-path as a single argument."
-  (setq file (substitute-in-file-name (expand-file-name file)))
+formatter will be replaced by the absolute file path. If CMD is
+the symbol `emacs', the file will be opened by the current Emacs
+process. If CMD is a Lisp function, the function will be called
+with the file path as a single argument."
+  (setq file (convert-standard-filename file))
   (when (and (not (eq cmd 'emacs))
              (not (file-exists-p file))
              (not taskpaper-open-non-existing-files))
-    (user-error "No such file: %s" file))
+    (user-error "File does not exist: %s" file))
   (cond
    ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
     (while (string-match "\"%s\"\\|'%s'" cmd)
       (setq cmd (replace-match "%s" t t cmd)))
     (while (string-match "%s" cmd)
       (setq cmd (replace-match
-                 (save-match-data
-                   (shell-quote-argument (convert-standard-filename file)))
+                 (save-match-data (shell-quote-argument file))
                  t t cmd)))
-    (save-window-excursion (start-process-shell-command cmd nil cmd))
-    (message "Running %s" cmd))
+    (save-window-excursion
+      (message "Running %s" cmd)
+      (start-process-shell-command cmd nil cmd)))
    ((eq cmd 'emacs)
     (find-file-other-window file))
    ((functionp cmd)
-    (save-match-data (funcall cmd (convert-standard-filename file))))
+    (save-match-data (funcall cmd file)))
    (t (error "Cannot interpret command: %s" cmd))))
 
 (declare-function mailcap-parse-mailcaps "mailcap" (&optional path force))
@@ -1225,32 +1226,31 @@ path as a single argument."
 (declare-function mailcap-mime-info "mailcap" (string &optional request no-decode))
 (defun taskpaper-open-file (path &optional in-emacs)
   "Open the file at PATH.
-With optional argument IN-EMACS, visit the file in Emacs."
+With optional argument IN-EMACS, open the file in Emacs."
   (let* ((file (if (equal path "")
                    buffer-file-name
                  (substitute-in-file-name (expand-file-name path))))
-         (apps (append taskpaper-file-apps (taskpaper-default-apps)))
+         (apps (append taskpaper-file-apps (taskpaper-default-file-apps)))
          (remp (and (assq 'remote apps) (file-remote-p file)))
-         (dirp (file-directory-p file))
+         (dirp (unless remp (file-directory-p file)))
          (amap (assq 'auto-mode apps))
          (dfile (downcase file))
-         (ext (and (string-match
-                    "\\.\\([[:alnum:]]+\\(\\.gz\\|\\.bz2\\)?\\)\\'" dfile)
+         (ext (and (string-match "\\.\\([a-z0-9]+\\(\\.gz\\)?\\)\\'" dfile)
                    (match-string 1 dfile)))
          cmd)
     ;; Set open command
     (cond
      (in-emacs (setq cmd 'emacs))
-     (t (setq cmd (or (and remp (cdr (assoc 'remote apps)))
-                      (and dirp (cdr (assoc 'directory apps)))
+     (t (setq cmd (or (and remp (cdr (assq 'remote apps)))
+                      (and dirp (cdr (assq 'directory apps)))
                       (assoc-default dfile
                                      (taskpaper-apps-regexp-alist apps amap)
                                      'string-match)
                       (cdr (assoc ext apps))
                       (cdr (assoc t apps))))))
     (cond
-     ((eq cmd 'system) (setq cmd (cdr (assoc 'system apps))))
-     ((eq cmd 'default) (setq cmd (cdr (assoc t apps))))
+     ((eq cmd 'system) (setq cmd (cdr (assq 'system apps))))
+     ((eq cmd 'default) (setq cmd (cdr (assq t apps))))
      ((eq cmd 'mailcap)
       (require 'mailcap)
       (mailcap-parse-mailcaps)
