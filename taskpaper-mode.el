@@ -1897,8 +1897,7 @@ ring."
       (cond ((string-match "^- " item)
              (setq item (replace-match "" t nil item)))
             ((string-match ":$" item)
-             (setq item (replace-match "" t nil item)))
-            (t item)))
+             (setq item (replace-match "" t nil item)))))
     ;; Sanitize
     (setq item (string-trim item) tags (string-trim tags))
     ;; Add separator space, if nessessary
