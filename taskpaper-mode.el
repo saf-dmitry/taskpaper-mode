@@ -2069,21 +2069,15 @@ INHERIT is non-nil also check higher levels of the hierarchy."
 Return the value as a string or nil if the attribute does not
 exist or no value is specified. If INHERIT is non-nil also check
 higher levels of the hierarchy."
-  (unless (taskpaper-tag-name-p name)
-    (user-error "Invalid attribute name: %s" name))
   (cdr (assoc name (taskpaper-item-get-attributes inherit))))
 
 (defun taskpaper-item-has-attribute (name &optional inherit)
   "Return non-nil if the item at point has attribute NAME.
 If INHERIT is non-nil also check higher levels of the hierarchy."
-  (unless (taskpaper-tag-name-p name)
-    (user-error "Invalid attribute name: %s" name))
   (assoc name (taskpaper-item-get-attributes inherit)))
 
 (defun taskpaper-item-remove-attribute (name)
   "Remove non-special attribute NAME from the item at point."
-  (unless (taskpaper-tag-name-p name)
-    (user-error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
     (user-error "Special attribute cannot be removed: %s" name))
   (beginning-of-line)
