@@ -5385,8 +5385,8 @@ this option will be ignored."
   "Set mode name to indicate all Agenda mode settings."
   (setq mode-name
         (list "TP-Agenda"
-              (if taskpaper-agenda-follow-mode " Follow" "")
-              (force-mode-line-update))))
+              (if taskpaper-agenda-follow-mode " Follow" "")))
+  (force-mode-line-update))
 
 (defun taskpaper-agenda-files ()
   "Compute list of agenda files."
