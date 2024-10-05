@@ -2069,7 +2069,7 @@ If INHERIT is non-nil also check higher levels of the hierarchy."
 (defun taskpaper-item-remove-attribute (name)
   "Remove non-special attribute NAME from the item at point."
   (when (member name taskpaper-special-attributes)
-    (user-error "Special attribute cannot be removed: %s" name))
+    (error "Special attribute cannot be removed: %s" name))
   (beginning-of-line)
   (save-match-data
     (while (re-search-forward
@@ -2082,9 +2082,9 @@ If INHERIT is non-nil also check higher levels of the hierarchy."
   "Set non-special attribute NAME for the item at point.
 With optional argument VALUE, set attribute to that value."
   (unless (taskpaper-tag-name-p name)
-    (user-error "Invalid attribute name: %s" name))
+    (error "Invalid attribute name: %s" name))
   (when (member name taskpaper-special-attributes)
-    (user-error "Special attribute cannot be set: %s" name))
+    (error "Special attribute cannot be set: %s" name))
   (taskpaper-item-remove-attribute name)
   (when value (setq value (taskpaper-tag-value-escape value)))
   (taskpaper-outline-end-of-item)
@@ -2884,7 +2884,7 @@ Return selected tag specifier."
                     (save-restriction
                       (run-hook-with-args-until-failure
                        'taskpaper-blocker-hook (point-at-bol))))
-            (user-error "Completing is blocked")))
+            (user-error "Completing blocked")))
         ;; Remove extra tags
         (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
               taskpaper-tags-to-remove-when-done)
@@ -3815,7 +3815,7 @@ the current subtree."
                               (taskpaper-item-get-outline-path t))))))))
     ;; Set possible targets
     (setq targets (taskpaper-goto-get-targets excluded-entries))
-    (unless targets (user-error "No targets"))
+    (unless targets (user-error "No possible targets"))
     (let ((partial-completion-mode nil) (completion-ignore-case t))
       ;; Select outline path
       (setq target (completing-read prompt targets nil t))
