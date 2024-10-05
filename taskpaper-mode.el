@@ -1880,23 +1880,6 @@ ring."
   (set-text-properties 0 (length item) nil item)
   item)
 
-(defun taskpaper-item-type ()
-  "Return type of item at point."
-  (let ((item (buffer-substring-no-properties
-               (line-beginning-position) (line-end-position))))
-    (setq item (taskpaper-remove-indentation item))
-    (setq item (taskpaper-remove-trailing-tags item))
-    (cond ((string-match-p "^\\s-*$" item) nil)
-          ((string-match-p "^- " item) "task")
-          ((string-match-p ":$" item) "project")
-          (t "note"))))
-
-(defun taskpaper-item-text ()
-  "Return text of the item at point."
-  (let ((item (buffer-substring-no-properties
-               (line-beginning-position) (line-end-position))))
-    (taskpaper-remove-indentation item)))
-
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
   (let ((re-ind "^\\([ \t]+\\)")
@@ -2007,15 +1990,22 @@ This function does not set or modify the match data."
   value)
 
 (defconst taskpaper-special-attributes '("type" "text")
-  "The implicit item attributes not associated with tags.")
+  "Special item attributes not associated with tags.")
 
 (defun taskpaper-item-get-special-attributes ()
   "Get special attrbutes for the item at point.
 Return a list of cons cells (NAME . VALUE), where NAME is the
 attribute name and VALUE is the attribute value, as strings."
-  (let (attrs)
-    (push (cons "type" (taskpaper-item-type)) attrs)
-    (push (cons "text" (taskpaper-item-text)) attrs)
+  (let ((item (buffer-substring-no-properties
+               (line-beginning-position) (line-end-position)))
+        attrs type text text1)
+    (setq text  (taskpaper-remove-indentation item))
+    (setq text1 (taskpaper-remove-trailing-tags text))
+    (setq type (cond ((string-match-p "^- " text1) "task")
+                     ((string-match-p ":$"  text1) "project")
+                     (t "note")))
+    (push (cons "type" type) attrs)
+    (push (cons "text" text) attrs)
     attrs))
 
 (defun taskpaper-item-get-explicit-attributes ()
