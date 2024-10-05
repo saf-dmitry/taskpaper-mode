@@ -614,7 +614,7 @@ Group 3 matches the optional tag value.")
    "[a-zA-Z][-a-zA-Z0-9.+]\\{1,31\\}[:]"
    "\\(?:[/]\\{1,3\\}\\|[[:alnum:]%]\\)"
    "\\|"
-   "www[[:digit:]]\\{0,3\\}[.]"
+   "www[0-9]\\{0,3\\}[.]"
    "\\)"
    "\\(?:"
    "[^[:space:]()<>]"
@@ -1199,13 +1199,13 @@ formatter will be replaced by the absolute file path. If CMD is
 the symbol `emacs', the file will be opened by the current Emacs
 process. If CMD is a Lisp function, the function will be called
 with the file path as a single argument."
-  (setq file (convert-standard-filename file))
+  (setq file (convert-standard-filename (expand-file-name file)))
   (when (and (not (eq cmd 'emacs))
              (not (file-exists-p file))
              (not taskpaper-open-non-existing-files))
     (user-error "File does not exist: %s" file))
   (cond
-   ((and (stringp cmd) (not (string-match-p "^\\s-*$" cmd)))
+   ((and (stringp cmd) (string-match-p "\\S-" cmd))
     (while (string-match "\"%s\"\\|'%s'" cmd)
       (setq cmd (replace-match "%s" t t cmd)))
     (while (string-match "%s" cmd)
@@ -1245,7 +1245,7 @@ With optional argument IN-EMACS, open the file in Emacs."
                       (and dirp (cdr (assq 'directory apps)))
                       (assoc-default dfile
                                      (taskpaper-apps-regexp-alist apps amap)
-                                     'string-match)
+                                     #'string-match)
                       (cdr (assoc ext apps))
                       (cdr (assoc t apps))))))
     (cond
@@ -1328,7 +1328,7 @@ is used. An absolute path can be forced with a
       (setq link (taskpaper-file-path-unescape link))
       (taskpaper-open-file link))
      ((eq type 'uri)
-      (when (string-match-p "\\`www[[:digit:]]\\{0,3\\}[.]" link)
+      (when (string-prefix-p "www" link)
         (setq link (concat "http://" link)))
       (taskpaper-open-uri link))
      (t (find-file-other-window link)))))
@@ -1516,7 +1516,7 @@ This version will not throw an error."
 (defun taskpaper-outline-up-level-safe ()
   "Move to the (possibly invisible) ancestor item.
 Return the level of the item found or nil otherwise. This version
-will not throw an error. Also, this version is a lot faster than
+will not throw an error. Also, this version is much faster than
 `outline-up-heading'."
   (when (ignore-errors (outline-back-to-heading t))
     (let (level-cache)
@@ -5334,12 +5334,11 @@ Point is in the buffer where the item originated."
 (defcustom taskpaper-agenda-window-setup 'reorganize-frame
   "How the Agenda mode buffer should be displayed.
 Possible values for this option are:
-
- current-window    Show agenda in the current window, keeping other windows
- other-window      Show agenda in other window
- only-window       Show agenda in the current window, deleting other windows
- other-frame       Show agenda in other frame
- reorganize-frame  Show only the current window and the agenda window"
+ `current-window'    Show agenda in the current window, keeping other windows
+ `other-window'      Show agenda in other window
+ `only-window'       Show agenda in the current window, deleting other windows
+ `other-frame'       Show agenda in other frame
+ `reorganize-frame'  Show only the current window and the agenda window"
   :group 'taskpaper
   :type '(choice
           (const :tag "Current window" current-window)
