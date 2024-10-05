@@ -1883,7 +1883,7 @@ ring."
 (defun taskpaper-remove-type-formatting (item)
   "Remove type formatting from ITEM."
   (let ((re-ind "^\\([ \t]+\\)")
-        (re-tag (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
+        (re-tag (format "\\(%s\\)$" taskpaper-consec-tags-regexp))
         (indent "") (tags ""))
     (save-match-data
       ;; Strip indent and trailing tags and save them
@@ -1914,7 +1914,7 @@ Item type can be `project', `task', or `note'."
          (end (line-end-position))
          (item (buffer-substring-no-properties begin end))
          (re-ind "^\\([ \t]+\\)")
-         (re-tag (format "\\(%s\\)\\s-*$" taskpaper-consec-tags-regexp))
+         (re-tag (format "\\(%s\\)$" taskpaper-consec-tags-regexp))
          (indent "") (tags ""))
     ;; Remove type formatting
     (setq item (taskpaper-remove-type-formatting item))
