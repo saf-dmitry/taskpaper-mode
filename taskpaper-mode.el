@@ -5441,7 +5441,7 @@ position where the item originated."
       (setq buffer
             (if (file-exists-p file)
                 (taskpaper-agenda-get-file-buffer file)
-              (error "Non-existent agenda file: %s" file)))
+              (error "Agenda file does not exist: %s" file)))
       (with-current-buffer buffer
         (unless (derived-mode-p 'taskpaper-mode)
           (error "Agenda file is not in TaskPaper mode: %s" file))
@@ -5668,7 +5668,8 @@ ABUF is the buffer for the agenda window."
 (defun taskpaper-agenda-select ()
   "Promt for query selection and build agenda view."
   (interactive)
-  (let ((matcher (taskpaper-query-matcher (taskpaper-query-fast-selection))))
+  (let ((matcher (taskpaper-query-matcher
+                  (taskpaper-query-fast-selection))))
     (taskpaper-agenda-build matcher)))
 
 ;;;; Provide `taskpaper-mode'
