@@ -4881,12 +4881,11 @@ default prompt."
               (when (and query (not (equal query "")))
                 ;; Format description
                 (setq desc (taskpaper-item-get-attribute "text")
-                      desc (taskpaper-remove-trailing-tags
-                            (taskpaper-remove-type-formatting
-                             (taskpaper-remove-inline-markup desc))))
-                (when (equal desc "")
-                  (setq desc (format "@search(%s)"
-                                     (taskpaper-tag-value-escape query))))
+                      desc (string-trim
+                            (taskpaper-remove-trailing-tags
+                             (taskpaper-remove-type-formatting
+                              (taskpaper-remove-inline-markup desc)))))
+                (when (equal desc "") (setq desc query))
                 ;; Add entry to the list
                 (push (cons desc query) queries)))))))
     (nreverse queries)))
