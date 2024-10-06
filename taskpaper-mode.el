@@ -250,7 +250,7 @@ Possible values for the command are:
  `system'    System command for opening files
  `mailcap'   Command specified in the mailcaps
  string      A command to be executed by a shell;
-             %s will be replaced by the file path
+             %s will be replaced by the quoted file path
  function    Lisp function to be called with one argument:
              the file path
 
@@ -1195,8 +1195,8 @@ the file should be opened in Emacs."
 (defun taskpaper-open-file-with-cmd (file cmd)
   "Open FILE using CMD.
 If CMD is a string, the command will be executed by a shell. A %s
-formatter will be replaced by the absolute file path. If CMD is
-the symbol `emacs', the file will be opened by the current Emacs
+formatter will be replaced by the quoted file path. If CMD is the
+symbol `emacs', the file will be opened by the current Emacs
 process. If CMD is a Lisp function, the function will be called
 with the file path as a single argument."
   (setq file (convert-standard-filename (expand-file-name file)))
@@ -1205,13 +1205,9 @@ with the file path as a single argument."
              (not taskpaper-open-non-existing-files))
     (user-error "File does not exist: %s" file))
   (cond
-   ((and (stringp cmd) (string-match-p "\\S-" cmd))
-    (while (string-match "\"%s\"\\|'%s'" cmd)
-      (setq cmd (replace-match "%s" t t cmd)))
-    (while (string-match "%s" cmd)
-      (setq cmd (replace-match
-                 (save-match-data (shell-quote-argument file))
-                 t t cmd)))
+   ((and (stringp cmd) (not (string-blank-p cmd)))
+    (setq cmd (replace-regexp-in-string
+               "%s" (shell-quote-argument file) cmd t t))
     (save-window-excursion
       (message "Running %s" cmd)
       (start-process-shell-command cmd nil cmd)))
