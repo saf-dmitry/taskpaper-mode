@@ -1223,7 +1223,7 @@ with the file path as a single argument."
 (defun taskpaper-open-file (path &optional in-emacs)
   "Open the file at PATH.
 With optional argument IN-EMACS, open the file in Emacs."
-  (let* ((file (if (equal path "")
+  (let* ((file (if (string-empty-p path)
                    buffer-file-name
                  (substitute-in-file-name (expand-file-name path))))
          (apps (append taskpaper-file-apps (taskpaper-default-file-apps)))
@@ -1290,7 +1290,7 @@ non-nil, force absolute path."
         (pwd  (file-name-as-directory (expand-file-name ".")))
         (pwd1 (file-name-as-directory
                (abbreviate-file-name (expand-file-name ".")))))
-    (when (equal file "") (user-error "File name cannot be empty"))
+    (when (string-empty-p file) (user-error "File name cannot be empty"))
     (cond
      (arg (abbreviate-file-name (expand-file-name file)))
      ((string-match (concat "\\`" (regexp-quote pwd1) "\\(.+\\)") file)
@@ -1897,7 +1897,7 @@ ring."
     ;; Sanitize
     (setq item (string-trim item) tags (string-trim tags))
     ;; Add separator space, if nessessary
-    (when (and (not (equal item "")) (not (equal tags "")))
+    (when (and (not (string-empty-p item)) (not (string-empty-p tags)))
       (setq tags (concat " " tags)))
     ;; Add indent and trailing tags
     (concat indent item tags)))
@@ -1929,7 +1929,7 @@ Item type can be `project', `task', or `note'."
           ((eq type 'note) item)
           (t (error "Invalid item type: %s" type)))
     ;; Add separator space, if nessessary
-    (when (and (not (equal item "")) (not (equal tags "")))
+    (when (and (not (string-empty-p item)) (not (string-empty-p tags)))
       (setq tags (concat " " tags)))
     ;; Add indent and trailing tags and replace the item
     (delete-region begin end) (insert indent item tags)))
@@ -2853,7 +2853,7 @@ Return selected tag specifier."
     ;; Expand tag value
     (when (and value (string-prefix-p "%%" value))
       (setq value (string-remove-prefix "%%" value))
-      (if (equal value "")
+      (if (string-empty-p value)
           (setq value (taskpaper-read-date))
         (setq value (taskpaper-expand-time-string value))))
     (taskpaper-item-set-attribute name value)))
@@ -3611,7 +3611,7 @@ When point is at the beginning of the buffer, sort the top-level
 items. Else, the children of the current item are sorted.
 
 The GETKEY-FUNC specifies a function to be called with point at
-the beginning of the item. It must return either a string or a
+the beginning of an item. It must return either a string or a
 number that should serve as the sorting key for that item. The
 COMPARE-FUNC specifies a function to compare the sorting keys; it
 is called with two arguments, the sorting keys, and should return
@@ -4151,7 +4151,7 @@ this buffer as target buffer, otherwise use the current buffer."
 Return the number of matches."
   (interactive)
   (setq regexp (or regexp (read-regexp "Regexp: ")))
-  (when (equal regexp "") (user-error "Regexp must not be empty"))
+  (when (string-empty-p regexp) (user-error "Regexp must not be empty"))
   (taskpaper-occur-remove-highlights)
   (outline-flag-region (point-min) (point-max) t)
   (goto-char (point-min))
@@ -4873,14 +4873,14 @@ default prompt."
             (when (taskpaper-in-tag-p (match-beginning 1))
               ;; Get query
               (setq query (taskpaper-item-get-attribute "search"))
-              (when (and query (not (equal query "")))
+              (when (and query (not (string-empty-p query)))
                 ;; Format description
                 (setq desc (taskpaper-item-get-attribute "text")
                       desc (string-trim
                             (taskpaper-remove-trailing-tags
                              (taskpaper-remove-type-formatting
                               (taskpaper-remove-inline-markup desc)))))
-                (when (equal desc "") (setq desc query))
+                (when (string-empty-p desc) (setq desc query))
                 ;; Add entry to the list
                 (push (cons desc query) queries)))))))
     (nreverse queries)))
