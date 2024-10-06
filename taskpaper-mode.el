@@ -3766,9 +3766,8 @@ When SELF is non-nil, also include the current item."
 (defun taskpaper-format-olpath-entry (entry)
   "Format the outline path entry ENTRY."
   (setq entry (taskpaper-remove-trailing-tags
-               (taskpaper-remove-type-formatting entry))
-        entry (replace-regexp-in-string "/" "\\\\/" entry))
-  entry)
+               (taskpaper-remove-type-formatting entry)))
+  (replace-regexp-in-string "/" "%2F" entry))
 
 (defun taskpaper-format-outline-path (olpath)
   "Format the outline path OLPATH."
