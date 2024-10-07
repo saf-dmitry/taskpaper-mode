@@ -213,21 +213,7 @@ The following two functions are similar to `taskpaper-outline-promote-subtree` a
 
 ### Mapping and Attribute Setting
 
-The next example uses `taskpaper-outline-map-tree` outline mapping function and `taskpaper-item-remove-attribute` function to remove all occurrences of certain tag from all items in the subtree under cursor. The user will be prompted for tag name and tag value to remove. If no value is provided, tags with any value or no value at all will be considered.
-
-```elisp
-(defun my-taskpaper-outline-remove-tag ()
-  "Remove certain tag from all items in the current subtree."
-  (interactive)
-  (let ((name (read-string "Tag name: "))
-        (value (read-string "Tag value: ")))
-    (when (equal value "") (setq value nil))
-    (taskpaper-outline-map-tree
-     `(lambda ()
-        (taskpaper-item-remove-attribute ,name ,value)))))
-```
-
-The function described in the next example marks all items in the subtree under cursor as completed by adding a `@done` tag with the current date to them. Items, which have been completed before, remain untouched.
+The next example uses `taskpaper-outline-map-tree` outline mapping function. The function marks all items in the subtree under cursor as completed by adding a `@done` tag with the current date to them. Items, which have been completed before, remain untouched.
 
 ```elisp
 (defun my-taskpaper-outline-complete-subtree ()
@@ -235,11 +221,11 @@ The function described in the next example marks all items in the subtree under 
   (interactive)
   (let ((ts (format-time-string "%Y-%m-%d" (current-time))))
     (taskpaper-outline-map-tree
-     `(lambda ()
-        (unless (taskpaper-item-has-attribute "done")
-          (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
-                taskpaper-tags-to-remove-when-done)
-          (taskpaper-item-set-attribute "done" ,ts))))))
+     (lambda ()
+       (unless (taskpaper-item-has-attribute "done")
+         (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
+               taskpaper-tags-to-remove-when-done)
+         (taskpaper-item-set-attribute "done" ts))))))
 ```
 
 The following more complex example utilizes `taskpaper-outline-map-region` outline mapping function and `taskpaper-archive-subtree` function to archive all completed items in the current buffer:
@@ -249,10 +235,10 @@ The following more complex example utilizes `taskpaper-outline-map-region` outli
   "Archive all completed items."
   (interactive)
   (taskpaper-outline-map-region
-   (lambda nil
-      (when (taskpaper-item-has-attribute "done")
-        (taskpaper-archive-subtree)
-        (taskpaper-outline-previous-item-safe)))
+   (lambda ()
+     (when (taskpaper-item-has-attribute "done")
+       (taskpaper-archive-subtree)
+       (taskpaper-outline-previous-item-safe)))
    (point-min) (point-max)))
 ```
 
@@ -263,11 +249,11 @@ Calling the function `taskpaper-outline-previous-item-safe` prevents the next en
   "Archive all completed items."
   (interactive)
   (taskpaper-outline-map-region
-   (lambda nil
-      (when (taskpaper-time<=
-             (taskpaper-item-get-attribute "done") "-14d")
-        (taskpaper-archive-subtree)
-        (taskpaper-outline-previous-item-safe)))
+   (lambda ()
+     (when (taskpaper-time<=
+            (taskpaper-item-get-attribute "done") "-14d")
+       (taskpaper-archive-subtree)
+       (taskpaper-outline-previous-item-safe)))
    (point-min) (point-max)))
 ```
 
@@ -284,8 +270,8 @@ The following code adds `my-taskpaper-blocker-func-1` function to the hook. The 
   (catch 'exit
     (taskpaper-outline-map-descendants
      (lambda ()
-        (when (taskpaper-query-item-match-p "not note and not @done")
-          (throw 'exit nil))))
+       (when (taskpaper-query-item-match-p "not note and not @done")
+         (throw 'exit nil))))
     t))
 
 (add-hook 'taskpaper-blocker-hook #'my-taskpaper-blocker-func-1)
@@ -326,8 +312,8 @@ In addition to the existing sorting functions `taskpaper-sort-by-text` and `task
   "Sort items on a certain level by priority."
   (interactive)
   (taskpaper-sort-items-generic
-   (lambda nil
-      (or (taskpaper-item-get-attribute "priority") "99"))
+   (lambda ()
+     (or (taskpaper-item-get-attribute "priority") "99"))
    #'taskpaper-num<))
 
 (define-key taskpaper-mode-map (kbd "C-c C-s p")
@@ -341,8 +327,8 @@ The next function sorts items according to their due dates. The sorting is done 
   "Sort items on a certain level by due date."
   (interactive)
   (taskpaper-sort-items-generic
-   (lambda nil
-      (or (taskpaper-item-get-attribute "due") "2100-12-12"))
+   (lambda ()
+     (or (taskpaper-item-get-attribute "due") "2100-12-12"))
    #'taskpaper-time<))
 
 (define-key taskpaper-mode-map (kbd "C-c C-s d")
@@ -451,10 +437,10 @@ Using mapping and querying functions you can generate your own custom summary re
   (let ((cnt-task-open 0) (cnt-task-hold 0))
     (taskpaper-outline-map-tree
      (lambda ()
-        (when (taskpaper-query-item-match-p "task and not @done")
-          (setq cnt-task-open (1+ cnt-task-open)))
-        (when (taskpaper-query-item-match-p "task and not @done and @hold")
-          (setq cnt-task-hold (1+ cnt-task-hold)))))
+       (when (taskpaper-query-item-match-p "task and not @done")
+         (setq cnt-task-open (1+ cnt-task-open)))
+       (when (taskpaper-query-item-match-p "task and not @done and @hold")
+         (setq cnt-task-hold (1+ cnt-task-hold)))))
     (message "Open tasks: %d; tasks on hold: %d." cnt-task-open cnt-task-hold)))
 ```
 
