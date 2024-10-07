@@ -1272,11 +1272,11 @@ the URI as a single argument."
     (let ((cmd (taskpaper-default-open-cmd)))
       (cond
        ((stringp cmd)
-        (while (string-match "%s" cmd)
-          (setq cmd (replace-match
-                     (save-match-data (shell-quote-argument uri)) t t cmd)))
-        (save-window-excursion (start-process-shell-command cmd nil cmd))
-        (message "Running %s" cmd))
+        (setq cmd (replace-regexp-in-string
+                   "%s" (shell-quote-argument uri) cmd t t))
+        (save-window-excursion
+          (message "Running %s" cmd)
+          (start-process-shell-command cmd nil cmd)))
        ((functionp cmd)
         (save-match-data (funcall cmd uri)))))))
 
@@ -3663,19 +3663,19 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
          ;; REVERSE arg
          reverse
          ;; NEXTRECFUN arg
-         (lambda nil
+         (lambda ()
            (if (re-search-forward "^[\t]*[^\t\f\n]" nil t)
                (goto-char (match-beginning 0))
              (goto-char (point-max))))
          ;; ENDRECFUN arg
-         (lambda nil
+         (lambda ()
            (save-match-data
              (condition-case nil
                  (progn (taskpaper-outline-forward-same-level 1)
                         (beginning-of-line))
                (error (goto-char (point-max))))))
          ;; STARTKEYFUN arg
-         (lambda nil
+         (lambda ()
            (progn
              (setq tmp (funcall getkey-func))
              (when (stringp tmp)
@@ -3690,13 +3690,7 @@ When sorting is done, call `taskpaper-after-sorting-items-hook'."
 
 (defun taskpaper-item-sorting-key-text ()
   "Return sorting key of current item for lexicographic sorting."
-  (let ((item (buffer-substring
-               (line-beginning-position) (line-end-position))))
-    (setq item (taskpaper-remove-markup-chars item)
-          item (taskpaper-remove-indentation item)
-          item (taskpaper-remove-type-formatting item))
-    (set-text-properties 0 (length item) nil item)
-    item))
+  (taskpaper-remove-inline-markup (taskpaper-item-get-attribute "text")))
 
 (defun taskpaper-item-sorting-key-type ()
   "Return sorting key of current item for sorting by type."
@@ -3729,8 +3723,7 @@ instead of item at point."
 The optional argument REVERSE will reverse the sort order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   (lambda nil (taskpaper-item-sorting-key-text))
-   #'string-collate-lessp nil reverse))
+   #'taskpaper-item-sorting-key-text #'string-collate-lessp nil reverse))
 
 (defun taskpaper-sort-by-type (&optional reverse)
   "Sort items on a certain level by type.
@@ -3739,8 +3732,7 @@ before tasks. The optional argument REVERSE will reverse the sort
 order."
   (interactive "P")
   (taskpaper-sort-items-generic
-   (lambda nil (taskpaper-item-sorting-key-type))
-   #'> nil reverse))
+   #'taskpaper-item-sorting-key-type #'> nil reverse))
 
 ;;;; Outline path
 
@@ -5279,7 +5271,7 @@ file list."
   :group 'taskpaper
   :type 'list)
 
-(defcustom taskpaper-agenda-file-regexp "^[^.].*\\.taskpaper\\'"
+(defcustom taskpaper-agenda-file-regexp "\\.taskpaper\\'"
   "Regular expression to match files for `taskpaper-agenda-files'."
   :group 'taskpaper
   :type 'regexp)
