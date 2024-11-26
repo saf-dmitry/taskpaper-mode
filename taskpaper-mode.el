@@ -2563,9 +2563,9 @@ included."
 
 (defun taskpaper-time-string-to-seconds (time-str &optional timedecode)
   "Convert time string TIME-STR to a float number of seconds.
-Return the float number of seconds since the beginning of the
-epoch. When TIMEDECODE time value is given, calculate time based
-on this time, otherwise use current time."
+Return the float number of seconds since the 1970 epoch. When
+TIMEDECODE time value is given, calculate time based on this
+time, otherwise use current time."
   (float-time (apply #'encode-time
                      (taskpaper-parse-time-string time-str timedecode))))
 
@@ -3084,8 +3084,7 @@ Case is ignored."
   "Return t if two arg time strings are equal.
 Time string are converted to a float number of seconds before
 numeric comparing. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch."
+treated as the float number of seconds since the 1970 epoch."
   (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (= a b)))
@@ -3095,8 +3094,7 @@ epoch."
   "Return t if first arg time string is less than second.
 Time string are converted to a float number of seconds before
 numeric comparing. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch."
+treated as the float number of seconds since the 1970 epoch."
   (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (< a b)))
@@ -3106,8 +3104,7 @@ epoch."
   "Return t if first arg time string is less than or equal to second.
 Time string are converted to a float number of seconds before
 numeric comparing. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch."
+treated as the float number of seconds since the 1970 epoch."
   (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (<= a b)))
@@ -3117,8 +3114,7 @@ epoch."
   "Return t if first arg time string is greater than second.
 Time string are converted to a float number of seconds before
 numeric comparing. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch."
+treated as the float number of seconds since the 1970 epoch."
   (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (> a b)))
@@ -3128,8 +3124,7 @@ epoch."
   "Return t if first arg time string is greater than or equal to second.
 Time string are converted to a float number of seconds before
 numeric comparing. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch."
+treated as the float number of seconds since the 1970 epoch."
   (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (>= a b)))
@@ -3139,8 +3134,7 @@ epoch."
   "Return t if two arg time strings are not equal.
 Time string are converted to a float number of seconds before
 numeric comparing. If any argument is a float number, it will be
-treated as the float number of seconds since the beginning of the
-epoch."
+treated as the float number of seconds since the 1970 epoch."
   (cond ((and a b)
          (setq a (taskpaper-2ft a) b (taskpaper-2ft b))
          (and (> a 0) (> b 0) (not (= a b))))

@@ -320,7 +320,7 @@ In addition to the existing sorting functions `taskpaper-sort-by-text` and `task
             #'my-taskpaper-sort-by-priority)
 ```
 
-The next function sorts items according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
+The next function sorts items according to their due dates. The sorting is done by date/time value (converted to float number of seconds since the 1970 epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
 ```elisp
 (defun my-taskpaper-sort-by-due-date ()

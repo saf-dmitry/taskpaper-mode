@@ -623,7 +623,7 @@ Two user options control how the Agenda mode buffer is displayed and whether the
 
 Before being inserted into an Agenda mode buffer, the items are sorted. Sorting can be customized using the user option `taskpaper-agenda-sorting-predicate`. If the variable is `nil`, which is the default setting, agenda items just appear in the sequence in which they are found in the agenda files. The sorting predicate function is called with two string arguments, the items to compare, and should return non-nil if the first item should sort before the second one.
 
-In the example below items will be sorted according to their due dates form earliest to latest. The sorting is done by date & time value (converted to float number of seconds since the beginning of the epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
+In the example below items will be sorted according to their due dates form earliest to latest. The sorting is done by date & time value (converted to float number of seconds since the 1970 epoch). Items, which have no or empty `@due` tag, are assumed to have 2100-12-12 as due date, effectively ending up at the bottom of the sorted list.
 
 ```elisp
 (setq taskpaper-agenda-sorting-predicate
