@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: nil -*-
 ;;; taskpaper-mode.el --- Major mode for working with TaskPaper files
 
 ;; Copyright 2016-2025 Dmitry Safronov
