@@ -5264,7 +5264,7 @@ If an entry is a directory, all files in that directory that are
 matched by `taskpaper-agenda-file-regexp' will be part of the
 file list."
   :group 'taskpaper
-  :type 'list)
+  :type '(list string))
 
 (defcustom taskpaper-agenda-file-regexp "\\.taskpaper\\'"
   "Regular expression to match files for `taskpaper-agenda-files'."
