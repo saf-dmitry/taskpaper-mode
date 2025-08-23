@@ -1,5 +1,4 @@
-;;; -*- lexical-binding: nil -*-
-;;; taskpaper-mode.el --- Major mode for working with TaskPaper files
+;;; taskpaper-mode.el --- Major mode for TaskPaper files -*- lexical-binding: t; -*-
 
 ;; Copyright 2016-2025 Dmitry Safronov
 
@@ -3981,10 +3980,9 @@ the archive heading as a subitem. Depending on the value of
 `taskpaper-reverse-note-order', it will be either the first or
 last subitem."
   (interactive)
+  (when (not (buffer-file-name (buffer-base-buffer)))
+    (error "No file associated to buffer"))
   (let ((this-buffer (current-buffer))
-        (file (abbreviate-file-name
-               (or (buffer-file-name (buffer-base-buffer))
-                   (error "No file associated to buffer"))))
         afile heading buffer project level)
     ;; Extract archive heading and file name
     (setq afile (taskpaper-extract-archive-file
