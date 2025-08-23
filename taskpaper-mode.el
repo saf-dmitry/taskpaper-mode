@@ -4044,9 +4044,7 @@ last subitem."
     (run-hooks 'taskpaper-archive-hook)
     ;; Bind `this-command' to avoid `kill-region' changes it,
     ;; which may lead to duplication of subtrees
-    ;; NOTE: Do not bind `this-command' with `let' because
-    ;; that would restore the old value in case of error
-    (let (old-this-command this-command)
+    (let ((old-this-command this-command))
       (setq this-command t)
       ;; Cut the subtree from the original location
       (taskpaper-cut-subtree)
