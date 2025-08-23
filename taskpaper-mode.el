@@ -3793,7 +3793,7 @@ the current subtree."
     ;; Set possible targets
     (setq targets (taskpaper-goto-get-targets excluded-entries))
     (unless targets (user-error "No possible targets"))
-    (let ((partial-completion-mode nil) (completion-ignore-case t))
+    (let ((completion-ignore-case t))
       ;; Select outline path
       (setq target (completing-read prompt targets nil t))
       ;; Return the associated outline path and buffer position
