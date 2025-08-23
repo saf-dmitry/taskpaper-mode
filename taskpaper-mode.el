@@ -4873,7 +4873,7 @@ default prompt."
                          (delq nil (mapcar #'cdr taskpaper-custom-queries))))
         desc query)
     (unless queries (error "No predefined queries"))
-    (let ((partial-completion-mode nil) (completion-ignore-case t))
+    (let ((completion-ignore-case t))
       (setq desc (completing-read "Select query: " queries nil t)))
     (setq query (cdr (assoc desc queries)))
     (if taskpaper-iquery-default
