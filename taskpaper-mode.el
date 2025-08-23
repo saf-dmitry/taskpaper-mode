@@ -1125,14 +1125,11 @@ If TAG is a number, get the corresponding match group."
 (defun taskpaper-unfontify-region (begin end)
   "Remove fontification in region between BEGIN and END."
   (font-lock-default-unfontify-region begin end)
-  (let* ((buffer-undo-list t)
-         (inhibit-read-only t) (inhibit-point-motion-hooks t)
-         (inhibit-modification-hooks t)
-         deactivate-mark buffer-file-name buffer-file-truename)
-    (remove-text-properties
-     begin end
-     '(display t mouse-face t keymap t line-height t
-       help-echo t invisible t taskpaper-syntax t))))
+  (with-silent-modifications
+    (decompose-region begin end)
+    (remove-text-properties begin end
+      '(display t mouse-face t keymap t help-echo t
+        invisible t intangible t taskpaper-syntax t))))
 
 (defun taskpaper-toggle-markup-hiding ()
   "Toggle the display or hiding of inline markup."
