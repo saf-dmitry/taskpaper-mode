@@ -4816,8 +4816,7 @@ default prompt."
         (prompt (or prompt "I-query: "))
         (attrs (taskpaper-add-tag-prefix
                 (append (taskpaper-get-buffer-tags)
-                        taskpaper-special-attributes)))
-        (win (get-buffer-window (current-buffer))) str)
+                        taskpaper-special-attributes))))
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "TAB")
       (lambda () (interactive) (taskpaper-query-complete-attr attrs)))
