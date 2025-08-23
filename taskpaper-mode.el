@@ -394,7 +394,7 @@ If POS is omitted or nil, the value of point is used by default."
 
 (defsubst taskpaper-get-at-bol (prop)
   "Get text property PROP at the beginning of line."
-  (get-text-property (point-at-bol) prop))
+  (get-text-property (line-beginning-position) prop))
 
 (defun taskpaper-release-buffers (blist)
   "Release all buffers in list BLIST.
@@ -2667,7 +2667,7 @@ string and show the corresponding date."
 This function should be called from `taskpaper-read-date'
 function."
   (when (minibufferp (current-buffer))
-    (let* ((str (buffer-substring (point-at-bol) (point-max)))
+    (let* ((str (buffer-substring (line-beginning-position) (point-max)))
            (time (taskpaper-parse-time-string str))
            (date (list (nth 4 time) (nth 3 time) (nth 5 time)))
            (cwin (get-buffer-window "*Calendar*" t)))
@@ -2691,10 +2691,10 @@ function."
                    (buffer-substring (max (point-min) (- (point) 3)) (point))
                    "   "))
              (insert "   ")))
-      (let* ((str (buffer-substring (point-at-bol) (point-max)))
+      (let* ((str (buffer-substring (line-beginning-position) (point-max)))
              (txt (taskpaper-expand-time-string str)))
         (setq taskpaper-read-date-overlay
-              (make-overlay (1- (point-at-eol)) (point-at-eol)))
+              (make-overlay (1- (line-end-position)) (line-end-position)))
         (taskpaper-overlay-display
          taskpaper-read-date-overlay txt 'secondary-selection)))))
 
@@ -2875,7 +2875,7 @@ Return selected tag specifier."
           (unless (save-excursion
                     (save-restriction
                       (run-hook-with-args-until-failure
-                       'taskpaper-blocker-hook (point-at-bol))))
+                       'taskpaper-blocker-hook (line-beginning-position))))
             (user-error "Completing blocked")))
         ;; Remove extra tags
         (mapc (lambda (tag) (taskpaper-item-remove-attribute tag))
@@ -3770,7 +3770,7 @@ which will be excluded from the results."
           (setq target (taskpaper-format-outline-path
                         (taskpaper-item-get-outline-path t)))
           (unless (or (not target) (member target excluded-entries))
-            (push (cons target (point-at-bol)) targets)))))
+            (push (cons target (line-beginning-position)) targets)))))
     (message "Getting targets...done")
     (nreverse targets)))
 
@@ -4700,11 +4700,11 @@ This function should be called from the minibuffer as part of
     (condition-case nil
         (progn
           (remove-text-properties
-           (point-at-bol) (point-max) (list 'face))
+           (line-beginning-position) (point-max) (list 'face))
           (taskpaper-query-fontify-query)
           (taskpaper-query-matcher (minibuffer-contents-no-properties)))
       (error
-       (put-text-property (point-at-bol) (point-max)
+       (put-text-property (line-beginning-position) (point-max)
                           'face 'taskpaper-query-error)))))
 
 (defun taskpaper-match-sparse-tree (matcher)
@@ -5408,7 +5408,7 @@ position where the item originated."
               (while (re-search-forward re nil t)
                 (when (save-excursion (eval matcher))
                   ;; Set marker and add the item to the list
-                  (setq marker (taskpaper-new-marker (point-at-bol))
+                  (setq marker (taskpaper-new-marker (line-beginning-position))
                         item (taskpaper-item-get-attribute "text")
                         item (propertize item 'taskpaper-marker marker))
                   (push item items))))))))
