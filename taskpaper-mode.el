@@ -2767,9 +2767,8 @@ time converted to an internal time."
 
 ;;;; Tags
 
-(defun taskpaper-get-buffer-tags (&optional pos)
-  "Return a list of buffer tag names for completion.
-If optional POS is inside a tag, ignore the tag."
+(defun taskpaper-get-buffer-tags ()
+  "Return a list of buffer tag names for completion."
   (let (tag tags)
     (save-excursion
       (save-restriction
@@ -2778,9 +2777,7 @@ If optional POS is inside a tag, ignore the tag."
           (while (re-search-forward taskpaper-tag-regexp nil t)
             (when (taskpaper-in-tag-p (match-beginning 1))
               (setq tag (match-string-no-properties 2))
-              (unless (and pos
-                           (<= (match-beginning 0) pos (match-end 0)))
-                (push tag tags)))))))
+              (push tag tags))))))
     (taskpaper-sort (taskpaper-uniquify tags))))
 
 (defun taskpaper-tag-completion-at-point ()
@@ -2790,10 +2787,9 @@ If optional POS is inside a tag, ignore the tag."
     (if (taskpaper-in-regexp-p re)
         (list (match-beginning 1) (match-end 1)
               (completion-table-dynamic
-               (lambda (_)
-                 (taskpaper-add-tag-prefix
-                  (taskpaper-get-buffer-tags (point)))))
-              :exclusive 'no)
+               (lambda (s)
+                 (remove s (taskpaper-add-tag-prefix
+                            (taskpaper-get-buffer-tags))))))
       nil)))
 
 (defun taskpaper-fast-tag-selection ()
