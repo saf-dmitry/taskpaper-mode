@@ -2781,7 +2781,8 @@ time converted to an internal time."
               (completion-table-dynamic
                (lambda (s)
                  (remove s (taskpaper-add-tag-prefix
-                            (taskpaper-get-buffer-tags))))))
+                            (taskpaper-get-buffer-tags)))))
+              :exclusive 'no)
       nil)))
 
 (defun taskpaper-fast-tag-selection ()
