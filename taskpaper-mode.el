@@ -425,14 +425,6 @@ is used by default. Only current line is checked."
           (when (<= (match-beginning 0) pos (match-end 0))
             (throw 'exit t)))))))
 
-(defsubst taskpaper-uniquify (list)
-  "Non-destructively remove duplicate elements from LIST."
-  (let ((res (copy-sequence list))) (delete-dups res)))
-
-(defsubst taskpaper-sort (list)
-  "Non-destructively sort elements of LIST as strings."
-  (let ((res (copy-sequence list))) (sort res #'string<)))
-
 (defun taskpaper-unlogged-message (&rest args)
   "Display a message without logging."
   (let ((message-log-max nil)) (apply #'message args)))
@@ -2044,7 +2036,7 @@ INHERIT is non-nil also check higher levels of the hierarchy."
                 (append attrs
                         (taskpaper-remove-uninherited-attributes
                          (taskpaper-item-get-explicit-attributes)))))))
-    (taskpaper-uniquify attrs)))
+    (delete-dups attrs)))
 
 (defun taskpaper-item-get-attribute (name &optional inherit)
   "Get value of attribute NAME for the item at point.
@@ -2778,7 +2770,7 @@ time converted to an internal time."
             (when (taskpaper-in-tag-p (match-beginning 1))
               (setq tag (match-string-no-properties 2))
               (push tag tags))))))
-    (taskpaper-sort (taskpaper-uniquify tags))))
+    (sort (delete-dups tags))))
 
 (defun taskpaper-tag-completion-at-point ()
   "Completion function for tag names."
