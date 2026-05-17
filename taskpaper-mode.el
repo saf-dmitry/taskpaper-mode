@@ -609,14 +609,14 @@ Group 3 matches the optional tag value.")
    "www[0-9]\\{0,3\\}[.]"
    "\\)"
    "\\(?:"
-   "[^[:space:]()<>]"
+   "[^ \t\n()<>]"
    "\\|"
-   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "(\\(?:[^ \t\n()<>]+\\|([^ \t\n()<>]+)\\)*)"
    "\\)+"
    "\\(?:"
-   "(\\(?:[^[:space:]()<>]+\\|([^[:space:]()<>]+)\\)*)"
+   "(\\(?:[^ \t\n()<>]+\\|([^ \t\n()<>]+)\\)*)"
    "\\|"
-   "[^[:space:][:punct:]]"
+   "[^ \t\n[:punct:]]"
    "\\|"
    "[/]"
    "\\)"
@@ -634,9 +634,9 @@ Group 3 matches the optional tag value.")
    "\\(?:"
    "\\\\ "
    "\\|"
-   "[^[:space:]()]"
+   "[^ \t\n()]"
    "\\|"
-   "(\\(?:[^[:space:]()]+\\|([^[:space:]()]+)\\)*)"
+   "(\\(?:[^ \t\n()]+\\|([^ \t\n()]+)\\)*)"
    "\\)+"
    "\\)"
    "\\()\\)"
@@ -683,19 +683,19 @@ Group 4 matches optional trailing tags.")
 Group 1 matches the whole note expression.")
 
 (defconst taskpaper-emphasis-prefix-regexp
-  "\\(?:^\\|[^\n*_\\]\\)"
+  "\\(?:^\\|[^*_\\]\\)"
   "Regular expression matching emphasis prefix.")
 
 (defconst taskpaper-emphasis-suffix-regexp
-  "\\(?:[^\n*_]\\|$\\)"
+  "\\(?:[^*_]\\|$\\)"
   "Regular expression matching emphasis suffix.")
 
 (defconst taskpaper-emphasis-text-regexp
   (concat
    "\\(?:"
-   "\\(?:\\\\.\\|[^[:space:]*_\\]\\)"
+   "\\(?:\\\\.\\|[^ \t\n*_\\]\\)"
    "\\|"
-   "[^[:space:]*_][^\n]*?\\(?:\\\\.\\|[^[:space:]*_\\]\\)"
+   "[^ \t\n*_][^\n]*?\\(?:\\\\.\\|[^ \t\n*_\\]\\)"
    "\\)")
   "Regular expression matching emphasis text.")
 
